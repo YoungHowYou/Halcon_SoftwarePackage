@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\build\x64\Debug\ZERO_CHECK</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\build\x64\Debug\Halcon_SoftwarePackage_help_en_US</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\build\x64\Debug\Halcon_SoftwarePackage_help</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\build\x64\Debug\Halcon_SoftwarePackage_html</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\bin\Halcon_SoftwarePackage.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\bin\Halcon_SoftwarePackagecpp.dll</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles />
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>

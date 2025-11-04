@@ -1,0 +1,448 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-d05630d6df397f6e8be0.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "4.1.1"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Halcon_SoftwarePackage",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ALL_BUILD-Debug-0a3fe747c0f077a436bb.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage-Debug-32842dd9089a9e10debb.json",
+					"name" : "Halcon_SoftwarePackage",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_help::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_help-Debug-cfd76434da4c2deb3ba9.json",
+					"name" : "Halcon_SoftwarePackage_help",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_help_en_US::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_help_en_US-Debug-7f11669a4c882b1281b6.json",
+					"name" : "Halcon_SoftwarePackage_help_en_US",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_html::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_html-Debug-297a5776cb8865e85b96.json",
+					"name" : "Halcon_SoftwarePackage_html",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackagecint::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackagecint-Debug-1e8b645a91b13695bd0c.json",
+					"name" : "Halcon_SoftwarePackagecint",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackagecppint::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackagecppint-Debug-a909af37bda3b2de6518.json",
+					"name" : "Halcon_SoftwarePackagecppint",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ZERO_CHECK-Debug-3b8f617f634418b46154.json",
+					"name" : "ZERO_CHECK",
+					"projectIndex" : 0
+				}
+			]
+		},
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Release-d05630d6df397f6e8be0.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "4.1.1"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Halcon_SoftwarePackage",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ALL_BUILD-Release-0a3fe747c0f077a436bb.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage-Release-70af066646029767b8e5.json",
+					"name" : "Halcon_SoftwarePackage",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_help::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_help-Release-cfd76434da4c2deb3ba9.json",
+					"name" : "Halcon_SoftwarePackage_help",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_help_en_US::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_help_en_US-Release-7f11669a4c882b1281b6.json",
+					"name" : "Halcon_SoftwarePackage_help_en_US",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_html::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_html-Release-297a5776cb8865e85b96.json",
+					"name" : "Halcon_SoftwarePackage_html",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackagecint::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackagecint-Release-9cb86c4a9caf51f0b3e4.json",
+					"name" : "Halcon_SoftwarePackagecint",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackagecppint::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackagecppint-Release-76817007189442d5b014.json",
+					"name" : "Halcon_SoftwarePackagecppint",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ZERO_CHECK-Release-3b8f617f634418b46154.json",
+					"name" : "ZERO_CHECK",
+					"projectIndex" : 0
+				}
+			]
+		},
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-MinSizeRel-13b581356b96e650a102.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "4.1.1"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7
+					]
+				}
+			],
+			"name" : "MinSizeRel",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Halcon_SoftwarePackage",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ALL_BUILD-MinSizeRel-0a3fe747c0f077a436bb.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage-MinSizeRel-77f176341ca54ecbd953.json",
+					"name" : "Halcon_SoftwarePackage",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_help::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_help-MinSizeRel-cfd76434da4c2deb3ba9.json",
+					"name" : "Halcon_SoftwarePackage_help",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_help_en_US::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_help_en_US-MinSizeRel-7f11669a4c882b1281b6.json",
+					"name" : "Halcon_SoftwarePackage_help_en_US",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_html::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_html-MinSizeRel-297a5776cb8865e85b96.json",
+					"name" : "Halcon_SoftwarePackage_html",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackagecint::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackagecint-MinSizeRel-314265ba3bf07ad084b5.json",
+					"name" : "Halcon_SoftwarePackagecint",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackagecppint::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackagecppint-MinSizeRel-93b3b19ede52e815ac64.json",
+					"name" : "Halcon_SoftwarePackagecppint",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ZERO_CHECK-MinSizeRel-3b8f617f634418b46154.json",
+					"name" : "ZERO_CHECK",
+					"projectIndex" : 0
+				}
+			]
+		},
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-RelWithDebInfo-8e91631b496ea95ef803.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "4.1.1"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7
+					]
+				}
+			],
+			"name" : "RelWithDebInfo",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Halcon_SoftwarePackage",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ALL_BUILD-RelWithDebInfo-0a3fe747c0f077a436bb.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage-RelWithDebInfo-bff4b1e2de89462ce0e4.json",
+					"name" : "Halcon_SoftwarePackage",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_help::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_help-RelWithDebInfo-cfd76434da4c2deb3ba9.json",
+					"name" : "Halcon_SoftwarePackage_help",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_help_en_US::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_help_en_US-RelWithDebInfo-7f11669a4c882b1281b6.json",
+					"name" : "Halcon_SoftwarePackage_help_en_US",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_html::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_html-RelWithDebInfo-297a5776cb8865e85b96.json",
+					"name" : "Halcon_SoftwarePackage_html",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackagecint::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackagecint-RelWithDebInfo-7383109385ee1d61408d.json",
+					"name" : "Halcon_SoftwarePackagecint",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackagecppint::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackagecppint-RelWithDebInfo-94e8c3fe5891da604e61.json",
+					"name" : "Halcon_SoftwarePackagecppint",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ZERO_CHECK-RelWithDebInfo-3b8f617f634418b46154.json",
+					"name" : "ZERO_CHECK",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/build",
+		"source" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 8
+	}
+}

@@ -1,0 +1,30 @@
+^D:\DESK\SOURCE\HALCON_EXTENSION\HALCON_SOFTWAREPACKAGE\BUILD\CMAKEFILES\BBC8C4D52ED90C1C47CB78B799DB34E5\OPERATORS_EN_US.IDX.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/build/help
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E chdir D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/build/help "C:/Program Files/MVTec/HALCON-23.11-Progress/bin/x64-win64/hcomp.exe" -u -M -pHalcon_SoftwarePackage -len_US D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\def\Halcon_Sqlite.def
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^D:\DESK\SOURCE\HALCON_EXTENSION\HALCON_SOFTWAREPACKAGE\BUILD\CMAKEFILES\D7BC4DE484A0C0D04D8A89232C3C2338\HALCON_SOFTWAREPACKAGE_HELP_EN_US.RULE
+setlocal
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^D:\DESK\SOURCE\HALCON_EXTENSION\HALCON_SOFTWAREPACKAGE\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SD:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage -BD:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/build --check-stamp-file D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

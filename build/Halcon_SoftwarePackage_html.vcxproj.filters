@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\build\CMakeFiles\f91ecae6819f5b430bc8e92007d75eca\reference.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\build\CMakeFiles\d7bc4de484a0c0d04d8a89232c3c2338\Halcon_SoftwarePackage_html.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\build\CMakeFiles\Halcon_SoftwarePackage_html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{0E5A416F-713C-3E01-986A-BA3B17F2BFE6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

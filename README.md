@@ -1,0 +1,2 @@
+# Halcon_SoftwarePackage
+halcon各种软件拓展包包括sqlite,modbus,和一个ui界面库
