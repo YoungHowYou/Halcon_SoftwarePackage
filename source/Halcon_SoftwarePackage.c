@@ -1,6 +1,73 @@
 #include <stdio.h>
 #include "Halcon_SoftwarePackage.h"
+#pragma region StringByImage
 
+Herror HSetStringByImageIn(Hproc_handle proc_handle)
+{
+	//Hcpar  StrKey;
+	Hkey  out_obj_key, out_image_key;
+
+	//HAllocStringMem(proc_handle, 32768);
+	//HGetSPar(proc_handle, 1, STRING_PAR, &StrKey, 1);
+
+	char const* const* strPtrArr;   // 指向 HALCON 内部指针数组
+	INT4_8           strCount;      // 实际字符串个数
+	// 获取整个 STRING 数组（不拷贝）
+	HGetPElemS(proc_handle, 1, CONV_NONE, &strPtrArr, &strCount);
+	if(strCount != 1 )
+	{
+		return H__LINE__; // 没有字符串，直接返回
+	}
+
+	Himage outimage;
+	int Height = 1;
+	int Width = 1024;
+	//char* II = StrKey.par.s;
+	int string_len = strlen(strPtrArr[0]);
+	//32768
+	if ((string_len + 4) > 1024)
+	{
+		//Height = HTuple(string_len / 1024).TupleCeil();
+		Height = ceil((string_len + 4)/1024.0) ;
+	}
+	else
+	{
+		Width = (string_len + 4) + 1;
+	}
+	HCkP(HNewImage(proc_handle, &outimage, BYTE_IMAGE, Width, Height));
+	memcpy(outimage.pixel.b, &string_len, 4);
+	memcpy(outimage.pixel.b + 4,strPtrArr[0], string_len);
+	/***********************************************/
+	HCrObj(proc_handle, 1, &out_obj_key);
+	HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);//图像输出
+	HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+	return H_MSG_TRUE;
+}
+
+Herror HGetStringByImageOut(Hproc_handle proc_handle)
+{
+	//Hcpar  StrKey;
+
+	Hkey      in_smallobj_key;
+	Himage    insmallimage;
+	//HAllocStringMem(proc_handle, 32768);
+	HGetObj(proc_handle, 1, 1, &in_smallobj_key);
+	HGetDImage(proc_handle, in_smallobj_key, 1, &insmallimage);
+	int Len=*(int*)insmallimage.pixel.b;
+	//memcpy(&Len, insmallimage.pixel.b, 4);
+	char* msg;
+	//HAllocTmp(proc_handle, &msg, Len + 1);
+	HAlloc(proc_handle, Len + 1, &msg);
+	//memcpy(&msgS, insmallimage.pixel.b+4, Len);
+	//String msg = msgS;
+	strcpy(msg, (char*)insmallimage.pixel.b + 4);
+	//HPutElem(proc_handle, 1, &msg, 1, STRING_PAR);
+	//HFreeTmp(proc_handle, &msg);
+    HPutPElem(proc_handle, 1, &msg, 1, STRING_PAR);
+
+	return H_MSG_TRUE;
+}
+#pragma endregion
 #pragma region sqlite
 
 Herror CHsqlite3_open(Hproc_handle proc_handle)
