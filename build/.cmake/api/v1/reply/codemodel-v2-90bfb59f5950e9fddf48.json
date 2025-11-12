@@ -1,0 +1,169 @@
+{
+	"configurations" : 
+	[
+		{
+			"abstractTargets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "HALCON::CInt::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-HALCON__CInt-Debug-38f38ee63c43a4a72e90.json",
+					"name" : "HALCON::CInt",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "HALCON::CppInt::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-HALCON__CppInt-Debug-5945951778ed6afc95ec.json",
+					"name" : "HALCON::CppInt",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "HALCON::DL::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-HALCON__DL-Debug-7922913a191411881703.json",
+					"name" : "HALCON::DL",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "HALCON::HCanvas::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-HALCON__HCanvas-Debug-cd2ceca6a88f279cea71.json",
+					"name" : "HALCON::HCanvas",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "HALCON::HDevEngine::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-HALCON__HDevEngine-Debug-16a48183a9d571b18177.json",
+					"name" : "HALCON::HDevEngine",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "HALCON::Halcon::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-HALCON__Halcon-Debug-c7dc6e97af83ffb17c6e.json",
+					"name" : "HALCON::Halcon",
+					"projectIndex" : 0
+				}
+			],
+			"directories" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-6d18a967738ea25b66de.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "4.1.1"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Halcon_SoftwarePackage",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage-Debug-34564afd8100db8d3318.json",
+					"name" : "Halcon_SoftwarePackage",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_help::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_help-Debug-5977d264d4b006f1da2a.json",
+					"name" : "Halcon_SoftwarePackage_help",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_help_en_US::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_help_en_US-Debug-1d2cb81e17b71fe81ff7.json",
+					"name" : "Halcon_SoftwarePackage_help_en_US",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackage_html::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackage_html-Debug-68ab78e34b08dc63353b.json",
+					"name" : "Halcon_SoftwarePackage_html",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackagecint::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackagecint-Debug-540809c6cdbdf38c1832.json",
+					"name" : "Halcon_SoftwarePackagecint",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "Halcon_SoftwarePackagecppint::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Halcon_SoftwarePackagecppint-Debug-3f70d12d9625ba670189.json",
+					"name" : "Halcon_SoftwarePackagecppint",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/build",
+		"source" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 9
+	}
+}

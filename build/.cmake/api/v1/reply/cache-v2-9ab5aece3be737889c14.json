@@ -15,7 +15,19 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/lib.exe"
+			"value" : "C:/Program Files (x86)/Microsoft Visual Studio/18/BuildTools/VC/Tools/MSVC/14.50.35717/bin/Hostx64/x64/lib.exe"
+		},
+		{
+			"name" : "CMAKE_BUILD_TYPE",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "No help, variable specified on the command line."
+				}
+			],
+			"type" : "STRING",
+			"value" : "Debug"
 		},
 		{
 			"name" : "CMAKE_CACHEFILE_DIR",
@@ -27,7 +39,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "d:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/build"
+			"value" : "c:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/build"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -51,7 +63,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "1"
+			"value" : "2"
 		},
 		{
 			"name" : "CMAKE_CACHE_PATCH_VERSION",
@@ -63,7 +75,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "1"
+			"value" : "0"
 		},
 		{
 			"name" : "CMAKE_COMMAND",
@@ -76,18 +88,6 @@
 			],
 			"type" : "INTERNAL",
 			"value" : "C:/Program Files/CMake/bin/cmake.exe"
-		},
-		{
-			"name" : "CMAKE_CONFIGURATION_TYPES",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Semicolon separated list of supported configuration types, only supports Debug, Release, MinSizeRel, and RelWithDebInfo, anything else will be ignored."
-				}
-			],
-			"type" : "STRING",
-			"value" : "Debug;Release;MinSizeRel;RelWithDebInfo"
 		},
 		{
 			"name" : "CMAKE_CPACK_COMMAND",
@@ -112,6 +112,22 @@
 			],
 			"type" : "INTERNAL",
 			"value" : "C:/Program Files/CMake/bin/ctest.exe"
+		},
+		{
+			"name" : "CMAKE_CXX_COMPILER",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "CXX compiler"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "C:/Program Files (x86)/Microsoft Visual Studio/18/BuildTools/VC/Tools/MSVC/14.50.35717/bin/Hostx64/x64/cl.exe"
 		},
 		{
 			"name" : "CMAKE_CXX_FLAGS",
@@ -210,6 +226,22 @@
 			"value" : "kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib"
 		},
 		{
+			"name" : "CMAKE_C_COMPILER",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "C compiler"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "C:/Program Files (x86)/Microsoft Visual Studio/18/BuildTools/VC/Tools/MSVC/14.50.35717/bin/Hostx64/x64/cl.exe"
+		},
+		{
 			"name" : "CMAKE_C_FLAGS",
 			"properties" : 
 			[
@@ -306,6 +338,18 @@
 			"value" : "kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib"
 		},
 		{
+			"name" : "CMAKE_EDIT_COMMAND",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to cache edit program executable."
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "C:/Program Files/CMake/bin/cmake-gui.exe"
+		},
+		{
 			"name" : "CMAKE_EXECUTABLE_FORMAT",
 			"properties" : 
 			[
@@ -398,6 +442,22 @@
 			"value" : "/debug /INCREMENTAL"
 		},
 		{
+			"name" : "CMAKE_EXPORT_BUILD_DATABASE",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "Enable/Disable output of build database during the build."
+				}
+			],
+			"type" : "BOOL",
+			"value" : ""
+		},
+		{
 			"name" : "CMAKE_EXPORT_COMPILE_COMMANDS",
 			"properties" : 
 			[
@@ -431,7 +491,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/build/CMakeFiles/pkgRedirects"
+			"value" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/build/CMakeFiles/pkgRedirects"
 		},
 		{
 			"name" : "CMAKE_GENERATOR",
@@ -443,7 +503,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "Visual Studio 17 2022"
+			"value" : "Ninja"
 		},
 		{
 			"name" : "CMAKE_GENERATOR_INSTANCE",
@@ -455,7 +515,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Program Files/Microsoft Visual Studio/2022/Community"
+			"value" : ""
 		},
 		{
 			"name" : "CMAKE_GENERATOR_PLATFORM",
@@ -467,7 +527,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "x64"
+			"value" : ""
 		},
 		{
 			"name" : "CMAKE_GENERATOR_TOOLSET",
@@ -479,7 +539,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "host=x64"
+			"value" : ""
 		},
 		{
 			"name" : "CMAKE_HOME_DIRECTORY",
@@ -491,7 +551,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage"
+			"value" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -503,7 +563,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Program Files/Halcon_SoftwarePackage"
+			"value" : "C:/Program Files (x86)/Halcon_SoftwarePackage"
 		},
 		{
 			"name" : "CMAKE_LINKER",
@@ -519,7 +579,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/link.exe"
+			"value" : "C:/Program Files (x86)/Microsoft Visual Studio/18/BuildTools/VC/Tools/MSVC/14.50.35717/bin/Hostx64/x64/link.exe"
 		},
 		{
 			"name" : "CMAKE_LIST_FILE_NAME",
@@ -532,6 +592,22 @@
 			],
 			"type" : "INTERNAL",
 			"value" : "CMakeLists.txt"
+		},
+		{
+			"name" : "CMAKE_MAKE_PROGRAM",
+			"properties" : 
+			[
+				{
+					"name" : "ADVANCED",
+					"value" : "1"
+				},
+				{
+					"name" : "HELPSTRING",
+					"value" : "make program"
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "C:/PROGRA~2/MICROS~3/18/BUILDT~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe"
 		},
 		{
 			"name" : "CMAKE_MODULE_LINKER_FLAGS",
@@ -702,55 +778,7 @@
 			"value" : "Halcon_SoftwarePackage"
 		},
 		{
-			"name" : "CMAKE_PROJECT_VERSION",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : ""
-		},
-		{
-			"name" : "CMAKE_PROJECT_VERSION_MAJOR",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : ""
-		},
-		{
-			"name" : "CMAKE_PROJECT_VERSION_MINOR",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : ""
-		},
-		{
-			"name" : "CMAKE_PROJECT_VERSION_PATCH",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : ""
-		},
-		{
-			"name" : "CMAKE_PROJECT_VERSION_TWEAK",
+			"name" : "CMAKE_PROJECT_SPDX_LICENSE",
 			"properties" : 
 			[
 				{
@@ -891,7 +919,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Program Files/CMake/share/cmake-4.1"
+			"value" : "C:/Program Files/CMake/share/cmake-4.2"
 		},
 		{
 			"name" : "CMAKE_SHARED_LINKER_FLAGS",
@@ -1111,7 +1139,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "[C:/Program Files/MVTec/HALCON-23.11-Progress/include][C:/Program Files/MVTec/HALCON-23.11-Progress/lib/x64-win64/halcon.lib][found components: HDevelop ][v23.11.0.0()]"
+			"value" : "[C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include][C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/lib/x64-win64/halcon.lib][found components: HDevelop ][v24.11.1.0()]"
 		},
 		{
 			"name" : "HALCON_CInt_LIBRARY",
@@ -1123,7 +1151,19 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "C:/Program Files/MVTec/HALCON-23.11-Progress/lib/x64-win64/halconc.lib"
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/lib/x64-win64/halconc.lib"
+		},
+		{
+			"name" : "HALCON_CInt_LIBRARY_RUNTIME",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a file."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/bin/x64-win64/halconc.dll"
 		},
 		{
 			"name" : "HALCON_CppInt_LIBRARY",
@@ -1135,7 +1175,31 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "C:/Program Files/MVTec/HALCON-23.11-Progress/lib/x64-win64/halconcpp.lib"
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/lib/x64-win64/halconcpp.lib"
+		},
+		{
+			"name" : "HALCON_CppInt_LIBRARY_RUNTIME",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a file."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/bin/x64-win64/halconcpp.dll"
+		},
+		{
+			"name" : "HALCON_DL_MODULE",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a file."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/bin/x64-win64/halcondl.dll"
 		},
 		{
 			"name" : "HALCON_DOTNET",
@@ -1159,7 +1223,19 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "C:/Program Files/MVTec/HALCON-23.11-Progress/bin/dotnet35/halcondotnet.dll"
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/bin/dotnet35/halcondotnet.dll"
+		},
+		{
+			"name" : "HALCON_HCanvas_MODULE",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a file."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/bin/x64-win64/hcanvas.dll"
 		},
 		{
 			"name" : "HALCON_HDevEngineDotNet_ASSEMBLY",
@@ -1171,7 +1247,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "C:/Program Files/MVTec/HALCON-23.11-Progress/bin/dotnet35/hdevenginedotnet.dll"
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/bin/dotnet35/hdevenginedotnet.dll"
 		},
 		{
 			"name" : "HALCON_HDevEngine_LIBRARY",
@@ -1183,7 +1259,19 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "C:/Program Files/MVTec/HALCON-23.11-Progress/lib/x64-win64/hdevenginecpp.lib"
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/lib/x64-win64/hdevenginecpp.lib"
+		},
+		{
+			"name" : "HALCON_HDevEngine_LIBRARY_RUNTIME",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a file."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/bin/x64-win64/hdevenginecpp.dll"
 		},
 		{
 			"name" : "HALCON_HDevelop_EXECUTABLE",
@@ -1195,7 +1283,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "C:/Program Files/MVTec/HALCON-23.11-Progress/bin/x64-win64/hdevelop.exe"
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/bin/x64-win64/hdevelop.exe"
 		},
 		{
 			"name" : "HALCON_INCLUDE_DIR",
@@ -1207,7 +1295,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "C:/Program Files/MVTec/HALCON-23.11-Progress/include"
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include"
 		},
 		{
 			"name" : "HALCON_LIBRARY",
@@ -1219,7 +1307,19 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "C:/Program Files/MVTec/HALCON-23.11-Progress/lib/x64-win64/halcon.lib"
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/lib/x64-win64/halcon.lib"
+		},
+		{
+			"name" : "HALCON_LIBRARY_RUNTIME",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Path to a file."
+				}
+			],
+			"type" : "FILEPATH",
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/bin/x64-win64/halcon.dll"
 		},
 		{
 			"name" : "HALCON_VERSION",
@@ -1231,7 +1331,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "23.11.0.0"
+			"value" : "24.11.1.0"
 		},
 		{
 			"name" : "HALCON_VERSION_MAJOR",
@@ -1243,7 +1343,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "23"
+			"value" : "24"
 		},
 		{
 			"name" : "HALCON_VERSION_MINOR",
@@ -1267,7 +1367,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "0"
+			"value" : "1"
 		},
 		{
 			"name" : "HALCON_VERSION_TWEAK",
@@ -1303,7 +1403,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "C:/Program Files/MVTec/HALCON-23.11-Progress/bin/x64-win64/hcomp.exe"
+			"value" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/bin/x64-win64/hcomp.exe"
 		},
 		{
 			"name" : "Halcon_SoftwarePackage_BINARY_DIR",
@@ -1315,7 +1415,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/build"
+			"value" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/build"
 		},
 		{
 			"name" : "Halcon_SoftwarePackage_IS_TOP_LEVEL",
@@ -1339,7 +1439,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage"
+			"value" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage"
 		},
 		{
 			"name" : "WITHOUT_CODE_EXPORT",

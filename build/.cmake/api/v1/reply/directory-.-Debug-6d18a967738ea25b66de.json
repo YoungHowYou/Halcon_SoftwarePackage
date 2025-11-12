@@ -8,7 +8,7 @@
 		],
 		"files" : 
 		[
-			"C:/Users/Public/Documents/MVTec/HALCON-23.11-Progress/examples/cmake/UseHALCON.cmake",
+			"C:/Users/young/AppData/Roaming/MVTec/HALCON-24.11-Progress-Steady/examples/cmake/UseHALCON.cmake",
 			"CMakeLists.txt"
 		],
 		"nodes" : 
@@ -41,6 +41,11 @@
 				"parent" : 1
 			}
 		]
+	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 9
 	},
 	"installers" : 
 	[
@@ -78,10 +83,10 @@
 			"destination" : "Halcon_SoftwarePackage/lib/x64-win64",
 			"paths" : 
 			[
-				"D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/MinSizeRel/Halcon_SoftwarePackage.lib"
+				"C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackage.lib"
 			],
 			"targetId" : "Halcon_SoftwarePackage::@6890427a1f51a3e7e1df",
-			"targetIndex" : 1,
+			"targetIndex" : 0,
 			"targetIsImportLibrary" : true,
 			"type" : "target"
 		},
@@ -91,10 +96,10 @@
 			"destination" : "Halcon_SoftwarePackage/bin/x64-win64",
 			"paths" : 
 			[
-				"D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/MinSizeRel/Halcon_SoftwarePackage.dll"
+				"C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackage.dll"
 			],
 			"targetId" : "Halcon_SoftwarePackage::@6890427a1f51a3e7e1df",
-			"targetIndex" : 1,
+			"targetIndex" : 0,
 			"type" : "target"
 		},
 		{
@@ -103,10 +108,10 @@
 			"destination" : "Halcon_SoftwarePackage/lib/x64-win64",
 			"paths" : 
 			[
-				"D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/MinSizeRel/Halcon_SoftwarePackagec.lib"
+				"C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackagec.lib"
 			],
 			"targetId" : "Halcon_SoftwarePackagecint::@6890427a1f51a3e7e1df",
-			"targetIndex" : 5,
+			"targetIndex" : 4,
 			"targetIsImportLibrary" : true,
 			"type" : "target"
 		},
@@ -116,10 +121,10 @@
 			"destination" : "Halcon_SoftwarePackage/bin/x64-win64",
 			"paths" : 
 			[
-				"D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/MinSizeRel/Halcon_SoftwarePackagec.dll"
+				"C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackagec.dll"
 			],
 			"targetId" : "Halcon_SoftwarePackagecint::@6890427a1f51a3e7e1df",
-			"targetIndex" : 5,
+			"targetIndex" : 4,
 			"type" : "target"
 		},
 		{
@@ -138,10 +143,10 @@
 			"destination" : "Halcon_SoftwarePackage/lib/x64-win64",
 			"paths" : 
 			[
-				"D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/MinSizeRel/Halcon_SoftwarePackagecpp.lib"
+				"C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackagecpp.lib"
 			],
 			"targetId" : "Halcon_SoftwarePackagecppint::@6890427a1f51a3e7e1df",
-			"targetIndex" : 6,
+			"targetIndex" : 5,
 			"targetIsImportLibrary" : true,
 			"type" : "target"
 		},
@@ -151,10 +156,10 @@
 			"destination" : "Halcon_SoftwarePackage/bin/x64-win64",
 			"paths" : 
 			[
-				"D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/MinSizeRel/Halcon_SoftwarePackagecpp.dll"
+				"C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackagecpp.dll"
 			],
 			"targetId" : "Halcon_SoftwarePackagecppint::@6890427a1f51a3e7e1df",
-			"targetIndex" : 6,
+			"targetIndex" : 5,
 			"type" : "target"
 		},
 		{

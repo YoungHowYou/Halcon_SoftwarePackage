@@ -1,34 +1,34 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\build\HHalcon_SoftwarePackage.c">
+    <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\HHalcon_SoftwarePackage.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_SoftwarePackage.c">
+    <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_SoftwarePackage.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_modbus.cpp">
+    <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_modbus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_sqlite.cpp">
+    <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_sqlite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_XGUI.cpp">
+    <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_XGUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\build\CMakeFiles\40b09e30a699d438990bd57dc8d68abc\HHalcon_SoftwarePackage.c.rule">
+    <CustomBuild Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\CMakeFiles\2fed8e20b39c35022dcc76673b11a836\HHalcon_SoftwarePackage.c.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\CMakeLists.txt" />
+    <CustomBuild Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{0E5A416F-713C-3E01-986A-BA3B17F2BFE6}</UniqueIdentifier>
+      <UniqueIdentifier>{31523362-028C-3D7F-B5D5-288A069C0DAA}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{68743EDD-CE33-3389-BC1D-16CC24F4B56B}</UniqueIdentifier>
+      <UniqueIdentifier>{D524990A-221B-390B-B789-06273032127B}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

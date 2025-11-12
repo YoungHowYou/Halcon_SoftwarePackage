@@ -2,13 +2,13 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackage.dll"
+			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackage.dll"
 		},
 		{
-			"path" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackage.lib"
+			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackage.lib"
 		},
 		{
-			"path" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackage.pdb"
+			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackage.pdb"
 		}
 	],
 	"backtrace" : 2,
@@ -25,7 +25,7 @@
 		],
 		"files" : 
 		[
-			"C:/Users/Public/Documents/MVTec/HALCON-23.11-Progress/examples/cmake/UseHALCON.cmake",
+			"C:/Users/young/AppData/Roaming/MVTec/HALCON-24.11-Progress-Steady/examples/cmake/UseHALCON.cmake",
 			"CMakeLists.txt"
 		],
 		"nodes" : 
@@ -77,6 +77,18 @@
 			}
 		]
 	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 9
+	},
+	"compileDependencies" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "HALCON::Halcon::@6890427a1f51a3e7e1df"
+		}
+	],
 	"compileGroups" : 
 	[
 		{
@@ -96,28 +108,28 @@
 			[
 				{
 					"backtrace" : 7,
-					"path" : "C:/Program Files/MVTec/HALCON-23.11-Progress/include/halconcpp"
+					"path" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include/halconcpp"
 				},
 				{
 					"backtrace" : 7,
-					"path" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/include"
+					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/include"
 				},
 				{
 					"backtrace" : 7,
-					"path" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/libmodbus"
+					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/libmodbus"
 				},
 				{
 					"backtrace" : 7,
-					"path" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/sqlite"
+					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/sqlite"
 				},
 				{
 					"backtrace" : 7,
-					"path" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/XCGUI"
+					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/XCGUI"
 				},
 				{
 					"backtrace" : 4,
 					"isSystem" : true,
-					"path" : "C:/Program Files/MVTec/HALCON-23.11-Progress/include"
+					"path" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include"
 				}
 			],
 			"language" : "C",
@@ -144,28 +156,28 @@
 			[
 				{
 					"backtrace" : 7,
-					"path" : "C:/Program Files/MVTec/HALCON-23.11-Progress/include/halconcpp"
+					"path" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include/halconcpp"
 				},
 				{
 					"backtrace" : 7,
-					"path" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/include"
+					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/include"
 				},
 				{
 					"backtrace" : 7,
-					"path" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/libmodbus"
+					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/libmodbus"
 				},
 				{
 					"backtrace" : 7,
-					"path" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/sqlite"
+					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/sqlite"
 				},
 				{
 					"backtrace" : 7,
-					"path" : "D:/DESK/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/XCGUI"
+					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/XCGUI"
 				},
 				{
 					"backtrace" : 4,
 					"isSystem" : true,
-					"path" : "C:/Program Files/MVTec/HALCON-23.11-Progress/include"
+					"path" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include"
 				}
 			],
 			"language" : "CXX",
@@ -186,9 +198,6 @@
 		{
 			"backtrace" : 6,
 			"id" : "Halcon_SoftwarePackage_html::@6890427a1f51a3e7e1df"
-		},
-		{
-			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
 		}
 	],
 	"id" : "Halcon_SoftwarePackage::@6890427a1f51a3e7e1df",
@@ -207,9 +216,39 @@
 		],
 		"prefix" : 
 		{
-			"path" : "C:/Program Files/Halcon_SoftwarePackage"
+			"path" : "C:/Program Files (x86)/Halcon_SoftwarePackage"
 		}
 	},
+	"interfaceCompileDependencies" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "HALCON::Halcon::@6890427a1f51a3e7e1df"
+		}
+	],
+	"interfaceLinkLibraries" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "HALCON::Halcon::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 5,
+			"fragment" : "C:\\Users\\young\\AppData\\Local\\Programs\\MVTec\\HALCON-24.11-Progress-Steady/lib/x64-win64/halconcpp.lib"
+		},
+		{
+			"backtrace" : 5,
+			"fragment" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/libmodbus/modbus.lib"
+		},
+		{
+			"backtrace" : 5,
+			"fragment" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/sqlite/sqlite3.lib"
+		},
+		{
+			"backtrace" : 5,
+			"fragment" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/XCGUI/XCGUI.lib"
+		}
+	],
 	"link" : 
 	{
 		"commandFragments" : 
@@ -220,27 +259,27 @@
 			},
 			{
 				"backtrace" : 4,
-				"fragment" : "\"C:\\Program Files\\MVTec\\HALCON-23.11-Progress\\lib\\x64-win64\\halcon.lib\"",
+				"fragment" : "C:\\Users\\young\\AppData\\Local\\Programs\\MVTec\\HALCON-24.11-Progress-Steady\\lib\\x64-win64\\halcon.lib",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 5,
-				"fragment" : "\"C:\\Program Files\\MVTec\\HALCON-23.11-Progress\\lib\\x64-win64\\halconcpp.lib\"",
+				"fragment" : "C:\\Users\\young\\AppData\\Local\\Programs\\MVTec\\HALCON-24.11-Progress-Steady\\lib\\x64-win64\\halconcpp.lib",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 5,
-				"fragment" : "D:\\DESK\\Source\\Halcon_Extension\\Halcon_SoftwarePackage\\3rd\\libmodbus\\modbus.lib",
+				"fragment" : "C:\\Users\\young\\Desktop\\Source\\Halcon_Extension\\Halcon_SoftwarePackage\\3rd\\libmodbus\\modbus.lib",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 5,
-				"fragment" : "D:\\DESK\\Source\\Halcon_Extension\\Halcon_SoftwarePackage\\3rd\\sqlite\\sqlite3.lib",
+				"fragment" : "C:\\Users\\young\\Desktop\\Source\\Halcon_Extension\\Halcon_SoftwarePackage\\3rd\\sqlite\\sqlite3.lib",
 				"role" : "libraries"
 			},
 			{
 				"backtrace" : 5,
-				"fragment" : "D:\\DESK\\Source\\Halcon_Extension\\Halcon_SoftwarePackage\\3rd\\XCGUI\\XCGUI.lib",
+				"fragment" : "C:\\Users\\young\\Desktop\\Source\\Halcon_Extension\\Halcon_SoftwarePackage\\3rd\\XCGUI\\XCGUI.lib",
 				"role" : "libraries"
 			},
 			{
@@ -250,8 +289,42 @@
 		],
 		"language" : "CXX"
 	},
+	"linkLibraries" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "HALCON::Halcon::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 5,
+			"fragment" : "C:\\Users\\young\\AppData\\Local\\Programs\\MVTec\\HALCON-24.11-Progress-Steady/lib/x64-win64/halconcpp.lib"
+		},
+		{
+			"backtrace" : 5,
+			"fragment" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/libmodbus/modbus.lib"
+		},
+		{
+			"backtrace" : 5,
+			"fragment" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/sqlite/sqlite3.lib"
+		},
+		{
+			"backtrace" : 5,
+			"fragment" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/XCGUI/XCGUI.lib"
+		}
+	],
 	"name" : "Halcon_SoftwarePackage",
 	"nameOnDisk" : "Halcon_SoftwarePackage.dll",
+	"orderDependencies" : 
+	[
+		{
+			"backtrace" : 6,
+			"id" : "Halcon_SoftwarePackage_help::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 6,
+			"id" : "Halcon_SoftwarePackage_html::@6890427a1f51a3e7e1df"
+		}
+	],
 	"paths" : 
 	{
 		"build" : ".",
@@ -314,7 +387,7 @@
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/CMakeFiles/40b09e30a699d438990bd57dc8d68abc/HHalcon_SoftwarePackage.c.rule",
+			"path" : "build/HHalcon_SoftwarePackage.c.rule",
 			"sourceGroupIndex" : 1
 		}
 	],
