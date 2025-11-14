@@ -2,28 +2,28 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\build\x64\Debug\ZERO_CHECK</FullPath>
+      <FullPath>C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\x64\Debug\ZERO_CHECK</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\build\x64\Debug\Halcon_SoftwarePackage_help_en_US</FullPath>
+      <FullPath>C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\x64\Debug\Halcon_SoftwarePackage_help_en_US</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\build\x64\Debug\Halcon_SoftwarePackage_help</FullPath>
+      <FullPath>C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\x64\Debug\Halcon_SoftwarePackage_help</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\build\x64\Debug\Halcon_SoftwarePackage_html</FullPath>
+      <FullPath>C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\x64\Debug\Halcon_SoftwarePackage_html</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\bin\Halcon_SoftwarePackage.dll</FullPath>
+      <FullPath>C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\bin\Halcon_SoftwarePackage.dll</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\bin\Halcon_SoftwarePackagec.dll</FullPath>
+      <FullPath>C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\bin\Halcon_SoftwarePackagec.dll</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\bin\Halcon_SoftwarePackagecpp.dll</FullPath>
+      <FullPath>C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\bin\Halcon_SoftwarePackagecpp.dll</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>D:\DESK\Source\Halcon_Extension\Halcon_SoftwarePackage\build\x64\Debug\ALL_BUILD</FullPath>
+      <FullPath>C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\x64\Debug\ALL_BUILD</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />
