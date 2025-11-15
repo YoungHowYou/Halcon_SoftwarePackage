@@ -2,13 +2,13 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackagecpp.dll"
+			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackagec.dll"
 		},
 		{
-			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackagecpp.lib"
+			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackagec.lib"
 		},
 		{
-			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackagecpp.pdb"
+			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackagec.pdb"
 		}
 	],
 	"backtrace" : 2,
@@ -41,7 +41,7 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 453,
+				"line" : 424,
 				"parent" : 1
 			},
 			{
@@ -53,13 +53,13 @@
 			{
 				"command" : 3,
 				"file" : 0,
-				"line" : 465,
+				"line" : 436,
 				"parent" : 1
 			},
 			{
 				"command" : 3,
 				"file" : 1,
-				"line" : 105,
+				"line" : 103,
 				"parent" : 0
 			},
 			{
@@ -71,7 +71,7 @@
 			{
 				"command" : 4,
 				"file" : 0,
-				"line" : 454,
+				"line" : 425,
 				"parent" : 1
 			}
 		]
@@ -89,7 +89,7 @@
 		},
 		{
 			"backtrace" : 4,
-			"id" : "HALCON::CppInt::@6890427a1f51a3e7e1df"
+			"id" : "HALCON::CInt::@6890427a1f51a3e7e1df"
 		}
 	],
 	"compileGroups" : 
@@ -98,13 +98,13 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "/DWIN32 /D_WINDOWS /EHsc /O2 /Ob2 /DNDEBUG -MD"
+					"fragment" : "/DWIN32 /D_WINDOWS /O2 /Ob2 /DNDEBUG -MD"
 				}
 			],
 			"defines" : 
 			[
 				{
-					"define" : "Halcon_SoftwarePackagecppint_EXPORTS"
+					"define" : "Halcon_SoftwarePackagecint_EXPORTS"
 				}
 			],
 			"includes" : 
@@ -112,6 +112,10 @@
 				{
 					"backtrace" : 7,
 					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/build"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include/halconcpp"
 				},
 				{
 					"backtrace" : 4,
@@ -127,20 +131,16 @@
 				},
 				{
 					"backtrace" : 4,
-					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/XCGUI"
-				},
-				{
-					"backtrace" : 4,
-					"isSystem" : true,
-					"path" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include/halconcpp"
-				},
-				{
-					"backtrace" : 4,
 					"isSystem" : true,
 					"path" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include"
+				},
+				{
+					"backtrace" : 4,
+					"isSystem" : true,
+					"path" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include/halconc"
 				}
 			],
-			"language" : "CXX",
+			"language" : "C",
 			"sourceIndexes" : 
 			[
 				0
@@ -157,7 +157,7 @@
 			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
 		}
 	],
-	"id" : "Halcon_SoftwarePackagecppint::@6890427a1f51a3e7e1df",
+	"id" : "Halcon_SoftwarePackagecint::@6890427a1f51a3e7e1df",
 	"install" : 
 	{
 		"destinations" : 
@@ -184,7 +184,7 @@
 		},
 		{
 			"backtrace" : 4,
-			"id" : "HALCON::CppInt::@6890427a1f51a3e7e1df"
+			"id" : "HALCON::CInt::@6890427a1f51a3e7e1df"
 		}
 	],
 	"interfaceLinkLibraries" : 
@@ -195,7 +195,7 @@
 		},
 		{
 			"backtrace" : 4,
-			"id" : "HALCON::CppInt::@6890427a1f51a3e7e1df"
+			"id" : "HALCON::CInt::@6890427a1f51a3e7e1df"
 		}
 	],
 	"link" : 
@@ -213,7 +213,7 @@
 			},
 			{
 				"backtrace" : 4,
-				"fragment" : "C:\\Users\\young\\AppData\\Local\\Programs\\MVTec\\HALCON-24.11-Progress-Steady\\lib\\x64-win64\\halconcpp.lib",
+				"fragment" : "C:\\Users\\young\\AppData\\Local\\Programs\\MVTec\\HALCON-24.11-Progress-Steady\\lib\\x64-win64\\halconc.lib",
 				"role" : "libraries"
 			},
 			{
@@ -232,11 +232,6 @@
 				"role" : "libraries"
 			},
 			{
-				"backtrace" : 5,
-				"fragment" : "C:\\Users\\young\\Desktop\\Source\\Halcon_Extension\\Halcon_SoftwarePackage\\3rd\\XCGUI\\XCGUI.lib",
-				"role" : "libraries"
-			},
-			{
 				"backtrace" : 6,
 				"fragment" : "C:\\Users\\young\\AppData\\Local\\Programs\\MVTec\\HALCON-24.11-Progress-Steady\\lib\\x64-win64\\halcon.lib",
 				"role" : "libraries"
@@ -246,7 +241,7 @@
 				"role" : "libraries"
 			}
 		],
-		"language" : "CXX"
+		"language" : "C"
 	},
 	"linkLibraries" : 
 	[
@@ -256,11 +251,11 @@
 		},
 		{
 			"backtrace" : 4,
-			"id" : "HALCON::CppInt::@6890427a1f51a3e7e1df"
+			"id" : "HALCON::CInt::@6890427a1f51a3e7e1df"
 		}
 	],
-	"name" : "Halcon_SoftwarePackagecppint",
-	"nameOnDisk" : "Halcon_SoftwarePackagecpp.dll",
+	"name" : "Halcon_SoftwarePackagecint",
+	"nameOnDisk" : "Halcon_SoftwarePackagec.dll",
 	"paths" : 
 	{
 		"build" : ".",
@@ -296,19 +291,19 @@
 			"backtrace" : 2,
 			"compileGroupIndex" : 0,
 			"isGenerated" : true,
-			"path" : "build/HCPPHalcon_SoftwarePackage.cpp",
+			"path" : "build/HCHalcon_SoftwarePackage.c",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 2,
 			"isGenerated" : true,
-			"path" : "build/HCPPHalcon_SoftwarePackage.h",
+			"path" : "build/HCHalcon_SoftwarePackage.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/CMakeFiles/2fed8e20b39c35022dcc76673b11a836/HCPPHalcon_SoftwarePackage.cpp.rule",
+			"path" : "build/CMakeFiles/2fed8e20b39c35022dcc76673b11a836/HCHalcon_SoftwarePackage.c.rule",
 			"sourceGroupIndex" : 2
 		}
 	],

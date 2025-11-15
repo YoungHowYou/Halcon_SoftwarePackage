@@ -64,7 +64,6 @@ HALCON_AddExtensionPackage(Halcon_SoftwarePackage
     source/Halcon_SoftwarePackage.c
     source/Halcon_modbus.cpp
     source/Halcon_sqlite.cpp
-    source/Halcon_XGUI.cpp
   CHAPTERS
     userextensions
   CLASSES
@@ -97,7 +96,6 @@ target_include_directories(${ProjectName}
         #往后增加3方库的头文件目录
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/sqlite>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/XCGUI>
 
 
 )
@@ -107,6 +105,5 @@ target_link_libraries(${ProjectName}
     #往后增加3方库的lib文件
     ${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus/modbus.lib
     ${CMAKE_CURRENT_SOURCE_DIR}/3rd/sqlite/sqlite3.lib
-    ${CMAKE_CURRENT_SOURCE_DIR}/3rd/XCGUI/XCGUI.lib
 )
 

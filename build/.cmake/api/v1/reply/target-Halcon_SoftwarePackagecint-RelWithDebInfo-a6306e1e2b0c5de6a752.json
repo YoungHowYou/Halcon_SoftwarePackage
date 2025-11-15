@@ -2,13 +2,13 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackagec.dll"
+			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/RelWithDebInfo/Halcon_SoftwarePackagec.dll"
 		},
 		{
-			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackagec.lib"
+			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/RelWithDebInfo/Halcon_SoftwarePackagec.lib"
 		},
 		{
-			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/Halcon_SoftwarePackagec.pdb"
+			"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/bin/RelWithDebInfo/Halcon_SoftwarePackagec.pdb"
 		}
 	],
 	"backtrace" : 2,
@@ -59,7 +59,7 @@
 			{
 				"command" : 3,
 				"file" : 1,
-				"line" : 105,
+				"line" : 103,
 				"parent" : 0
 			},
 			{
@@ -98,7 +98,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "/DWIN32 /D_WINDOWS /O2 /Ob2 /DNDEBUG -MD"
+					"fragment" : "/DWIN32 /D_WINDOWS /O2 /Ob1 /DNDEBUG -MD -Zi"
 				}
 			],
 			"defines" : 
@@ -128,10 +128,6 @@
 				{
 					"backtrace" : 4,
 					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/sqlite"
-				},
-				{
-					"backtrace" : 4,
-					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/XCGUI"
 				},
 				{
 					"backtrace" : 4,
@@ -207,12 +203,12 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "/INCREMENTAL:NO",
+				"fragment" : "/debug /INCREMENTAL",
 				"role" : "flags"
 			},
 			{
 				"backtrace" : 4,
-				"fragment" : "C:\\Users\\young\\Desktop\\Source\\Halcon_Extension\\Halcon_SoftwarePackage\\bin\\Halcon_SoftwarePackage.lib",
+				"fragment" : "C:\\Users\\young\\Desktop\\Source\\Halcon_Extension\\Halcon_SoftwarePackage\\bin\\RelWithDebInfo\\Halcon_SoftwarePackage.lib",
 				"role" : "libraries"
 			},
 			{
@@ -233,11 +229,6 @@
 			{
 				"backtrace" : 5,
 				"fragment" : "C:\\Users\\young\\Desktop\\Source\\Halcon_Extension\\Halcon_SoftwarePackage\\3rd\\sqlite\\sqlite3.lib",
-				"role" : "libraries"
-			},
-			{
-				"backtrace" : 5,
-				"fragment" : "C:\\Users\\young\\Desktop\\Source\\Halcon_Extension\\Halcon_SoftwarePackage\\3rd\\XCGUI\\XCGUI.lib",
 				"role" : "libraries"
 			},
 			{

@@ -91,7 +91,7 @@
   <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include"</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -117,10 +117,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\";Halcon_SoftwarePackage_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -128,7 +128,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halcon.lib;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halconcpp.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus\modbus.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite\sqlite3.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI\XCGUI.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halcon.lib;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halconcpp.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus\modbus.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite\sqlite3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -146,7 +146,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include"</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -173,10 +173,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\";Halcon_SoftwarePackage_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -184,7 +184,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halcon.lib;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halconcpp.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus\modbus.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite\sqlite3.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI\XCGUI.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halcon.lib;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halconcpp.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus\modbus.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite\sqlite3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -202,7 +202,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include"</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -229,10 +229,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\";Halcon_SoftwarePackage_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -240,7 +240,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halcon.lib;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halconcpp.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus\modbus.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite\sqlite3.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI\XCGUI.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halcon.lib;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halconcpp.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus\modbus.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite\sqlite3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -258,7 +258,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include"</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -284,10 +284,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\";Halcon_SoftwarePackage_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include\halconcpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\include;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -295,7 +295,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halcon.lib;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halconcpp.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus\modbus.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite\sqlite3.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\XCGUI\XCGUI.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halcon.lib;C:\Users\young\AppData\Local\Programs\MVTec\HALCON-24.11-Progress-Steady\lib\x64-win64\halconcpp.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\libmodbus\modbus.lib;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\3rd\sqlite\sqlite3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DataExecutionPrevention></DataExecutionPrevention>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -449,7 +449,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_SoftwarePackage.c" />
     <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_modbus.cpp" />
     <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_sqlite.cpp" />
-    <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_XGUI.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

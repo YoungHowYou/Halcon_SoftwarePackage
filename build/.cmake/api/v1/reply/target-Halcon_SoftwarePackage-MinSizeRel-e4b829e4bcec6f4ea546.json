@@ -60,7 +60,7 @@
 			{
 				"command" : 3,
 				"file" : 1,
-				"line" : 105,
+				"line" : 103,
 				"parent" : 0
 			},
 			{
@@ -72,7 +72,7 @@
 			{
 				"command" : 5,
 				"file" : 1,
-				"line" : 93,
+				"line" : 92,
 				"parent" : 0
 			}
 		]
@@ -123,10 +123,6 @@
 					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/sqlite"
 				},
 				{
-					"backtrace" : 7,
-					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/XCGUI"
-				},
-				{
 					"backtrace" : 4,
 					"isSystem" : true,
 					"path" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include"
@@ -171,10 +167,6 @@
 					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/sqlite"
 				},
 				{
-					"backtrace" : 7,
-					"path" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/XCGUI"
-				},
-				{
 					"backtrace" : 4,
 					"isSystem" : true,
 					"path" : "C:/Users/young/AppData/Local/Programs/MVTec/HALCON-24.11-Progress-Steady/include"
@@ -184,8 +176,7 @@
 			"sourceIndexes" : 
 			[
 				2,
-				3,
-				4
+				3
 			]
 		}
 	],
@@ -246,10 +237,6 @@
 		{
 			"backtrace" : 5,
 			"fragment" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/sqlite/sqlite3.lib"
-		},
-		{
-			"backtrace" : 5,
-			"fragment" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/XCGUI/XCGUI.lib"
 		}
 	],
 	"link" : 
@@ -281,11 +268,6 @@
 				"role" : "libraries"
 			},
 			{
-				"backtrace" : 5,
-				"fragment" : "C:\\Users\\young\\Desktop\\Source\\Halcon_Extension\\Halcon_SoftwarePackage\\3rd\\XCGUI\\XCGUI.lib",
-				"role" : "libraries"
-			},
-			{
 				"fragment" : "kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib",
 				"role" : "libraries"
 			}
@@ -309,10 +291,6 @@
 		{
 			"backtrace" : 5,
 			"fragment" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/sqlite/sqlite3.lib"
-		},
-		{
-			"backtrace" : 5,
-			"fragment" : "C:/Users/young/Desktop/Source/Halcon_Extension/Halcon_SoftwarePackage/3rd/XCGUI/XCGUI.lib"
 		}
 	],
 	"name" : "Halcon_SoftwarePackage",
@@ -342,15 +320,14 @@
 				0,
 				1,
 				2,
-				3,
-				4
+				3
 			]
 		},
 		{
 			"name" : "CMake Rules",
 			"sourceIndexes" : 
 			[
-				5
+				4
 			]
 		}
 	],
@@ -379,12 +356,6 @@
 			"backtrace" : 2,
 			"compileGroupIndex" : 1,
 			"path" : "source/Halcon_sqlite.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 2,
-			"compileGroupIndex" : 1,
-			"path" : "source/Halcon_XGUI.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{

@@ -13,9 +13,6 @@
     <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_sqlite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_XGUI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\CMakeFiles\2fed8e20b39c35022dcc76673b11a836\HHalcon_SoftwarePackage.c.rule">
