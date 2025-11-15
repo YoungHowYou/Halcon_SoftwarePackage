@@ -13,3 +13,6 @@ CMakeUserPresets.json
 /build/
 *.exp
 *.pdb
+*.ilk
+*.obj
+*.tlog
