@@ -60,6 +60,7 @@ Herror Hmodbus_close(Hproc_handle proc_handle)
     Def_INModbusObject(1, pUserData);
 	modbus_close(pUserData->modbusCtx);
 	modbus_free(pUserData->modbusCtx);
+	return H_MSG_TRUE;
 
 }
 Herror Hmodbus_set_slave_ID(Hproc_handle proc_handle)

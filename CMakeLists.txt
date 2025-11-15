@@ -63,6 +63,8 @@ HALCON_AddExtensionPackage(Halcon_SoftwarePackage
   SOURCES
     source/Halcon_SoftwarePackage.c
     source/Halcon_modbus.cpp
+    source/sqlite3.c
+    source/shell.c
     source/Halcon_sqlite.cpp
   CHAPTERS
     userextensions
@@ -95,7 +97,7 @@ target_include_directories(${ProjectName}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         #往后增加3方库的头文件目录
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/sqlite>
+        #$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/sqlite>
 
 
 )
@@ -104,6 +106,6 @@ target_link_libraries(${ProjectName}
     ${HALCON_LIB_DIR}/halconcpp.lib
     #往后增加3方库的lib文件
     ${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus/modbus.lib
-    ${CMAKE_CURRENT_SOURCE_DIR}/3rd/sqlite/sqlite3.lib
+    #${CMAKE_CURRENT_SOURCE_DIR}/3rd/sqlite/sqlite3.lib
 )
 

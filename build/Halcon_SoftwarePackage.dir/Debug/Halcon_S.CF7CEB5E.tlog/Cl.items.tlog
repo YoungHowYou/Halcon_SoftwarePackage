@@ -1,5 +1,6 @@
 C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\HHalcon_SoftwarePackage.c;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\Halcon_SoftwarePackage.dir\Debug\HHalcon_SoftwarePackage.obj
 C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_SoftwarePackage.c;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\Halcon_SoftwarePackage.dir\Debug\Halcon_SoftwarePackage.obj
 C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_modbus.cpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\Halcon_SoftwarePackage.dir\Debug\Halcon_modbus.obj
+C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\sqlite3.c;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\Halcon_SoftwarePackage.dir\Debug\sqlite3.obj
+C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\shell.c;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\Halcon_SoftwarePackage.dir\Debug\shell.obj
 C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_sqlite.cpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\Halcon_SoftwarePackage.dir\Debug\Halcon_sqlite.obj
-C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_XGUI.cpp;C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\build\Halcon_SoftwarePackage.dir\Debug\Halcon_XGUI.obj

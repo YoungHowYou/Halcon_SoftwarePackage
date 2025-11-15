@@ -10,6 +10,12 @@
     <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_modbus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\sqlite3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\shell.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\young\Desktop\Source\Halcon_Extension\Halcon_SoftwarePackage\source\Halcon_sqlite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
