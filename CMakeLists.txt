@@ -107,5 +107,6 @@ target_link_libraries(${ProjectName}
     #往后增加3方库的lib文件
     ${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus/modbus.lib
     #${CMAKE_CURRENT_SOURCE_DIR}/3rd/sqlite/sqlite3.lib
+    ws2_32.lib
 )
 
