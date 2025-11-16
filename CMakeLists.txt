@@ -82,14 +82,6 @@ set(HALCON_INCLUDE_DIR ${HALCON_ROOT}/include/halconcpp)#HALCON_INCLUDE_DIR变�
 set(HALCON_LIB_DIR ${HALCON_ROOT}/lib/x64-win64)#
 
 # --------------  三方库目录（无空格/括号安全版） --------------
-#set(PY3_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/3rd/SoftwarePackage")   # 总根目录
-#set(PY3_LIB_DIR "${PY3_ROOT}/libs")                      # lib 目录
-#set(PY3_INC_DIR "${PY3_ROOT}/include")                   # include 目录
-
-# 让编译器/链接器都能搜到
-#target_include_directories(${ProjectName} PRIVATE ${PY3_INC_DIR})
-#target_link_directories  (${ProjectName} PRIVATE ${PY3_LIB_DIR})
-
 
 target_include_directories(${ProjectName} 
     PUBLIC
@@ -97,16 +89,24 @@ target_include_directories(${ProjectName}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         #往后增加3方库的头文件目录
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus>
-        #$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/sqlite>
-
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/iup/include>
 
 )
-
+set(IUP_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/3rd/iup/lib/")
 target_link_libraries(${ProjectName} 
     ${HALCON_LIB_DIR}/halconcpp.lib
+    #windowsAPI静态库
+    ws2_32.lib
+    comctl32.lib
+    gdi32.lib
+    user32.lib
+    winmm.lib
+    ole32.lib
     #往后增加3方库的lib文件
     ${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus/modbus.lib
-    #${CMAKE_CURRENT_SOURCE_DIR}/3rd/sqlite/sqlite3.lib
-    ws2_32.lib
+    #IUP核心静态库（按需选择）
+    ${IUP_LIB_PATH}/iup.lib              # 基础库，必需
+    ${IUP_LIB_PATH}/iupcontrols.lib      # 控件库（如使用IupButton等）
+    ${IUP_LIB_PATH}/iupimglib.lib        # 图像库（如使用内置图标）
 )
 
