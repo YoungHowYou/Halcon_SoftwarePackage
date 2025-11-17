@@ -16,4 +16,3 @@ CMakeUserPresets.json
 *.ilk
 *.obj
 *.tlog
-/3rd/iup/lib/
