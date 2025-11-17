@@ -1,0 +1,422 @@
+modbus_rtu_connect<- CHmodbus_rtu_connect[::port,baud,parity,data_bits,stop_bits:handle]
+short.english
+  Connect to Modbus RTU device.;
+short.german
+  Verbindung zu Modbus RTU Gerät.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, rtu, serial;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  port:               input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  baud:               input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  parity:             input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  data_bits:          input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  stop_bits:          input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  handle:             output_control;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+
+modbus_tcp_connect<- CHmodbus_tcp_connect[::ip,port:handle]
+short.english
+  Connect to Modbus TCP device.;
+short.german
+  Verbindung zu Modbus TCP Gerät.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, tcp, ethernet;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  ip:                 input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  port:               input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  handle:             output_control;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+
+modbus_close<- CHmodbus_close[::handle:]
+short.english
+  Close Modbus connection.;
+short.german
+  Modbus-Verbindung schließen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, close;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+
+modbus_set_slave_ID<- CHmodbus_set_slave_ID[::handle,slave_id:]
+short.english
+  Set Modbus slave ID.;
+short.german
+  Modbus Slave-ID setzen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, slave, id;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  slave_id:           input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+
+modbus_read_bits<- CHmodbus_read_bits[::handle,address,num:bits]
+short.english
+  Read Modbus bits.;
+short.german
+  Modbus Bits lesen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, read, bits;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  address:            input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  num:                input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  bits:               output_control;
+  default_type:       integer;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          integer;
+
+
+modbus_write_bit<- CHmodbus_write_bit[::handle,address,value:]
+short.english
+  Write Modbus single bit.;
+short.german
+  Modbus einzelnes Bit schreiben.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, write, bit;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  address:            input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  value:              input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+
+modbus_write_bits<- CHmodbus_write_bits[::handle,address,Bitvalues:]
+short.english
+  Write Modbus multiple bits.;
+short.german
+  Modbus mehrere Bits schreiben.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, write, bits;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  address:            input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  Bitvalues:          input_control;
+  default_type:       integer;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          integer;
+
+
+modbus_write_register<- CHmodbus_write_register[::handle,address,Bitvalues:]
+short.english
+  Write Modbus single register.;
+short.german
+  Modbus einzelnes Register schreiben.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, write, register;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  address:            input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  Bitvalues:          input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+
+modbus_write_registers<- Hmodbus_write_registers[::handle,address,registersvalues:]
+short.english
+  Write Modbus multiple registers.;
+short.german
+  Modbus mehrere Register schreiben.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, write, registers;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  address:            input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  registersvalues:    input_control;
+  default_type:       integer;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          integer;
+
+
+modbus_read_registers<- Hmodbus_read_registers[::handle,address,num:registers]
+short.english
+  Read Modbus registers.;
+short.german
+  Modbus Register lesen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, read, registers;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  address:            input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  num:                input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  registers:          output_control;
+  default_type:       integer;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          integer;

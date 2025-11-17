@@ -60,6 +60,7 @@ include(UseHALCON)
 HALCON_AddExtensionPackage(Halcon_SoftwarePackage
   DEF_FILES
     def/Halcon_Sqlite.def
+    def/Halcon_Modbus.def
   SOURCES
     source/Halcon_SoftwarePackage.c
     source/Halcon_modbus.cpp
