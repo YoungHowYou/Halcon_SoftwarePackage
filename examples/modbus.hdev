@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>*ModbusTCP相关函数说明*</c>
+<c>*艾莫迅IO卡输出保持时间在原厂配置软件中设置*</c>
+<c>*使用前需先了解Modbus相关基础知识* 可自行前往  https://blog.csdn.net/qq_45339188/article/details/123575599</c>
+<c></c>
+<l>* modbus_tcp_connect ('127.0.0.1', 502, handle)</l>
+<l>tuple_ord ('N', NOrd)</l>
+<l>tuple_ord ('E', EOrd)</l>
+<l>tuple_ord ('O', OOrd)</l>
+<l>modbus_rtu_connect ('COM9', 9600, EOrd, 8, 1, -1, handle)</l>
+<c></c>
+<l>modbus_set_slave_ID (handle, 1)</l>
+<c></c>
+<l>modbus_write_bit (handle, 0, 1)</l>
+<l>modbus_write_bit (handle, 0, 0)</l>
+<c></c>
+<l>modbus_read_bits (handle, 0, 8, bits)</l>
+<c></c>
+<l>modbus_read_inputbits (handle, 0, 8, bits1)</l>
+<c></c>
+<l>modbus_read_registers (handle, 0, 1, registers)</l>
+<l>modbus_read_registers (handle, 0, 8, registers)</l>
+<c></c>
+<l>modbus_write_register (handle, 0, 15)</l>
+<l>modbus_write_register_float (handle, 0, 8.4, 'abcd')</l>
+<l>modbus_read_register_float (handle, 0, 'abcd', value)</l>
+<l>modbus_write_register_int (handle, 0, 5555555300000000, 64)</l>
+<l>modbus_read_register_int (handle, 0, 64, VV)</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

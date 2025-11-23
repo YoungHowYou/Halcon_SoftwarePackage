@@ -1,4 +1,4 @@
-modbus_rtu_connect<- CHmodbus_rtu_connect[::port,baud,parity,data_bits,stop_bits:handle]
+modbus_rtu_connect<- CHmodbus_rtu_connect[::port,baud,parity,data_bits,stop_bits,RS233orRS485:handle]
 short.english
   Connect to Modbus RTU device.;
 short.german
@@ -47,6 +47,13 @@ parameter
 
 parameter
   stop_bits:          input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  RS233orRS485:       input_control;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -421,9 +428,9 @@ parameter
   sem_type:           number;
   type_list:          integer;
 
-modbus_write_register_float<- CHmodbus_write_register_float[::handle,address,value,encoding:]
+modbus_write_register_float<- CHmodbus_write_register_float[::handle,address,value,encodingType:]
 short.english
-  Write single float register (2 modbus registers) with byte-order encoding.;
+  Write single float register (2 modbus registers) with byte-order encodingType.;
 short.german
   Schreibt ein Float-Register (2 Register) mit Byte-Reihenfolge.;
 module
@@ -433,7 +440,7 @@ chapter.english
 chapter.german
   BenutzerErweiterungen;
 keywords.english
-  modbus, write, register, float, encoding;
+  modbus, write, register, float, encodingType;
 parallelization
   process_exclusively: false;
   process_locally:     false;
@@ -462,18 +469,15 @@ parameter
   type_list:          real;
 
 parameter
-  encoding:           input_control;
+  encodingType:       input_control;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
   type_list:          string;
-  default_value:      "abcd";
-  value_list:         "abcd,dcba,badc,cdab";
 
-
-modbus_read_register_float<- CHmodbus_read_register_float[::handle,address,encoding:value]
+modbus_read_register_float<- CHmodbus_read_register_float[::handle,address,encodingType:value]
 short.english
-  Read single float register (2 modbus registers) with byte-order encoding.;
+  Read single float register (2 modbus registers) with byte-order encodingType.;
 short.german
   Liest ein Float-Register (2 Register) mit Byte-Reihenfolge.;
 module
@@ -483,7 +487,7 @@ chapter.english
 chapter.german
   BenutzerErweiterungen;
 keywords.english
-  modbus, read, register, float, encoding;
+  modbus, read, register, float, encodingType;
 parallelization
   process_exclusively: false;
   process_locally:     false;
@@ -505,13 +509,12 @@ parameter
   type_list:          integer;
 
 parameter
-  encoding:           input_control;
+  encodingType:           input_control;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
   type_list:          string;
-  default_value:      "abcd";
-  value_list:         "abcd,dcba,badc,cdab";
+
 
 parameter
   value:              output_control;
@@ -617,5 +620,55 @@ parameter
   value:              output_control;
   default_type:       integer;
   multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+
+
+
+modbus_read_inputbits<- CHmodbus_read_inputbits[::handle,address,num:bits]
+short.english
+  Read Modbus bits.;
+short.german
+  Modbus Bits lesen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, read, bits;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  address:            input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  num:                input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  bits:               output_control;
+  default_type:       integer;
+  multivalue:         true;
   sem_type:           number;
   type_list:          integer;

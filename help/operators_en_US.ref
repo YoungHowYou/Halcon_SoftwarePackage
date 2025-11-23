@@ -1,3 +1,31 @@
+modbus_read_inputbits(handle,address,num,bits)
+short.ascii=Read Modbus bits.
+keywords=modbusreadbits
+module=0 Foundation
+parameter=handle
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=address
+parameter_class=input_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=num
+parameter_class=input_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=bits
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=true
 modbus_read_register_int(handle,address,bit_depth,value)
 short.ascii=Read single int register (32/64 bit) from multiple modbus registers.
 keywords=modbusreadregisterintbit_depth
@@ -58,9 +86,9 @@ default_value=32
 default_type=integer
 sem_type=number
 multivalue=false
-modbus_read_register_float(handle,address,encoding,value)
-short.ascii=Read single float register (2 modbus registers) with byte-order encoding.
-keywords=modbusreadregisterfloatencoding
+modbus_read_register_float(handle,address,encodingType,value)
+short.ascii=Read single float register (2 modbus registers) with byte-order encodingType.
+keywords=modbusreadregisterfloatencodingType
 module=0 Foundation
 parameter=handle
 parameter_class=input_control
@@ -74,11 +102,9 @@ type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
-parameter=encoding
+parameter=encodingType
 parameter_class=input_control
-value_list="abcddcbabadccdab"
 type_list=string
-default_value="abcd"
 default_type=string
 sem_type=string
 multivalue=false
@@ -88,9 +114,9 @@ type_list=real
 default_type=real
 sem_type=real
 multivalue=false
-modbus_write_register_float(handle,address,value,encoding)
-short.ascii=Write single float register (2 modbus registers) with byte-order encoding.
-keywords=modbuswriteregisterfloatencoding
+modbus_write_register_float(handle,address,value,encodingType)
+short.ascii=Write single float register (2 modbus registers) with byte-order encodingType.
+keywords=modbuswriteregisterfloatencodingType
 module=0 Foundation
 parameter=handle
 parameter_class=input_control
@@ -110,11 +136,9 @@ type_list=real
 default_type=real
 sem_type=real
 multivalue=false
-parameter=encoding
+parameter=encodingType
 parameter_class=input_control
-value_list="abcddcbabadccdab"
 type_list=string
-default_value="abcd"
 default_type=string
 sem_type=string
 multivalue=false
@@ -310,7 +334,7 @@ type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
-modbus_rtu_connect(port,baud,parity,data_bits,stop_bits,handle)
+modbus_rtu_connect(port,baud,parity,data_bits,stop_bits,RS233orRS485,handle)
 short.ascii=Connect to Modbus RTU device.
 keywords=modbusrtuserial
 module=0 Foundation
@@ -339,6 +363,12 @@ default_type=integer
 sem_type=number
 multivalue=false
 parameter=stop_bits
+parameter_class=input_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=RS233orRS485
 parameter_class=input_control
 type_list=integer
 default_type=integer
