@@ -2,7 +2,6 @@
 #include "Halcon.h"
 #include "modbus.h"
 #include "sqlite3.h"
-#include <iup.h>
 
 #pragma region Sqlite
 #define H_Sqlite_TAG 0xC0FFEE40

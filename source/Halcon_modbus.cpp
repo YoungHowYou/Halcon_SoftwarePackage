@@ -63,8 +63,7 @@ Herror Hmodbus_close(Hproc_handle proc_handle)
 	Def_INModbusObject(1, pUserData);
 	modbus_close(pUserData->modbusCtx);
 	modbus_free(pUserData->modbusCtx);
-    return H_MSG_TRUE;
-
+	return H_MSG_TRUE;
 }
 Herror Hmodbus_set_slave_ID(Hproc_handle proc_handle)
 {
@@ -238,5 +237,172 @@ Herror Hmodbus_read_registers(Hproc_handle proc_handle)
 
 		HPutElem(proc_handle, 1, C, Length.par.l, LONG_PAR);
 		return H_MSG_TRUE;
+	}
+}
+
+Herror Hmodbus_write_register_float(Hproc_handle proc_handle)
+{
+	Hcpar Addressstrat; // 起始地址
+	Hcpar status;		// 状态
+	Hcpar EncodingMode;
+	Def_INModbusObject(1, pUserData);
+	HGetSPar(proc_handle, 2, LONG_PAR, &Addressstrat, 1);
+	HGetSPar(proc_handle, 3, DOUBLE_PAR, &status, 1);
+	HGetSPar(proc_handle, 4, STRING_PAR, &EncodingMode, 1);
+
+	uint16_t dest[2];
+	if (strcmp(EncodingMode.par.s, "abcd") == 0)
+	{
+		modbus_set_float_abcd((float)status.par.d, dest);
+	}
+	else if (strcmp(EncodingMode.par.s, "dcba") == 0)
+	{
+		modbus_set_float_dcba((float)status.par.d, dest);
+	}
+	else if (strcmp(EncodingMode.par.s, "badc") == 0)
+	{
+		modbus_set_float_badc((float)status.par.d, dest);
+	}
+	else if (strcmp(EncodingMode.par.s, "cdab") == 0)
+	{
+		modbus_set_float_cdab((float)status.par.d, dest);
+	}
+	else
+	{
+		modbus_set_float((float)status.par.d, dest);
+	}
+
+	int Write_Bit_Besult = modbus_write_registers(pUserData->modbusCtx, (int)Addressstrat.par.l, 2, dest);
+	if (Write_Bit_Besult == -1)
+	{
+		return H__LINE__ * 10000;
+	}
+	else
+	{
+		return H_MSG_TRUE;
+	}
+}
+
+Herror Hmodbus_read_register_float(Hproc_handle proc_handle)
+{
+	Hcpar Addressstrat; // 起始地址
+	Hcpar EncodingMode;
+
+	Def_INModbusObject(1, pUserData);
+	HGetSPar(proc_handle, 2, LONG_PAR, &Addressstrat, 1);
+	HGetSPar(proc_handle, 3, STRING_PAR, &EncodingMode, 1);
+
+	uint16_t Read_Registers_Num[2];
+
+	int Read_Registers_Result = modbus_read_registers(pUserData->modbusCtx, Addressstrat.par.l, 2, Read_Registers_Num);
+
+	if (Read_Registers_Result == -1)
+	{
+		return H__LINE__ * 10000;
+	}
+	else
+	{
+		float C;
+		if (strcmp(EncodingMode.par.s, "abcd") == 0)
+		{
+			C = modbus_get_float_abcd(Read_Registers_Num);
+		}
+		else if (strcmp(EncodingMode.par.s, "dcba") == 0)
+		{
+			C = modbus_get_float_dcba(Read_Registers_Num);
+		}
+		else if (strcmp(EncodingMode.par.s, "badc") == 0)
+		{
+			C = modbus_get_float_badc(Read_Registers_Num);
+		}
+		else if (strcmp(EncodingMode.par.s, "cdab") == 0)
+		{
+			C = modbus_get_float_cdab(Read_Registers_Num);
+		}
+		else
+		{
+			C = modbus_get_float(Read_Registers_Num);
+		}
+
+		HPutElem(proc_handle, 1, &C, 1, DOUBLE_PAR);
+		return H_MSG_TRUE;
+	}
+}
+
+Herror Hmodbus_write_register_int(Hproc_handle proc_handle)
+{
+	Hcpar Addressstrat; // 起始地址
+	Hcpar status;		// 状态
+	Hcpar BitDepth;
+	Def_INModbusObject(1, pUserData);
+	HGetSPar(proc_handle, 2, LONG_PAR, &Addressstrat, 1);
+	HGetSPar(proc_handle, 3, LONG_PAR, &status, 1);
+	HGetSPar(proc_handle, 4, LONG_PAR, &BitDepth, 1);
+
+	int Write_Bit_Besult;
+
+	if (BitDepth.par.l == 32)
+	{
+		uint16_t regs32[2];
+		MODBUS_SET_INT32_TO_INT16(regs32, 0, status.par.l);
+		Write_Bit_Besult = modbus_write_registers(pUserData->modbusCtx, (int)Addressstrat.par.l, 2, regs32);
+	}
+	else
+	{
+		uint16_t regs64[4];
+		MODBUS_SET_INT64_TO_INT16(regs64, 0, status.par.l);
+		Write_Bit_Besult = modbus_write_registers(pUserData->modbusCtx, (int)Addressstrat.par.l, 4, regs64);
+	}
+
+	if (Write_Bit_Besult == -1)
+	{
+		return H__LINE__ * 10000;
+	}
+	else
+	{
+		return H_MSG_TRUE;
+	}
+}
+
+Herror Hmodbus_read_register_int(Hproc_handle proc_handle)
+{
+	Hcpar Addressstrat; // 起始地址
+	Hcpar BitDepth;
+
+	Def_INModbusObject(1, pUserData);
+	HGetSPar(proc_handle, 2, LONG_PAR, &Addressstrat, 1);
+	HGetSPar(proc_handle, 3, LONG_PAR, &BitDepth, 1);
+	int Read_Registers_Result;
+
+	if (BitDepth.par.l == 32)
+	{
+		uint16_t regs32[2];
+		Read_Registers_Result = modbus_read_registers(pUserData->modbusCtx, Addressstrat.par.l, 2, regs32);
+		if (Read_Registers_Result == -1)
+		{
+			return H__LINE__ * 10000;
+		}
+		else
+		{
+			int32_t val = MODBUS_GET_INT32_FROM_INT16(regs32, 0);
+			int64_t C=(int64_t)val;
+			HPutElem(proc_handle, 1, &C, 1, LONG_PAR);
+			return H_MSG_TRUE;
+		}
+	}
+	else
+	{
+		uint16_t regs64[4];
+		Read_Registers_Result = modbus_read_registers(pUserData->modbusCtx, Addressstrat.par.l, 4, regs64);
+		if (Read_Registers_Result == -1)
+		{
+			return H__LINE__ * 10000;
+		}
+		else
+		{
+			int64_t val = MODBUS_GET_INT64_FROM_INT16(regs64, 0);
+			HPutElem(proc_handle, 1, &val, 1, LONG_PAR);
+			return H_MSG_TRUE;
+		}
 	}
 }

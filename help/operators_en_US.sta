@@ -1,3 +1,17 @@
+handle,address,bit_depth,value:userextensions:UserExtensions:
+handle,address,value,bit_depth:userextensions:UserExtensions:
+handle,address,encoding,value:userextensions:UserExtensions:
+handle,address,value,encoding:userextensions:UserExtensions:
+handle,address,num,registers:userextensions:UserExtensions:
+handle,address,registersvalues:userextensions:UserExtensions:
+handle,address,Bitvalues:userextensions:UserExtensions:
+handle,address,Bitvalues:userextensions:UserExtensions:
+handle,address,value:userextensions:UserExtensions:
+handle,address,num,bits:userextensions:UserExtensions:
+handle,slave_id:userextensions:UserExtensions:
+handle:userextensions:UserExtensions:
+ip,port,handle:userextensions:UserExtensions:
+port,baud,parity,data_bits,stop_bits,handle:userextensions:UserExtensions:
 DbNumber,zFilename,isSave:userextensions:UserExtensions:
 DbNumber,sql,errmsg:userextensions:UserExtensions:
 DbNumber,sql,table_names,X,Y,errmsg:userextensions:UserExtensions:

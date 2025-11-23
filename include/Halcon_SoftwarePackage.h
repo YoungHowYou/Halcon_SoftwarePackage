@@ -23,6 +23,10 @@ extern EXPORTS_API Herror Hmodbus_write_register(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hmodbus_write_registers(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hmodbus_read_registers(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hmodbus_read_bits(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hmodbus_write_register_float(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hmodbus_read_register_float(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hmodbus_write_register_int(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hmodbus_read_register_int(Hproc_handle proc_handle);
 
 #pragma endregion
 

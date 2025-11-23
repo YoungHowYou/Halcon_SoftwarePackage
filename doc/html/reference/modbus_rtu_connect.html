@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>Table of Contents [HALCON Operator Reference / Version 24.11.1.0]</title>
+<title>modbus_rtu_connect [HALCON Operator Reference / Version 24.11.1.0]</title>
 <style type="text/css">
 
       body {
@@ -1068,7 +1068,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="breadcrumb">
 <br class="inv"><a href="../../../../documentation.html">HALCON
 
-      24.11.1.0</a> / HALCON Operator Reference<br class="inv">
+      24.11.1.0</a> / <a href="index.html">HALCON Operator Reference</a> / <a href="toc_userextensions.html">UserExtensions</a><br class="inv">
 </div>
 <div class="body_main">
 <div class="tabbar"><ul class="tabs">
@@ -1081,12 +1081,79 @@ toggleLanguage(new_lang,1);return;}
 <div class="indexlink">
 <a href="index_classes.html"><span data-if="dotnet" style="display:none;">Classes</span><span data-if="cpp" style="display:none;">Classes</span></a><span data-if="dotnet" style="display:none;"> | </span><span data-if="cpp" style="display:none;"> | </span><a href="index_by_name.html">Operators</a>
 </div>
-<h1>HALCON Operator Reference</h1>
-<p class="banner">Version 24.11.1.0</p>
-<p class="banner"></p>
-<p class="banner"><a href="legal_notes.html">Legal Notes</a></p>
-<h2>Table of Contents</h2>
-<ul><li><a href="toc_userextensions.html">UserExtensions</a></li></ul>
+<!--OP_REF_HEADER_END-->
+<h1 id="sec_name">
+<span data-if="hdevelop" style="display:inline;">modbus_rtu_connect</span><span data-if="c" style="display:none;">T_modbus_rtu_connect</span><span data-if="cpp" style="display:none;">ModbusRtuConnect</span><span data-if="dotnet" style="display:none;">ModbusRtuConnect</span><span data-if="python" style="display:none;">modbus_rtu_connect</span> (Operator)</h1>
+<h2>Name</h2>
+<p><code><span data-if="hdevelop" style="display:inline;">modbus_rtu_connect</span><span data-if="c" style="display:none;">T_modbus_rtu_connect</span><span data-if="cpp" style="display:none;">ModbusRtuConnect</span><span data-if="dotnet" style="display:none;">ModbusRtuConnect</span><span data-if="python" style="display:none;">modbus_rtu_connect</span></code> — Connect to Modbus RTU device.</p>
+<h2 id="sec_synopsis">Signature</h2>
+<div data-if="hdevelop" style="display:inline;">
+<p>
+<code><b>modbus_rtu_connect</b>( :  : <a href="#port"><i>port</i></a>, <a href="#baud"><i>baud</i></a>, <a href="#parity"><i>parity</i></a>, <a href="#data_bits"><i>data_bits</i></a>, <a href="#stop_bits"><i>stop_bits</i></a> : <a href="#handle"><i>handle</i></a>)</code></p>
+</div>
+<div data-if="c" style="display:none;">
+<p>
+<code>Herror <b>T_modbus_rtu_connect</b>(const Htuple <a href="#port"><i>port</i></a>, const Htuple <a href="#baud"><i>baud</i></a>, const Htuple <a href="#parity"><i>parity</i></a>, const Htuple <a href="#data_bits"><i>data_bits</i></a>, const Htuple <a href="#stop_bits"><i>stop_bits</i></a>, Htuple* <a href="#handle"><i>handle</i></a>)</code></p>
+</div>
+<div data-if="cpp" style="display:none;">
+<p>
+<code>void <b>ModbusRtuConnect</b>(const HTuple&amp; <a href="#port"><i>port</i></a>, const HTuple&amp; <a href="#baud"><i>baud</i></a>, const HTuple&amp; <a href="#parity"><i>parity</i></a>, const HTuple&amp; <a href="#data_bits"><i>data_bits</i></a>, const HTuple&amp; <a href="#stop_bits"><i>stop_bits</i></a>, HTuple* <a href="#handle"><i>handle</i></a>)</code></p>
+</div>
+<div data-if="dotnet" style="display:none;">
+<p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>ModbusRtuConnect</b>(<a href="HTuple.html">HTuple</a> <a href="#port"><i>port</i></a>, <a href="HTuple.html">HTuple</a> <a href="#baud"><i>baud</i></a>, <a href="HTuple.html">HTuple</a> <a href="#parity"><i>parity</i></a>, <a href="HTuple.html">HTuple</a> <a href="#data_bits"><i>dataBits</i></a>, <a href="HTuple.html">HTuple</a> <a href="#stop_bits"><i>stopBits</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#handle"><i>handle</i></a>)</code></p>
+</div>
+<div data-if="python" style="display:none;">
+<p>
+<code>def <b>modbus_rtu_connect</b>(<a href="#port"><i>port</i></a>: str, <a href="#baud"><i>baud</i></a>: int, <a href="#parity"><i>parity</i></a>: str, <a href="#data_bits"><i>data_bits</i></a>: int, <a href="#stop_bits"><i>stop_bits</i></a>: int) -&gt; HHandle</code></p>
+</div>
+<h2 id="sec_execution">Execution Information</h2>
+<ul>
+  <li>Multithreading type: reentrant (runs in parallel with non-exclusive operators).</li>
+<li>Multithreading scope: global (may be called from any thread).</li>
+  <li>Processed without parallelization.</li>
+</ul>
+<p>This operator returns a handle. Note that the state of an instance of this handle type may be changed by specific operators even though the handle is used as an input parameter by those operators.</p>
+<h2 id="sec_parameters">Parameters</h2>
+  <div class="par">
+<div class="parhead">
+<span id="port" class="parname"><b><code><span data-if="hdevelop" style="display:inline">port</span><span data-if="c" style="display:none">port</span><span data-if="cpp" style="display:none">port</span><span data-if="dotnet" style="display:none">port</span><span data-if="python" style="display:none">port</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
+</div>
+<p class="pardesc"></p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="baud" class="parname"><b><code><span data-if="hdevelop" style="display:inline">baud</span><span data-if="c" style="display:none">baud</span><span data-if="cpp" style="display:none">baud</span><span data-if="dotnet" style="display:none">baud</span><span data-if="python" style="display:none">baud</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
+</div>
+<p class="pardesc"></p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="parity" class="parname"><b><code><span data-if="hdevelop" style="display:inline">parity</span><span data-if="c" style="display:none">parity</span><span data-if="cpp" style="display:none">parity</span><span data-if="dotnet" style="display:none">parity</span><span data-if="python" style="display:none">parity</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
+</div>
+<p class="pardesc"></p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="data_bits" class="parname"><b><code><span data-if="hdevelop" style="display:inline">data_bits</span><span data-if="c" style="display:none">data_bits</span><span data-if="cpp" style="display:none">data_bits</span><span data-if="dotnet" style="display:none">dataBits</span><span data-if="python" style="display:none">data_bits</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
+</div>
+<p class="pardesc"></p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="stop_bits" class="parname"><b><code><span data-if="hdevelop" style="display:inline">stop_bits</span><span data-if="c" style="display:none">stop_bits</span><span data-if="cpp" style="display:none">stop_bits</span><span data-if="dotnet" style="display:none">stopBits</span><span data-if="python" style="display:none">stop_bits</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
+</div>
+<p class="pardesc"></p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="handle" class="parname"><b><code><span data-if="hdevelop" style="display:inline">handle</span><span data-if="c" style="display:none">handle</span><span data-if="cpp" style="display:none">handle</span><span data-if="dotnet" style="display:none">handle</span><span data-if="python" style="display:none">handle</span></code></b> (output_control)  </span><span>handle <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">HHandle</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (handle)</span><span data-if="dotnet" style="display:none"> (<i>IntPtr</i>)</span><span data-if="cpp" style="display:none"> (<i>HHandle</i>)</span><span data-if="c" style="display:none"> (<i>handle</i>)</span></span>
+</div>
+<p class="pardesc"></p>
+</div>
+<h2 id="sec_module">Module</h2>
+<p>
+Foundation</p>
 <!--OP_REF_FOOTER_START-->
 <hr>
 <div class="indexlink">

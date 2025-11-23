@@ -420,3 +420,202 @@ parameter
   multivalue:         true;
   sem_type:           number;
   type_list:          integer;
+
+modbus_write_register_float<- CHmodbus_write_register_float[::handle,address,value,encoding:]
+short.english
+  Write single float register (2 modbus registers) with byte-order encoding.;
+short.german
+  Schreibt ein Float-Register (2 Register) mit Byte-Reihenfolge.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, write, register, float, encoding;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  address:            input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  value:              input_control;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           real;
+  type_list:          real;
+
+parameter
+  encoding:           input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+  default_value:      "abcd";
+  value_list:         "abcd,dcba,badc,cdab";
+
+
+modbus_read_register_float<- CHmodbus_read_register_float[::handle,address,encoding:value]
+short.english
+  Read single float register (2 modbus registers) with byte-order encoding.;
+short.german
+  Liest ein Float-Register (2 Register) mit Byte-Reihenfolge.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, read, register, float, encoding;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  address:            input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  encoding:           input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+  default_value:      "abcd";
+  value_list:         "abcd,dcba,badc,cdab";
+
+parameter
+  value:              output_control;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           real;
+  type_list:          real;
+
+
+modbus_write_register_int<- CHmodbus_write_register_int[::handle,address,value,bit_depth:]
+short.english
+  Write single int register (32/64 bit) as multiple modbus registers.;
+short.german
+  Schreibt ein Int-Register (32/64 Bit) über mehrere Register.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, write, register, int, bit_depth;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  address:            input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  value:              input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  bit_depth:          input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      32;
+  value_list:         32,64;
+
+
+modbus_read_register_int<- CHmodbus_read_register_int[::handle,address,bit_depth:value]
+short.english
+  Read single int register (32/64 bit) from multiple modbus registers.;
+short.german
+  Liest ein Int-Register (32/64 Bit) über mehrere Register.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  modbus, read, register, int, bit_depth;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  address:            input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  bit_depth:          input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      32;
+  value_list:         32,64;
+
+parameter
+  value:              output_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;

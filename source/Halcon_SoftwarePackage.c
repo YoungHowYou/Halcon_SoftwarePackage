@@ -107,3 +107,77 @@ Herror CHsqlite3_loadOrSaveDb(Hproc_handle proc_handle)
 
 
 #pragma endregion
+
+#pragma region modbus
+Herror CHmodbus_rtu_connect(Hproc_handle proc_handle)
+{
+
+	return Hmodbus_rtu_connect(proc_handle);
+}
+Herror CHmodbus_tcp_connect(Hproc_handle proc_handle)
+{
+
+	return Hmodbus_tcp_connect(proc_handle);
+}
+Herror CHmodbus_close(Hproc_handle proc_handle)
+{
+	return Hmodbus_close(proc_handle);
+}
+Herror CHmodbus_set_slave_ID(Hproc_handle proc_handle)
+{
+	return Hmodbus_set_slave_ID(proc_handle);
+}
+
+Herror CHmodbus_read_bits(Hproc_handle proc_handle)
+{
+	return Hmodbus_read_bits(proc_handle);
+}
+
+Herror CHmodbus_write_bit(Hproc_handle proc_handle)
+{
+	return Hmodbus_write_bit(proc_handle);
+}
+
+Herror CHmodbus_write_bits(Hproc_handle proc_handle)
+{
+	return Hmodbus_write_bits(proc_handle);
+}
+
+Herror CHmodbus_write_register(Hproc_handle proc_handle)
+{
+	return Hmodbus_write_register(proc_handle);
+}
+
+Herror CHmodbus_write_registers(Hproc_handle proc_handle)
+{
+	return Hmodbus_write_registers(proc_handle);
+}
+
+Herror CHmodbus_read_registers(Hproc_handle proc_handle)
+{
+	return Hmodbus_read_registers(proc_handle);
+}
+
+Herror CHmodbus_write_register_float(Hproc_handle proc_handle)
+{
+    return Hmodbus_write_register_float(proc_handle);
+}
+
+Herror CHmodbus_read_register_float(Hproc_handle proc_handle)
+{
+    return Hmodbus_read_register_float(proc_handle);
+}
+
+Herror CHmodbus_write_register_int(Hproc_handle proc_handle)
+{
+    return Hmodbus_write_register_int(proc_handle);
+}
+
+Herror CHmodbus_read_register_int(Hproc_handle proc_handle)
+{
+    return Hmodbus_read_register_int(proc_handle);
+}
+
+
+
+#pragma endregion

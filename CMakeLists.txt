@@ -83,10 +83,16 @@ set(HALCON_INCLUDE_DIR ${HALCON_ROOT}/include/halconcpp)#HALCON_INCLUDE_DIR变�
 set(HALCON_LIB_DIR ${HALCON_ROOT}/lib/x64-win64)#
 file(GLOB_RECURSE PROJECT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
 target_sources(${ProjectName} PRIVATE ${PROJECT_HEADERS})
+# 1. 收集 .def 文件
 file(GLOB DEF_FILES "${CMAKE_CURRENT_SOURCE_DIR}/def/*.def")
-# 把 .def 文件追加到已有目标，仅供 IDE 显示
-target_sources(Halcon_SoftwarePackage PRIVATE ${DEF_FILES})
-
+# 2. 添加到目标，但不参与编译（通过 HEADER_FILE_ONLY 属性）
+target_sources(${ProjectName} PRIVATE ${DEF_FILES})
+# 3. 设置属性：只显示，不编译、不链接
+set_source_files_properties(${DEF_FILES} PROPERTIES
+    HEADER_FILE_ONLY TRUE   # 关键：不让它参与构建
+)
+# 4. （可选）在 IDE 中分组显示
+source_group("Module Definition Files" FILES ${DEF_FILES})
 # --------------  三方库目录（无空格/括号安全版） --------------
 
 target_include_directories(${ProjectName} 
@@ -95,24 +101,13 @@ target_include_directories(${ProjectName}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         #往后增加3方库的头文件目录
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/iup/include>
 
 )
-set(IUP_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/3rd/iup/lib/")
 target_link_libraries(${ProjectName} 
     ${HALCON_LIB_DIR}/halconcpp.lib
-    #windowsAPI静态库
-    ws2_32.lib
-    comctl32.lib
-    gdi32.lib
-    user32.lib
-    winmm.lib
-    ole32.lib
     #往后增加3方库的lib文件
+    ws2_32.lib
     ${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus/modbus.lib
-    #IUP核心静态库（按需选择）
-    ${IUP_LIB_PATH}/iup.lib              # 基础库，必需
-    ${IUP_LIB_PATH}/iupcontrols.lib      # 控件库（如使用IupButton等）
-    ${IUP_LIB_PATH}/iupimglib.lib        # 图像库（如使用内置图标）
+    
 )
 
