@@ -42,6 +42,7 @@ Herror Hmodbus_rtu_connect(Hproc_handle proc_handle)
 
 	return H_MSG_TRUE;
 }
+
 Herror Hmodbus_tcp_connect(Hproc_handle proc_handle)
 {
 	Hcpar ctxtcpIndex; // ID
