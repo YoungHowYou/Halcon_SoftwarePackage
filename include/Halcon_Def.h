@@ -2,6 +2,8 @@
 #include "Halcon.h"
 #include "modbus.h"
 #include "sqlite3.h"
+#include "iup.h"
+#include "iupcontrols.h"
 
 #pragma region Sqlite
 #define H_Sqlite_TAG 0xC0FFEE40
@@ -78,3 +80,8 @@ extern "C"
 #define OUTModbusObject(pUserData) (*(pUserData))
 #pragma endregion
 
+#pragma region IUP
+
+
+
+#pragma endregion

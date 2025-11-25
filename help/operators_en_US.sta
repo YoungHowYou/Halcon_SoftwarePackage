@@ -13,6 +13,8 @@ handle,slave_id:userextensions:UserExtensions:
 handle:userextensions:UserExtensions:
 ip,port,handle:userextensions:UserExtensions:
 port,baud,parity,data_bits,stop_bits,RS233orRS485,handle:userextensions:UserExtensions:
+outimage,msg:userextensions:UserExtensions:
+outimage,msg:userextensions:UserExtensions:
 DbNumber,zFilename,isSave:userextensions:UserExtensions:
 DbNumber,sql,errmsg:userextensions:UserExtensions:
 DbNumber,sql,table_names,X,Y,errmsg:userextensions:UserExtensions:

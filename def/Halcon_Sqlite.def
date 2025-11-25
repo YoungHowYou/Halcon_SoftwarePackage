@@ -229,3 +229,78 @@ parameter
   multivalue:         false;
   sem_type:           number;
   type_list:          integer;
+
+
+SetStringByImageIn<-HSetStringByImageIn[:outimage:msg:]
+short.german
+  Laplace Filter.;
+  
+short.english
+  Laplace Filter.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  outimage:           output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  msg:                input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+GetStringByImageOut<-HGetStringByImageOut[outimage:::msg]
+short.german
+  Laplace Filter.;
+  
+short.english
+  Laplace Filter.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  outimage:           input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  msg:                output_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;

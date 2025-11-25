@@ -46,24 +46,20 @@ Herror HSetStringByImageIn(Hproc_handle proc_handle)
 
 Herror HGetStringByImageOut(Hproc_handle proc_handle)
 {
-	//Hcpar  StrKey;
-
 	Hkey      in_smallobj_key;
 	Himage    insmallimage;
-	//HAllocStringMem(proc_handle, 32768);
+	HAllocStringMem(proc_handle, 32768);
 	HGetObj(proc_handle, 1, 1, &in_smallobj_key);
 	HGetDImage(proc_handle, in_smallobj_key, 1, &insmallimage);
-	int Len=*(int*)insmallimage.pixel.b;
-	//memcpy(&Len, insmallimage.pixel.b, 4);
+	int Len;
+	memcpy(&Len, insmallimage.pixel.b, 4);
 	char* msg;
-	//HAllocTmp(proc_handle, &msg, Len + 1);
-	HAlloc(proc_handle, Len + 1, &msg);
+	HAllocTmp(proc_handle, &msg, Len + 1);
 	//memcpy(&msgS, insmallimage.pixel.b+4, Len);
 	//String msg = msgS;
 	strcpy(msg, (char*)insmallimage.pixel.b + 4);
-	//HPutElem(proc_handle, 1, &msg, 1, STRING_PAR);
+	HPutElem(proc_handle, 1, &msg, 1, STRING_PAR);
 	//HFreeTmp(proc_handle, &msg);
-    HPutPElem(proc_handle, 1, &msg, 1, STRING_PAR);
 
 	return H_MSG_TRUE;
 }

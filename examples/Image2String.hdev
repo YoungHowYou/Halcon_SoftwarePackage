@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>SetStringByImageIn (outimage, 'yanga杨哈哈哈我去回去会定期觉得我出吻合度长度为iu车位火车为此u和')</l>
+<l>GetStringByImageOut (outimage, msg)</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

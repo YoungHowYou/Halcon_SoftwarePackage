@@ -380,6 +380,34 @@ type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
+GetStringByImageOut(outimage,msg)
+short.ascii=Laplace Filter.
+keywords=UserExtensions
+module=0 Foundation
+parameter=outimage
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=msg
+parameter_class=output_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+SetStringByImageIn(outimage,msg)
+short.ascii=Laplace Filter.
+keywords=UserExtensions
+module=0 Foundation
+parameter=outimage
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=msg
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
 sqlite3_loadOrSaveDb(DbNumber,zFilename,isSave)
 short.ascii=Laplace Filter.
 keywords=UserExtensions
