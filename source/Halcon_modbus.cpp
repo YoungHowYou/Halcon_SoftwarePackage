@@ -449,3 +449,12 @@ Herror Hmodbus_read_register_int(Hproc_handle proc_handle)
 		}
 	}
 }
+
+
+Herror Hmodbus_strerror(Hproc_handle proc_handle)
+{
+	HAllocStringMem(proc_handle, 512);
+	const char* errmsg = modbus_strerror(errno);
+	HPutElem(proc_handle, 4, &errmsg, 1, STRING_PAR);
+
+}

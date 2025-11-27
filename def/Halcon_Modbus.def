@@ -672,3 +672,37 @@ parameter
   multivalue:         true;
   sem_type:           number;
   type_list:          integer;
+
+
+modbus_strerror<- CHmodbus_strerror[:::msg]
+
+short.german
+  Laplace Filter.;
+  
+short.english
+  Laplace Filter.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  msg:                output_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;

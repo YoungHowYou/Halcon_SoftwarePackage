@@ -2,8 +2,6 @@
 #include "Halcon.h"
 #include "modbus.h"
 #include "sqlite3.h"
-#include "iup.h"
-#include "iupcontrols.h"
 
 #pragma region Sqlite
 #define H_Sqlite_TAG 0xC0FFEE40
@@ -80,8 +78,32 @@ extern "C"
 #define OUTModbusObject(pUserData) (*(pUserData))
 #pragma endregion
 
-#pragma region IUP
+// #pragma region IUP
+// #define H_IUP_TAG 0xC0FFEE50
+// #define H_IUP_SEM_TYPE "IUP"
+// extern "C"
+// {
+//     typedef struct
+//     {
+//        Ihandle *  IUPCtx;
 
+//     } IUPHUserHandleData;
 
+//     static Herror IUPHUserHandleDestructor(Hproc_handle ph, IUPHUserHandleData *data)
+//     {
+//         IupDestroy(data->IUPCtx);
+//         return HFree(ph, data);
+//     }
+//     // 句柄类型描述符
+//     const HHandleInfo IUPHandleTypeUser = HANDLE_INFO_INITIALIZER_NOSER(H_IUP_TAG, H_IUP_SEM_TYPE, IUPHUserHandleDestructor, NULL, NULL);
+// }
+// #define Def_INIUPObject(pos, pUserData) \
+//     IUPHUserHandleData *(pUserData);    \
+//     HGetCElemH1(proc_handle, (pos), &IUPHandleTypeUser, &(pUserData))
 
-#pragma endregion
+// #define Def_OUTIUPObject(pos, pUserData)                                        \
+//     IUPHUserHandleData **(pUserData);                                           \
+//     HCkP(HAllocOutputHandle(proc_handle, 1, &(pUserData), &IUPHandleTypeUser)); \
+//     HCkP(HAlloc(proc_handle, sizeof(IUPHUserHandleData), (void **)(pUserData)))
+// #define OUTIUPObject(pUserData) (*(pUserData))
+// #pragma endregion

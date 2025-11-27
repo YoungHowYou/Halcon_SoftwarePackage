@@ -177,4 +177,9 @@ Herror CHmodbus_read_inputbits(Hproc_handle proc_handle)
 {
 	return Hmodbus_read_inputbits( proc_handle);
 }
+Herror CHmodbus_strerror(Hproc_handle proc_handle)
+{
+	return Hmodbus_strerror( proc_handle);
+}
+
 #pragma endregion
