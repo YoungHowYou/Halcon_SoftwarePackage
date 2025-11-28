@@ -455,6 +455,7 @@ Herror Hmodbus_strerror(Hproc_handle proc_handle)
 {
 	HAllocStringMem(proc_handle, 512);
 	const char* errmsg = modbus_strerror(errno);
-	HPutElem(proc_handle, 4, &errmsg, 1, STRING_PAR);
+	HPutElem(proc_handle, 1, &errmsg, 1, STRING_PAR);
+	return H_MSG_TRUE;
 
 }

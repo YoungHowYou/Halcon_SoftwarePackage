@@ -1,3 +1,13 @@
+modbus_strerror(msg)
+short.ascii=Laplace Filter.
+keywords=UserExtensions
+module=0 Foundation
+parameter=msg
+parameter_class=output_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
 modbus_read_inputbits(handle,address,num,bits)
 short.ascii=Read Modbus bits.
 keywords=modbusreadbits
