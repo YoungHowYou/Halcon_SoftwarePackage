@@ -1,0 +1,757 @@
+spdlog_basic_logger_mt<- CHspdlog_basic_logger_mt[::logger_name,filename,truncate:handle]
+short.english
+  创建基本文件日志记录器(多线程安全)。将日志消息写入指定的单个文件，适用于简单的日志记录场景。如果文件已存在，可通过truncate参数选择追加或清空后写入。logger_name为日志记录器的唯一名称，可通过spdlog_get按名称再次获取。;
+short.german
+  Erstellt einen einfachen Datei-Logger (Multi-Thread).;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, logger, file, basic;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  logger_name:        input_control;
+  description.english
+    日志记录器的唯一名称。同一名称不可重复创建，可通过spdlog_get按此名称获取已有的记录器。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  filename:           input_control;
+  description.english
+    日志输出文件的完整路径，例如'D:/logs/app.log'。如果目录不存在会创建失败，请确保目录已存在。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  truncate:           input_control;
+  description.english
+    是否清空已有文件。0=追加模式(在已有内容后继续写入)，1=截断模式(清空文件后重新写入)。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      0;
+  value_list:         0,1;
+
+parameter
+  handle:             output_control;
+  description.english
+    返回创建的日志记录器句柄，后续所有日志操作均通过此句柄进行。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+
+spdlog_rotating_logger_mt<- CHspdlog_rotating_logger_mt[::logger_name,filename,max_file_size,max_files:handle]
+short.english
+  创建滚动文件日志记录器(多线程安全)。当日志文件大小达到max_file_size字节时，自动创建新文件并对旧文件编号轮转，最多保留max_files个历史文件。适用于长时间运行的程序，防止单个日志文件过大。例如filename为app.log，轮转后生成app.1.log、app.2.log等。;
+short.german
+  Erstellt einen rotierenden Datei-Logger (Multi-Thread).;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, logger, file, rotating;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  logger_name:        input_control;
+  description.english
+    日志记录器的唯一名称。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  filename:           input_control;
+  description.english
+    日志输出文件的完整路径。轮转时自动在文件名后添加编号，如app.1.log、app.2.log。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  max_file_size:      input_control;
+  description.english
+    单个日志文件的最大字节数。当文件达到此大小时触发轮转。例如5242880表示5MB。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  max_files:          input_control;
+  description.english
+    最多保留的历史日志文件数量。超出数量后最旧的文件会被自动删除。例如3表示保留app.1.log到app.3.log。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  handle:             output_control;
+  description.english
+    返回创建的日志记录器句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+
+spdlog_daily_logger_mt<- CHspdlog_daily_logger_mt[::logger_name,filename,hour,minute:handle]
+short.english
+  创建每日轮转文件日志记录器(多线程安全)。每天在指定的hour时minute分自动创建新的日志文件，旧文件名会自动添加日期后缀(如app_2026-04-12.log)。适用于需要按天归档日志的场景。;
+short.german
+  Erstellt einen taeglich rotierenden Datei-Logger (Multi-Thread).;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, logger, file, daily;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  logger_name:        input_control;
+  description.english
+    日志记录器的唯一名称。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  filename:           input_control;
+  description.english
+    日志输出文件的完整路径。轮转时自动在文件名中插入日期，如app_2026-04-12.log。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  hour:               input_control;
+  description.english
+    每日轮转的小时(0-23)。例如设为2表示凌晨2点轮转。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      0;
+
+parameter
+  minute:             input_control;
+  description.english
+    每日轮转的分钟(0-59)。与hour配合使用，例如hour=2,minute=30表示每天02:30轮转。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      0;
+
+parameter
+  handle:             output_control;
+  description.english
+    返回创建的日志记录器句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+
+spdlog_stdout_color_mt<- CHspdlog_stdout_color_mt[::logger_name:handle]
+short.english
+  创建彩色控制台日志记录器(多线程安全)。日志消息输出到标准输出(stdout)，不同级别的日志会以不同颜色显示。适用于调试阶段在控制台查看日志。;
+short.german
+  Erstellt einen farbigen Konsolen-Logger (Multi-Thread).;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, logger, console, color, stdout;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  logger_name:        input_control;
+  description.english
+    日志记录器的唯一名称。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  handle:             output_control;
+  description.english
+    返回创建的日志记录器句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+
+spdlog_get<- CHspdlog_get[::logger_name:handle]
+short.english
+  根据名称获取已创建的日志记录器。通过logger_name查找之前创建的记录器并返回其句柄，可在不同位置共享同一个记录器。如果指定名称的记录器不存在则返回错误。;
+short.german
+  Einen vorhandenen Logger nach Name abrufen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, logger, get;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  logger_name:        input_control;
+  description.english
+    要查找的日志记录器名称，必须与创建时指定的名称一致。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  handle:             output_control;
+  description.english
+    返回找到的日志记录器句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+
+spdlog_log<- CHspdlog_log[::handle,level,msg:]
+short.english
+  使用指定级别记录一条日志消息。level参数指定日志级别：0=trace(跟踪)、1=debug(调试)、2=info(信息)、3=warn(警告)、4=err(错误)、5=critical(严重)。只有当level大于等于记录器当前设置的级别时，消息才会被实际写入。;
+short.german
+  Nachricht mit angegebenem Level loggen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, log, level;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  description.english
+    日志记录器句柄，由spdlog_basic_logger_mt等创建函数返回。;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  level:              input_control;
+  description.english
+    日志级别。0=trace(最详细)，1=debug，2=info，3=warn，4=err，5=critical(最严重)。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      2;
+  value_list:         0,1,2,3,4,5;
+
+parameter
+  msg:                input_control;
+  description.english
+    要记录的日志消息文本。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+
+spdlog_trace<- CHspdlog_trace[::handle,msg:]
+short.english
+  记录一条trace(跟踪)级别的日志。trace是最低级别(0)，用于记录非常详细的程序运行信息，通常仅在深度调试时开启。需要先通过spdlog_set_level将级别设为0才能输出trace日志。;
+short.german
+  Trace-Nachricht loggen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, log, trace;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  description.english
+    日志记录器句柄。;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  msg:                input_control;
+  description.english
+    要记录的日志消息文本。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+
+spdlog_debug<- CHspdlog_debug[::handle,msg:]
+short.english
+  记录一条debug(调试)级别的日志。debug级别(1)用于记录开发调试阶段的诊断信息，正式运行时一般会关闭此级别。;
+short.german
+  Debug-Nachricht loggen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, log, debug;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  description.english
+    日志记录器句柄。;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  msg:                input_control;
+  description.english
+    要记录的日志消息文本。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+
+spdlog_info<- CHspdlog_info[::handle,msg:]
+short.english
+  记录一条info(信息)级别的日志。info级别(2)是默认级别，用于记录程序正常运行的关键信息，如启动完成、处理结果等。;
+short.german
+  Info-Nachricht loggen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, log, info;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  description.english
+    日志记录器句柄。;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  msg:                input_control;
+  description.english
+    要记录的日志消息文本。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+
+spdlog_warn<- CHspdlog_warn[::handle,msg:]
+short.english
+  记录一条warn(警告)级别的日志。warn级别(3)用于记录潜在的问题或异常情况，程序仍可继续运行，但需要关注。例如重试操作、配置缺失使用默认值等。;
+short.german
+  Warnungs-Nachricht loggen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, log, warn, warning;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  description.english
+    日志记录器句柄。;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  msg:                input_control;
+  description.english
+    要记录的日志消息文本。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+
+spdlog_err<- CHspdlog_err[::handle,msg:]
+short.english
+  记录一条err(错误)级别的日志。err级别(4)用于记录运行时错误，表示某个操作失败但程序整体仍可运行。例如文件打开失败、通信超时等。;
+short.german
+  Fehler-Nachricht loggen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, log, error;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  description.english
+    日志记录器句柄。;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  msg:                input_control;
+  description.english
+    要记录的日志消息文本。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+
+spdlog_critical<- CHspdlog_critical[::handle,msg:]
+short.english
+  记录一条critical(严重)级别的日志。critical级别(5)是最高严重级别，用于记录导致程序无法继续运行的致命错误。例如核心组件初始化失败、不可恢复的异常等。;
+short.german
+  Kritische Nachricht loggen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, log, critical;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  description.english
+    日志记录器句柄。;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  msg:                input_control;
+  description.english
+    要记录的日志消息文本。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+
+spdlog_set_level<- CHspdlog_set_level[::handle,level:]
+short.english
+  设置日志记录器的最低输出级别。只有级别大于等于此值的日志消息才会被实际记录。级别值：0=trace(全部输出)、1=debug、2=info(默认)、3=warn、4=err、5=critical、6=off(关闭所有输出)。例如设为3时，只有warn、err、critical消息会被记录。;
+short.german
+  Logger-Level setzen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, level, set;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  description.english
+    日志记录器句柄。;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  level:              input_control;
+  description.english
+    日志级别。0=trace，1=debug，2=info(默认)，3=warn，4=err，5=critical，6=off(关闭)。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      2;
+  value_list:         0,1,2,3,4,5,6;
+
+
+spdlog_set_pattern<- CHspdlog_set_pattern[::handle,pattern:]
+short.english
+  设置日志记录器的输出格式。使用spdlog格式占位符自定义日志行的显示格式。常用占位符：%Y=年、%m=月、%d=日、%H=时、%M=分、%S=秒、%e=毫秒、%n=记录器名称、%l=级别名称、%v=消息内容、%t=线程ID。默认格式为'[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] %v'。;
+short.german
+  Logger-Formatmuster setzen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, pattern, format;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  description.english
+    日志记录器句柄。;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  pattern:            input_control;
+  description.english
+    格式字符串。常用占位符：%Y=年，%m=月，%d=日，%H=时，%M=分，%S=秒，%e=毫秒，%n=记录器名称，%l=级别全称，%L=级别首字母，%v=消息内容，%t=线程ID，%P=进程ID。示例：'[%Y-%m-%d %H:%M:%S] [%l] %v'。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+
+spdlog_flush<- CHspdlog_flush[::handle:]
+short.english
+  立即将缓冲区中的日志消息刷新写入目标(文件或控制台)。spdlog默认使用缓冲写入以提高性能，调用此算子可确保所有已记录的消息立即落盘，适用于程序退出前或关键操作后确保日志不丢失。;
+short.german
+  Logger leeren.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, flush;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  description.english
+    日志记录器句柄。;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+
+spdlog_flush_on<- CHspdlog_flush_on[::handle,level:]
+short.english
+  设置自动刷新的触发级别。当记录的日志消息级别大于等于指定level时，自动执行flush操作。例如设为3(warn)，则每次记录warn、err、critical消息后都会自动刷新，确保重要日志立即写入文件。低于此级别的消息仍使用缓冲写入。;
+short.german
+  Mindest-Level fuer automatisches Flush setzen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, flush, level;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  description.english
+    日志记录器句柄。;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  level:              input_control;
+  description.english
+    触发自动刷新的最低级别。0=trace，1=debug，2=info，3=warn，4=err，5=critical，6=off(不自动刷新)。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      2;
+  value_list:         0,1,2,3,4,5,6;
+
+
+spdlog_drop<- CHspdlog_drop[::logger_name:]
+short.english
+  从全局注册表中移除指定名称的日志记录器。移除后该名称可被重新用于创建新的记录器。注意：如果仍有句柄引用该记录器，句柄本身不会立即失效，但建议在drop之后不再使用旧句柄。;
+short.german
+  Einen Logger nach Name aus der Registry entfernen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, drop, remove;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  logger_name:        input_control;
+  description.english
+    要移除的日志记录器名称。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+
+spdlog_drop_all<- CHspdlog_drop_all[:::]
+short.english
+  从全局注册表中移除所有已注册的日志记录器。适用于需要重新配置所有记录器的场景。调用后所有记录器名称可被重新使用。;
+short.german
+  Alle Logger aus der Registry entfernen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, drop, all;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+
+spdlog_shutdown<- CHspdlog_shutdown[:::]
+short.english
+  关闭spdlog日志系统并释放所有资源。刷新所有记录器的缓冲区，移除所有记录器，关闭所有文件。应在程序结束时调用以确保日志完整写入。调用后如需继续使用日志功能，需重新创建记录器。;
+short.german
+  Spdlog herunterfahren und alle Ressourcen freigeben.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, shutdown;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;

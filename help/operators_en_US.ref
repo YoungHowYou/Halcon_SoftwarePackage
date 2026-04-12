@@ -1,3 +1,335 @@
+spdlog_shutdown()
+short.ascii=Shutdown spdlog and release all resources.
+keywords=spdlogshutdown
+module=0 Foundation
+spdlog_drop_all()
+short.ascii=Drop all loggers from the registry.
+keywords=spdlogdropall
+module=0 Foundation
+spdlog_drop(logger_name)
+short.ascii=Drop a logger by name from the registry.
+keywords=spdlogdropremove
+module=0 Foundation
+parameter=logger_name
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+spdlog_flush_on(handle,level)
+short.ascii=Set minimum level that triggers automatic flush.
+keywords=spdlogflushlevel
+module=0 Foundation
+parameter=handle
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=level
+parameter_class=input_control
+value_list=0123456
+type_list=integer
+default_value=2
+default_type=integer
+sem_type=number
+multivalue=false
+spdlog_flush(handle)
+short.ascii=Flush logger.
+keywords=spdlogflush
+module=0 Foundation
+parameter=handle
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+spdlog_set_pattern(handle,pattern)
+short.ascii=Set logger format pattern.
+keywords=spdlogpatternformat
+module=0 Foundation
+parameter=handle
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=pattern
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+spdlog_set_level(handle,level)
+short.ascii=Set logger level (0=trace,1=debug,2=info,3=warn,4=err,5=critical,6=off).
+keywords=spdloglevelset
+module=0 Foundation
+parameter=handle
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=level
+parameter_class=input_control
+value_list=0123456
+type_list=integer
+default_value=2
+default_type=integer
+sem_type=number
+multivalue=false
+spdlog_critical(handle,msg)
+short.ascii=Log a critical message.
+keywords=spdloglogcritical
+module=0 Foundation
+parameter=handle
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=msg
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+spdlog_err(handle,msg)
+short.ascii=Log an error message.
+keywords=spdloglogerror
+module=0 Foundation
+parameter=handle
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=msg
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+spdlog_warn(handle,msg)
+short.ascii=Log a warning message.
+keywords=spdloglogwarnwarning
+module=0 Foundation
+parameter=handle
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=msg
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+spdlog_info(handle,msg)
+short.ascii=Log an info message.
+keywords=spdlogloginfo
+module=0 Foundation
+parameter=handle
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=msg
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+spdlog_debug(handle,msg)
+short.ascii=Log a debug message.
+keywords=spdloglogdebug
+module=0 Foundation
+parameter=handle
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=msg
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+spdlog_trace(handle,msg)
+short.ascii=Log a trace message.
+keywords=spdloglogtrace
+module=0 Foundation
+parameter=handle
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=msg
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+spdlog_log(handle,level,msg)
+short.ascii=Log a message with specified level (0=trace,1=debug,2=info,3=warn,4=err,5=critical).
+keywords=spdlogloglevel
+module=0 Foundation
+parameter=handle
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=level
+parameter_class=input_control
+value_list=012345
+type_list=integer
+default_value=2
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=msg
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+spdlog_get(logger_name,handle)
+short.ascii=Get an existing logger by name.
+keywords=spdlogloggerget
+module=0 Foundation
+parameter=logger_name
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=handle
+parameter_class=output_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+spdlog_stdout_color_mt(logger_name,handle)
+short.ascii=Create a color console logger (multi-threaded).
+keywords=spdlogloggerconsolecolorstdout
+module=0 Foundation
+parameter=logger_name
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=handle
+parameter_class=output_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+spdlog_daily_logger_mt(logger_name,filename,hour,minute,handle)
+short.ascii=Create a daily rotating file logger (multi-threaded).
+keywords=spdlogloggerfiledaily
+module=0 Foundation
+parameter=logger_name
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=filename
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=hour
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=minute
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=handle
+parameter_class=output_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+spdlog_rotating_logger_mt(logger_name,filename,max_file_size,max_files,handle)
+short.ascii=Create a rotating file logger (multi-threaded).
+keywords=spdlogloggerfilerotating
+module=0 Foundation
+parameter=logger_name
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=filename
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=max_file_size
+parameter_class=input_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=max_files
+parameter_class=input_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=handle
+parameter_class=output_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+spdlog_basic_logger_mt(logger_name,filename,truncate,handle)
+short.ascii=Create a basic file logger (multi-threaded).
+keywords=spdlogloggerfilebasic
+module=0 Foundation
+parameter=logger_name
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=filename
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=truncate
+parameter_class=input_control
+value_list=01
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=handle
+parameter_class=output_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
 modbus_strerror(msg)
 short.ascii=Laplace Filter.
 keywords=UserExtensions

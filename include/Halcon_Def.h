@@ -2,6 +2,12 @@
 #include "Halcon.h"
 #include "modbus.h"
 #include "sqlite3.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/rotating_file_sink.h"
+#include "spdlog/sinks/daily_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
+#include <memory>
 
 #pragma region Sqlite
 #define H_Sqlite_TAG 0xC0FFEE40
@@ -76,6 +82,58 @@ extern "C"
     HCkP(HAllocOutputHandle(proc_handle, 1, &(pUserData), &ModbusHandleTypeUser)); \
     HCkP(HAlloc(proc_handle, sizeof(ModbusHUserHandleData), (void **)(pUserData)))
 #define OUTModbusObject(pUserData) (*(pUserData))
+#pragma endregion
+
+#pragma region Spdlog
+#define H_Spdlog_TAG 0xC0FFEE80
+#define H_Spdlog_SEM_TYPE "Spdlog"
+extern "C"
+{
+    typedef struct
+    {
+        void *loggerPtr; // std::shared_ptr<spdlog::logger>*
+        char loggerName[128];
+    } SpdlogHUserHandleData;
+
+    static Herror SpdlogHUserHandleDestructor(Hproc_handle ph, SpdlogHUserHandleData *data)
+    {
+        if (data->loggerPtr)
+        {
+            auto *pLogger = static_cast<std::shared_ptr<spdlog::logger> *>(data->loggerPtr);
+            delete pLogger;
+            data->loggerPtr = NULL;
+        }
+        return HFree(ph, data);
+    }
+    const HHandleInfo SpdlogHandleTypeUser = HANDLE_INFO_INITIALIZER_NOSER(H_Spdlog_TAG, H_Spdlog_SEM_TYPE, SpdlogHUserHandleDestructor, NULL, NULL);
+}
+#define Def_INSpdlogObject(pos, pUserData) \
+    SpdlogHUserHandleData *(pUserData);    \
+    HGetCElemH1(proc_handle, (pos), &SpdlogHandleTypeUser, &(pUserData))
+
+#define Def_OUTSpdlogObject(pos, pUserData)                                        \
+    SpdlogHUserHandleData **(pUserData);                                           \
+    HCkP(HAllocOutputHandle(proc_handle, 1, &(pUserData), &SpdlogHandleTypeUser)); \
+    HCkP(HAlloc(proc_handle, sizeof(SpdlogHUserHandleData), (void **)(pUserData)))
+#define OUTSpdlogObject(pUserData) (*(pUserData))
+
+// Helper: get the shared_ptr<logger> from handle data
+inline std::shared_ptr<spdlog::logger> SpdlogGetLogger(SpdlogHUserHandleData *data)
+{
+    if (data && data->loggerPtr)
+    {
+        return *static_cast<std::shared_ptr<spdlog::logger> *>(data->loggerPtr);
+    }
+    return nullptr;
+}
+
+// Helper: store a shared_ptr<logger> into handle data
+inline void SpdlogSetLogger(SpdlogHUserHandleData *data, std::shared_ptr<spdlog::logger> logger)
+{
+    data->loggerPtr = new std::shared_ptr<spdlog::logger>(logger);
+    strncpy(data->loggerName, logger->name().c_str(), 127);
+    data->loggerName[127] = '\0';
+}
 #pragma endregion
 
 // #pragma region IUP

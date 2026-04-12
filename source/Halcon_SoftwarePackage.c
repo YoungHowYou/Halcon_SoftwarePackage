@@ -183,3 +183,82 @@ Herror CHmodbus_strerror(Hproc_handle proc_handle)
 }
 
 #pragma endregion
+
+#pragma region spdlog
+Herror CHspdlog_basic_logger_mt(Hproc_handle proc_handle)
+{
+	return Hspdlog_basic_logger_mt(proc_handle);
+}
+Herror CHspdlog_rotating_logger_mt(Hproc_handle proc_handle)
+{
+	return Hspdlog_rotating_logger_mt(proc_handle);
+}
+Herror CHspdlog_daily_logger_mt(Hproc_handle proc_handle)
+{
+	return Hspdlog_daily_logger_mt(proc_handle);
+}
+Herror CHspdlog_stdout_color_mt(Hproc_handle proc_handle)
+{
+	return Hspdlog_stdout_color_mt(proc_handle);
+}
+Herror CHspdlog_get(Hproc_handle proc_handle)
+{
+	return Hspdlog_get(proc_handle);
+}
+Herror CHspdlog_log(Hproc_handle proc_handle)
+{
+	return Hspdlog_log(proc_handle);
+}
+Herror CHspdlog_trace(Hproc_handle proc_handle)
+{
+	return Hspdlog_trace(proc_handle);
+}
+Herror CHspdlog_debug(Hproc_handle proc_handle)
+{
+	return Hspdlog_debug(proc_handle);
+}
+Herror CHspdlog_info(Hproc_handle proc_handle)
+{
+	return Hspdlog_info(proc_handle);
+}
+Herror CHspdlog_warn(Hproc_handle proc_handle)
+{
+	return Hspdlog_warn(proc_handle);
+}
+Herror CHspdlog_err(Hproc_handle proc_handle)
+{
+	return Hspdlog_err(proc_handle);
+}
+Herror CHspdlog_critical(Hproc_handle proc_handle)
+{
+	return Hspdlog_critical(proc_handle);
+}
+Herror CHspdlog_set_level(Hproc_handle proc_handle)
+{
+	return Hspdlog_set_level(proc_handle);
+}
+Herror CHspdlog_set_pattern(Hproc_handle proc_handle)
+{
+	return Hspdlog_set_pattern(proc_handle);
+}
+Herror CHspdlog_flush(Hproc_handle proc_handle)
+{
+	return Hspdlog_flush(proc_handle);
+}
+Herror CHspdlog_flush_on(Hproc_handle proc_handle)
+{
+	return Hspdlog_flush_on(proc_handle);
+}
+Herror CHspdlog_drop(Hproc_handle proc_handle)
+{
+	return Hspdlog_drop(proc_handle);
+}
+Herror CHspdlog_drop_all(Hproc_handle proc_handle)
+{
+	return Hspdlog_drop_all(proc_handle);
+}
+Herror CHspdlog_shutdown(Hproc_handle proc_handle)
+{
+	return Hspdlog_shutdown(proc_handle);
+}
+#pragma endregion

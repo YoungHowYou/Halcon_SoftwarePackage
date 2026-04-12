@@ -28,8 +28,30 @@ extern EXPORTS_API Herror Hmodbus_read_register_float(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hmodbus_write_register_int(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hmodbus_read_register_int(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hmodbus_read_inputbits(Hproc_handle proc_handle);	
-extern EXPORTS_API Herror Hmodbus_strerror(Hproc_handle proc_handle);	
+extern EXPORTS_API Herror Hmodbus_strerror(Hproc_handle proc_handle);
 
+#pragma endregion
+
+#pragma region spdlog
+extern EXPORTS_API Herror Hspdlog_basic_logger_mt(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_rotating_logger_mt(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_daily_logger_mt(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_stdout_color_mt(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_get(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_log(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_trace(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_debug(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_info(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_warn(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_err(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_critical(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_set_level(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_set_pattern(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_flush(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_flush_on(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_drop(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_drop_all(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hspdlog_shutdown(Hproc_handle proc_handle);
 #pragma endregion
 
 
