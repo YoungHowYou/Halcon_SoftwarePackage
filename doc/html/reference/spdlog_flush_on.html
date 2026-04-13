@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">spdlog_flush_on</span><span data-if="c" style="display:none;">T_spdlog_flush_on</span><span data-if="cpp" style="display:none;">SpdlogFlushOn</span><span data-if="dotnet" style="display:none;">SpdlogFlushOn</span><span data-if="python" style="display:none;">spdlog_flush_on</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">spdlog_flush_on</span><span data-if="c" style="display:none;">T_spdlog_flush_on</span><span data-if="cpp" style="display:none;">SpdlogFlushOn</span><span data-if="dotnet" style="display:none;">SpdlogFlushOn</span><span data-if="python" style="display:none;">spdlog_flush_on</span></code> — Set minimum level that triggers automatic flush.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">spdlog_flush_on</span><span data-if="c" style="display:none;">T_spdlog_flush_on</span><span data-if="cpp" style="display:none;">SpdlogFlushOn</span><span data-if="dotnet" style="display:none;">SpdlogFlushOn</span><span data-if="python" style="display:none;">spdlog_flush_on</span></code> — 设置自动刷新的触发级别。当记录的日志消息级别大于等于指定level时，自动执行flush操作。例如设为3(warn)，则每次记录warn、err、critical消息后都会自动刷新，确保重要日志立即写入文件。低于此级别的消息仍使用缓冲写入。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>

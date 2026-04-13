@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">spdlog_set_pattern</span><span data-if="c" style="display:none;">T_spdlog_set_pattern</span><span data-if="cpp" style="display:none;">SpdlogSetPattern</span><span data-if="dotnet" style="display:none;">SpdlogSetPattern</span><span data-if="python" style="display:none;">spdlog_set_pattern</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">spdlog_set_pattern</span><span data-if="c" style="display:none;">T_spdlog_set_pattern</span><span data-if="cpp" style="display:none;">SpdlogSetPattern</span><span data-if="dotnet" style="display:none;">SpdlogSetPattern</span><span data-if="python" style="display:none;">spdlog_set_pattern</span></code> — Set logger format pattern.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">spdlog_set_pattern</span><span data-if="c" style="display:none;">T_spdlog_set_pattern</span><span data-if="cpp" style="display:none;">SpdlogSetPattern</span><span data-if="dotnet" style="display:none;">SpdlogSetPattern</span><span data-if="python" style="display:none;">spdlog_set_pattern</span></code> — 设置日志记录器的输出格式。使用spdlog格式占位符自定义日志行的显示格式。常用占位符：%Y=年、%m=月、%d=日、%H=时、%M=分、%S=秒、%e=毫秒、%n=记录器名称、%l=级别名称、%v=消息内容、%t=线程ID。默认格式为'[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] %v'。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>

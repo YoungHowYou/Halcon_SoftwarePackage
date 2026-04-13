@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">spdlog_daily_logger_mt</span><span data-if="c" style="display:none;">T_spdlog_daily_logger_mt</span><span data-if="cpp" style="display:none;">SpdlogDailyLoggerMt</span><span data-if="dotnet" style="display:none;">SpdlogDailyLoggerMt</span><span data-if="python" style="display:none;">spdlog_daily_logger_mt</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">spdlog_daily_logger_mt</span><span data-if="c" style="display:none;">T_spdlog_daily_logger_mt</span><span data-if="cpp" style="display:none;">SpdlogDailyLoggerMt</span><span data-if="dotnet" style="display:none;">SpdlogDailyLoggerMt</span><span data-if="python" style="display:none;">spdlog_daily_logger_mt</span></code> — Create a daily rotating file logger (multi-threaded).</p>
+<p><code><span data-if="hdevelop" style="display:inline;">spdlog_daily_logger_mt</span><span data-if="c" style="display:none;">T_spdlog_daily_logger_mt</span><span data-if="cpp" style="display:none;">SpdlogDailyLoggerMt</span><span data-if="dotnet" style="display:none;">SpdlogDailyLoggerMt</span><span data-if="python" style="display:none;">spdlog_daily_logger_mt</span></code> — 创建每日轮转文件日志记录器(多线程安全)。每天在指定的hour时minute分自动创建新的日志文件，旧文件名会自动添加日期后缀(如app_2026-04-12.log)。适用于需要按天归档日志的场景。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>

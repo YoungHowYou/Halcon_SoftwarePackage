@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">spdlog_trace</span><span data-if="c" style="display:none;">T_spdlog_trace</span><span data-if="cpp" style="display:none;">SpdlogTrace</span><span data-if="dotnet" style="display:none;">SpdlogTrace</span><span data-if="python" style="display:none;">spdlog_trace</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">spdlog_trace</span><span data-if="c" style="display:none;">T_spdlog_trace</span><span data-if="cpp" style="display:none;">SpdlogTrace</span><span data-if="dotnet" style="display:none;">SpdlogTrace</span><span data-if="python" style="display:none;">spdlog_trace</span></code> — Log a trace message.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">spdlog_trace</span><span data-if="c" style="display:none;">T_spdlog_trace</span><span data-if="cpp" style="display:none;">SpdlogTrace</span><span data-if="dotnet" style="display:none;">SpdlogTrace</span><span data-if="python" style="display:none;">spdlog_trace</span></code> — 记录一条trace(跟踪)级别的日志。trace是最低级别(0)，用于记录非常详细的程序运行信息，通常仅在深度调试时开启。需要先通过spdlog_set_level将级别设为0才能输出trace日志。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>

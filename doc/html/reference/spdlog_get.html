@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">spdlog_get</span><span data-if="c" style="display:none;">T_spdlog_get</span><span data-if="cpp" style="display:none;">SpdlogGet</span><span data-if="dotnet" style="display:none;">SpdlogGet</span><span data-if="python" style="display:none;">spdlog_get</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">spdlog_get</span><span data-if="c" style="display:none;">T_spdlog_get</span><span data-if="cpp" style="display:none;">SpdlogGet</span><span data-if="dotnet" style="display:none;">SpdlogGet</span><span data-if="python" style="display:none;">spdlog_get</span></code> — Get an existing logger by name.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">spdlog_get</span><span data-if="c" style="display:none;">T_spdlog_get</span><span data-if="cpp" style="display:none;">SpdlogGet</span><span data-if="dotnet" style="display:none;">SpdlogGet</span><span data-if="python" style="display:none;">spdlog_get</span></code> — 根据名称获取已创建的日志记录器。通过logger_name查找之前创建的记录器并返回其句柄，可在不同位置共享同一个记录器。如果指定名称的记录器不存在则返回错误。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>

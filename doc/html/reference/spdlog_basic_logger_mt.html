@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">spdlog_basic_logger_mt</span><span data-if="c" style="display:none;">T_spdlog_basic_logger_mt</span><span data-if="cpp" style="display:none;">SpdlogBasicLoggerMt</span><span data-if="dotnet" style="display:none;">SpdlogBasicLoggerMt</span><span data-if="python" style="display:none;">spdlog_basic_logger_mt</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">spdlog_basic_logger_mt</span><span data-if="c" style="display:none;">T_spdlog_basic_logger_mt</span><span data-if="cpp" style="display:none;">SpdlogBasicLoggerMt</span><span data-if="dotnet" style="display:none;">SpdlogBasicLoggerMt</span><span data-if="python" style="display:none;">spdlog_basic_logger_mt</span></code> — Create a basic file logger (multi-threaded).</p>
+<p><code><span data-if="hdevelop" style="display:inline;">spdlog_basic_logger_mt</span><span data-if="c" style="display:none;">T_spdlog_basic_logger_mt</span><span data-if="cpp" style="display:none;">SpdlogBasicLoggerMt</span><span data-if="dotnet" style="display:none;">SpdlogBasicLoggerMt</span><span data-if="python" style="display:none;">spdlog_basic_logger_mt</span></code> — 创建基本文件日志记录器(多线程安全)。将日志消息写入指定的单个文件，适用于简单的日志记录场景。如果文件已存在，可通过truncate参数选择追加或清空后写入。logger_name为日志记录器的唯一名称，可通过spdlog_get按名称再次获取。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>

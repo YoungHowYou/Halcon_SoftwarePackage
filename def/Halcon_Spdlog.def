@@ -19,8 +19,6 @@ parallelization
 
 parameter
   logger_name:        input_control;
-  description.english
-    日志记录器的唯一名称。同一名称不可重复创建，可通过spdlog_get按此名称获取已有的记录器。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -28,8 +26,6 @@ parameter
 
 parameter
   filename:           input_control;
-  description.english
-    日志输出文件的完整路径，例如'D:/logs/app.log'。如果目录不存在会创建失败，请确保目录已存在。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -37,8 +33,6 @@ parameter
 
 parameter
   truncate:           input_control;
-  description.english
-    是否清空已有文件。0=追加模式(在已有内容后继续写入)，1=截断模式(清空文件后重新写入)。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -48,8 +42,6 @@ parameter
 
 parameter
   handle:             output_control;
-  description.english
-    返回创建的日志记录器句柄，后续所有日志操作均通过此句柄进行。;
   sem_type:           handle;
   type_list:          handle;
   default_type:       handle;
@@ -77,8 +69,6 @@ parallelization
 
 parameter
   logger_name:        input_control;
-  description.english
-    日志记录器的唯一名称。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -86,8 +76,6 @@ parameter
 
 parameter
   filename:           input_control;
-  description.english
-    日志输出文件的完整路径。轮转时自动在文件名后添加编号，如app.1.log、app.2.log。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -95,8 +83,6 @@ parameter
 
 parameter
   max_file_size:      input_control;
-  description.english
-    单个日志文件的最大字节数。当文件达到此大小时触发轮转。例如5242880表示5MB。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -104,8 +90,6 @@ parameter
 
 parameter
   max_files:          input_control;
-  description.english
-    最多保留的历史日志文件数量。超出数量后最旧的文件会被自动删除。例如3表示保留app.1.log到app.3.log。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -113,8 +97,6 @@ parameter
 
 parameter
   handle:             output_control;
-  description.english
-    返回创建的日志记录器句柄。;
   sem_type:           handle;
   type_list:          handle;
   default_type:       handle;
@@ -142,8 +124,6 @@ parallelization
 
 parameter
   logger_name:        input_control;
-  description.english
-    日志记录器的唯一名称。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -151,8 +131,6 @@ parameter
 
 parameter
   filename:           input_control;
-  description.english
-    日志输出文件的完整路径。轮转时自动在文件名中插入日期，如app_2026-04-12.log。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -160,8 +138,6 @@ parameter
 
 parameter
   hour:               input_control;
-  description.english
-    每日轮转的小时(0-23)。例如设为2表示凌晨2点轮转。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -170,8 +146,6 @@ parameter
 
 parameter
   minute:             input_control;
-  description.english
-    每日轮转的分钟(0-59)。与hour配合使用，例如hour=2,minute=30表示每天02:30轮转。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -180,8 +154,6 @@ parameter
 
 parameter
   handle:             output_control;
-  description.english
-    返回创建的日志记录器句柄。;
   sem_type:           handle;
   type_list:          handle;
   default_type:       handle;
@@ -209,8 +181,6 @@ parallelization
 
 parameter
   logger_name:        input_control;
-  description.english
-    日志记录器的唯一名称。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -218,8 +188,6 @@ parameter
 
 parameter
   handle:             output_control;
-  description.english
-    返回创建的日志记录器句柄。;
   sem_type:           handle;
   type_list:          handle;
   default_type:       handle;
@@ -247,8 +215,6 @@ parallelization
 
 parameter
   logger_name:        input_control;
-  description.english
-    要查找的日志记录器名称，必须与创建时指定的名称一致。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -256,8 +222,6 @@ parameter
 
 parameter
   handle:             output_control;
-  description.english
-    返回找到的日志记录器句柄。;
   sem_type:           handle;
   type_list:          handle;
   default_type:       handle;
@@ -285,8 +249,6 @@ parallelization
 
 parameter
   handle:             input_control;
-  description.english
-    日志记录器句柄，由spdlog_basic_logger_mt等创建函数返回。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -294,8 +256,6 @@ parameter
 
 parameter
   level:              input_control;
-  description.english
-    日志级别。0=trace(最详细)，1=debug，2=info，3=warn，4=err，5=critical(最严重)。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -305,8 +265,6 @@ parameter
 
 parameter
   msg:                input_control;
-  description.english
-    要记录的日志消息文本。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -334,8 +292,6 @@ parallelization
 
 parameter
   handle:             input_control;
-  description.english
-    日志记录器句柄。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -343,8 +299,6 @@ parameter
 
 parameter
   msg:                input_control;
-  description.english
-    要记录的日志消息文本。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -372,8 +326,6 @@ parallelization
 
 parameter
   handle:             input_control;
-  description.english
-    日志记录器句柄。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -381,8 +333,6 @@ parameter
 
 parameter
   msg:                input_control;
-  description.english
-    要记录的日志消息文本。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -410,8 +360,6 @@ parallelization
 
 parameter
   handle:             input_control;
-  description.english
-    日志记录器句柄。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -419,8 +367,6 @@ parameter
 
 parameter
   msg:                input_control;
-  description.english
-    要记录的日志消息文本。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -448,8 +394,6 @@ parallelization
 
 parameter
   handle:             input_control;
-  description.english
-    日志记录器句柄。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -457,8 +401,6 @@ parameter
 
 parameter
   msg:                input_control;
-  description.english
-    要记录的日志消息文本。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -486,8 +428,6 @@ parallelization
 
 parameter
   handle:             input_control;
-  description.english
-    日志记录器句柄。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -495,8 +435,6 @@ parameter
 
 parameter
   msg:                input_control;
-  description.english
-    要记录的日志消息文本。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -524,8 +462,6 @@ parallelization
 
 parameter
   handle:             input_control;
-  description.english
-    日志记录器句柄。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -533,8 +469,6 @@ parameter
 
 parameter
   msg:                input_control;
-  description.english
-    要记录的日志消息文本。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -562,8 +496,6 @@ parallelization
 
 parameter
   handle:             input_control;
-  description.english
-    日志记录器句柄。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -571,8 +503,6 @@ parameter
 
 parameter
   level:              input_control;
-  description.english
-    日志级别。0=trace，1=debug，2=info(默认)，3=warn，4=err，5=critical，6=off(关闭)。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -602,8 +532,6 @@ parallelization
 
 parameter
   handle:             input_control;
-  description.english
-    日志记录器句柄。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -611,8 +539,6 @@ parameter
 
 parameter
   pattern:            input_control;
-  description.english
-    格式字符串。常用占位符：%Y=年，%m=月，%d=日，%H=时，%M=分，%S=秒，%e=毫秒，%n=记录器名称，%l=级别全称，%L=级别首字母，%v=消息内容，%t=线程ID，%P=进程ID。示例：'[%Y-%m-%d %H:%M:%S] [%l] %v'。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -640,8 +566,6 @@ parallelization
 
 parameter
   handle:             input_control;
-  description.english
-    日志记录器句柄。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -669,8 +593,6 @@ parallelization
 
 parameter
   handle:             input_control;
-  description.english
-    日志记录器句柄。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -678,8 +600,6 @@ parameter
 
 parameter
   level:              input_control;
-  description.english
-    触发自动刷新的最低级别。0=trace，1=debug，2=info，3=warn，4=err，5=critical，6=off(不自动刷新)。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -709,8 +629,6 @@ parallelization
 
 parameter
   logger_name:        input_control;
-  description.english
-    要移除的日志记录器名称。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;

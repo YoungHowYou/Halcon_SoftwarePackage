@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">spdlog_rotating_logger_mt</span><span data-if="c" style="display:none;">T_spdlog_rotating_logger_mt</span><span data-if="cpp" style="display:none;">SpdlogRotatingLoggerMt</span><span data-if="dotnet" style="display:none;">SpdlogRotatingLoggerMt</span><span data-if="python" style="display:none;">spdlog_rotating_logger_mt</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">spdlog_rotating_logger_mt</span><span data-if="c" style="display:none;">T_spdlog_rotating_logger_mt</span><span data-if="cpp" style="display:none;">SpdlogRotatingLoggerMt</span><span data-if="dotnet" style="display:none;">SpdlogRotatingLoggerMt</span><span data-if="python" style="display:none;">spdlog_rotating_logger_mt</span></code> — Create a rotating file logger (multi-threaded).</p>
+<p><code><span data-if="hdevelop" style="display:inline;">spdlog_rotating_logger_mt</span><span data-if="c" style="display:none;">T_spdlog_rotating_logger_mt</span><span data-if="cpp" style="display:none;">SpdlogRotatingLoggerMt</span><span data-if="dotnet" style="display:none;">SpdlogRotatingLoggerMt</span><span data-if="python" style="display:none;">spdlog_rotating_logger_mt</span></code> — 创建滚动文件日志记录器(多线程安全)。当日志文件大小达到max_file_size字节时，自动创建新文件并对旧文件编号轮转，最多保留max_files个历史文件。适用于长时间运行的程序，防止单个日志文件过大。例如filename为app.log，轮转后生成app.1.log、app.2.log等。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>

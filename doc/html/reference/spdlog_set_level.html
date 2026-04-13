@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">spdlog_set_level</span><span data-if="c" style="display:none;">T_spdlog_set_level</span><span data-if="cpp" style="display:none;">SpdlogSetLevel</span><span data-if="dotnet" style="display:none;">SpdlogSetLevel</span><span data-if="python" style="display:none;">spdlog_set_level</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">spdlog_set_level</span><span data-if="c" style="display:none;">T_spdlog_set_level</span><span data-if="cpp" style="display:none;">SpdlogSetLevel</span><span data-if="dotnet" style="display:none;">SpdlogSetLevel</span><span data-if="python" style="display:none;">spdlog_set_level</span></code> — Set logger level (0=trace,1=debug,2=info,3=warn,4=err,5=critical,6=off).</p>
+<p><code><span data-if="hdevelop" style="display:inline;">spdlog_set_level</span><span data-if="c" style="display:none;">T_spdlog_set_level</span><span data-if="cpp" style="display:none;">SpdlogSetLevel</span><span data-if="dotnet" style="display:none;">SpdlogSetLevel</span><span data-if="python" style="display:none;">spdlog_set_level</span></code> — 设置日志记录器的最低输出级别。只有级别大于等于此值的日志消息才会被实际记录。级别值：0=trace(全部输出)、1=debug、2=info(默认)、3=warn、4=err、5=critical、6=off(关闭所有输出)。例如设为3时，只有warn、err、critical消息会被记录。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>

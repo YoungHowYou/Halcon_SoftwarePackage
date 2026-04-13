@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">spdlog_drop</span><span data-if="c" style="display:none;">spdlog_drop</span><span data-if="cpp" style="display:none;">SpdlogDrop</span><span data-if="dotnet" style="display:none;">SpdlogDrop</span><span data-if="python" style="display:none;">spdlog_drop</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">spdlog_drop</span><span data-if="c" style="display:none;">spdlog_drop</span><span data-if="cpp" style="display:none;">SpdlogDrop</span><span data-if="dotnet" style="display:none;">SpdlogDrop</span><span data-if="python" style="display:none;">spdlog_drop</span></code> — Drop a logger by name from the registry.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">spdlog_drop</span><span data-if="c" style="display:none;">spdlog_drop</span><span data-if="cpp" style="display:none;">SpdlogDrop</span><span data-if="dotnet" style="display:none;">SpdlogDrop</span><span data-if="python" style="display:none;">spdlog_drop</span></code> — 从全局注册表中移除指定名称的日志记录器。移除后该名称可被重新用于创建新的记录器。注意：如果仍有句柄引用该记录器，句柄本身不会立即失效，但建议在drop之后不再使用旧句柄。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>

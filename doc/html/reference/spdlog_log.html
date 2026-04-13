@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">spdlog_log</span><span data-if="c" style="display:none;">T_spdlog_log</span><span data-if="cpp" style="display:none;">SpdlogLog</span><span data-if="dotnet" style="display:none;">SpdlogLog</span><span data-if="python" style="display:none;">spdlog_log</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">spdlog_log</span><span data-if="c" style="display:none;">T_spdlog_log</span><span data-if="cpp" style="display:none;">SpdlogLog</span><span data-if="dotnet" style="display:none;">SpdlogLog</span><span data-if="python" style="display:none;">spdlog_log</span></code> — Log a message with specified level (0=trace,1=debug,2=info,3=warn,4=err,5=critical).</p>
+<p><code><span data-if="hdevelop" style="display:inline;">spdlog_log</span><span data-if="c" style="display:none;">T_spdlog_log</span><span data-if="cpp" style="display:none;">SpdlogLog</span><span data-if="dotnet" style="display:none;">SpdlogLog</span><span data-if="python" style="display:none;">spdlog_log</span></code> — 使用指定级别记录一条日志消息。level参数指定日志级别：0=trace(跟踪)、1=debug(调试)、2=info(信息)、3=warn(警告)、4=err(错误)、5=critical(严重)。只有当level大于等于记录器当前设置的级别时，消息才会被实际写入。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>

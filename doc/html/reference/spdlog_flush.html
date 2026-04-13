@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">spdlog_flush</span><span data-if="c" style="display:none;">T_spdlog_flush</span><span data-if="cpp" style="display:none;">SpdlogFlush</span><span data-if="dotnet" style="display:none;">SpdlogFlush</span><span data-if="python" style="display:none;">spdlog_flush</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">spdlog_flush</span><span data-if="c" style="display:none;">T_spdlog_flush</span><span data-if="cpp" style="display:none;">SpdlogFlush</span><span data-if="dotnet" style="display:none;">SpdlogFlush</span><span data-if="python" style="display:none;">spdlog_flush</span></code> — Flush logger.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">spdlog_flush</span><span data-if="c" style="display:none;">T_spdlog_flush</span><span data-if="cpp" style="display:none;">SpdlogFlush</span><span data-if="dotnet" style="display:none;">SpdlogFlush</span><span data-if="python" style="display:none;">spdlog_flush</span></code> — 立即将缓冲区中的日志消息刷新写入目标(文件或控制台)。spdlog默认使用缓冲写入以提高性能，调用此算子可确保所有已记录的消息立即落盘，适用于程序退出前或关键操作后确保日志不丢失。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
