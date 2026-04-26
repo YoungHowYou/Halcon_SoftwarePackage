@@ -1,3 +1,6 @@
+handle,result:userextensions:UserExtensions:
+handle,sql,errmsg:userextensions:UserExtensions:
+host,user,passwd,db,port,unix_socket,client_flag,handle,errmsg:userextensions:UserExtensions:
 :userextensions:UserExtensions:
 :userextensions:UserExtensions:
 logger_name:userextensions:UserExtensions:

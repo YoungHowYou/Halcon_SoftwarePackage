@@ -7,6 +7,7 @@
 #include "spdlog/sinks/rotating_file_sink.h"
 #include "spdlog/sinks/daily_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include "mysql.h"
 #include <memory>
 
 #pragma region Sqlite
@@ -134,6 +135,38 @@ inline void SpdlogSetLogger(SpdlogHUserHandleData *data, std::shared_ptr<spdlog:
     strncpy(data->loggerName, logger->name().c_str(), 127);
     data->loggerName[127] = '\0';
 }
+#pragma endregion
+
+#pragma region Mysql
+#define H_Mysql_TAG 0xC0FFEEB0
+#define H_Mysql_SEM_TYPE "Mysql"
+extern "C"
+{
+    typedef struct
+    {
+        MYSQL *mysqlCtx;
+    } MysqlHUserHandleData;
+
+    static Herror MysqlHUserHandleDestructor(Hproc_handle ph, MysqlHUserHandleData *data)
+    {
+        if (data->mysqlCtx)
+        {
+            mysql_close(data->mysqlCtx);
+            data->mysqlCtx = NULL;
+        }
+        return HFree(ph, data);
+    }
+    const HHandleInfo MysqlHandleTypeUser = HANDLE_INFO_INITIALIZER_NOSER(H_Mysql_TAG, H_Mysql_SEM_TYPE, MysqlHUserHandleDestructor, NULL, NULL);
+}
+#define Def_INMysqlObject(pos, pUserData) \
+    MysqlHUserHandleData *(pUserData);    \
+    HGetCElemH1(proc_handle, (pos), &MysqlHandleTypeUser, &(pUserData))
+
+#define Def_OUTMysqlObject(pos, pUserData)                                        \
+    MysqlHUserHandleData **(pUserData);                                           \
+    HCkP(HAllocOutputHandle(proc_handle, 1, &(pUserData), &MysqlHandleTypeUser)); \
+    HCkP(HAlloc(proc_handle, sizeof(MysqlHUserHandleData), (void **)(pUserData)))
+#define OUTMysqlObject(pUserData) (*(pUserData))
 #pragma endregion
 
 // #pragma region IUP

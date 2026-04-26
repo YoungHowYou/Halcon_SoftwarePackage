@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="23.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>mysql_real_connect ('127.0.0.1', 'root', '123456', '', 3306, '', 0, mysqlH, errmsg)</l>
+<c></c>
+<l>mysql_query (mysqlH, 'CREATE DATABASE IF NOT EXISTS test', errmsg)</l>
+<l>mysql_query (mysqlH, 'USE test', errmsg)</l>
+<l>mysql_query (mysqlH, 'DROP TABLE IF EXISTS COMPANY', errmsg)</l>
+<l>mysql_query (mysqlH, 'CREATE TABLE COMPANY (' + \
+                     'ID INT PRIMARY KEY NOT NULL,' + \
+                     'NAME VARCHAR(64) NOT NULL,' + \
+                     'AGE INT NOT NULL,' + \
+                     'ADDRESS VARCHAR(64),' + \
+                     'SALARY DOUBLE)', errmsg)</l>
+<c></c>
+<l>mysql_query (mysqlH, 'INSERT INTO COMPANY VALUES (1,\'Paul\',32,\'California\',20000.00)', errmsg)</l>
+<l>mysql_query (mysqlH, 'INSERT INTO COMPANY VALUES (2,\'Allen\',25,\'Texas\',15000.00)', errmsg)</l>
+<l>mysql_query (mysqlH, 'INSERT INTO COMPANY VALUES (3,\'Teddy\',23,\'Norway\',20000.00)', errmsg)</l>
+<l>mysql_query (mysqlH, 'INSERT INTO COMPANY VALUES (4,\'Mark\',25,\'Rich-Mond\',65000.00)', errmsg)</l>
+<c></c>
+<l>mysql_query (mysqlH, 'SELECT ID,NAME,AGE,ADDRESS,SALARY FROM COMPANY ORDER BY ID', errmsg)</l>
+<l>mysql_store_result (mysqlH, result)</l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

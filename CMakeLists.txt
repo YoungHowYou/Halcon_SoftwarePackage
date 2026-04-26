@@ -62,6 +62,7 @@ HALCON_AddExtensionPackage(Halcon_SoftwarePackage
     def/Halcon_Sqlite.def
     def/Halcon_Modbus.def
     def/Halcon_Spdlog.def
+    def/Halcon_Mysql.def
   SOURCES
     source/Halcon_SoftwarePackage.c
     source/Halcon_modbus.cpp
@@ -69,14 +70,15 @@ HALCON_AddExtensionPackage(Halcon_SoftwarePackage
     source/shell.c
     source/Halcon_sqlite.cpp
     source/Halcon_spdlog.cpp
+    source/Halcon_mysql.cpp
     #source/iupstub.c
   CHAPTERS
     userextensions
   CLASSES
     SoftwarePackage
   OPERATORS
-   
-  
+
+
 )
 ##三方库包含
 set(HALCON_ROOT $ENV{HALCONROOT})   # 转成 CMake 变量，后面用着方便
@@ -98,21 +100,30 @@ set_source_files_properties(${DEF_FILES} PROPERTIES
 source_group("Module Definition Files" FILES ${DEF_FILES})
 # --------------  三方库目录（无空格/括号安全版） --------------
 
-target_include_directories(${ProjectName} 
+target_include_directories(${ProjectName}
     PUBLIC
         $<BUILD_INTERFACE:${HALCON_INCLUDE_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         #往后增加3方库的头文件目录
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/spdlog/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/mysql/include>
 
 )
-target_link_libraries(${ProjectName} 
+target_link_libraries(${ProjectName}
     ${HALCON_LIB_DIR}/halconcpp.lib
     #往后增加3方库的lib文件
     ws2_32.lib
     ${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus/modbus.lib
     ${CMAKE_CURRENT_SOURCE_DIR}/3rd/spdlog/spdlog.lib
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rd/mysql/lib/libmysql.lib
 
+)
+
+# 把 libmysql.dll 拷到输出目录，运行时 HALCON 加载扩展时能找到它
+add_custom_command(TARGET ${ProjectName} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/3rd/mysql/lib/libmysql.dll"
+        "$<TARGET_FILE_DIR:${ProjectName}>/libmysql.dll"
 )
 

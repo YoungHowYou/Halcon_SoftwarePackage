@@ -54,6 +54,12 @@ extern EXPORTS_API Herror Hspdlog_drop_all(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hspdlog_shutdown(Hproc_handle proc_handle);
 #pragma endregion
 
+#pragma region mysql
+extern EXPORTS_API Herror Hmysql_real_connect(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hmysql_query(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hmysql_store_result(Hproc_handle proc_handle);
+#pragma endregion
+
 
 #ifdef __cplusplus
 }

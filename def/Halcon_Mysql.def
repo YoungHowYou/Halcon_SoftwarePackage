@@ -1,0 +1,156 @@
+mysql_real_connect<- CHmysql_real_connect[::host,user,passwd,db,port,unix_socket,client_flag:handle,errmsg]
+short.english
+  连接到 MySQL 服务器，成功时返回连接句柄；失败时 errmsg 为 mysql_error 返回的错误信息，否则为 OK。;
+short.german
+  Verbindung zu MySQL-Server.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  mysql, connect;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  host:               input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  user:               input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  passwd:             input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  db:                 input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  port:               input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  unix_socket:        input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  client_flag:        input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  handle:             output_control;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  errmsg:             output_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+
+mysql_query<- CHmysql_query[::handle,sql:errmsg]
+short.english
+  在指定 MySQL 连接上执行 SQL 语句，成功返回 OK，否则返回 mysql_error 信息。;
+short.german
+  SQL auf MySQL-Verbindung ausfuehren.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  mysql, query;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  sql:                input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  errmsg:             output_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+
+
+mysql_store_result<- CHmysql_store_result[::handle:result]
+short.english
+  读取上一条 mysql_query 的结果集，按行优先顺序展开为字符串元组。无数据时返回 NoData。;
+short.german
+  Ergebnisse einer MySQL-Abfrage abrufen.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  mysql, result;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  handle:             input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+parameter
+  result:             output_control;
+  default_type:       string;
+  multivalue:         true;
+  sem_type:           string;
+  type_list:          string;

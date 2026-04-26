@@ -262,3 +262,18 @@ Herror CHspdlog_shutdown(Hproc_handle proc_handle)
 	return Hspdlog_shutdown(proc_handle);
 }
 #pragma endregion
+
+#pragma region mysql
+Herror CHmysql_real_connect(Hproc_handle proc_handle)
+{
+	return Hmysql_real_connect(proc_handle);
+}
+Herror CHmysql_query(Hproc_handle proc_handle)
+{
+	return Hmysql_query(proc_handle);
+}
+Herror CHmysql_store_result(Hproc_handle proc_handle)
+{
+	return Hmysql_store_result(proc_handle);
+}
+#pragma endregion

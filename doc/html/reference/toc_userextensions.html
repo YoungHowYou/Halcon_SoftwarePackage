@@ -1156,6 +1156,18 @@ toggleLanguage(new_lang,1);return;}
 <dd>Write Modbus multiple registers.</dd>
 </dl>
 <dl>
+<dt><a href="mysql_query.html"><code><span data-if="hdevelop" style="display:inline;">mysql_query</span><span data-if="dotnet" style="display:none;">MysqlQuery</span><span data-if="python" style="display:none;">mysql_query</span><span data-if="cpp" style="display:none;">MysqlQuery</span><span data-if="c" style="display:none;">mysql_query</span></code></a></dt>
+<dd>在指定 MySQL 连接上执行 SQL 语句，成功返回 OK，否则返回 mysql_error 信息。</dd>
+</dl>
+<dl>
+<dt><a href="mysql_real_connect.html"><code><span data-if="hdevelop" style="display:inline;">mysql_real_connect</span><span data-if="dotnet" style="display:none;">MysqlRealConnect</span><span data-if="python" style="display:none;">mysql_real_connect</span><span data-if="cpp" style="display:none;">MysqlRealConnect</span><span data-if="c" style="display:none;">mysql_real_connect</span></code></a></dt>
+<dd>连接到 MySQL 服务器，成功时返回连接句柄；失败时 errmsg 为 mysql_error 返回的错误信息，否则为 OK。</dd>
+</dl>
+<dl>
+<dt><a href="mysql_store_result.html"><code><span data-if="hdevelop" style="display:inline;">mysql_store_result</span><span data-if="dotnet" style="display:none;">MysqlStoreResult</span><span data-if="python" style="display:none;">mysql_store_result</span><span data-if="cpp" style="display:none;">MysqlStoreResult</span><span data-if="c" style="display:none;">mysql_store_result</span></code></a></dt>
+<dd>读取上一条 mysql_query 的结果集，按行优先顺序展开为字符串元组。无数据时返回 NoData。</dd>
+</dl>
+<dl>
 <dt><a href="spdlog_basic_logger_mt.html"><code><span data-if="hdevelop" style="display:inline;">spdlog_basic_logger_mt</span><span data-if="dotnet" style="display:none;">SpdlogBasicLoggerMt</span><span data-if="python" style="display:none;">spdlog_basic_logger_mt</span><span data-if="cpp" style="display:none;">SpdlogBasicLoggerMt</span><span data-if="c" style="display:none;">spdlog_basic_logger_mt</span></code></a></dt>
 <dd>创建基本文件日志记录器(多线程安全)。将日志消息写入指定的单个文件，适用于简单的日志记录场景。如果文件已存在，可通过truncate参数选择追加或清空后写入。logger_name为日志记录器的唯一名称，可通过spdlog_get按名称再次获取。</dd>
 </dl>
