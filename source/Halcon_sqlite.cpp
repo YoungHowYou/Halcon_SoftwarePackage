@@ -120,8 +120,8 @@ Herror Hsqlite3_exec_callback(Hproc_handle proc_handle)
 	 if (X*Y > 0)
 	 {
 		 HPutElem(proc_handle, 1, table_names, (X * Y)+1, STRING_PAR);
-		 INT64 Xs = (INT64)X;
-		 INT64 Ys = (INT64)Y;
+		 INT4_8 Xs = (INT4_8)X;
+		 INT4_8 Ys = (INT4_8)Y;
 
 		 HPutElem(proc_handle, 2, &Xs, 1, INT_PAR);
 		 HPutElem(proc_handle, 3, &Ys, 1, INT_PAR);
