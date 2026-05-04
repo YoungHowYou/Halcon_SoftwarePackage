@@ -1,79 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hdevelop file_version="1.2" halcon_version="23.11.0.0">
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
 <procedure name="main">
 <interface/>
 <body>
-<l>* =============================================================</l>
-<l>* spdlog Halcon Extension - Example</l>
-<l>* =============================================================</l>
-<l></l>
-<l>* ----- 1. Create a basic file logger -----</l>
-<l>spdlog_basic_logger_mt ('my_logger', 'D:/logs/basic.log', 0, LogHandle)</l>
-<l></l>
-<l>* ----- 2. Set log level (0=trace, 1=debug, 2=info, 3=warn, 4=err, 5=critical, 6=off) -----</l>
+<c>* =============================================================</c>
+<c>* spdlog Halcon Extension - Example</c>
+<c>* =============================================================</c>
+<c>* ----- 1. Create a basic file logger -----</c>
+<l>spdlog_basic_logger_mt ('my_logger', '/home/njsc/logs/basic.log', 0, LogHandle)</l>
+<c>* ----- 2. Set log level (0=trace, 1=debug, 2=info, 3=warn, 4=err, 5=critical, 6=off) -----</c>
 <l>spdlog_set_level (LogHandle, 0)</l>
-<l></l>
-<l>* ----- 3. Set format pattern -----</l>
+<c>* ----- 3. Set format pattern -----</c>
 <l>spdlog_set_pattern (LogHandle, '[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] %v')</l>
-<l></l>
-<l>* ----- 4. Log messages at different levels -----</l>
+<c>* ----- 4. Log messages at different levels -----</c>
 <l>spdlog_trace (LogHandle, 'This is a trace message')</l>
 <l>spdlog_debug (LogHandle, 'This is a debug message')</l>
 <l>spdlog_info (LogHandle, 'This is an info message')</l>
 <l>spdlog_warn (LogHandle, 'This is a warning message')</l>
 <l>spdlog_err (LogHandle, 'This is an error message')</l>
 <l>spdlog_critical (LogHandle, 'This is a critical message')</l>
-<l></l>
-<l>* ----- 5. Use generic log with level parameter -----</l>
+<c>* ----- 5. Use generic log with level parameter -----</c>
 <l>spdlog_log (LogHandle, 2, 'Generic log call with info level')</l>
-<l></l>
-<l>* ----- 6. Flush the logger -----</l>
+<c>* ----- 6. Flush the logger -----</c>
 <l>spdlog_flush (LogHandle)</l>
-<l></l>
-<l>* ----- 7. Set auto-flush on warn level and above -----</l>
+<c>* ----- 7. Set auto-flush on warn level and above -----</c>
 <l>spdlog_flush_on (LogHandle, 3)</l>
-<l></l>
-<l>* ----- 8. Drop this logger and clean up -----</l>
+<c>* ----- 8. Drop this logger and clean up -----</c>
 <l>spdlog_drop ('my_logger')</l>
-<l></l>
-<l>* =============================================================</l>
-<l>* Rotating file logger example</l>
-<l>* =============================================================</l>
-<l>* max_file_size = 5MB (5242880 bytes), max_files = 3</l>
-<l>spdlog_rotating_logger_mt ('rotating_logger', 'D:/logs/rotating.log', 5242880, 3, RotHandle)</l>
+<c>* =============================================================</c>
+<c>* Rotating file logger example</c>
+<c>* =============================================================</c>
+<c>* max_file_size = 5MB (5242880 bytes), max_files = 3</c>
+<l>spdlog_rotating_logger_mt ('rotating_logger', '/home/njsc/logs/rotating.log', 5242880, 3, RotHandle)</l>
 <l>spdlog_info (RotHandle, 'Rotating logger created')</l>
 <l>spdlog_flush (RotHandle)</l>
 <l>spdlog_drop ('rotating_logger')</l>
-<l></l>
-<l>* =============================================================</l>
-<l>* Daily file logger example</l>
-<l>* =============================================================</l>
-<l>* Rotate daily at 02:30</l>
-<l>spdlog_daily_logger_mt ('daily_logger', 'D:/logs/daily.log', 2, 30, DailyHandle)</l>
+<c>* =============================================================</c>
+<c>* Daily file logger example</c>
+<c>* =============================================================</c>
+<c>* Rotate daily at 02:30</c>
+<l>spdlog_daily_logger_mt ('daily_logger', '/home/njsc/logs/daily.log', 2, 30, DailyHandle)</l>
 <l>spdlog_info (DailyHandle, 'Daily logger created')</l>
 <l>spdlog_flush (DailyHandle)</l>
 <l>spdlog_drop ('daily_logger')</l>
-<l></l>
-<l>* =============================================================</l>
-<l>* Console color logger example</l>
-<l>* =============================================================</l>
+<c>* =============================================================</c>
+<c>* Console color logger example</c>
+<c>* =============================================================</c>
 <l>spdlog_stdout_color_mt ('console', ConsoleHandle)</l>
 <l>spdlog_info (ConsoleHandle, 'Hello from console logger!')</l>
 <l>spdlog_drop ('console')</l>
-<l></l>
-<l>* =============================================================</l>
-<l>* Get existing logger by name</l>
-<l>* =============================================================</l>
-<l>spdlog_basic_logger_mt ('shared_logger', 'D:/logs/shared.log', 0, H1)</l>
+<c>* =============================================================</c>
+<c>* Get existing logger by name</c>
+<c>* =============================================================</c>
+<l>spdlog_basic_logger_mt ('shared_logger', '/home/njsc/logs/shared.log', 0, H1)</l>
 <l>spdlog_info (H1, 'Written via H1')</l>
-<l>* Get the same logger by name into another handle</l>
+<c>* Get the same logger by name into another handle</c>
 <l>spdlog_get ('shared_logger', H2)</l>
 <l>spdlog_info (H2, 'Written via H2, same logger')</l>
 <l>spdlog_flush (H2)</l>
-<l></l>
-<l>* ----- Shutdown all loggers -----</l>
+<c>* ----- Shutdown all loggers -----</c>
 <l>spdlog_shutdown ()</l>
-<l></l>
 </body>
 <docu id="main">
 <parameters/>
