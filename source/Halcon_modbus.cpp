@@ -176,7 +176,7 @@ Herror Hmodbus_write_bits(Hproc_handle proc_handle)
 
 	Def_INModbusObject(1, pUserData);
 	HGetSPar(proc_handle, 2, LONG_PAR, &Addressstrat, 1);
-	const Hcpar *status;
+	Hcpar *status;
 	INT4_8 num_params;
 	HGetPPar(proc_handle, 4, &status, &num_params);
 	uint8_t *Bits_Besult;
@@ -224,7 +224,7 @@ Herror Hmodbus_write_registers(Hproc_handle proc_handle)
 
 	Def_INModbusObject(1, pUserData);
 	HGetSPar(proc_handle, 2, LONG_PAR, &Addressstrat, 1);
-	const Hcpar *status;
+	Hcpar *status;
 	INT4_8 num_params;
 	HGetPPar(proc_handle, 4, &status, &num_params);
 	uint16_t *Bits_Besult;

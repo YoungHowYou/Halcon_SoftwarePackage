@@ -129,6 +129,14 @@ if(WIN32)
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/mysql/include>
     )
+else()
+    # Linux 用 3rd/<lib>/linux/include 下的头（与 Windows 分平台隔离）
+    target_include_directories(${ProjectName} PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus/linux/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus/linux/include/modbus>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/mysql/linux/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/3rd/mysql/linux/include/mysql>
+    )
 endif()
 
 if(WIN32)
@@ -149,84 +157,55 @@ if(WIN32)
             "$<TARGET_FILE_DIR:${ProjectName}>/libmysql.dll"
     )
 else()
-    # ---------- Linux：用系统库 + spdlog 头文件库模式 ----------
-    # Linux 上不存在 Windows-only 的 ws2_32；socket 在 libc 里。
-    # 三方库通过 apt 安装：
-    #   sudo apt install libmodbus-dev default-libmysqlclient-dev
-    # spdlog 走 header-only，不再依赖 3rd/spdlog/spdlog.lib
-
-    find_package(PkgConfig QUIET)
-
-    # libmodbus
-    set(MODBUS_LIB)
-    if(PkgConfig_FOUND)
-        pkg_check_modules(MODBUS QUIET libmodbus)
-    endif()
-    if(MODBUS_FOUND)
-        target_include_directories(${ProjectName} PUBLIC ${MODBUS_INCLUDE_DIRS})
-        set(MODBUS_LIB ${MODBUS_LIBRARIES})
-    else()
-        find_path(MODBUS_INCLUDE_DIR modbus.h PATH_SUFFIXES modbus)
-        find_library(MODBUS_LIBRARY NAMES modbus)
-        if(NOT MODBUS_LIBRARY)
-            message(FATAL_ERROR
-                "libmodbus not found. Install it: sudo apt install libmodbus-dev")
-        endif()
-        if(MODBUS_INCLUDE_DIR)
-            target_include_directories(${ProjectName} PUBLIC ${MODBUS_INCLUDE_DIR})
-        endif()
-        set(MODBUS_LIB ${MODBUS_LIBRARY})
-    endif()
-
-    # MySQL client（优先 mysql_config，再 mariadb_config，再 find_library）
-    set(MYSQL_LIB)
-    set(MYSQL_INC)
-    find_program(MYSQL_CONFIG NAMES mysql_config mariadb_config)
-    if(MYSQL_CONFIG)
-        execute_process(COMMAND ${MYSQL_CONFIG} --include
-            OUTPUT_VARIABLE _mysql_inc OUTPUT_STRIP_TRAILING_WHITESPACE)
-        execute_process(COMMAND ${MYSQL_CONFIG} --libs
-            OUTPUT_VARIABLE _mysql_libs OUTPUT_STRIP_TRAILING_WHITESPACE)
-        # 去掉 -I 前缀，转成路径列表
-        string(REGEX REPLACE "(^| )-I" ";" _mysql_inc_clean "${_mysql_inc}")
-        list(REMOVE_ITEM _mysql_inc_clean "")
-        set(MYSQL_INC ${_mysql_inc_clean})
-        separate_arguments(MYSQL_LIB UNIX_COMMAND "${_mysql_libs}")
-    else()
-        find_path(MYSQL_INCLUDE_DIR mysql.h
-            PATH_SUFFIXES mysql mariadb)
-        find_library(MYSQL_LIBRARY NAMES mysqlclient mariadb
-            PATH_SUFFIXES mysql mariadb)
-        if(NOT MYSQL_LIBRARY)
-            message(FATAL_ERROR
-                "libmysqlclient not found. Install it: "
-                "sudo apt install default-libmysqlclient-dev")
-        endif()
-        set(MYSQL_INC ${MYSQL_INCLUDE_DIR})
-        set(MYSQL_LIB ${MYSQL_LIBRARY})
-    endif()
-    if(MYSQL_INC)
-        target_include_directories(${ProjectName} PUBLIC ${MYSQL_INC})
-    endif()
-
-    # spdlog header-only：避免依赖 Windows 上预编译的 spdlog.lib
+    # ---------- Linux：使用 3rd/ 内自带的 modbus / mysql ----------
+    # 头文件已通过上面的 target_include_directories 注入；
+    # spdlog 仍走 header-only 模式，避免依赖 Windows 上预编译的 spdlog.lib。
     target_compile_definitions(${ProjectName} PRIVATE SPDLOG_HEADER_ONLY)
 
-    # 线程
+    set(MODBUS_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd/libmodbus/linux/lib/x64-linux")
+    set(MYSQL_LIB_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/3rd/mysql/linux/lib/x64-linux")
+
     find_package(Threads REQUIRED)
 
     target_link_libraries(${ProjectName}
         ${HALCON_LIB_DIR}/libhalconcpp.so
-        ${MODBUS_LIB}
-        ${MYSQL_LIB}
+        ${MODBUS_LIB_DIR}/libmodbus.so
+        ${MYSQL_LIB_DIR}/libmysqlclient.so
         Threads::Threads
         ${CMAKE_DL_LIBS}
     )
 
-    # 让生成的 .so 在 HALCON 加载时能找到 halconcpp 与系统库
+    # 把 3rd/ 里的 .so 复制到输出目录，运行时 HALCON 能就近加载
+    add_custom_command(TARGET ${ProjectName} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${MODBUS_LIB_DIR}/libmodbus.so.5.1.0"
+            "$<TARGET_FILE_DIR:${ProjectName}>/libmodbus.so.5.1.0"
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+            "libmodbus.so.5.1.0"
+            "$<TARGET_FILE_DIR:${ProjectName}>/libmodbus.so.5"
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+            "libmodbus.so.5.1.0"
+            "$<TARGET_FILE_DIR:${ProjectName}>/libmodbus.so"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${MYSQL_LIB_DIR}/libmysqlclient.so.21.2.45"
+            "$<TARGET_FILE_DIR:${ProjectName}>/libmysqlclient.so.21.2.45"
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+            "libmysqlclient.so.21.2.45"
+            "$<TARGET_FILE_DIR:${ProjectName}>/libmysqlclient.so.21"
+        COMMAND ${CMAKE_COMMAND} -E create_symlink
+            "libmysqlclient.so.21.2.45"
+            "$<TARGET_FILE_DIR:${ProjectName}>/libmysqlclient.so"
+    )
+
+    # UseHALCON.cmake 默认把 CMAKE_SKIP_RPATH/INSTALL_RPATH 设为 TRUE，
+    # 这里在本目录范围内放开，让 INSTALL_RPATH 生效。
+    set(CMAKE_SKIP_RPATH FALSE)
+    set(CMAKE_SKIP_INSTALL_RPATH FALSE)
+    # 让生成的 .so 优先在自身所在目录查找 modbus / mysql，
+    # 同时仍然能找到 HALCON 的 libhalconcpp。
     set_target_properties(${ProjectName} PROPERTIES
         BUILD_WITH_INSTALL_RPATH TRUE
-        INSTALL_RPATH "${HALCON_LIB_DIR};\$ORIGIN"
+        INSTALL_RPATH "$ORIGIN;${HALCON_LIB_DIR}"
     )
 endif()
 
