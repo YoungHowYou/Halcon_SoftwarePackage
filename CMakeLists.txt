@@ -12,7 +12,7 @@
 #    cmake --build build
 #=============================================================================
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.21)
 
 #=============================================================================
 #  Options  选项
@@ -56,12 +56,7 @@ project(Halcon_SoftwarePackage
 
 # .NET / CSharp 支持（必须在 project() 之后调用 enable_language）
 if(HALCON_DOTNET)
-  # CMake >=3.21 支持 OPTIONAL 关键字，编译器缺失时不中断配置
-  if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.21")
-    enable_language(CSharp OPTIONAL)
-  else()
-    enable_language(CSharp)
-  endif()
+  enable_language(CSharp OPTIONAL)
   if(NOT CMAKE_CSharp_COMPILER)
     message(WARNING "CSharp compiler not found — .NET extension disabled. "
                     "Install .NET SDK or pass -DHALCON_DOTNET=OFF")
@@ -221,7 +216,7 @@ else()
 endif()
 
 #=============================================================================
-#  Post-build  构建后复制 MySQL DLL 到输出目录
+#  Post-build  构建后复制 vcpkg 共享库到输出目录
 #=============================================================================
 if(WIN32)
   add_custom_command(TARGET ${ProjectName} POST_BUILD
@@ -231,7 +226,32 @@ if(WIN32)
     COMMENT "Copying libmysql.dll → output"
   )
 else()
-  # RPATH：让 .so/.dylib 优先在自身目录查找依赖库
+  # Linux / macOS：从 vcpkg installed 目录复制 .so/.dylib（含符号链接）到输出目录
+  set(_VCPKG_LIBDIR "${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/lib")
+  foreach(_lib ${SPDLOG_LIBS} ${MODBUS_LIBS} ${SQLITE3_LIBS} ${MYSQL_LIBS})
+    # 从 IMPORTED_LOCATION 提取库的基名（去掉版本后缀），如 libmodbus.so.5.1.0 → libmodbus
+    get_target_property(_loc ${_lib} IMPORTED_LOCATION)
+    if(NOT _loc)
+      get_target_property(_loc ${_lib} IMPORTED_LOCATION_RELEASE)
+    endif()
+    if(_loc)
+      get_filename_component(_name "${_loc}" NAME_WE)
+      string(REGEX REPLACE "\\.[0-9].*" "" _base "${_name}")
+      # 复制该库的所有相关文件（本体 + SONAME 符号链接 + linker-name 符号链接）
+      file(GLOB _files "${_VCPKG_LIBDIR}/${_base}${HALCON_SHARED_SUFFIX}*")
+      foreach(_f ${_files})
+        get_filename_component(_fname "${_f}" NAME)
+        add_custom_command(TARGET ${ProjectName} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_f}"
+                  "$<TARGET_FILE_DIR:${ProjectName}>/${_fname}"
+          COMMENT "Copying ${_fname} → output"
+        )
+      endforeach()
+      unset(_files)
+    endif()
+  endforeach()
+
+  # RPATH：优先在自身目录查找依赖库
   set(CMAKE_SKIP_RPATH FALSE)
   set(CMAKE_SKIP_INSTALL_RPATH FALSE)
   set_target_properties(${ProjectName} PROPERTIES

@@ -115,19 +115,25 @@ Halcon_SoftwarePackage/
 ## 环境要求
 
 - **HALCON** SDK（需配置 `HALCONROOT` 和 `HALCONEXAMPLES` 环境变量）
-- **CMake** >= 3.16
+- **CMake** >= 3.21
 - **vcpkg** 包管理器（`VCPKG_ROOT` 环境变量）
 - **Visual Studio** 2022（Windows x64 编译）或 Linux GCC
 
 ## 编译
 
+**Windows**
 ```bash
-# 首次会自动下载编译 vcpkg 依赖（~5 分钟），后续秒级缓存
 cmake -B build -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake
 cmake --build build --config Debug
 ```
 
-编译产物输出到 `bin/` 目录。
+**Linux / macOS**
+```bash
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+cmake --build build
+```
+
+编译产物输出到 `bin/`（Windows）或 `lib/<platform>/`（Linux/macOS）。首次会自动下载编译 vcpkg 依赖，后续秒级缓存。
 
 ## 安装与使用
 
