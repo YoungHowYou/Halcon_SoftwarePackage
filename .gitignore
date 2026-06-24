@@ -1,20 +1,51 @@
+#=============================================================================
+#  Git ignore — Halcon_SoftwarePackage
+#=============================================================================
+
+# ---- 构建产物 ----
+build/
+vcpkg_installed/
+bin/
+
+# ---- CMake 生成文件 ----
 CMakeLists.txt.user
 CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-Makefile
+CMakeFiles/
+CMakeScripts/
 cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
-_deps
 CMakeUserPresets.json
-/build/
-/build-linux/
-/lib/x64-linux/
+_deps/
+Testing/
+Makefile
+
+# ---- 编译中间文件 ----
 *.exp
 *.pdb
 *.ilk
 *.obj
 *.tlog
+*.lastbuildstate
+*.idb
+*.ipdb
+*.iobj
+*.ipch
+*.suo
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+
+# ---- 操作系统 ----
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ---- IDE / 编辑器 ----
+*.swp
+*.swo
+*~
+.vs/
+.idea/

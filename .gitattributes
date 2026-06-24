@@ -1,5 +1,18 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-*.lib filter=lfs diff=lfs merge=lfs -text
-*.dll filter=lfs diff=lfs merge=lfs -text
-*.exe filter=lfs diff=lfs merge=lfs -text
+
+# Source code
+*.c   text eol=lf
+*.cpp text eol=lf
+*.h   text eol=lf
+*.def text eol=lf
+*.cmake text eol=lf
+CMakeLists.txt text eol=lf
+
+# Scripts / config
+*.json text eol=lf
+*.bat text eol=crlf
+*.md  text eol=lf
+LICENSE text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf

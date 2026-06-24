@@ -1,6 +1,6 @@
 # Halcon_SoftwarePackage
 
-HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/halcon) 机器视觉框架提供 **SQLite3 数据库**、**Modbus 工业通信** 和 **spdlog 日志** 扩展能力，在 HDevelop / HALCON 脚本中即可直接调用。
+HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/halcon) 机器视觉框架提供 **SQLite3 数据库**、**Modbus 工业通信**、**spdlog 日志** 和 **MySQL 数据库** 扩展能力，在 HDevelop / HALCON 脚本中即可直接调用。
 
 ## 功能模块
 
@@ -76,6 +76,16 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 | `spdlog_drop_all` | 移除所有已注册的记录器 |
 | `spdlog_shutdown` | 关闭日志系统，刷新并释放所有资源 |
 
+### MySQL 数据库
+
+基于 Oracle MySQL C 客户端库（libmysql）封装，HDevelop 中可直接连接 MySQL 并执行 SQL。
+
+| 算子 | 说明 |
+|------|------|
+| `mysql_real_connect` | 连接 MySQL 服务器（host、user、passwd、db、port 等） |
+| `mysql_query` | 执行 SQL 语句（INSERT/UPDATE/DELETE/SELECT 等） |
+| `mysql_store_result` | 获取 SELECT 查询结果集 |
+
 ### 工具算子
 
 | 算子 | 说明 |
@@ -87,34 +97,34 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 
 ```
 Halcon_SoftwarePackage/
-├── 3rd/                  # 第三方库（libmodbus、spdlog）
-├── bin/                  # 编译输出 DLL
 ├── def/                  # HALCON 算子定义文件
 ├── doc/                  # HTML 参考文档
 ├── examples/             # HDevelop 示例脚本
 │   ├── sqlite.hdev
 │   ├── modbus.hdev
 │   ├── spdlog.hdev
+│   ├── mysql.hdev
 │   └── Image2String.hdev
 ├── include/              # 头文件
 ├── source/               # 源代码
-├── CMakeLists.txt        # CMake 构建配置
+├── CMakeLists.txt        # CMake 构建配置（纯 vcpkg）
+├── vcpkg.json            # vcpkg 依赖清单
 └── LICENSE               # GPL-3.0
 ```
 
 ## 环境要求
 
 - **HALCON** SDK（需配置 `HALCONROOT` 和 `HALCONEXAMPLES` 环境变量）
-- **CMake** >= 4.1.1
-- **Visual Studio**（Windows x64 编译）
-- **Windows** 操作系统
+- **CMake** >= 3.16
+- **vcpkg** 包管理器（`VCPKG_ROOT` 环境变量）
+- **Visual Studio** 2022（Windows x64 编译）或 Linux GCC
 
 ## 编译
 
 ```bash
-mkdir build && cd build
-cmake .. -G "Visual Studio 17 2022" -A x64
-cmake --build . --config Debug
+# 首次会自动下载编译 vcpkg 依赖（~5 分钟），后续秒级缓存
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake
+cmake --build build --config Debug
 ```
 
 编译产物输出到 `bin/` 目录。
@@ -171,14 +181,50 @@ modbus_write_register_float (Handle, 0, 3.14, 'abcd')
 modbus_close (Handle)
 ```
 
+### 示例：MySQL
+
+```
+* 连接 MySQL 服务器
+mysql_real_connect ('127.0.0.1', 'root', '123456', 'test', 3306, '', 0, Handle, ErrMsg)
+
+* 创建表并插入数据
+mysql_query (Handle, 'CREATE TABLE IF NOT EXISTS test (id INT, name VARCHAR(50))', Status1)
+mysql_query (Handle, 'INSERT INTO test VALUES (1, "halcon")', Status2)
+
+* 查询数据
+mysql_query (Handle, 'SELECT * FROM test', Status3)
+mysql_store_result (Handle, Result)
+
+* 断开连接（释放 Handle 自动关闭）
+```
+
 ## 第三方依赖
 
-| 库 | 说明 | 包含方式 |
+全部由 vcpkg 管理，构建时自动下载编译。
+
+| 库 | 说明 | vcpkg 包 |
 |----|------|----------|
-| [SQLite3](https://www.sqlite.org/) | 嵌入式数据库 | 源码嵌入 |
-| [libmodbus](https://libmodbus.org/) | Modbus 协议库 | 预编译二进制 |
-| [spdlog](https://github.com/gabime/spdlog) | 高性能 C++ 日志库 | 预编译二进制 |
+| [SQLite3](https://www.sqlite.org/) | 嵌入式数据库 | `sqlite3` |
+| [libmodbus](https://libmodbus.org/) | Modbus 协议库 | `libmodbus` |
+| [spdlog](https://github.com/gabime/spdlog) | 高性能 C++ 日志库 | `spdlog` |
+| [MySQL](https://dev.mysql.com/) | MySQL C 客户端库 | `libmysql` |
 
 ## 许可证
 
 本项目基于 [GPL-3.0](LICENSE) 许可证开源。
+0xC0FFEE10 python  0xC0FFEE20 海康相机   0xC0FFEE30 海康采集卡  0xC0FFEE31埃克采集卡  0xC0FFEE40 sqlite
+0xC0FFEE50 UI   0xC0FFEE60BV相机   0xC0FFEE70自研AIcpu   0xC0FFEE80大恒相机
+0xC0FFEE90海康读码器   0xC0FFEEA0Spdlog   0xC0FFEEB0MYSQL   0xC0FFEEC0
+0xC0FFEED0   0xC0FFEEE0   0xC0FFEEF0   0xC0FFEF00
+
+0xDEADBE10   0xDEADBE20   0xDEADBE30   0xDEADBE40
+0xDEADBE50   0xDEADBE60   0xDEADBE70   0xDEADBE80
+
+0xBAADF00D   0xBAADF10D   0xBAADF20D   0xBAADF30D
+0xBAADF40D   0xBAADF50D   0xBAADF60D   0xBAADF70D
+
+0xCAFEBABE   0xCAFEBA10   0xCAFEBA20   0xCAFEBA30
+0xCAFEBA40   0xCAFEBA50   0xCAFEBA60   0xCAFEBA70
+
+0xFEEDFACE   0xFEEDF10E   0xFEEDF20E   0xFEEDF30E
+0xFEEDF40E   0xFEEDF50E   0xFEEDF60E   0xFEEDF70E
