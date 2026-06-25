@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="23.11.0.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>create_dict (DictHandle)</l>
+<l>read_image (Image, 'D:/DESK/Line1Right/20241003191837002-.jpg')</l>
+<l>decompose3 (Image, Image1, Image, Image3)</l>
+<l>convert_image_type (Image1, Image, 'uint2')</l>
+<l>set_dict_object (Image, DictHandle, '输入图')</l>
+<l>gen_image_proto (Image, ImageCleared, 0)</l>
+<l>set_dict_object (ImageCleared, DictHandle, '输出图')</l>
+<l>threshold (ImageCleared, Region, 0, 255)</l>
+<l>get_region_points (Region, Rows, Columns)</l>
+<l>get_image_size (ImageCleared, Width, Height)</l>
+<l>gen_image_const (MapX, 'real', Width, Height)</l>
+<l>gen_image_const (MapY, 'real', Width, Height)</l>
+<c></c>
+<c></c>
+<l>set_grayval (MapY, Rows, Columns, Rows)</l>
+<l>gamma_image (MapY, MapYs, 0.66, 0, 0, Height, 'true')</l>
+<c></c>
+<c></c>
+<l>set_grayval (MapX, Rows, Columns, Columns)</l>
+<l>set_dict_object (MapYs, DictHandle, 'MapY')</l>
+<l>set_dict_object (MapX, DictHandle, 'MapX')</l>
+<c></c>
+<l>remap (DictHandle)</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>read_image (Image,'printer_chip/printer_chip_01')</l>
+<l>while(1)</l>
+<l>   PNGIn (Image, outimage,1)</l>
+<l>   PNGOut (outimage, outimage1) </l>
+<c></c>
+<l>CLAHE_image (Image, outimage2, 8, 8, 4)</l>
+<l>cv_write_image (outimage2, './1.png', 1)</l>
+<l>endwhile</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

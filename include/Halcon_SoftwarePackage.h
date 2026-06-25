@@ -80,6 +80,7 @@ extern EXPORTS_API Herror HCcv_orb_detect(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_akaze_detect(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_bf_knn_match(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_estimate_affine_partial2d(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_write_image(Hproc_handle proc_handle);
 #pragma endregion
 
 

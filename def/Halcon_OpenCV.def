@@ -792,3 +792,48 @@ parameter
   multivalue:         false;
   sem_type:           handle;
   type_list:          handle;
+
+cv_write_image<- Ccv_write_image[inimage::filename,compression:]
+short.german
+  Save image as PNG file.;
+  
+short.english
+  Save image as PNG file (supports 8/16-bit, 1/3-channel).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, PNG, Write, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  inimage:           input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  filename:          input_control;
+  default_type:      string;
+  multivalue:        false;
+  sem_type:          string;
+  type_list:         string;
+
+parameter
+  compression:       input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;

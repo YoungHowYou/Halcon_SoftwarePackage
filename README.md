@@ -98,6 +98,8 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 | `PNGIn` / `PNGOut` | PNG 图像编解码（保留 Alpha 通道） |
 | `CLAHE_image` | 自适应直方图均衡化，增强图像对比度 |
 
+| `cv_write_image` | 保存图像为 PNG 文件（支持 8/16 位、单/三通道） |
+
 **ROI 运算**
 
 | 算子 | 说明 |

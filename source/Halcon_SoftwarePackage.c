@@ -353,4 +353,9 @@ Herror Ccv_estimate_affine_partial2d(Hproc_handle proc_handle)
 {
     return HCcv_estimate_affine_partial2d(proc_handle);
 }
+
+Herror Ccv_write_image(Hproc_handle proc_handle)
+{
+    return HCcv_write_image(proc_handle);
+}
 #pragma endregion

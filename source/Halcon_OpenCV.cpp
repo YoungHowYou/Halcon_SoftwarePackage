@@ -1062,3 +1062,75 @@ Herror HCcv_estimate_affine_partial2d(Hproc_handle proc_handle)
 
     return H_MSG_TRUE;
 }
+
+/*=============================================================================
+ * cv_write_image — 将图像保存为 PNG 文件
+ *   支持 8/16 位、单/三通道 图像
+ *===========================================================================*/
+Herror HCcv_write_image(Hproc_handle proc_handle)
+{
+    Hcpar filename, compression;
+    HAllocStringMem(proc_handle, 1024);
+    HGetSPar(proc_handle, 1, STRING_PAR, &filename, 1);
+    HGetSPar(proc_handle, 2, LONG_PAR,  &compression, 1);
+
+    Hkey  in_obj_key;
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+
+    // 检测通道数
+    INT4_8 num_channels = 1;
+    {
+        Himage chk2, chk3;
+        HGetDImage(proc_handle, in_obj_key, 2, &chk2);
+        HGetDImage(proc_handle, in_obj_key, 3, &chk3);
+        if (chk3.pixel.b != NULL)      num_channels = 3;
+        else if (chk2.pixel.b != NULL) num_channels = 2;
+    }
+
+    cv::Mat cv_img;
+    if (num_channels == 1)
+    {
+        Himage inimage;
+        HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+        switch (inimage.kind)
+        {
+        case UINT2_IMAGE:
+            cv_img = cv::Mat(inimage.height, inimage.width, CV_16UC1, inimage.pixel.u.p).clone();
+            break;
+        case BYTE_IMAGE:
+            cv_img = cv::Mat(inimage.height, inimage.width, CV_8UC1,  inimage.pixel.b).clone();
+            break;
+        default: return H__LINE__ * 10000;
+        }
+    }
+    else if (num_channels == 3)
+    {
+        Himage R, G, B;
+        HGetDImage(proc_handle, in_obj_key, 1, &R);
+        HGetDImage(proc_handle, in_obj_key, 2, &G);
+        HGetDImage(proc_handle, in_obj_key, 3, &B);
+        if (R.kind == UINT2_IMAGE)
+        {
+            cv::Mat chR(R.height, R.width, CV_16UC1, R.pixel.u.p);
+            cv::Mat chG(G.height, G.width, CV_16UC1, G.pixel.u.p);
+            cv::Mat chB(B.height, B.width, CV_16UC1, B.pixel.u.p);
+            std::vector<cv::Mat> channels = {chR.clone(), chG.clone(), chB.clone()};
+            cv::merge(channels, cv_img);
+        }
+        else
+        {
+            cv::Mat chR(R.height, R.width, CV_8UC1, R.pixel.b);
+            cv::Mat chG(G.height, G.width, CV_8UC1, G.pixel.b);
+            cv::Mat chB(B.height, B.width, CV_8UC1, B.pixel.b);
+            std::vector<cv::Mat> channels = {chR.clone(), chG.clone(), chB.clone()};
+            cv::merge(channels, cv_img);
+        }
+    }
+    else { return H__LINE__ * 10000; }
+
+    std::vector<int> params = { cv::IMWRITE_PNG_COMPRESSION, (int)compression.par.l };
+    if (!cv::imwrite(filename.par.s, cv_img, params))
+        return H__LINE__ * 10000;
+
+    return H_MSG_TRUE;
+}
