@@ -64,6 +64,24 @@ extern EXPORTS_API Herror Hmysql_query(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hmysql_store_result(Hproc_handle proc_handle);
 #pragma endregion
 
+#pragma region opencv_exiv2
+extern EXPORTS_API Herror HCremap(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HPNGOut(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HPNGIn(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCadd_roi(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCmul_roi(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCsub_B_roi(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCdiv_B_roi(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCdiv_A_roi(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCsub_A_roi(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCCLAHE_image(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCWriteImageExif(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_orb_detect(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_akaze_detect(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_bf_knn_match(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_estimate_affine_partial2d(Hproc_handle proc_handle);
+#pragma endregion
+
 
 #ifdef __cplusplus
 }

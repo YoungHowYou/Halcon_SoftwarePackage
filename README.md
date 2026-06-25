@@ -1,6 +1,6 @@
 # Halcon_SoftwarePackage
 
-HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/halcon) 机器视觉框架提供 **SQLite3 数据库**、**Modbus 工业通信**、**spdlog 日志** 和 **MySQL 数据库** 扩展能力，在 HDevelop / HALCON 脚本中即可直接调用。
+HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/halcon) 机器视觉框架提供 **OpenCV 图像处理**、**SQLite3 数据库**、**Modbus 工业通信**、**spdlog 日志** 和 **MySQL 数据库** 扩展能力，在 HDevelop / HALCON 脚本中即可直接调用。
 
 ## 功能模块
 
@@ -86,6 +86,44 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 | `mysql_query` | 执行 SQL 语句（INSERT/UPDATE/DELETE/SELECT 等） |
 | `mysql_store_result` | 获取 SELECT 查询结果集 |
 
+### OpenCV & Exiv2 图像处理
+
+基于 OpenCV 和 Exiv2 库封装，提供图像几何变换、ROI 运算、特征检测匹配及 EXIF 元数据读写。
+
+**图像变换**
+
+| 算子 | 说明 |
+|------|------|
+| `remap` | 字典驱动的通用图像重映射（缩放/旋转/透视） |
+| `PNGIn` / `PNGOut` | PNG 图像编解码（保留 Alpha 通道） |
+| `CLAHE_image` | 自适应直方图均衡化，增强图像对比度 |
+
+**ROI 运算**
+
+| 算子 | 说明 |
+|------|------|
+| `add_roi` | 将小图按 ROI 叠加到大图上 |
+| `mul_roi` | 将小图按 ROI 乘到大图上 |
+| `sub_B_roi` | ROI 减法（大图 − 小图） |
+| `sub_A_roi` | ROI 减法（小图 − 大图） |
+| `div_B_roi` | ROI 除法（大图 ÷ 小图） |
+| `div_A_roi` | ROI 除法（小图 ÷ 大图） |
+
+**特征检测与匹配**
+
+| 算子 | 说明 |
+|------|------|
+| `cv_orb_detect` | ORB 特征点检测 |
+| `cv_akaze_detect` | AKAZE 特征点检测 |
+| `cv_bf_knn_match` | 暴力匹配 + KNN 筛选 |
+| `cv_estimate_affine_partial2d` | 估计局部仿射变换矩阵 |
+
+**EXIF 元数据**
+
+| 算子 | 说明 |
+|------|------|
+| `write_image_exif` | 将字典中的元数据写入图像 EXIF 标签 |
+
 ### 工具算子
 
 | 算子 | 说明 |
@@ -107,8 +145,10 @@ Halcon_SoftwarePackage/
 │   └── Image2String.hdev
 ├── include/              # 头文件
 ├── source/               # 源代码
-├── CMakeLists.txt        # CMake 构建配置（纯 vcpkg）
+├── CMakeLists.txt        # CMake 构建配置（纯 vcpkg，跨平台）
 ├── vcpkg.json            # vcpkg 依赖清单
+├── .gitignore
+├── .gitattributes
 └── LICENSE               # GPL-3.0
 ```
 
@@ -137,9 +177,10 @@ cmake --build build
 
 ## 安装与使用
 
-1. 编译项目或直接使用 `bin/` 目录中已有的 DLL
-2. 添加系统环境变量 `HALCONEXTENSIONS`，值设为本项目根目录路径
-3. 在 HDevelop 中即可直接调用扩展算子
+1. 编译项目，产物在 `bin/`（Windows）或 `lib/<platform>/`（Linux/macOS）
+2. 将编译输出目录下所有 `.dll` / `.so` / `.dylib` 复制到同一文件夹
+3. 添加系统环境变量 `HALCONEXTENSIONS`，值设为该文件夹路径
+4. 在 HDevelop 中即可直接调用扩展算子
 
 ### 示例：SQLite
 
@@ -154,7 +195,7 @@ sqlite3_close (SQLHandle)
 ### 示例：spdlog 日志
 
 ```
-* 创建滚动文件日��（5MB/文件，最多保留3个）
+* 创建滚动文件日志（5MB/文件，最多保留3个）
 spdlog_rotating_logger_mt ('app', 'D:/logs/app.log', 5242880, 3, LogHandle)
 
 * 设置级别为 debug，输出 debug 及以上的日志
@@ -204,6 +245,29 @@ mysql_store_result (Handle, Result)
 * 断开连接（释放 Handle 自动关闭）
 ```
 
+### 示例：OpenCV
+
+```
+* ORB 特征检测与匹配
+cv_orb_detect (Image1, KeyPoints1, Descriptors1)
+cv_orb_detect (Image2, KeyPoints2, Descriptors2)
+cv_bf_knn_match (Descriptors1, Descriptors2, Matches, GoodMatches)
+cv_estimate_affine_partial2d (KeyPoints1, KeyPoints2, GoodMatches, AffineMatrix)
+
+* CLAHE 图像增强
+CLAHE_image (InputImage, EnhancedImage, 2.0, 8)
+
+* ROI 叠加小图到大图
+add_roi (SmallImage, BigImage, 100, 200, 300, 400)
+
+* PNG 编解码（保留透明通道）
+PNGIn (InputImage, PNGImage, 1)
+PNGOut (PNGImage, OutputImage)
+
+* 写入 EXIF 元数据
+write_image_exif (Image, DictHandle)
+```
+
 ## 第三方依赖
 
 全部由 vcpkg 管理，构建时自动下载编译。
@@ -214,6 +278,8 @@ mysql_store_result (Handle, Result)
 | [libmodbus](https://libmodbus.org/) | Modbus 协议库 | `libmodbus` |
 | [spdlog](https://github.com/gabime/spdlog) | 高性能 C++ 日志库 | `spdlog` |
 | [MySQL](https://dev.mysql.com/) | MySQL C 客户端库 | `libmysql` |
+| [OpenCV](https://opencv.org/) | 计算机视觉与图像处理 | `opencv4` |
+| [Exiv2](https://exiv2.org/) | 图像 EXIF 元数据读写 | `exiv2` |
 
 ## 许可证
 

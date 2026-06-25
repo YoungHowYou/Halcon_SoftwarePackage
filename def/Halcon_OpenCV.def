@@ -1,0 +1,794 @@
+
+remap<- CHCremap[::hv_DictHandle:]
+short.german
+  Laplace Filter.;
+  
+short.english
+  Laplace Filter.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  hv_DictHandle:      input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+
+PNGOut<-CHPNGOut[inimage:outimage::]
+short.german
+  Laplace Filter.;
+  
+short.english
+  Laplace Filter.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  inimage:           input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  outimage:           output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+PNGIn<-CHPNGIn[inimage:outimage:acceleration:]
+short.german
+  Laplace Filter.;
+  
+short.english
+  Laplace Filter.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  inimage:           input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  outimage:           output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  acceleration:       input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+
+add_roi<-Cadd_roi[smallimage,bigimage::sy,sx,ew,eh:]
+short.german
+  Add ROI to big image.;
+  
+short.english
+  Add ROI to big image.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  smallimage:         input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  bigimage:           input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  sy:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  sx:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  ew:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  eh:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+
+mul_roi<-Cmul_roi[smallimage,bigimage::sy,sx,ew,eh:]
+short.german
+  Multiply ROI to big image.;
+  
+short.english
+  Multiply ROI to big image.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  smallimage:         input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  bigimage:           input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  sy:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  sx:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  ew:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  eh:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+
+sub_B_roi<-Csub_B_roi[smallimage,bigimage::sy,sx,ew,eh:]
+short.german
+  Subtract ROI from big image (B - small).;
+  
+short.english
+  Subtract ROI from big image (B - small).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  smallimage:         input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  bigimage:           input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  sy:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  sx:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  ew:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  eh:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+
+div_B_roi<-Cdiv_B_roi[smallimage,bigimage::sy,sx,ew,eh:]
+short.german
+  Divide ROI from big image (B / small).;
+  
+short.english
+  Divide ROI from big image (B / small).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  smallimage:         input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  bigimage:           input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  sy:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  sx:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  ew:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  eh:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+
+div_A_roi<-Cdiv_A_roi[smallimage,bigimage::sy,sx,ew,eh:]
+short.german
+  Divide big image by ROI (small / B).;
+  
+short.english
+  Divide big image by ROI (small / B).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  smallimage:         input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  bigimage:           input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  sy:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  sx:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  ew:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  eh:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+
+sub_A_roi<-Csub_A_roi[smallimage,bigimage::sy,sx,ew,eh:]
+short.german
+  Subtract big image from ROI (small - B).;
+  
+short.english
+  Subtract big image from ROI (small - B).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  smallimage:         input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  bigimage:           input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  sy:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  sx:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  ew:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  eh:                 input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+
+CLAHE_image<-CCLAHE_image[inimage:outimage:k_width,k_height,clipLimit:]
+short.german
+  CLAHE image enhancement.;
+  
+short.english
+  CLAHE image enhancement.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  inimage:            input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  outimage:           output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  k_width:            input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  k_height:           input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  clipLimit:          input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+write_image_exif<- CWriteImageExif[::image_path,latitude,longitude,altitude,aperture,shutter_speed,iso_number,focal_length,date_time,camera_make,camera_model:]
+short.german
+  Write EXIF metadata to image file.;
+  
+short.english
+  Write EXIF metadata to image file.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, EXIF, Metadata, GPS;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image_path:         input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           filename;
+  type_list:          string;
+
+parameter
+  latitude:           input_control;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      0.0;
+
+parameter
+  longitude:          input_control;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      0.0;
+
+parameter
+  altitude:           input_control;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      0.0;
+
+parameter
+  aperture:           input_control;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      0.0;
+
+parameter
+  shutter_speed:      input_control;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      0.0;
+
+parameter
+  iso_number:         input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      100;
+
+parameter
+  focal_length:       input_control;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      0.0;
+
+parameter
+  date_time:          input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+  default_value:      "";
+
+parameter
+  camera_make:        input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+  default_value:      "Camera";
+
+parameter
+  camera_model:       input_control;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+  default_value:      "Model";
+
+cv_orb_detect<- Ccv_orb_detect[::DictHandle:]
+short.german
+  ORB feature detection and descriptor computation using OpenCV.;
+
+short.english
+  ORB feature detection and descriptor computation using OpenCV.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, ORB, Feature, Detection, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  DictHandle:         input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+
+cv_akaze_detect<- Ccv_akaze_detect[::DictHandle:]
+short.german
+  AKAZE feature detection and descriptor computation using OpenCV.;
+
+short.english
+  AKAZE feature detection and descriptor computation using OpenCV.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, AKAZE, Feature, Detection, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  DictHandle:         input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+
+cv_bf_knn_match<- Ccv_bf_knn_match[::DictHandle:]
+short.german
+  BF KNN feature matching with Lowe's ratio test using OpenCV.;
+
+short.english
+  BF KNN feature matching with Lowe's ratio test using OpenCV.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, BF, KNN, Match, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  DictHandle:         input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+
+cv_estimate_affine_partial2d<- Ccv_estimate_affine_partial2d[::DictHandle:]
+short.german
+  Estimate partial affine transformation using RANSAC (OpenCV).;
+
+short.english
+  Estimate partial affine transformation using RANSAC (OpenCV).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Affine, RANSAC, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  DictHandle:         input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;

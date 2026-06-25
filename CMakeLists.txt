@@ -4,7 +4,7 @@
 #  Copyright (c) 2019-2023 by MVTec Software GmbH
 #
 #  依赖管理：全部通过 vcpkg
-#    spdlog, libmodbus, sqlite3, libmysql  →  vcpkg
+#    spdlog, libmodbus, sqlite3, libmysql, opencv4, exiv2  →  vcpkg
 #    HALCON                                  →  HALCONROOT 环境变量
 #
 #  用法:
@@ -50,7 +50,7 @@ endif()
 #=============================================================================
 project(Halcon_SoftwarePackage
   VERSION     1.0.0
-  DESCRIPTION "HALCON SoftwarePackage Extension — Modbus / MySQL / SQLite / spdlog"
+  DESCRIPTION "HALCON SoftwarePackage Extension — Modbus / MySQL / SQLite / spdlog / OpenCV / exiv2"
   LANGUAGES   C CXX
 )
 
@@ -115,6 +115,7 @@ set(EXT_SOURCES
   source/Halcon_sqlite.cpp
   source/Halcon_spdlog.cpp
   source/Halcon_mysql.cpp
+  source/Halcon_OpenCV.cpp
 )
 
 #----------------------------------------------------------------------
@@ -126,6 +127,7 @@ HALCON_AddExtensionPackage(${ProjectName}
     def/Halcon_Modbus.def
     def/Halcon_Spdlog.def
     def/Halcon_Mysql.def
+    def/Halcon_OpenCV.def
   SOURCES
     ${EXT_SOURCES}
   CHAPTERS
@@ -138,6 +140,20 @@ HALCON_AddExtensionPackage(${ProjectName}
 #=============================================================================
 #  Dependencies — 全部通过 vcpkg
 #=============================================================================
+
+#==================================================================
+#  OpenCV (from Halcon_YouloBe migration)
+#==================================================================
+find_package(OpenCV REQUIRED
+  COMPONENTS core imgproc imgcodecs features2d calib3d flann
+)
+message(STATUS "OpenCV ${OpenCV_VERSION} — ${OpenCV_DIR}")
+
+#==================================================================
+#  exiv2 (from Halcon_YouloBe migration)
+#==================================================================
+find_package(exiv2 REQUIRED)
+message(STATUS "exiv2 ${exiv2_VERSION}")
 
 #==================================================================
 #  spdlog
@@ -177,6 +193,7 @@ target_include_directories(${ProjectName}
   PUBLIC
     $<BUILD_INTERFACE:${HALCON_INCLUDE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${OpenCV_INCLUDE_DIRS}>
 )
 
 #=============================================================================
@@ -197,6 +214,8 @@ if(WIN32)
   target_link_libraries(${ProjectName}
     ${HALCON_LIB_DIR}/halconcpp.lib
     ws2_32.lib
+    ${OpenCV_LIBS}
+    exiv2lib
     ${SPDLOG_LIBS}
     ${MODBUS_LIBS}
     ${SQLITE3_LIBS}
@@ -206,6 +225,8 @@ else()
   find_package(Threads REQUIRED)
   target_link_libraries(${ProjectName}
     ${HALCON_LIB_DIR}/libhalconcpp${HALCON_SHARED_SUFFIX}
+    ${OpenCV_LIBS}
+    exiv2lib
     ${SPDLOG_LIBS}
     ${MODBUS_LIBS}
     ${SQLITE3_LIBS}

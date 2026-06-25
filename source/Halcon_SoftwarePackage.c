@@ -277,3 +277,80 @@ Herror CHmysql_store_result(Hproc_handle proc_handle)
 	return Hmysql_store_result(proc_handle);
 }
 #pragma endregion
+
+#pragma region opencv_exiv2
+Herror CHCremap(Hproc_handle proc_handle)
+{
+    return HCremap(proc_handle);
+}
+
+Herror CHPNGOut(Hproc_handle proc_handle)
+{
+    return HPNGOut(proc_handle);
+}
+
+Herror CHPNGIn(Hproc_handle proc_handle)
+{
+    return HPNGIn(proc_handle);
+}
+
+Herror Cadd_roi(Hproc_handle proc_handle)
+{
+    return HCadd_roi(proc_handle);
+}
+
+Herror Cmul_roi(Hproc_handle proc_handle)
+{
+    return HCmul_roi(proc_handle);
+}
+
+Herror Csub_B_roi(Hproc_handle proc_handle)
+{
+    return HCsub_B_roi(proc_handle);
+}
+
+Herror Cdiv_B_roi(Hproc_handle proc_handle)
+{
+    return HCdiv_B_roi(proc_handle);
+}
+
+Herror Cdiv_A_roi(Hproc_handle proc_handle)
+{
+    return HCdiv_A_roi(proc_handle);
+}
+
+Herror Csub_A_roi(Hproc_handle proc_handle)
+{
+    return HCsub_A_roi(proc_handle);
+}
+
+Herror CCLAHE_image(Hproc_handle proc_handle)
+{
+    return HCCLAHE_image(proc_handle);
+}
+
+Herror CWriteImageExif(Hproc_handle proc_handle)
+{
+    return HCWriteImageExif(proc_handle);
+}
+
+Herror Ccv_orb_detect(Hproc_handle proc_handle)
+{
+    return HCcv_orb_detect(proc_handle);
+}
+
+Herror Ccv_akaze_detect(Hproc_handle proc_handle)
+{
+    return HCcv_akaze_detect(proc_handle);
+}
+
+Herror Ccv_bf_knn_match(Hproc_handle proc_handle)
+{
+    return HCcv_bf_knn_match(proc_handle);
+}
+
+Herror Ccv_estimate_affine_partial2d(Hproc_handle proc_handle)
+{
+    return HCcv_estimate_affine_partial2d(proc_handle);
+}
+#pragma endregion
