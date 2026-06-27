@@ -40,7 +40,13 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 
 ### spdlog 日志
 
-基于 [spdlog](https://github.com/gabime/spdlog) 高性能 C++ 日志库封装，支持多种日志输出方式和灵活的格式配置。
+基于 [spdlog](https://github.com/gabime/spdlog) 高性能 C++ 日志库封装，支持多种日志输出方式和灵活的格式配置。所有记录器均采用 **异步模式**（后台线程池写入），日志调用立即返回，不影响主流程性能。
+
+**初始化（可选）**
+
+| 算子 | 说明 |
+|------|------|
+| `spdlog_init_thread_pool` | 初始化异步线程池（队列大小、线程数）。首次创建记录器时会自动以默认参数初始化，此算子用于自定义参数。 |
 
 **创建日志记录器**
 
@@ -197,7 +203,10 @@ sqlite3_close (SQLHandle)
 ### 示例：spdlog 日志
 
 ```
-* 创建滚动文件日志（5MB/文件，最多保留3个）
+* （可选）自定义异步线程池参数
+spdlog_init_thread_pool (16384, 2)
+
+* 创建滚动文件日志（5MB/文件，最多保留3个，异步写入）
 spdlog_rotating_logger_mt ('app', 'D:/logs/app.log', 5242880, 3, LogHandle)
 
 * 设置级别为 debug，输出 debug 及以上的日志
@@ -206,7 +215,7 @@ spdlog_set_level (LogHandle, 1)
 * 设置自定义格式
 spdlog_set_pattern (LogHandle, '[%Y-%m-%d %H:%M:%S.%e] [%l] %v')
 
-* 记录不同级别日志
+* 记录不同级别日志（异步入队，调用立即返回）
 spdlog_info (LogHandle, '程序启动完成')
 spdlog_warn (LogHandle, '检测到配置缺失，使用默认值')
 spdlog_err (LogHandle, '相机连接超时')
@@ -214,7 +223,7 @@ spdlog_err (LogHandle, '相机连接超时')
 * 确保日志写入文件
 spdlog_flush (LogHandle)
 
-* 程序结束时关闭日志系统
+* 程序结束时关闭日志系统（等待队列排空后释放）
 spdlog_shutdown ()
 ```
 

@@ -1,3 +1,39 @@
+spdlog_init_thread_pool<- CHspdlog_init_thread_pool[::queue_size,thread_count:]
+short.english
+  初始化spdlog异步线程池。在使用任何日志记录器之前调用，设置异步队列大小和后台线程数。queue_size为消息队列容量(默认8192)，thread_count为后台写入线程数(默认1)。如果未显式调用此算子，首次创建记录器时会自动以默认参数初始化。注意：线程池只能初始化一次，重复调用会被忽略。;
+short.german
+  Initialisiert den asynchronen Thread-Pool von spdlog.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  spdlog, init, thread_pool, async;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  queue_size:         input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      8192;
+
+parameter
+  thread_count:       input_control;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      1;
+
+
 spdlog_basic_logger_mt<- CHspdlog_basic_logger_mt[::logger_name,filename,truncate:handle]
 short.english
   创建基本文件日志记录器(多线程安全)。将日志消息写入指定的单个文件，适用于简单的日志记录场景。如果文件已存在，可通过truncate参数选择追加或清空后写入。logger_name为日志记录器的唯一名称，可通过spdlog_get按名称再次获取。;

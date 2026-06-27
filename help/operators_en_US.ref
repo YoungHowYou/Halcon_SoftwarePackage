@@ -853,6 +853,24 @@ type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
+spdlog_init_thread_pool(queue_size,thread_count)
+short.ascii=初始化spdlog异步线程池。在使用任何日志记录器之前调用，设置异步队列大小和后台线程数。queue_size为消息队列容量(默认8192)，thread_count为后台写入线程数(默认1)。如果未显式调用此算子，首次创建记录器时会自动以默认参数初始化。注意：线程池只能初始化一次，重复调用会被忽略。
+keywords=spdloginitthread_poolasync
+module=0 Foundation
+parameter=queue_size
+parameter_class=input_control
+type_list=integer
+default_value=8192
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=thread_count
+parameter_class=input_control
+type_list=integer
+default_value=1
+default_type=integer
+sem_type=number
+multivalue=false
 modbus_strerror(msg)
 short.ascii=Laplace Filter.
 keywords=UserExtensions

@@ -22,7 +22,10 @@ Testing/
 Makefile
 
 # ---- 编译中间文件 ----
+*.dll
+*.lib
 *.exp
+*.log
 *.pdb
 *.ilk
 *.obj

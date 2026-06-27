@@ -4,10 +4,15 @@
 <interface/>
 <body>
 <c>* =============================================================</c>
-<c>* spdlog Halcon Extension - Example</c>
+<c>* spdlog Halcon Extension - Async Example</c>
 <c>* =============================================================</c>
+<c>* 所有日志记录器均采用异步模式（后台线程池写入），日志调用立即返回</c>
+<c>* ----- 0. (可选) 自定义异步线程池参数 -----</c>
+<c>* 首次创建记录器时会自动以默认参数 init_thread_pool(8192, 1) 初始化</c>
+<c>* 如需自定义队列大小和线程数，请在创建任何记录器之前调用：</c>
+<l> spdlog_init_thread_pool (16384, 2)</l>
 <c>* ----- 1. Create a basic file logger -----</c>
-<l>spdlog_basic_logger_mt ('my_logger', '/home/njsc/logs/basic.log', 0, LogHandle)</l>
+<l>spdlog_basic_logger_mt ('my_logger', './basic.log', 0, LogHandle)</l>
 <c>* ----- 2. Set log level (0=trace, 1=debug, 2=info, 3=warn, 4=err, 5=critical, 6=off) -----</c>
 <l>spdlog_set_level (LogHandle, 0)</l>
 <c>* ----- 3. Set format pattern -----</c>
@@ -58,7 +63,7 @@
 <l>spdlog_get ('shared_logger', H2)</l>
 <l>spdlog_info (H2, 'Written via H2, same logger')</l>
 <l>spdlog_flush (H2)</l>
-<c>* ----- Shutdown all loggers -----</c>
+<c>* ----- Shutdown all loggers (等待异步队列排空后释放) -----</c>
 <l>spdlog_shutdown ()</l>
 </body>
 <docu id="main">

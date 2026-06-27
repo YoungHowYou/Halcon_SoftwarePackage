@@ -37,6 +37,7 @@ extern EXPORTS_API Herror Hmodbus_strerror(Hproc_handle proc_handle);
 #pragma endregion
 
 #pragma region spdlog
+extern EXPORTS_API Herror Hspdlog_init_thread_pool(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hspdlog_basic_logger_mt(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hspdlog_rotating_logger_mt(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hspdlog_daily_logger_mt(Hproc_handle proc_handle);

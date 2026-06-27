@@ -2343,6 +2343,10 @@ toggleLanguage(new_lang,1);return;}
 <dd>记录一条info(信息)级别的日志。info级别(2)是默认级别，用于记录程序正常运行的关键信息，如启动完成、处理结果等。</dd>
 </dl>
 <dl>
+<dt><a href="spdlog_init_thread_pool.html"><code><span data-if="hdevelop" style="display:inline;">spdlog_init_thread_pool</span><span data-if="dotnet" style="display:none;">SpdlogInitThreadPool</span><span data-if="python" style="display:none;">spdlog_init_thread_pool</span><span data-if="cpp" style="display:none;">SpdlogInitThreadPool</span><span data-if="c" style="display:none;">spdlog_init_thread_pool</span></code></a></dt>
+<dd>初始化spdlog异步线程池。在使用任何日志记录器之前调用，设置异步队列大小和后台线程数。queue_size为消息队列容量(默认8192)，thread_count为后台写入线程数(默认1)。如果未显式调用此算子，首次创建记录器时会自动以默认参数初始化。注意：线程池只能初始化一次，重复调用会被忽略。</dd>
+</dl>
+<dl>
 <dt><a href="spdlog_log.html"><code><span data-if="hdevelop" style="display:inline;">spdlog_log</span><span data-if="dotnet" style="display:none;">SpdlogLog</span><span data-if="python" style="display:none;">spdlog_log</span><span data-if="cpp" style="display:none;">SpdlogLog</span><span data-if="c" style="display:none;">spdlog_log</span></code></a></dt>
 <dd>使用指定级别记录一条日志消息。level参数指定日志级别：0=trace(跟踪)、1=debug(调试)、2=info(信息)、3=warn(警告)、4=err(错误)、5=critical(严重)。只有当level大于等于记录器当前设置的级别时，消息才会被实际写入。</dd>
 </dl>

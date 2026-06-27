@@ -185,6 +185,10 @@ Herror CHmodbus_strerror(Hproc_handle proc_handle)
 #pragma endregion
 
 #pragma region spdlog
+Herror CHspdlog_init_thread_pool(Hproc_handle proc_handle)
+{
+	return Hspdlog_init_thread_pool(proc_handle);
+}
 Herror CHspdlog_basic_logger_mt(Hproc_handle proc_handle)
 {
 	return Hspdlog_basic_logger_mt(proc_handle);

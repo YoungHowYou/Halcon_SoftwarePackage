@@ -1,7 +1,36 @@
 #include "Halcon_Def.h"
 #include "Halcon_SoftwarePackage.h"
 #include "HalconCpp.h"
+#include <mutex>
 using namespace HalconCpp;
+
+// ============================================================
+// Async Thread Pool — lazy init on first logger creation
+// ============================================================
+
+static std::once_flag g_spdlog_tp_init_flag;
+
+static void EnsureThreadPool()
+{
+    std::call_once(g_spdlog_tp_init_flag, []() {
+        // queue_size=8192, thread_count=1 (足够视觉应用场景)
+        spdlog::init_thread_pool(8192, 1);
+    });
+}
+
+Herror Hspdlog_init_thread_pool(Hproc_handle proc_handle)
+{
+    Hcpar queue_size;
+    Hcpar thread_count;
+    HGetSPar(proc_handle, 1, LONG_PAR, &queue_size, 1);
+    HGetSPar(proc_handle, 2, LONG_PAR, &thread_count, 1);
+
+    std::call_once(g_spdlog_tp_init_flag, [&]() {
+        spdlog::init_thread_pool((size_t)queue_size.par.l, (size_t)thread_count.par.l);
+    });
+
+    return H_MSG_TRUE;
+}
 
 // ============================================================
 // Logger Creation
@@ -21,7 +50,8 @@ Herror Hspdlog_basic_logger_mt(Hproc_handle proc_handle)
 
     try
     {
-        auto logger = spdlog::basic_logger_mt(name.par.s, filename.par.s, truncate.par.l != 0);
+        EnsureThreadPool();
+        auto logger = spdlog::basic_logger_mt<spdlog::async_factory>(name.par.s, filename.par.s, truncate.par.l != 0);
         SpdlogSetLogger(*pUserData, logger);
     }
     catch (const spdlog::spdlog_ex &)
@@ -48,7 +78,8 @@ Herror Hspdlog_rotating_logger_mt(Hproc_handle proc_handle)
 
     try
     {
-        auto logger = spdlog::rotating_logger_mt(name.par.s, filename.par.s,
+        EnsureThreadPool();
+        auto logger = spdlog::rotating_logger_mt<spdlog::async_factory>(name.par.s, filename.par.s,
                                                   (size_t)max_file_size.par.l,
                                                   (size_t)max_files.par.l);
         SpdlogSetLogger(*pUserData, logger);
@@ -77,7 +108,8 @@ Herror Hspdlog_daily_logger_mt(Hproc_handle proc_handle)
 
     try
     {
-        auto logger = spdlog::daily_logger_mt(name.par.s, filename.par.s,
+        EnsureThreadPool();
+        auto logger = spdlog::daily_logger_mt<spdlog::async_factory>(name.par.s, filename.par.s,
                                                (int)hour.par.l, (int)minute.par.l);
         SpdlogSetLogger(*pUserData, logger);
     }
@@ -99,7 +131,8 @@ Herror Hspdlog_stdout_color_mt(Hproc_handle proc_handle)
 
     try
     {
-        auto logger = spdlog::stdout_color_mt(name.par.s);
+        EnsureThreadPool();
+        auto logger = spdlog::stdout_color_mt<spdlog::async_factory>(name.par.s);
         SpdlogSetLogger(*pUserData, logger);
     }
     catch (const spdlog::spdlog_ex &)

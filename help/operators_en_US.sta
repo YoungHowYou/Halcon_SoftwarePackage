@@ -36,6 +36,7 @@ logger_name,handle:userextensions:UserExtensions:
 logger_name,filename,hour,minute,handle:userextensions:UserExtensions:
 logger_name,filename,max_file_size,max_files,handle:userextensions:UserExtensions:
 logger_name,filename,truncate,handle:userextensions:UserExtensions:
+queue_size,thread_count:userextensions:UserExtensions:
 msg:userextensions:UserExtensions:
 handle,address,num,bits:userextensions:UserExtensions:
 handle,address,bit_depth,value:userextensions:UserExtensions:
