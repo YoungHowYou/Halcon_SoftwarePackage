@@ -5,7 +5,12 @@
 # ---- 构建产物 ----
 build/
 vcpkg_installed/
+lib/
 bin/
+*.so
+*.so.*
+*.a
+*.o
 
 # ---- CMake 生成文件 ----
 CMakeLists.txt.user

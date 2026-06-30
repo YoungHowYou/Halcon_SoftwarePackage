@@ -2,7 +2,7 @@
   "name": "halcon-softwarepackage",
   "version-string": "1.0.0",
   "description": "HALCON SoftwarePackage Extension — Modbus, MySQL, SQLite, spdlog, OpenCV, exiv2",
-  "builtin-baseline": "a0b1c8d3a477c1cb4813d8e127a56961707ca42b",
+  "builtin-baseline": "4dbd4a48908ff48d26b3cf063f8c9e1da5759185",
   "dependencies": [
     "opencv4",
     "exiv2",

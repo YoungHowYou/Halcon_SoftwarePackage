@@ -64,6 +64,25 @@ if(HALCON_DOTNET)
   endif()
 endif()
 
+# ---- 自动修复 vcpkg_make_install 的 usr/* 前缀问题 ----
+set(_VCPKG_INSTALLED "${CMAKE_BINARY_DIR}/vcpkg_installed")
+if(EXISTS "${_VCPKG_INSTALLED}")
+  file(GLOB_RECURSE _usr_dirs "${_VCPKG_INSTALLED}/*/usr/local" "${_VCPKG_INSTALLED}/*/usr/lib" "${_VCPKG_INSTALLED}/*/usr/share")
+  foreach(_d ${_usr_dirs})
+    get_filename_component(_pkg_root "${_d}" DIRECTORY)
+    get_filename_component(_sub_dir "${_d}" NAME)
+    file(COPY "${_d}/" DESTINATION "${_pkg_root}/${_sub_dir}")
+    message(STATUS "Fixed usr/${_sub_dir}: ${_pkg_root}")
+  endforeach()
+  # Clean up entire usr dir after fixing
+  file(GLOB_RECURSE _usr_roots "${_VCPKG_INSTALLED}/*/usr")
+  foreach(_d ${_usr_roots})
+    if(IS_DIRECTORY "${_d}")
+      file(REMOVE_RECURSE "${_d}")
+    endif()
+  endforeach()
+endif()
+
 set(ProjectName Halcon_SoftwarePackage)
 
 #=============================================================================
