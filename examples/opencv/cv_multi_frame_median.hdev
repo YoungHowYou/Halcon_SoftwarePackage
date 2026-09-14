@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_multi_frame_median — OpenCV 多帧逐像素中值</c>
+<c>*   输入: 对象数组 Images（N 张 real 单通道图，尺寸一致，N &gt;= 2）</c>
+<c>*   输出: ImageMedian（real 单通道中值图）</c>
+<c>*   偶数 N 时取上中位数</c>
+<c>* =============================================================</c>
+<c>* ---- 1) 三帧 real 图像，中心像素取中值 ----</c>
+<l>gen_image_const (Image1, 'real', 3, 3)</l>
+<l>gen_image_const (Image2, 'real', 3, 3)</l>
+<l>gen_image_const (Image3, 'real', 3, 3)</l>
+<l>set_grayval (Image1, 1, 1, 10.0)</l>
+<l>set_grayval (Image2, 1, 1, 30.0)</l>
+<l>set_grayval (Image3, 1, 1, 20.0)</l>
+<l>gen_empty_obj (Images)</l>
+<l>concat_obj (Images, Image1, Images)</l>
+<l>concat_obj (Images, Image2, Images)</l>
+<l>concat_obj (Images, Image3, Images)</l>
+<l>cv_multi_frame_median (Images, ImageMedian)</l>
+<l>get_grayval (ImageMedian, 1, 1, VMed)</l>
+<c>* 期望: VMed = 20.0（10 / 20 / 30 的中位数）</c>
+<c>* ---- 2) 两帧 real 图像，偶数帧取上中位数 ----</c>
+<l>gen_image_const (ImageA, 'real', 3, 3)</l>
+<l>gen_image_const (ImageB, 'real', 3, 3)</l>
+<l>set_grayval (ImageA, 1, 1, 10.0)</l>
+<l>set_grayval (ImageB, 1, 1, 20.0)</l>
+<l>gen_empty_obj (Images2)</l>
+<l>concat_obj (Images2, ImageA, Images2)</l>
+<l>concat_obj (Images2, ImageB, Images2)</l>
+<l>cv_multi_frame_median (Images2, ImageMedian2)</l>
+<l>get_grayval (ImageMedian2, 1, 1, VMed2)</l>
+<c>* 期望: VMed2 = 20.0（N=2 时 vals[1]，上中位数）</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

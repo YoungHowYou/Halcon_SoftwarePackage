@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_reshape — OpenCV 矩阵重塑（单通道）</c>
+<c>*   支持 8 位(byte) / 16 位(uint2) / 浮点(real) 单通道图像</c>
+<c>*   rows: 输出图像新高度；cols = 总像素数 / rows（须能整除）</c>
+<c>* =============================================================</c>
+<c>* ---- 1) 16 位图像 2×3 → 3×2 ----</c>
+<l>gen_image_const (ImageUint2, 'uint2', 3, 2)</l>
+<l>cv_reshape (ImageUint2, ImageUint2Out, 3)</l>
+<l>get_image_size (ImageUint2Out, WU, HU)</l>
+<c>* 期望: WU=2, HU=3</c>
+<c>* ---- 2) 浮点(real)图像 4×4 → 1×16 ----</c>
+<l>gen_image_const (ImageReal, 'real', 4, 4)</l>
+<l>cv_reshape (ImageReal, ImageRealOut, 1)</l>
+<l>get_image_size (ImageRealOut, WR, HR)</l>
+<c>* 期望: WR=16, HR=1</c>
+<c>* ---- 3) 8 位图像 2×6 → 6×2 ----</c>
+<l>gen_image_const (ImageByte, 'byte', 6, 2)</l>
+<l>cv_reshape (ImageByte, ImageByteOut, 6)</l>
+<l>get_image_size (ImageByteOut, WB, HB)</l>
+<c>* 期望: WB=2, HB=6</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

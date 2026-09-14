@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_measure_pos — OpenCV 复刻 HALCON measure_pos</c>
+<c>*   输入顺序: Image, Column, Row, Phi, Length1, Length2, Sigma, Threshold, Transition</c>
+<c>*   输出顺序: RowEdge, ColumnEdge, Amplitude</c>
+<c>*   注意: Column 在前 Row 在后；Phi 单位为弧度</c>
+<c>*         Transition: 0=全部 1=暗→亮 -1=亮→暗</c>
+<c>* =============================================================</c>
+<c>* ---- 1) 创建测试图像：左黑右白，中间竖直边缘 ----</c>
+<l>gen_image_const (Image, 'byte', 101, 101)</l>
+<l>gen_rectangle1 (ROI, 0, 51, 100, 100)</l>
+<l>overpaint_region (Image, ROI, 255, 'fill')</l>
+<c>* ---- 2) 水平方向测量：Phi=0，中心 (Column=50, Row=50) ----</c>
+<c>*        边缘位于 Column≈50.5，期望 RowEdge≈50, ColumnEdge≈50.5 ----</c>
+<l>cv_measure_pos (Image, 50, 50, 0, 40, 5, 1.0, 10.0, 0, RowEdge, ColumnEdge, Amplitude)</l>
+<c>* ---- 3) 只保留暗→亮(正)过渡 ----</c>
+<l>cv_measure_pos (Image, 50, 50, 0, 40, 5, 1.0, 10.0, 1, RowEdgeP, ColumnEdgeP, AmplitudeP)</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

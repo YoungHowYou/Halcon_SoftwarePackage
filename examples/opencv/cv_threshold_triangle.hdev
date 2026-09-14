@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_threshold_triangle — 三角法自动阈值（OpenCV）</c>
+<c>*   仅支持 8 位单通道（OpenCV 的 THRESH_TRIANGLE 限制）</c>
+<c>*   输出二值图 + 自动计算出的阈值</c>
+<c>* =============================================================</c>
+<c>* 生成 0..255 的水平灰度渐变图（256×256）</c>
+<l>gen_image_gray_ramp (Image, 'x', 0, 0, 0, 0, 256, 256)</l>
+<c>* 三角法自动阈值</c>
+<l>cv_threshold_triangle (Image, ImageOut, ThreshValue)</l>
+<c>* 期望: ThreshValue ≈ 128（渐变图的三角法阈值在中间）</c>
+<l>get_image_size (ImageOut, Width, Height)</l>
+<c>* 期望: Width = 256, Height = 256</c>
+<c>* 检查左半部分被置为 0（暗），右半部分被置为 255（亮）</c>
+<l>get_grayval (ImageOut, 100, 10, DarkVal)</l>
+<l>get_grayval (ImageOut, 100, 245, BrightVal)</l>
+<c>* 期望: DarkVal = 0, BrightVal = 255</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

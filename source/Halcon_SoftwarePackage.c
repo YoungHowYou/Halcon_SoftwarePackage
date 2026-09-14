@@ -362,4 +362,126 @@ Herror Ccv_write_image(Hproc_handle proc_handle)
 {
     return HCcv_write_image(proc_handle);
 }
+
+Herror Ccv_mat_mul(Hproc_handle proc_handle)
+{
+    return HCcv_mat_mul(proc_handle);
+}
+
+Herror Ccv_median_blur(Hproc_handle proc_handle)
+{
+    return HCcv_median_blur(proc_handle);
+}
+
+Herror Ccv_reshape(Hproc_handle proc_handle)
+{
+    return HCcv_reshape(proc_handle);
+}
+
+Herror Ccv_filter2d(Hproc_handle proc_handle)
+{
+    return HCcv_filter2d(proc_handle);
+}
+
+Herror Ccv_measure_pos(Hproc_handle proc_handle)
+{
+    return HCcv_measure_pos(proc_handle);
+}
+
+Herror Ccv_blur(Hproc_handle proc_handle)
+{
+    return HCcv_blur(proc_handle);
+}
+
+Herror Ccv_subtract(Hproc_handle proc_handle)
+{
+    return HCcv_subtract(proc_handle);
+}
+
+Herror Ccv_add_weighted(Hproc_handle proc_handle)
+{
+    return HCcv_add_weighted(proc_handle);
+}
+
+Herror Ccv_solve(Hproc_handle proc_handle)
+{
+    return HCcv_solve(proc_handle);
+}
+
+Herror Ccv_estimate_affine_2d(Hproc_handle proc_handle)
+{
+    return HCcv_estimate_affine_2d(proc_handle);
+}
+
+Herror Ccv_threshold_triangle(Hproc_handle proc_handle)
+{
+    return HCcv_threshold_triangle(proc_handle);
+}
+
+Herror Ccv_calc_hist(Hproc_handle proc_handle)
+{
+    return HCcv_calc_hist(proc_handle);
+}
+
+Herror Ccv_match_template(Hproc_handle proc_handle)
+{
+    return HCcv_match_template(proc_handle);
+}
+
+Herror Ccv_kmeans(Hproc_handle proc_handle)
+{
+    return HCcv_kmeans(proc_handle);
+}
+
+Herror Ccv_multi_frame_median(Hproc_handle proc_handle)
+{
+    return HCcv_multi_frame_median(proc_handle);
+}
+#pragma endregion
+
+#pragma region math
+Herror Cstd_nth_element(Hproc_handle proc_handle)
+{
+    return HCstd_nth_element(proc_handle);
+}
+
+Herror Cstd_sort(Hproc_handle proc_handle)
+{
+    return HCstd_sort(proc_handle);
+}
+
+Herror Cstd_lower_bound(Hproc_handle proc_handle)
+{
+    return HCstd_lower_bound(proc_handle);
+}
+
+Herror Ceigen_svd(Hproc_handle proc_handle)
+{
+    return HCeigen_svd(proc_handle);
+}
+
+Herror Ceigen_ldlt(Hproc_handle proc_handle)
+{
+    return HCeigen_ldlt(proc_handle);
+}
+
+Herror Ceigen_llt(Hproc_handle proc_handle)
+{
+    return HCeigen_llt(proc_handle);
+}
+
+Herror Carma_interp1(Hproc_handle proc_handle)
+{
+    return HCarma_interp1(proc_handle);
+}
+
+Herror Ceigen_lm_fit(Hproc_handle proc_handle)
+{
+    return HCeigen_lm_fit(proc_handle);
+}
+
+Herror Ceigen_lm_fit_2d(Hproc_handle proc_handle)
+{
+    return HCeigen_lm_fit_2d(proc_handle);
+}
 #pragma endregion

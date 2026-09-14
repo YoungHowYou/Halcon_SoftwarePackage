@@ -9,6 +9,9 @@
     "spdlog",
     "libmodbus",
     "sqlite3",
-    "libmysql"
+    "libmysql",
+    "eigen3",
+    "armadillo",
+    "muparser"
   ]
 }

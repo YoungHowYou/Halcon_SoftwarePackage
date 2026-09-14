@@ -837,3 +837,825 @@ parameter
   sem_type:          number;
   type_list:         integer;
   default_value:     3;
+
+cv_mat_mul<- Ccv_mat_mul[imageA,imageB:outimage::]
+short.german
+  Matrix multiplication of two 16-bit single-channel images.;
+
+short.english
+  Matrix multiplication of two 16-bit single-channel images (C = A * B).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Matrix, Multiply, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  imageA:            input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageB:            input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  outimage:           output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+cv_median_blur<- Ccv_median_blur[image:imageOut:ksize:]
+short.german
+  Median blur filter for images using OpenCV.;
+
+short.english
+  Median blur filter (supports 8-bit, 16-bit and real images).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Median, Blur, Filter, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  ksize:             input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;
+
+cv_reshape<- Ccv_reshape[image:imageOut:rows:]
+short.german
+  Reshape an image matrix using OpenCV (single channel).;
+
+short.english
+  Reshape an image matrix (supports 8-bit, 16-bit and real single-channel images).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Reshape, Matrix, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  rows:              input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     0;
+
+cv_filter2d<- Ccv_filter2d[image,kernel:imageOut::]
+short.german
+  Convolve an image with a kernel using OpenCV.;
+
+short.english
+  Convolve an image with a kernel (supports 8-bit, 16-bit and real single-channel images).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Filter, Convolution, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  kernel:            input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+cv_measure_pos<- Ccv_measure_pos[image::Column,Row,Phi,Length1,Length2,Sigma,Threshold,Transition:RowEdge,ColumnEdge,Amplitude]
+short.german
+  Misst gerade Kanten mit einem eindimensionalen Gaußfilter (OpenCV).;
+
+short.english
+  Measure straight edges perpendicular to a rectangle using OpenCV.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Measure, Edge, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  Column:            input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     0.0;
+
+parameter
+  Row:               input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     0.0;
+
+parameter
+  Phi:               input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     0.0;
+
+parameter
+  Length1:           input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     10.0;
+
+parameter
+  Length2:           input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     5.0;
+
+parameter
+  Sigma:             input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     1.0;
+
+parameter
+  Threshold:         input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     5.0;
+
+parameter
+  Transition:        input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     0;
+
+parameter
+  RowEdge:           output_control;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  ColumnEdge:        output_control;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  Amplitude:         output_control;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+cv_blur<- Ccv_blur[image:imageOut:kwidth,kheight:]
+short.german
+  Smooth an image using a normalized box filter (OpenCV).;
+
+short.english
+  Smooth an image using a normalized box filter (supports 8-bit, 16-bit and real single-channel images).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Blur, Smooth, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  kwidth:            input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;
+
+parameter
+  kheight:           input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;
+
+cv_subtract<- Ccv_subtract[imageA,imageB:imageOut::]
+short.german
+  Compute the per-element difference of two images (OpenCV).;
+
+short.english
+  Compute the per-element saturated difference of two images (supports 8-bit, 16-bit and real single-channel images).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Subtract, Arithmetic, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  imageA:            input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageB:            input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+cv_add_weighted<- Ccv_add_weighted[imageA,imageB:imageOut:alpha,beta,gamma:]
+short.german
+  Computes the weighted sum of two images (OpenCV).;
+
+short.english
+  Computes the weighted sum of two images (supports 8-bit, 16-bit and real single-channel images).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, AddWeighted, Arithmetic, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  imageA:            input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageB:            input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  alpha:             input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     1.0;
+
+parameter
+  beta:              input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     1.0;
+
+parameter
+  gamma:             input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     0.0;
+
+cv_solve<- Ccv_solve[imageA,imageB:imageX:methodId:]
+short.german
+  Solve linear equations using OpenCV.;
+
+short.english
+  Solve linear equations A*x=b using OpenCV (real single-channel matrices).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Solve, Linear, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  imageA:            input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageB:            input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageX:            output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  methodId:          input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     0;
+
+cv_estimate_affine_2d<- Ccv_estimate_affine_2d[::methodId,ransacThreshold,srcRow,srcCol,dstRow,dstCol:homMat2D,success,inlierCount]
+short.german
+  Estimate full affine transformation using OpenCV.;
+
+short.english
+  Estimate full affine transformation (6 parameters) using OpenCV.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Affine, RANSAC, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  methodId:          input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     8;
+
+parameter
+  ransacThreshold:   input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     3.0;
+
+parameter
+  srcRow:            input_control;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  srcCol:            input_control;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  dstRow:            input_control;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  dstCol:            input_control;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  homMat2D:          output_control;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  success:           output_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+
+parameter
+  inlierCount:       output_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+
+cv_threshold_triangle<- Ccv_threshold_triangle[image:imageOut::threshValue]
+short.german
+  Triangle automatic thresholding using OpenCV.;
+
+short.english
+  Triangle automatic thresholding (THRESH_TRIANGLE, 8-bit single-channel only).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Threshold, Triangle, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  threshValue:       output_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+
+cv_calc_hist<- Ccv_calc_hist[image:histogram:histSize,rangeMin,rangeMax:]
+short.german
+  Compute gray-level histogram using OpenCV.;
+
+short.english
+  Compute gray-level histogram (8/16-bit or real single-channel).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Histogram, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  histogram:         output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  histSize:          input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     256;
+
+parameter
+  rangeMin:          input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     0.0;
+
+parameter
+  rangeMax:          input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     256.0;
+
+cv_match_template<- Ccv_match_template[image,templateImage:result::]
+short.german
+  Template matching using OpenCV (TM_CCOEFF_NORMED).;
+
+short.english
+  Template matching (TM_CCOEFF_NORMED, 8-bit or real single-channel).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Template, Match, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  templateImage:     input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  result:            output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+cv_kmeans<- Ccv_kmeans[samples:labels,centers:K,attempts,termEps,termMaxIter:]
+short.german
+  K-means clustering using OpenCV.;
+
+short.english
+  K-means clustering (real NxD samples matrix).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, KMeans, Cluster, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  samples:           input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  labels:            output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  centers:           output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  K:                 input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     2;
+
+parameter
+  attempts:          input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     10;
+
+parameter
+  termEps:           input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     1.0e-4;
+
+parameter
+  termMaxIter:       input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     100;
+
+cv_multi_frame_median<- Ccv_multi_frame_median[images:imageMedian::]
+short.german
+  Berechnet den pixelweisen Median über mehrere Real-Bilder (OpenCV).;
+
+short.english
+  Compute the pixel-wise median over multiple real images using OpenCV.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Median, MultiFrame, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  images:            input_object;
+  sem_type:           image;
+  multivalue:         true;
+
+parameter
+  imageMedian:       output_object;
+  sem_type:           image;
+  multivalue:         optional;

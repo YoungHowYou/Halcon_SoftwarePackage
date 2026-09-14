@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_calc_hist — 灰度直方图（OpenCV calcHist）</c>
+<c>*   支持 8 位 / 16 位 / 浮点单通道；输出 1×HistSize 的 real 直方图</c>
+<c>* =============================================================</c>
+<c>* 生成 0..255 的水平灰度渐变图（256×256）</c>
+<c>* 每一列灰度值 = 列号，因此每个灰度值恰好出现 256 次</c>
+<l>gen_image_gray_ramp (Image, 'x', 0, 0, 0, 0, 256, 256)</l>
+<c>* 计算 256 桶直方图，范围为 [0, 256)</c>
+<l>cv_calc_hist (Image, Histogram, 256, 0, 256)</l>
+<l>get_image_size (Histogram, HistWidth, HistHeight)</l>
+<c>* 期望: HistWidth = 256, HistHeight = 1</c>
+<c>* 读取第 100 号桶的计数</c>
+<l>get_grayval (Histogram, 0, 100, BinValue)</l>
+<c>* 期望: BinValue = 256（灰度值 100 在图中出现 256 次）</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_estimate_affine_2d — 完整仿射变换估计（OpenCV, 6 参数）</c>
+<c>*   MethodId: RANSAC=8 / LMEDS=4</c>
+<c>*   点坐标用 tuple 输入；输出 HomMat2D(6元素)、Success、InlierCount</c>
+<c>* =============================================================</c>
+<c>* 源点（4 个角点）</c>
+<l>SrcRow := [0, 10, 0, 10]</l>
+<l>SrcCol := [0, 0, 10, 10]</l>
+<c>* 目标点 = 源点平移 (列+5, 行+3)</c>
+<l>DstRow := SrcRow + 3</l>
+<l>DstCol := SrcCol + 5</l>
+<c>* 估计仿射变换（RANSAC, 阈值 3.0）</c>
+<l>cv_estimate_affine_2d (8, 3.0, SrcRow, SrcCol, DstRow, DstCol, HomMat2D, Success, InlierCount)</l>
+<c>* 期望: Success=1, InlierCount=4</c>
+<c>* HomMat2D = [R00, R10, T0, R01, R11, T1] = [1, 0, 5, 0, 1, 3]（纯平移）</c>
+<c>* 直接用 HALCON 自带的仿射变换验证结果</c>
+<l>affine_trans_point_2d (HomMat2D, SrcCol, SrcRow, Qx, Qy)</l>
+<c>* 期望: Qx = SrcCol + 5, Qy = SrcRow + 3</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

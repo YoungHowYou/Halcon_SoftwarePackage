@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_solve — 解线性方程组 A*x = b（OpenCV）</c>
+<c>*   矩阵用 real 单通道图像承载（height=行数, width=列数）</c>
+<c>*   MethodId: DECOMP_LU=0 / DECOMP_SVD=1 / DECOMP_EIG=2 / DECOMP_CHOLESKY=3 / DECOMP_QR=4</c>
+<c>* =============================================================</c>
+<c>* 求解:  2x + y = 5</c>
+<c>*        x + 3y = 10</c>
+<c>* 即 A = [2 1; 1 3], b = [5; 10]，解析解 x = 1, y = 3</c>
+<l>gen_image_const (ImageA, 'real', 2, 2)</l>
+<l>set_grayval (ImageA, 0, 0, 2.0)</l>
+<l>set_grayval (ImageA, 0, 1, 1.0)</l>
+<l>set_grayval (ImageA, 1, 0, 1.0)</l>
+<l>set_grayval (ImageA, 1, 1, 3.0)</l>
+<c>* 右端项 b（2 行 × 1 列）</c>
+<l>gen_image_const (ImageB, 'real', 1, 2)</l>
+<l>set_grayval (ImageB, 0, 0, 5.0)</l>
+<l>set_grayval (ImageB, 1, 0, 10.0)</l>
+<c>* 求解（LU 分解）</c>
+<l>cv_solve (ImageA, ImageB, ImageX, 0)</l>
+<l>get_grayval (ImageX, 0, 0, X0)</l>
+<l>get_grayval (ImageX, 1, 0, X1)</l>
+<c>* 期望: X0 = 1.0, X1 = 3.0</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

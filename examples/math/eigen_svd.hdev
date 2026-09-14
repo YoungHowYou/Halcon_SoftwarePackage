@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* eigen_svd — 奇异值分解（Eigen JacobiSVD，满 U/V）</c>
+<c>*   A: m×n → U: m×m, S: 1×min(m,n)（降序）, V: n×n</c>
+<c>*   满足 A = U * diag(S) * V'</c>
+<c>* =============================================================</c>
+<c>* A = [3 0; 0 -2]（对角矩阵，奇异值应为 3 和 2）</c>
+<l>gen_image_const (ImageA, 'real', 2, 2)</l>
+<l>set_grayval (ImageA, 0, 0, 3.0)</l>
+<l>set_grayval (ImageA, 1, 1, -2.0)</l>
+<c>* 奇异值分解</c>
+<l>eigen_svd (ImageA, ImageU, ImageS, ImageV)</l>
+<c>* 检查奇异值（降序排列）</c>
+<l>get_grayval (ImageS, 0, 0, S0)</l>
+<l>get_grayval (ImageS, 0, 1, S1)</l>
+<c>* 期望: S0 = 3.0, S1 = 2.0</c>
+<c>* 检查输出尺寸</c>
+<l>get_image_size (ImageU, UW, UH)</l>
+<l>get_image_size (ImageV, VW, VH)</l>
+<c>* 期望: UW=2, UH=2（U 为方阵）, VW=2, VH=2（V 为方阵）</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

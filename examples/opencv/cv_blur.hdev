@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_blur — OpenCV 均值滤波（归一化盒式滤波）</c>
+<c>*   支持 8 位(byte) / 16 位(uint2) / 浮点(real) 单通道图像</c>
+<c>*   kwidth/kheight 必须为 ≥1 的奇数</c>
+<c>* =============================================================</c>
+<c>* ---- 1) 8 位图像，kwidth=3,kheight=3 ----</c>
+<l>gen_image_const (ImageByte, 'byte', 5, 5)</l>
+<l>set_grayval (ImageByte, 2, 2, 255)</l>
+<l>cv_blur (ImageByte, ImageByteOut, 3, 3)</l>
+<c>* ---- 2) 16 位图像，kwidth=5,kheight=3 ----</c>
+<l>gen_image_const (ImageUint2, 'uint2', 5, 5)</l>
+<l>set_grayval (ImageUint2, 2, 2, 65535)</l>
+<l>cv_blur (ImageUint2, ImageUint2Out, 5, 3)</l>
+<c>* 读取中心像素结果核对</c>
+<l>get_grayval (ImageByteOut, 2, 2, VByte)</l>
+<l>get_grayval (ImageUint2Out, 2, 2, VUint2)</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

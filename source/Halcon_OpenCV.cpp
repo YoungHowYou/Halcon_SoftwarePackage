@@ -26,6 +26,7 @@
 #include <string>
 #include <fstream>
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <cstdint>
 #include <exiv2/exiv2.hpp>
@@ -570,13 +571,19 @@ Herror HCCLAHE_image(Hproc_handle proc_handle)
     if (k_width.par.l <= 0 || k_height.par.l <= 0 || clipLimit.par.l < 0)
         return 30001;
 
-    if (inimage.kind != BYTE_IMAGE)
+    if (inimage.kind != BYTE_IMAGE && inimage.kind != UINT2_IMAGE)
         return 30002;
 
-    cv::Mat imageIn(inimage.height, inimage.width, CV_8UC1, inimage.pixel.b);
+    int  cvType      = (inimage.kind == BYTE_IMAGE) ? CV_8UC1 : CV_16UC1;
+    void* inPixels   = (inimage.kind == BYTE_IMAGE) ? (void*)inimage.pixel.b
+                                                    : (void*)inimage.pixel.u.p;
 
-    HCkP(HNewImage(proc_handle, &outimage, BYTE_IMAGE, inimage.width, inimage.height));
-    cv::Mat imageOut(outimage.height, outimage.width, CV_8UC1, outimage.pixel.b);
+    cv::Mat imageIn(inimage.height, inimage.width, cvType, inPixels);
+
+    HCkP(HNewImage(proc_handle, &outimage, inimage.kind, inimage.width, inimage.height));
+    void* outPixels  = (inimage.kind == BYTE_IMAGE) ? (void*)outimage.pixel.b
+                                                    : (void*)outimage.pixel.u.p;
+    cv::Mat imageOut(outimage.height, outimage.width, cvType, outPixels);
 
     cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(
         static_cast<double>(clipLimit.par.l),
@@ -1131,6 +1138,1180 @@ Herror HCcv_write_image(Hproc_handle proc_handle)
     std::vector<int> params = { cv::IMWRITE_PNG_COMPRESSION, (int)compression.par.l };
     if (!cv::imwrite(filename.par.s, cv_img, params))
         return H__LINE__ * 10000;
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_mat_mul — 两个 16 位单通道图像做矩阵乘法，输出 16 位单通道图
+ *   C = A * B   其中 A: m×k, B: k×n → C: m×n
+ *   要求 A 的列数 == B 的行数
+ *===========================================================================*/
+Herror HCcv_mat_mul(Hproc_handle proc_handle)
+{
+    Hkey  inA_obj_key, inB_obj_key, out_obj_key, out_image_key;
+    Himage inA, inB, outimage;
+
+    HGetObj(proc_handle, 1, 1, &inA_obj_key);
+    HGetObj(proc_handle, 2, 1, &inB_obj_key);
+    HGetDImage(proc_handle, inA_obj_key, 1, &inA);
+    HGetDImage(proc_handle, inB_obj_key, 1, &inB);
+
+
+    if (inA.kind != UINT2_IMAGE || inB.kind != UINT2_IMAGE)
+        return 30001;   // 仅支持 16 位单通道
+
+    cv::Mat A(inA.height, inA.width, CV_16UC1, inA.pixel.u.p);
+    cv::Mat B(inB.height, inB.width, CV_16UC1, inB.pixel.u.p);
+
+    if (A.cols != B.rows)
+        return 30002;   // 维度不匹配：A 的列数必须等于 B 的行数
+
+    // 转 double 计算，避免 16 位乘积溢出，最后饱和截断回 16 位
+    cv::Mat Af, Bf, Cf;
+    A.convertTo(Af, CV_64F);
+    B.convertTo(Bf, CV_64F);
+    cv::gemm(Af, Bf, 1.0, cv::noArray(), 0.0, Cf);
+
+    cv::Mat C;
+    Cf.convertTo(C, CV_16UC1);   // saturate_cast 到 [0, 65535]
+
+    int outW = C.cols;
+    int outH = C.rows;
+
+    HCkP(HNewImage(proc_handle, &outimage, UINT2_IMAGE, outW, outH));
+    memcpy(outimage.pixel.u.p, C.data, (size_t)outW * outH * 2);
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_median_blur — 中值滤波（cv::medianBlur）
+ *   支持 8 位 / 16 位 / 浮点(real) 单通道图像
+ *   ksize: 滤波核尺寸，须为 ≥3 的奇数；16 位与浮点图仅支持 3 或 5
+ *===========================================================================*/
+Herror HCcv_median_blur(Hproc_handle proc_handle)
+{
+    Hkey   in_obj_key, out_obj_key, out_image_key;
+    Himage inimage, outimage;
+    Hcpar  ksize;
+
+    HGetSPar(proc_handle, 1, LONG_PAR, &ksize, 1);
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+    HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+
+    int k = (int)ksize.par.l;
+    if (k < 3 || (k % 2) == 0)
+        return 30001;   // ksize 必须为 ≥3 的奇数
+
+    int   cvType;
+    void* inPixels;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:
+        cvType   = CV_8UC1;
+        inPixels = (void*)inimage.pixel.b;
+        break;
+    case UINT2_IMAGE:
+        if (k > 5) return 30002;   // 16 位图仅支持 ksize=3/5
+        cvType   = CV_16UC1;
+        inPixels = (void*)inimage.pixel.u.p;
+        break;
+    case FLOAT_IMAGE:
+        if (k > 5) return 30003;   // 浮点图仅支持 ksize=3/5
+        cvType   = CV_32FC1;
+        inPixels = (void*)inimage.pixel.f;
+        break;
+    default:
+        return 30004;   // 仅支持 byte / uint2 / real 图像
+    }
+
+    cv::Mat imageIn(inimage.height, inimage.width, cvType, inPixels);
+
+    HCkP(HNewImage(proc_handle, &outimage, inimage.kind, inimage.width, inimage.height));
+    void* outPixels;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:  outPixels = (void*)outimage.pixel.b;   break;
+    case UINT2_IMAGE: outPixels = (void*)outimage.pixel.u.p; break;
+    default:          outPixels = (void*)outimage.pixel.f;   break;
+    }
+    cv::Mat imageOut(outimage.height, outimage.width, cvType, outPixels);
+
+    try
+    {
+        cv::medianBlur(imageIn, imageOut, k);
+    }
+    catch (const cv::Exception&)
+    {
+        return 30005;
+    }
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_reshape — 矩阵重塑（cv::reshape，单通道）
+ *   支持 8 位 / 16 位 / 浮点(real) 单通道图像
+ *   rows: 输出图像的新高度；cols = 总像素数 / rows（须能整除）
+ *   rows <= 0 时保持原高度不变
+ *===========================================================================*/
+Herror HCcv_reshape(Hproc_handle proc_handle)
+{
+    Hkey   in_obj_key, out_obj_key, out_image_key;
+    Himage inimage, outimage;
+    Hcpar  rows;
+
+    HGetSPar(proc_handle, 1, LONG_PAR, &rows, 1);
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+    HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+
+    int  cvType;
+    void* inPixels;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:
+        cvType   = CV_8UC1;
+        inPixels = (void*)inimage.pixel.b;
+        break;
+    case UINT2_IMAGE:
+        cvType   = CV_16UC1;
+        inPixels = (void*)inimage.pixel.u.p;
+        break;
+    case FLOAT_IMAGE:
+        cvType   = CV_32FC1;
+        inPixels = (void*)inimage.pixel.f;
+        break;
+    default:
+        return 30001;   // 仅支持 byte / uint2 / real 单通道图像
+    }
+
+    int newRows = (int)rows.par.l;
+    if (newRows < 0) return 30002;   // 行数不能为负
+    if (newRows == 0) newRows = (int)inimage.height;
+
+    int total = (int)inimage.width * (int)inimage.height;
+    if (total % newRows != 0) return 30003;   // 总像素数须能被 rows 整除
+    int newCols = total / newRows;
+
+    cv::Mat imageIn(inimage.height, inimage.width, cvType, inPixels);
+    cv::Mat reshaped = imageIn.reshape(1, newRows);   // 仅换头，不复制数据
+
+    HCkP(HNewImage(proc_handle, &outimage, inimage.kind, newCols, newRows));
+    void* outPixels;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:  outPixels = (void*)outimage.pixel.b;   break;
+    case UINT2_IMAGE: outPixels = (void*)outimage.pixel.u.p; break;
+    default:          outPixels = (void*)outimage.pixel.f;   break;
+    }
+    cv::Mat imageOut(newRows, newCols, cvType, outPixels);
+    reshaped.copyTo(imageOut);
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_filter2d — 图像卷积（cv::filter2D）
+ *   支持 8 位 / 16 位 / 浮点(real) 单通道图像
+ *   kernel: 单通道 real 图像，作为卷积核
+ *===========================================================================*/
+Herror HCcv_filter2d(Hproc_handle proc_handle)
+{
+    Hkey   in_obj_key, k_obj_key, out_obj_key, out_image_key;
+    Himage inimage, kimage, outimage;
+
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+    HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+    HGetObj(proc_handle, 2, 1, &k_obj_key);
+    HGetDImage(proc_handle, k_obj_key, 1, &kimage);
+
+    if (kimage.kind != FLOAT_IMAGE)
+        return 30001;   // kernel 必须为 real 单通道图像
+
+    int  cvType;
+    void* inPixels;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:
+        cvType   = CV_8UC1;
+        inPixels = (void*)inimage.pixel.b;
+        break;
+    case UINT2_IMAGE:
+        cvType   = CV_16UC1;
+        inPixels = (void*)inimage.pixel.u.p;
+        break;
+    case FLOAT_IMAGE:
+        cvType   = CV_32FC1;
+        inPixels = (void*)inimage.pixel.f;
+        break;
+    default:
+        return 30002;   // 仅支持 byte / uint2 / real 单通道图像
+    }
+
+    cv::Mat imageIn(inimage.height, inimage.width, cvType, inPixels);
+    cv::Mat kernel(kimage.height, kimage.width, CV_32FC1, kimage.pixel.f);
+
+    HCkP(HNewImage(proc_handle, &outimage, inimage.kind, inimage.width, inimage.height));
+    void* outPixels;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:  outPixels = (void*)outimage.pixel.b;   break;
+    case UINT2_IMAGE: outPixels = (void*)outimage.pixel.u.p; break;
+    default:          outPixels = (void*)outimage.pixel.f;   break;
+    }
+    cv::Mat imageOut(outimage.height, outimage.width, cvType, outPixels);
+
+    try
+    {
+        cv::filter2D(imageIn, imageOut, -1, kernel,
+                     cv::Point(-1, -1), 0.0, cv::BORDER_DEFAULT);
+    }
+    catch (const cv::Exception&)
+    {
+        return 30003;
+    }
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_measure_pos — 复刻 HALCON measure_pos（OpenCV 实现）
+ *
+ *   在矩形测量区域内沿主轴抽取一维剖面，用高斯一阶导数卷积定位边缘，
+ *   支持亚像素插值、振幅阈值与过渡方向过滤。
+ *
+ *   输入 : image       输入图像（byte / uint2 / real 单通道）
+ *          Column      测量矩形中心列坐标 (x)
+ *          Row         测量矩形中心行坐标 (y)
+ *          Phi         主轴角度（弧度，相对水平方向，逆时针为正）
+ *          Length1     沿主轴半长（扫描方向，单位像素）
+ *          Length2     垂直主轴半宽（投影平均方向，单位像素）
+ *          Sigma       高斯平滑标准差
+ *          Threshold   振幅阈值（边缘两侧灰度差的下限）
+ *          Transition  0=全部 1=暗→亮(正) -1=亮→暗(负)
+ *   输出 : RowEdge, ColumnEdge, Amplitude
+ *===========================================================================*/
+static std::vector<cv::Point2f> cvMeasurePos(
+    const cv::Mat& gray,
+    cv::Point2f center,
+    float phi,
+    float length1,
+    float length2,
+    float sigma,
+    float threshold,
+    int transition,
+    std::vector<double>* out_amplitude)
+{
+    std::vector<cv::Point2f> result;
+    if (out_amplitude) out_amplitude->clear();
+    if (gray.empty()) return result;
+    if (gray.type() != CV_8UC1) return result;
+    if (sigma <= 0.0f || length1 < 1.0f) return result;
+
+    // 1) 沿测量矩形抽取一维剖面（双线性采样 + 垂直方向平均）
+    int n = 2 * (int)std::round(length1) + 1;
+    if (n < 3) return result;
+
+    std::vector<double> profile(n, 0.0);
+
+    const double cosA = std::cos(phi);
+    const double sinA = std::sin(phi);
+    const double ux = cosA,  uy = sinA;   // 主轴单位向量
+    const double vx = -sinA, vy = cosA;   // 垂直主轴单位向量
+    const int half_w = std::max(0, (int)std::round(length2));
+
+    for (int i = 0; i < n; ++i) {
+        const double t = i - (n - 1) * 0.5;
+        double sum = 0.0;
+        int cnt = 0;
+        for (int j = -half_w; j <= half_w; ++j) {
+            const double x = center.x + t * ux + j * vx;
+            const double y = center.y + t * uy + j * vy;
+
+            if (x >= 0.0 && y >= 0.0 &&
+                x <= gray.cols - 1.0 && y <= gray.rows - 1.0)
+            {
+                int x0 = std::min((int)x, gray.cols - 2);
+                int y0 = std::min((int)y, gray.rows - 2);
+                if (x0 < 0) x0 = 0;
+                if (y0 < 0) y0 = 0;
+                const double dx = x - x0;
+                const double dy = y - y0;
+                const uchar* p0 = gray.ptr<uchar>(y0);
+                const uchar* p1 = gray.ptr<uchar>(y0 + 1);
+                const double v00 = p0[x0];
+                const double v01 = p0[x0 + 1];
+                const double v10 = p1[x0];
+                const double v11 = p1[x0 + 1];
+                sum += (1.0 - dy) * ((1.0 - dx) * v00 + dx * v01)
+                     +        dy  * ((1.0 - dx) * v10 + dx * v11);
+            }
+            ++cnt;
+        }
+        profile[i] = (cnt > 0) ? (sum / cnt) : 0.0;
+    }
+
+    // 2) 构造高斯一阶导数核 G'(x)
+    const int half_k = std::max(1, (int)std::ceil(3.0 * sigma));
+    const int klen   = 2 * half_k + 1;
+    std::vector<double> kernel(klen);
+    {
+        const double s2    = (double)sigma * (double)sigma;
+        const double knorm = 1.0 / (std::sqrt(2.0 * CV_PI) * sigma * s2);
+        for (int i = 0; i < klen; ++i) {
+            const double x = i - half_k;
+            kernel[i] = -x * std::exp(-x * x / (2.0 * s2)) * knorm;
+        }
+    }
+
+    // 3) 卷积 d = profile * kernel（mode='same'）
+    std::vector<double> d(n, 0.0);
+    for (int i = 0; i < n; ++i) {
+        double sum = 0.0;
+        for (int j = 0; j < klen; ++j) {
+            const int idx = i - half_k + j;
+            if (idx >= 0 && idx < n) sum += profile[idx] * kernel[j];
+        }
+        d[i] = sum;
+    }
+
+    // 4) 找 |d| 的局部极大值 + 振幅阈值过滤
+    std::vector<double> ag(n);
+    for (int i = 0; i < n; ++i) ag[i] = std::abs(d[i]);
+
+    const double amp_scale = std::sqrt(2.0 * CV_PI) * (double)sigma;
+    std::vector<int>    cand;
+    std::vector<double> cand_amp;
+
+    for (int i = 0; i < n; ++i) {
+        const bool ge_l = (i > 0)     ? (ag[i] >= ag[i - 1]) : false;
+        const bool ge_r = (i < n - 1) ? (ag[i] >= ag[i + 1]) : false;
+        const bool gt_l = (i > 0)     ? (ag[i] >  ag[i - 1]) : false;
+        const bool gt_r = (i < n - 1) ? (ag[i] >  ag[i + 1]) : false;
+        if (ge_l && ge_r && (gt_l || gt_r)) {
+            const double amp = d[i] * amp_scale;
+            if (std::abs(amp) >= threshold) {
+                cand.push_back(i);
+                cand_amp.push_back(amp);
+            }
+        }
+    }
+    if (cand.empty()) return result;
+
+    // 5) 抛物线亚像素插值
+    const int m = (int)cand.size();
+    std::vector<double> pos(m), amps(m);
+    for (int j = 0; j < m; ++j) {
+        const int i = cand[j];
+        amps[j] = cand_amp[j];
+        if (i > 0 && i < n - 1) {
+            const double a = d[i - 1];
+            const double b = d[i];
+            const double c = d[i + 1];
+            const double denom = a - 2.0 * b + c;
+            double delta = 0.0;
+            if (std::abs(denom) > 1e-9) delta = 0.5 * (a - c) / denom;
+            pos[j] = (double)i + delta;
+        } else {
+            pos[j] = (double)i;
+        }
+    }
+
+    // 6) 按位置排序
+    std::vector<int> order(m);
+    for (int j = 0; j < m; ++j) order[j] = j;
+    std::sort(order.begin(), order.end(),
+              [&](int a, int b) { return pos[a] < pos[b]; });
+
+    // 7) 去重 + 方向过滤 + 一维位置映射回二维坐标
+    const double t0 = -(n - 1) * 0.5;
+    double last_pos = -1e18;
+
+    for (int j = 0; j < m; ++j) {
+        const int idx = order[j];
+
+        if (pos[idx] - last_pos <= 0.5) continue;
+        last_pos = pos[idx];
+
+        const double amp = amps[idx];
+        if (transition == 1  && amp <= 0.0) continue;
+        if (transition == -1 && amp >= 0.0) continue;
+
+        const double t = t0 + pos[idx];
+        result.emplace_back((float)(center.x + t * ux),
+                            (float)(center.y + t * uy));
+        if (out_amplitude) out_amplitude->push_back(amp);
+    }
+
+    return result;
+}
+
+Herror HCcv_measure_pos(Hproc_handle proc_handle)
+{
+    Hkey   in_obj_key;
+    Himage inimage;
+    Hcpar  column, row, phi, length1, length2, sigma, threshold, transition;
+
+    HGetSPar(proc_handle, 1, DOUBLE_PAR, &column, 1);
+    HGetSPar(proc_handle, 2, DOUBLE_PAR, &row, 1);
+    HGetSPar(proc_handle, 3, DOUBLE_PAR, &phi, 1);
+    HGetSPar(proc_handle, 4, DOUBLE_PAR, &length1, 1);
+    HGetSPar(proc_handle, 5, DOUBLE_PAR, &length2, 1);
+    HGetSPar(proc_handle, 6, DOUBLE_PAR, &sigma, 1);
+    HGetSPar(proc_handle, 7, DOUBLE_PAR, &threshold, 1);
+    HGetSPar(proc_handle, 8, LONG_PAR, &transition, 1);
+
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+    HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+
+    cv::Mat gray;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:
+        gray = cv::Mat(inimage.height, inimage.width, CV_8UC1, inimage.pixel.b);
+        break;
+    case UINT2_IMAGE:
+    {
+        cv::Mat tmp(inimage.height, inimage.width, CV_16UC1, inimage.pixel.u.p);
+        tmp.convertTo(gray, CV_8UC1, 1.0 / 257.0);
+        break;
+    }
+    case FLOAT_IMAGE:
+    {
+        cv::Mat tmp(inimage.height, inimage.width, CV_32FC1, inimage.pixel.f);
+        tmp.convertTo(gray, CV_8UC1);
+        break;
+    }
+    default:
+        return 30001;   // 仅支持 byte / uint2 / real 单通道图像
+    }
+
+    std::vector<double> amplitudes;
+    std::vector<cv::Point2f> pts = cvMeasurePos(
+        gray,
+        cv::Point2f((float)column.par.d, (float)row.par.d),
+        (float)phi.par.d,
+        (float)length1.par.d,
+        (float)length2.par.d,
+        (float)sigma.par.d,
+        (float)threshold.par.d,
+        (int)transition.par.l,
+        &amplitudes);
+
+    const INT4_8 n = (INT4_8)pts.size();
+    std::vector<double> rows(n), cols(n);
+    for (INT4_8 i = 0; i < n; ++i)
+    {
+        rows[i] = (double)pts[i].y;
+        cols[i] = (double)pts[i].x;
+    }
+
+    HPutElem(proc_handle, 1, rows.data(), n, DOUBLE_PAR);
+    HPutElem(proc_handle, 2, cols.data(), n, DOUBLE_PAR);
+    HPutElem(proc_handle, 3, amplitudes.data(), n, DOUBLE_PAR);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_blur — 均值滤波（cv::blur）
+ *   支持 8 位 / 16 位 / 浮点(real) 单通道图像
+ *   kwidth/kheight: 滤波核宽/高，须为 ≥1 的奇数
+ *===========================================================================*/
+Herror HCcv_blur(Hproc_handle proc_handle)
+{
+    Hkey   in_obj_key, out_obj_key, out_image_key;
+    Himage inimage, outimage;
+    Hcpar  k_width, k_height;
+
+    HGetSPar(proc_handle, 1, LONG_PAR, &k_width, 1);
+    HGetSPar(proc_handle, 2, LONG_PAR, &k_height, 1);
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+    HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+
+    int kw = (int)k_width.par.l;
+    int kh = (int)k_height.par.l;
+    if (kw < 1 || (kw % 2) == 0 || kh < 1 || (kh % 2) == 0)
+        return 30001;   // 滤波核宽/高必须为 ≥1 的奇数
+
+    int  cvType;
+    void* inPixels;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:
+        cvType   = CV_8UC1;
+        inPixels = (void*)inimage.pixel.b;
+        break;
+    case UINT2_IMAGE:
+        cvType   = CV_16UC1;
+        inPixels = (void*)inimage.pixel.u.p;
+        break;
+    case FLOAT_IMAGE:
+        cvType   = CV_32FC1;
+        inPixels = (void*)inimage.pixel.f;
+        break;
+    default:
+        return 30002;   // 仅支持 byte / uint2 / real 单通道图像
+    }
+
+    cv::Mat imageIn(inimage.height, inimage.width, cvType, inPixels);
+
+    HCkP(HNewImage(proc_handle, &outimage, inimage.kind, inimage.width, inimage.height));
+    void* outPixels;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:  outPixels = (void*)outimage.pixel.b;   break;
+    case UINT2_IMAGE: outPixels = (void*)outimage.pixel.u.p; break;
+    default:          outPixels = (void*)outimage.pixel.f;   break;
+    }
+    cv::Mat imageOut(outimage.height, outimage.width, cvType, outPixels);
+
+    try
+    {
+        cv::blur(imageIn, imageOut, cv::Size(kw, kh),
+                 cv::Point(-1, -1), cv::BORDER_DEFAULT);
+    }
+    catch (const cv::Exception&)
+    {
+        return 30003;
+    }
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_subtract — 图像相减（cv::subtract，饱和截断）
+ *   支持 8 位 / 16 位 / 浮点(real) 单通道图像，两图类型与尺寸须一致
+ *   imageOut = saturate(imageA - imageB)
+ *===========================================================================*/
+Herror HCcv_subtract(Hproc_handle proc_handle)
+{
+    Hkey   inA_obj_key, inB_obj_key, out_obj_key, out_image_key;
+    Himage inA, inB, outimage;
+
+    HGetObj(proc_handle, 1, 1, &inA_obj_key);
+    HGetDImage(proc_handle, inA_obj_key, 1, &inA);
+    HGetObj(proc_handle, 2, 1, &inB_obj_key);
+    HGetDImage(proc_handle, inB_obj_key, 1, &inB);
+
+    if (inA.kind != BYTE_IMAGE && inA.kind != UINT2_IMAGE && inA.kind != FLOAT_IMAGE)
+        return 30001;   // 仅支持 byte / uint2 / real 单通道图像
+    if (inB.kind != inA.kind)
+        return 30002;   // 两图类型不一致
+    if (inA.width != inB.width || inA.height != inB.height)
+        return 30003;   // 两图尺寸不一致
+
+    int  cvType;
+    void* pixelsA;
+    void* pixelsB;
+    switch (inA.kind)
+    {
+    case BYTE_IMAGE:
+        cvType  = CV_8UC1;
+        pixelsA = (void*)inA.pixel.b;
+        pixelsB = (void*)inB.pixel.b;
+        break;
+    case UINT2_IMAGE:
+        cvType  = CV_16UC1;
+        pixelsA = (void*)inA.pixel.u.p;
+        pixelsB = (void*)inB.pixel.u.p;
+        break;
+    default:   // FLOAT_IMAGE
+        cvType  = CV_32FC1;
+        pixelsA = (void*)inA.pixel.f;
+        pixelsB = (void*)inB.pixel.f;
+        break;
+    }
+
+    cv::Mat imageA(inA.height, inA.width, cvType, pixelsA);
+    cv::Mat imageB(inB.height, inB.width, cvType, pixelsB);
+
+    HCkP(HNewImage(proc_handle, &outimage, inA.kind, inA.width, inA.height));
+    void* outPixels;
+    switch (inA.kind)
+    {
+    case BYTE_IMAGE:  outPixels = (void*)outimage.pixel.b;   break;
+    case UINT2_IMAGE: outPixels = (void*)outimage.pixel.u.p; break;
+    default:          outPixels = (void*)outimage.pixel.f;   break;
+    }
+    cv::Mat imageOut(outimage.height, outimage.width, cvType, outPixels);
+
+    try
+    {
+        cv::subtract(imageA, imageB, imageOut);
+    }
+    catch (const cv::Exception&)
+    {
+        return 30004;
+    }
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_add_weighted — 加权求和（cv::addWeighted）
+ *   支持 8 位 / 16 位 / 浮点(real) 单通道图像，两图类型与尺寸须一致
+ *   imageOut = saturate(alpha*imageA + beta*imageB + gamma)
+ *===========================================================================*/
+Herror HCcv_add_weighted(Hproc_handle proc_handle)
+{
+    Hkey   inA_obj_key, inB_obj_key, out_obj_key, out_image_key;
+    Himage inA, inB, outimage;
+    Hcpar  alpha, beta, gamma;
+
+    HGetSPar(proc_handle, 1, DOUBLE_PAR, &alpha, 1);
+    HGetSPar(proc_handle, 2, DOUBLE_PAR, &beta, 1);
+    HGetSPar(proc_handle, 3, DOUBLE_PAR, &gamma, 1);
+
+    HGetObj(proc_handle, 1, 1, &inA_obj_key);
+    HGetDImage(proc_handle, inA_obj_key, 1, &inA);
+    HGetObj(proc_handle, 2, 1, &inB_obj_key);
+    HGetDImage(proc_handle, inB_obj_key, 1, &inB);
+
+    if (inA.kind != BYTE_IMAGE && inA.kind != UINT2_IMAGE && inA.kind != FLOAT_IMAGE)
+        return 30001;   // 仅支持 byte / uint2 / real 单通道图像
+    if (inB.kind != inA.kind)
+        return 30002;   // 两图类型不一致
+    if (inA.width != inB.width || inA.height != inB.height)
+        return 30003;   // 两图尺寸不一致
+
+    int  cvType;
+    void* pixelsA;
+    void* pixelsB;
+    switch (inA.kind)
+    {
+    case BYTE_IMAGE:
+        cvType  = CV_8UC1;
+        pixelsA = (void*)inA.pixel.b;
+        pixelsB = (void*)inB.pixel.b;
+        break;
+    case UINT2_IMAGE:
+        cvType  = CV_16UC1;
+        pixelsA = (void*)inA.pixel.u.p;
+        pixelsB = (void*)inB.pixel.u.p;
+        break;
+    default:   // FLOAT_IMAGE
+        cvType  = CV_32FC1;
+        pixelsA = (void*)inA.pixel.f;
+        pixelsB = (void*)inB.pixel.f;
+        break;
+    }
+
+    cv::Mat imageA(inA.height, inA.width, cvType, pixelsA);
+    cv::Mat imageB(inB.height, inB.width, cvType, pixelsB);
+
+    HCkP(HNewImage(proc_handle, &outimage, inA.kind, inA.width, inA.height));
+    void* outPixels;
+    switch (inA.kind)
+    {
+    case BYTE_IMAGE:  outPixels = (void*)outimage.pixel.b;   break;
+    case UINT2_IMAGE: outPixels = (void*)outimage.pixel.u.p; break;
+    default:          outPixels = (void*)outimage.pixel.f;   break;
+    }
+    cv::Mat imageOut(outimage.height, outimage.width, cvType, outPixels);
+
+    try
+    {
+        cv::addWeighted(imageA, alpha.par.d, imageB, beta.par.d, gamma.par.d, imageOut);
+    }
+    catch (const cv::Exception&)
+    {
+        return 30004;
+    }
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_solve — 解线性方程组（cv::solve）
+ *   矩阵用 real 单通道图像承载（height=行数, width=列数）
+ *   A: m×n，b: m×1 或 m×k → x: n×1 或 n×k
+ *   method: DECOMP_LU=0 / DECOMP_SVD=1 / DECOMP_EIG=2 / DECOMP_CHOLESKY=3 / DECOMP_QR=4 / DECOMP_NORMAL=16
+ *===========================================================================*/
+Herror HCcv_solve(Hproc_handle proc_handle)
+{
+    Hkey   inA_obj_key, inB_obj_key, out_obj_key, out_image_key;
+    Himage inA, inB, outimage;
+    Hcpar  method;
+
+    HGetSPar(proc_handle, 1, LONG_PAR, &method, 1);
+    HGetObj(proc_handle, 1, 1, &inA_obj_key);
+    HGetDImage(proc_handle, inA_obj_key, 1, &inA);
+    HGetObj(proc_handle, 2, 1, &inB_obj_key);
+    HGetDImage(proc_handle, inB_obj_key, 1, &inB);
+
+    if (inA.kind != FLOAT_IMAGE || inB.kind != FLOAT_IMAGE)
+        return 30001;   // 仅支持 real 单通道矩阵
+
+    int m = (int)inA.height, n = (int)inA.width;
+    int bcols = (int)inB.width;
+    if ((int)inB.height != m)
+        return 30002;   // b 的行数须等于 A 的行数
+
+    cv::Mat Af(m, n, CV_32FC1, inA.pixel.f);
+    cv::Mat Bf(m, bcols, CV_32FC1, inB.pixel.f);
+    cv::Mat A, b, x;
+    Af.convertTo(A, CV_64F);
+    Bf.convertTo(b, CV_64F);
+
+    try
+    {
+        if (!cv::solve(A, b, x, (int)method.par.l))
+            return 30003;   // 求解失败（奇异/维度不匹配）
+    }
+    catch (const cv::Exception&)
+    {
+        return 30004;
+    }
+
+    int xrows = x.rows, xcols = x.cols;
+    HCkP(HNewImage(proc_handle, &outimage, FLOAT_IMAGE, xcols, xrows));
+    cv::Mat xf;
+    x.convertTo(xf, CV_32FC1);
+    memcpy(outimage.pixel.f, xf.data, (size_t)xrows * xcols * sizeof(float));
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_estimate_affine_2d — 完整仿射变换估计（cv::estimateAffine2D，6 参数）
+ *   点坐标用 tuple 输入；输出 HomMat2D(6元素)、Success、InlierCount
+ *   method: RANSAC=8 / LMEDS=4
+ *===========================================================================*/
+Herror HCcv_estimate_affine_2d(Hproc_handle proc_handle)
+{
+    double const* srcRow;
+    double const* srcCol;
+    double const* dstRow;
+    double const* dstCol;
+    INT4_8 nSrc, nDst;
+    Hcpar  method, ransacThresh;
+
+    HGetSPar(proc_handle, 1, LONG_PAR, &method, 1);
+    HGetSPar(proc_handle, 2, DOUBLE_PAR, &ransacThresh, 1);
+    HGetPElemD(proc_handle, 3, CONV_NONE, &srcRow, &nSrc);
+    HGetPElemD(proc_handle, 4, CONV_NONE, &srcCol, &nSrc);
+    HGetPElemD(proc_handle, 5, CONV_NONE, &dstRow, &nDst);
+    HGetPElemD(proc_handle, 6, CONV_NONE, &dstCol, &nDst);
+
+    std::vector<double> hom(6, 0.0);
+    INT4_8 success = 0, inliers = 0;
+
+    if (nSrc == nDst && nSrc >= 3)
+    {
+        std::vector<cv::Point2f> from((size_t)nSrc), to((size_t)nSrc);
+        for (INT4_8 i = 0; i < nSrc; ++i)
+        {
+            from[(size_t)i] = cv::Point2f((float)srcCol[i], (float)srcRow[i]);
+            to[(size_t)i]   = cv::Point2f((float)dstCol[i], (float)dstRow[i]);
+        }
+
+        cv::Mat inlierMask, M;
+        try
+        {
+            M = cv::estimateAffine2D(from, to, inlierMask,
+                                     (int)method.par.l, ransacThresh.par.d);
+        }
+        catch (const cv::Exception&)
+        {
+            M = cv::Mat();
+        }
+
+        if (!M.empty())
+        {
+            double a00 = M.at<double>(0, 0), a01 = M.at<double>(0, 1), a02 = M.at<double>(0, 2);
+            double a10 = M.at<double>(1, 0), a11 = M.at<double>(1, 1), a12 = M.at<double>(1, 2);
+            // HALCON hom_mat2d 顺序 [R00,R10,T0,R01,R11,T1] = [a00,a10,a02,a01,a11,a12]
+            hom[0] = a00; hom[1] = a10; hom[2] = a02;
+            hom[3] = a01; hom[4] = a11; hom[5] = a12;
+            success = 1;
+            if (!inlierMask.empty())
+                for (int i = 0; i < inlierMask.rows; ++i)
+                    if (inlierMask.at<uchar>(i, 0) != 0) ++inliers;
+        }
+    }
+
+    HPutElem(proc_handle, 1, hom.data(), 6, DOUBLE_PAR);
+    HPutElem(proc_handle, 2, &success, 1, LONG_PAR);
+    HPutElem(proc_handle, 3, &inliers, 1, LONG_PAR);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_threshold_triangle — 三角法自动阈值（cv::threshold + THRESH_TRIANGLE）
+ *   仅支持 8 位单通道输入（OpenCV 限制），输出二值图 + 自动阈值
+ *===========================================================================*/
+Herror HCcv_threshold_triangle(Hproc_handle proc_handle)
+{
+    Hkey   in_obj_key, out_obj_key, out_image_key;
+    Himage inimage, outimage;
+
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+    HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+
+    if (inimage.kind != BYTE_IMAGE)
+        return 30001;   // THRESH_TRIANGLE 仅支持 8 位单通道
+
+    cv::Mat imageIn(inimage.height, inimage.width, CV_8UC1, inimage.pixel.b);
+    HCkP(HNewImage(proc_handle, &outimage, BYTE_IMAGE, inimage.width, inimage.height));
+    cv::Mat imageOut(outimage.height, outimage.width, CV_8UC1, outimage.pixel.b);
+
+    double thresh = 0.0;
+    try
+    {
+        thresh = cv::threshold(imageIn, imageOut, 0, 255,
+                               cv::THRESH_BINARY | cv::THRESH_TRIANGLE);
+    }
+    catch (const cv::Exception&)
+    {
+        return 30002;
+    }
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    HPutElem(proc_handle, 1, &thresh, 1, DOUBLE_PAR);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_calc_hist — 计算灰度直方图（cv::calcHist）
+ *   支持 8 位 / 16 位 / 浮点单通道；输出 1×HistSize 的 real 直方图
+ *===========================================================================*/
+Herror HCcv_calc_hist(Hproc_handle proc_handle)
+{
+    Hkey   in_obj_key, out_obj_key, out_image_key;
+    Himage inimage, outimage;
+    Hcpar  histSize, rangeMin, rangeMax;
+
+    HGetSPar(proc_handle, 1, LONG_PAR, &histSize, 1);
+    HGetSPar(proc_handle, 2, DOUBLE_PAR, &rangeMin, 1);
+    HGetSPar(proc_handle, 3, DOUBLE_PAR, &rangeMax, 1);
+
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+    HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+
+    int bins = (int)histSize.par.l;
+    if (bins <= 0) return 30001;
+
+    cv::Mat srcF;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:
+    {
+        cv::Mat t(inimage.height, inimage.width, CV_8UC1, inimage.pixel.b);
+        t.convertTo(srcF, CV_32FC1);
+        break;
+    }
+    case UINT2_IMAGE:
+    {
+        cv::Mat t(inimage.height, inimage.width, CV_16UC1, inimage.pixel.u.p);
+        t.convertTo(srcF, CV_32FC1);
+        break;
+    }
+    case FLOAT_IMAGE:
+        srcF = cv::Mat(inimage.height, inimage.width, CV_32FC1, inimage.pixel.f);
+        break;
+    default:
+        return 30002;
+    }
+
+    float  rangeArr[2] = { (float)rangeMin.par.d, (float)rangeMax.par.d };
+    const float* rangesArr[] = { rangeArr };
+    int    channels[] = { 0 };
+    int    histSz = bins;
+    cv::Mat hist;
+    try
+    {
+        cv::calcHist(&srcF, 1, channels, cv::noArray(), hist, 1, &histSz,
+                     rangesArr, true, false);
+    }
+    catch (const cv::Exception&)
+    {
+        return 30003;
+    }
+
+    HCkP(HNewImage(proc_handle, &outimage, FLOAT_IMAGE, bins, 1));
+    cv::Mat histC = hist.isContinuous() ? hist : hist.clone();
+    memcpy(outimage.pixel.f, histC.data, (size_t)bins * sizeof(float));
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_match_template — 模板匹配（cv::matchTemplate, TM_CCOEFF_NORMED）
+ *   仅支持 8 位 / 浮点单通道（OpenCV 限制）；输出 real 得分图
+ *===========================================================================*/
+Herror HCcv_match_template(Hproc_handle proc_handle)
+{
+    Hkey   in_obj_key, tpl_obj_key, out_obj_key, out_image_key;
+    Himage inimage, tplimage, outimage;
+
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+    HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+    HGetObj(proc_handle, 2, 1, &tpl_obj_key);
+    HGetDImage(proc_handle, tpl_obj_key, 1, &tplimage);
+
+    int  cvType;
+    void *inPixels, *tplPixels;
+    if (inimage.kind == BYTE_IMAGE)
+    {
+        cvType   = CV_8UC1;
+        inPixels = (void*)inimage.pixel.b;
+    }
+    else if (inimage.kind == FLOAT_IMAGE)
+    {
+        cvType   = CV_32FC1;
+        inPixels = (void*)inimage.pixel.f;
+    }
+    else
+        return 30001;   // 仅支持 byte / real 单通道
+
+    if (tplimage.kind != inimage.kind)
+        return 30002;   // 模板类型须与图像一致
+    if (tplimage.width > inimage.width || tplimage.height > inimage.height)
+        return 30003;   // 模板尺寸不能大于图像
+
+    tplPixels = (tplimage.kind == BYTE_IMAGE) ? (void*)tplimage.pixel.b
+                                              : (void*)tplimage.pixel.f;
+
+    cv::Mat img(inimage.height, inimage.width, cvType, inPixels);
+    cv::Mat tpl(tplimage.height, tplimage.width, cvType, tplPixels);
+    cv::Mat result;
+    try
+    {
+        cv::matchTemplate(img, tpl, result, cv::TM_CCOEFF_NORMED);
+    }
+    catch (const cv::Exception&)
+    {
+        return 30004;
+    }
+
+    int rw = result.cols, rh = result.rows;
+    HCkP(HNewImage(proc_handle, &outimage, FLOAT_IMAGE, rw, rh));
+    memcpy(outimage.pixel.f, result.data, (size_t)rw * rh * sizeof(float));
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_kmeans — K 均值聚类（cv::kmeans）
+ *   样本矩阵 Samples: real N×D（N 个样本，每行 D 维）
+ *   输出 Labels: real N×1（整数标签），Centers: real K×D
+ *===========================================================================*/
+Herror HCcv_kmeans(Hproc_handle proc_handle)
+{
+    Hkey   in_obj_key, lbl_obj_key, cen_obj_key, out_image_key;
+    Himage inimage, lblimage, cenimage;
+    Hcpar  K, attempts, termEps, termMaxIter;
+
+    HGetSPar(proc_handle, 1, LONG_PAR, &K, 1);
+    HGetSPar(proc_handle, 2, LONG_PAR, &attempts, 1);
+    HGetSPar(proc_handle, 3, DOUBLE_PAR, &termEps, 1);
+    HGetSPar(proc_handle, 4, LONG_PAR, &termMaxIter, 1);
+
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+    HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+
+    if (inimage.kind != FLOAT_IMAGE)
+        return 30001;   // 样本矩阵须为 real
+
+    int k = (int)K.par.l;
+    int N = (int)inimage.height, D = (int)inimage.width;
+    if (k <= 0 || k > N) return 30002;
+
+    cv::Mat data(N, D, CV_32FC1, inimage.pixel.f);
+    cv::Mat labels, centers;
+    try
+    {
+        cv::kmeans(data, k, labels,
+                   cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::COUNT,
+                                    (int)termMaxIter.par.l, termEps.par.d),
+                   (int)attempts.par.l, cv::KMEANS_PP_CENTERS, centers);
+    }
+    catch (const cv::Exception&)
+    {
+        return 30003;
+    }
+
+    cv::Mat labelsF, centersC;
+    labels.convertTo(labelsF, CV_32FC1);
+    centersC = centers.isContinuous() ? centers : centers.clone();
+
+    // 输出 Labels: N×1 real
+    HCkP(HNewImage(proc_handle, &lblimage, FLOAT_IMAGE, 1, N));
+    memcpy(lblimage.pixel.f, labelsF.data, (size_t)N * sizeof(float));
+    HCrObj(proc_handle, 1, &lbl_obj_key);
+    HPutDImage(proc_handle, lbl_obj_key, 1, &lblimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, lbl_obj_key, lblimage.width, lblimage.height);
+
+    // 输出 Centers: k×D real
+    HCkP(HNewImage(proc_handle, &cenimage, FLOAT_IMAGE, D, k));
+    memcpy(cenimage.pixel.f, centersC.data, (size_t)k * D * sizeof(float));
+    HCrObj(proc_handle, 2, &cen_obj_key);
+    HPutDImage(proc_handle, cen_obj_key, 1, &cenimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, cen_obj_key, cenimage.width, cenimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_multi_frame_median — 多帧逐像素中值（OpenCV 实现）
+ *
+ *   对 N 张同尺寸 real 图像逐像素取中位数，输出一张 real 中值图。
+ *   要求 N >= 2；N 为偶数时取上中位数（vals[N/2]）。
+ *
+ *   输入 : images      对象数组，N 张 real 单通道图像，尺寸一致
+ *   输出 : imageMedian real 单通道中值图
+ *===========================================================================*/
+static cv::Mat cvMultiFrameMedian(const std::vector<cv::Mat>& images)
+{
+    const int N = (int)images.size();
+    const int H = images[0].rows;
+    const int W = images[0].cols;
+    const int total = H * W;
+    const int mid = N / 2;
+
+    std::vector<cv::Mat> hold(N);
+    std::vector<const float*> ptrs(N);
+    for (int i = 0; i < N; ++i) {
+        if (images[i].isContinuous()) {
+            ptrs[i] = images[i].ptr<float>();
+        } else {
+            hold[i] = images[i].clone();
+            ptrs[i] = hold[i].ptr<float>();
+        }
+    }
+
+    cv::Mat ref(H, W, CV_32F);
+    float* out = ref.ptr<float>();
+
+    if (N == 3) {
+        const float* p0 = ptrs[0];
+        const float* p1 = ptrs[1];
+        const float* p2 = ptrs[2];
+        for (int i = 0; i < total; ++i) {
+            const float a = p0[i];
+            const float b = p1[i];
+            const float c = p2[i];
+            const float lo = a < b ? a : b;
+            const float hi = a < b ? b : a;
+            out[i] = c < lo ? lo : (c > hi ? hi : c);
+        }
+        return ref;
+    }
+
+    std::vector<float> vals(N);
+    for (int i = 0; i < total; ++i) {
+        for (int k = 0; k < N; ++k) vals[k] = ptrs[k][i];
+
+        if (N <= 16) {
+            for (int a = 1; a < N; ++a) {
+                const float key = vals[a];
+                int b = a - 1;
+                while (b >= 0 && vals[b] > key) {
+                    vals[b + 1] = vals[b];
+                    --b;
+                }
+                vals[b + 1] = key;
+            }
+        } else {
+            std::nth_element(vals.begin(), vals.begin() + mid, vals.end());
+        }
+
+        out[i] = vals[mid];
+    }
+
+    return ref;
+}
+
+Herror HCcv_multi_frame_median(Hproc_handle proc_handle)
+{
+    Hkey   in_obj_key, out_obj_key, out_image_key;
+    Himage inimage, outimage;
+    INT4_8 num_images = 0;
+
+    HGetObjNum(proc_handle, 1, &num_images);
+    if (num_images < 2)
+        return 30001;   // 至少需要 2 张图像
+
+    int W = 0, H = 0;
+    std::vector<cv::Mat> images;
+    images.reserve((size_t)num_images);
+
+    for (INT4_8 k = 1; k <= num_images; ++k)
+    {
+        HGetObj(proc_handle, 1, k, &in_obj_key);
+        HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+
+        if (inimage.kind != FLOAT_IMAGE)
+            return 30002;   // 仅支持 real 单通道图像
+
+        if (k == 1)
+        {
+            W = (int)inimage.width;
+            H = (int)inimage.height;
+        }
+        else if ((int)inimage.width != W || (int)inimage.height != H)
+        {
+            return 30003;   // 所有图像尺寸必须一致
+        }
+
+        images.push_back(cv::Mat(H, W, CV_32FC1, inimage.pixel.f));
+    }
+
+    cv::Mat median = cvMultiFrameMedian(images);
+
+    HCkP(HNewImage(proc_handle, &outimage, FLOAT_IMAGE, median.cols, median.rows));
+    memcpy(outimage.pixel.f, median.data, (size_t)median.cols * median.rows * sizeof(float));
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
 
     return H_MSG_TRUE;
 }

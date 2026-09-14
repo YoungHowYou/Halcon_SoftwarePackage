@@ -1120,6 +1120,16 @@ toggleLanguage(new_lang,1);return;}
 <td>Add ROI to big image.</td>
 </tr>
         <tr>
+<td><code><a href="arma_interp1.html">ArmaInterp1</a></code></td>
+<td>  </td>
+<td>One-dimensional interpolation using Armadillo interp1.</td>
+</tr>
+        <tr>
+<td><code><a href="cv_add_weighted.html">CvAddWeighted</a></code></td>
+<td>  </td>
+<td>Computes the weighted sum of two images (supports 8-bit, 16-bit and real single-channel images).</td>
+</tr>
+        <tr>
 <td><code><a href="cv_akaze_detect.html">CvAkazeDetect</a></code></td>
 <td>  </td>
 <td>AKAZE feature detection and descriptor computation using OpenCV.</td>
@@ -1130,14 +1140,84 @@ toggleLanguage(new_lang,1);return;}
 <td>BF KNN feature matching with Lowe's ratio test using OpenCV.</td>
 </tr>
         <tr>
+<td><code><a href="cv_blur.html">CvBlur</a></code></td>
+<td>  </td>
+<td>Smooth an image using a normalized box filter (supports 8-bit, 16-bit and real single-channel images).</td>
+</tr>
+        <tr>
+<td><code><a href="cv_calc_hist.html">CvCalcHist</a></code></td>
+<td>  </td>
+<td>Compute gray-level histogram (8/16-bit or real single-channel).</td>
+</tr>
+        <tr>
+<td><code><a href="cv_estimate_affine_2d.html">CvEstimateAffine2d</a></code></td>
+<td>  </td>
+<td>Estimate full affine transformation (6 parameters) using OpenCV.</td>
+</tr>
+        <tr>
 <td><code><a href="cv_estimate_affine_partial2d.html">CvEstimateAffinePartial2d</a></code></td>
 <td>  </td>
 <td>Estimate partial affine transformation using RANSAC (OpenCV).</td>
 </tr>
         <tr>
+<td><code><a href="cv_filter2d.html">CvFilter2d</a></code></td>
+<td>  </td>
+<td>Convolve an image with a kernel (supports 8-bit, 16-bit and real single-channel images).</td>
+</tr>
+        <tr>
+<td><code><a href="cv_kmeans.html">CvKmeans</a></code></td>
+<td>  </td>
+<td>K-means clustering (real NxD samples matrix).</td>
+</tr>
+        <tr>
+<td><code><a href="cv_mat_mul.html">CvMatMul</a></code></td>
+<td>  </td>
+<td>Matrix multiplication of two 16-bit single-channel images (C = A * B).</td>
+</tr>
+        <tr>
+<td><code><a href="cv_match_template.html">CvMatchTemplate</a></code></td>
+<td>  </td>
+<td>Template matching (TM_CCOEFF_NORMED, 8-bit or real single-channel).</td>
+</tr>
+        <tr>
+<td><code><a href="cv_measure_pos.html">CvMeasurePos</a></code></td>
+<td>  </td>
+<td>Measure straight edges perpendicular to a rectangle using OpenCV.</td>
+</tr>
+        <tr>
+<td><code><a href="cv_median_blur.html">CvMedianBlur</a></code></td>
+<td>  </td>
+<td>Median blur filter (supports 8-bit, 16-bit and real images).</td>
+</tr>
+        <tr>
+<td><code><a href="cv_multi_frame_median.html">CvMultiFrameMedian</a></code></td>
+<td>  </td>
+<td>Compute the pixel-wise median over multiple real images using OpenCV.</td>
+</tr>
+        <tr>
 <td><code><a href="cv_orb_detect.html">CvOrbDetect</a></code></td>
 <td>  </td>
 <td>ORB feature detection and descriptor computation using OpenCV.</td>
+</tr>
+        <tr>
+<td><code><a href="cv_reshape.html">CvReshape</a></code></td>
+<td>  </td>
+<td>Reshape an image matrix (supports 8-bit, 16-bit and real single-channel images).</td>
+</tr>
+        <tr>
+<td><code><a href="cv_solve.html">CvSolve</a></code></td>
+<td>  </td>
+<td>Solve linear equations A*x=b using OpenCV (real single-channel matrices).</td>
+</tr>
+        <tr>
+<td><code><a href="cv_subtract.html">CvSubtract</a></code></td>
+<td>  </td>
+<td>Compute the per-element saturated difference of two images (supports 8-bit, 16-bit and real single-channel images).</td>
+</tr>
+        <tr>
+<td><code><a href="cv_threshold_triangle.html">CvThresholdTriangle</a></code></td>
+<td>  </td>
+<td>Triangle automatic thresholding (THRESH_TRIANGLE, 8-bit single-channel only).</td>
 </tr>
         <tr>
 <td><code><a href="cv_write_image.html">CvWriteImage</a></code></td>
@@ -1153,6 +1233,31 @@ toggleLanguage(new_lang,1);return;}
 <td><code><a href="div_B_roi.html">DivBRoi</a></code></td>
 <td>  </td>
 <td>Divide ROI from big image (B / small).</td>
+</tr>
+        <tr>
+<td><code><a href="eigen_ldlt.html">EigenLdlt</a></code></td>
+<td>  </td>
+<td>Solve symmetric linear equations A*x=b using Eigen LDLT.</td>
+</tr>
+        <tr>
+<td><code><a href="eigen_llt.html">EigenLlt</a></code></td>
+<td>  </td>
+<td>Solve positive-definite linear equations A*x=b using Eigen LLT.</td>
+</tr>
+        <tr>
+<td><code><a href="eigen_lm_fit.html">EigenLmFit</a></code></td>
+<td>  </td>
+<td>Fit a user-supplied model expression to data using the Eigen LevenbergMarquardt algorithm.</td>
+</tr>
+        <tr>
+<td><code><a href="eigen_lm_fit_2d.html">EigenLmFit2d</a></code></td>
+<td>  </td>
+<td>Multi-variable multi-output nonlinear least-squares fit with shared parameters using Eigen LevenbergMarquardt.</td>
+</tr>
+        <tr>
+<td><code><a href="eigen_svd.html">EigenSvd</a></code></td>
+<td>  </td>
+<td>Singular value decomposition (JacobiSVD) using Eigen.</td>
 </tr>
         <tr>
 <td><code><a href="modbus_close.html">ModbusClose</a></code></td>
@@ -1383,6 +1488,21 @@ toggleLanguage(new_lang,1);return;}
 <td><code><a href="sqlite3_open.html">Sqlite3Open</a></code></td>
 <td>  </td>
 <td>Laplace Filter.</td>
+</tr>
+        <tr>
+<td><code><a href="std_lower_bound.html">StdLowerBound</a></code></td>
+<td>  </td>
+<td>Binary search lower bound (input must be sorted ascending) using std::lower_bound.</td>
+</tr>
+        <tr>
+<td><code><a href="std_nth_element.html">StdNthElement</a></code></td>
+<td>  </td>
+<td>Find the n-th smallest element (flattened, 0-based) using std::nth_element.</td>
+</tr>
+        <tr>
+<td><code><a href="std_sort.html">StdSort</a></code></td>
+<td>  </td>
+<td>Sort image elements (flattened) using std::sort.</td>
 </tr>
         <tr>
 <td><code><a href="sub_A_roi.html">SubARoi</a></code></td>

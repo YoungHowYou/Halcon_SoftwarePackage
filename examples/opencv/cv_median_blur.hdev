@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_median_blur — OpenCV 中值滤波</c>
+<c>*   支持 8 位(byte) / 16 位(uint2) / 浮点(real) 单通道图像</c>
+<c>*   ksize 必须为 ≥3 的奇数；16 位与浮点图仅支持 3 或 5</c>
+<c>* =============================================================</c>
+<c>* ---- 1) 8 位图像，ksize=3 ----</c>
+<l>gen_image_const (ImageByte, 'byte', 5, 5)</l>
+<l>set_grayval (ImageByte, 2, 2, 255)</l>
+<l>cv_median_blur (ImageByte, ImageByteOut, 3)</l>
+<c>* ---- 2) 16 位图像，ksize=3 ----</c>
+<l>gen_image_const (ImageUint2, 'uint2', 5, 5)</l>
+<l>set_grayval (ImageUint2, 2, 2, 65535)</l>
+<l>cv_median_blur (ImageUint2, ImageUint2Out, 3)</l>
+<c>* ---- 3) 浮点(real)图像，ksize=5 ----</c>
+<l>gen_image_const (ImageReal, 'real', 5, 5)</l>
+<l>set_grayval (ImageReal, 2, 2, 100.0)</l>
+<l>cv_median_blur (ImageReal, ImageRealOut, 5)</l>
+<c>* 读取中心像素结果核对</c>
+<l>get_grayval (ImageByteOut, 2, 2, VByte)</l>
+<l>get_grayval (ImageUint2Out, 2, 2, VUint2)</l>
+<l>get_grayval (ImageRealOut, 2, 2, VReal)</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

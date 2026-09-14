@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* ============================================================================</c>
+<c>* eigen_lm_fit_2d — 二维畸变场拟合（多自变量 + 多输出 + 共享参数）</c>
+<c>*</c>
+<c>*   模型（Brown-Conrady 径向 + 切向，两个输出共享同一组参数）:</c>
+<c>*     dx(u,v) = u*(k1*r2 + k2*r2^2) + p1*(r2 + 2*u^2) + 2*p2*u*v</c>
+<c>*     dy(u,v) = v*(k1*r2 + k2*r2^2) + 2*p1*u*v + p2*(r2 + 2*v^2)</c>
+<c>*   其中 r2 = u^2 + v^2，作为第三个自变量预计算传入</c>
+<c>*</c>
+<c>*   输入: Expressions     模型表达式元组（这里 2 个：dx / dy）</c>
+<c>*         ParamNames      [k1,k2,p1,p2] —— 两个输出共享</c>
+<c>*         InitialValues   参数初值</c>
+<c>*         XNames          ['u','v','r2'] 自变量名</c>
+<c>*         XData           自变量数据（每点 3 个值连续存放，共 点数*3 个）</c>
+<c>*         YData           观测数据（每点 2 个值连续存放，共 点数*2 个）</c>
+<c>*   输出: ParamValues / Rss / Iterations / Status / StatusMessage</c>
+<c>*</c>
+<c>*   注：该模型对参数本身是线性的，此处仅用于演示接口用法；</c>
+<c>*       真正需要 LM 的是参数非线性进入模型的场合（如未知主点 cx,cy）。</c>
+<c>* ============================================================================</c>
+<l>dev_update_off ()</l>
+<l>dev_close_window ()</l>
+<l>dev_open_window (0, 0, 720, 460, 'black', WindowHandle)</l>
+<l>set_display_font (WindowHandle, 14, 'mono', 'true', 'false')</l>
+<c>* ---- 1. 生成模拟畸变数据（归一化坐标 + 少量噪声）----</c>
+<l>TrueK1 := -0.28</l>
+<l>TrueK2 := 0.07</l>
+<l>TrueP1 := 0.001</l>
+<l>TrueP2 := -0.0005</l>
+<l>XData := []</l>
+<l>YData := []</l>
+<l>NumPts := 0</l>
+<l>for gy := 0 to 9 by 1</l>
+<l>    for gx := 0 to 9 by 1</l>
+<l>        u := (gx - 4.5) / 4.5</l>
+<l>        v := (gy - 4.5) / 4.5</l>
+<l>        r2 := u * u + v * v</l>
+<l>        dx := u * (TrueK1 * r2 + TrueK2 * r2 * r2) + TrueP1 * (r2 + 2 * u * u) + 2 * TrueP2 * u * v</l>
+<l>        dy := v * (TrueK1 * r2 + TrueK2 * r2 * r2) + 2 * TrueP1 * u * v + TrueP2 * (r2 + 2 * v * v)</l>
+<l>        dx := dx + (rand(1) - 0.5) * 0.002</l>
+<l>        dy := dy + (rand(1) - 0.5) * 0.002</l>
+<l>        XData := [XData, u, v, r2]</l>
+<l>        YData := [YData, dx, dy]</l>
+<l>        NumPts := NumPts + 1</l>
+<l>    endfor</l>
+<l>endfor</l>
+<c>* ---- 2. 联合拟合两个位移场（共享 k1,k2,p1,p2）----</c>
+<l>E1 := 'u*(k1*r2 + k2*r2^2) + p1*(r2 + 2*u^2) + 2*p2*u*v'</l>
+<l>E2 := 'v*(k1*r2 + k2*r2^2) + 2*p1*u*v + p2*(r2 + 2*v^2)'</l>
+<l>eigen_lm_fit_2d ([E1, E2], ['k1', 'k2', 'p1', 'p2'], [-0.1, 0.0, 0.0, 0.0], \
+                 ['u', 'v', 'r2'], XData, YData, 0, 0.0, \
+                 ParamValues, Rss, Iterations, Status, StatusMessage)</l>
+<l>K1 := ParamValues[0]</l>
+<l>K2 := ParamValues[1]</l>
+<l>P1 := ParamValues[2]</l>
+<l>P2 := ParamValues[3]</l>
+<c>* ---- 3. 显示拟合结果 ----</c>
+<l>dev_set_color ('white')</l>
+<l>disp_message (WindowHandle, 'eigen_lm_fit_2d : joint fit of dx / dy (shared params)', 'window', 12, 12, 'white', 'false')</l>
+<l>Message := 'Points = ' + NumPts + '    equations = ' + (NumPts * 2) + '    unknowns = 4'</l>
+<l>disp_message (WindowHandle, Message, 'window', 44, 12, 'white', 'false')</l>
+<l>Message := 'k1 = ' + K1$'.6f' + '   (true ' + TrueK1$'.6f' + ')'</l>
+<l>disp_message (WindowHandle, Message, 'window', 84, 12, 'green', 'false')</l>
+<l>Message := 'k2 = ' + K2$'.6f' + '   (true ' + TrueK2$'.6f' + ')'</l>
+<l>disp_message (WindowHandle, Message, 'window', 112, 12, 'green', 'false')</l>
+<l>Message := 'p1 = ' + P1$'.6f' + '   (true ' + TrueP1$'.6f' + ')'</l>
+<l>disp_message (WindowHandle, Message, 'window', 140, 12, 'green', 'false')</l>
+<l>Message := 'p2 = ' + P2$'.6f' + '   (true ' + TrueP2$'.6f' + ')'</l>
+<l>disp_message (WindowHandle, Message, 'window', 168, 12, 'green', 'false')</l>
+<l>Message := 'RSS = ' + Rss$'.6e' + '    Iterations = ' + Iterations</l>
+<l>disp_message (WindowHandle, Message, 'window', 208, 12, 'white', 'false')</l>
+<l>Message := 'Status = ' + Status + '  (' + StatusMessage + ')'</l>
+<l>disp_message (WindowHandle, Message, 'window', 236, 12, 'yellow', 'false')</l>
+<c>* ---- 4. 用拟合结果重建位移场，统计残差 ----</c>
+<l>MaxRes := 0.0</l>
+<l>SumRes2 := 0.0</l>
+<l>for i := 0 to NumPts - 1 by 1</l>
+<l>    u := XData[i * 3]</l>
+<l>    v := XData[i * 3 + 1]</l>
+<l>    r2 := XData[i * 3 + 2]</l>
+<l>    dxFit := u * (K1 * r2 + K2 * r2 * r2) + P1 * (r2 + 2 * u * u) + 2 * P2 * u * v</l>
+<l>    dyFit := v * (K1 * r2 + K2 * r2 * r2) + 2 * P1 * u * v + P2 * (r2 + 2 * v * v)</l>
+<l>    ex := dxFit - YData[i * 2]</l>
+<l>    ey := dyFit - YData[i * 2 + 1]</l>
+<l>    e := sqrt(ex * ex + ey * ey)</l>
+<l>    if (e &gt; MaxRes)</l>
+<l>        MaxRes := e</l>
+<l>    endif</l>
+<l>    SumRes2 := SumRes2 + e * e</l>
+<l>endfor</l>
+<l>RmsRes := sqrt(SumRes2 / NumPts)</l>
+<l>Message := 'Max residual = ' + MaxRes$'.6e'</l>
+<l>disp_message (WindowHandle, Message, 'window', 276, 12, 'white', 'false')</l>
+<l>Message := 'RMS residual = ' + RmsRes$'.6e'</l>
+<l>disp_message (WindowHandle, Message, 'window', 304, 12, 'white', 'false')</l>
+<l>disp_message (WindowHandle, '拟合值应接近真值；残差约等于所加噪声量级 1e-3', 'window', 356, 12, 'white', 'false')</l>
+<l>dev_update_on ()</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

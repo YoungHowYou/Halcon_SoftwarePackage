@@ -135,6 +135,7 @@ set(EXT_SOURCES
   source/Halcon_spdlog.cpp
   source/Halcon_mysql.cpp
   source/Halcon_OpenCV.cpp
+  source/Halcon_Math.cpp
 )
 
 #----------------------------------------------------------------------
@@ -147,6 +148,7 @@ HALCON_AddExtensionPackage(${ProjectName}
     def/Halcon_Spdlog.def
     def/Halcon_Mysql.def
     def/Halcon_OpenCV.def
+    def/Halcon_Math.def
   SOURCES
     ${EXT_SOURCES}
   CHAPTERS
@@ -173,6 +175,24 @@ message(STATUS "OpenCV ${OpenCV_VERSION} — ${OpenCV_DIR}")
 #==================================================================
 find_package(exiv2 REQUIRED)
 message(STATUS "exiv2 ${exiv2_VERSION}")
+
+#==================================================================
+#  Eigen (header-only)
+#==================================================================
+find_package(Eigen3 CONFIG REQUIRED)
+message(STATUS "Eigen3   → vcpkg  (Eigen3::Eigen)")
+
+#==================================================================
+#  Armadillo
+#==================================================================
+find_package(Armadillo CONFIG REQUIRED)
+message(STATUS "Armadillo → vcpkg  (armadillo)")
+
+#==================================================================
+#  muparser（数学表达式解析，用于 eigen_lm_fit）
+#==================================================================
+find_package(muparser CONFIG REQUIRED)
+message(STATUS "muparser  → vcpkg  (muparser::muparser)")
 
 #==================================================================
 #  spdlog
@@ -239,6 +259,9 @@ if(WIN32)
     ${MODBUS_LIBS}
     ${SQLITE3_LIBS}
     ${MYSQL_LIBS}
+    Eigen3::Eigen
+    armadillo
+    muparser::muparser
   )
 else()
   find_package(Threads REQUIRED)
@@ -252,6 +275,9 @@ else()
     ${MYSQL_LIBS}
     Threads::Threads
     ${CMAKE_DL_LIBS}
+    Eigen3::Eigen
+    armadillo
+    muparser::muparser
   )
 endif()
 
@@ -265,10 +291,17 @@ if(WIN32)
       "$<TARGET_FILE_DIR:${ProjectName}>/libmysql.dll"
     COMMENT "Copying libmysql.dll → output"
   )
+  # muparser 为 SHARED 库，需把 DLL 一并拷到输出目录（eigen_lm_fit 运行时依赖）
+  add_custom_command(TARGET ${ProjectName} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "$<TARGET_FILE:muparser::muparser>"
+      "$<TARGET_FILE_DIR:${ProjectName}>/muparser.dll"
+    COMMENT "Copying muparser.dll → output"
+  )
 else()
   # Linux / macOS：从 vcpkg installed 目录复制 .so/.dylib（含符号链接）到输出目录
   set(_VCPKG_LIBDIR "${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/lib")
-  foreach(_lib ${SPDLOG_LIBS} ${MODBUS_LIBS} ${SQLITE3_LIBS} ${MYSQL_LIBS})
+  foreach(_lib ${SPDLOG_LIBS} ${MODBUS_LIBS} ${SQLITE3_LIBS} ${MYSQL_LIBS} muparser::muparser)
     # 从 IMPORTED_LOCATION 提取库的基名（去掉版本后缀），如 libmodbus.so.5.1.0 → libmodbus
     get_target_property(_loc ${_lib} IMPORTED_LOCATION)
     if(NOT _loc)

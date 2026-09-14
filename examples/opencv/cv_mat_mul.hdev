@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_mat_mul — 两个 16 位单通道图像做矩阵乘法</c>
+<c>*   C = A * B   其中 A: m×k, B: k×n → C: m×n</c>
+<c>*   要求 A 的列数 == B 的行数，否则返回错误码 30002</c>
+<c>*   输入必须是 16 位单通道(uint2)，否则返回错误码 30001</c>
+<c>* =============================================================</c>
+<c>* 创建矩阵 A（2 行 × 3 列，16 位单通道）</c>
+<c>* A = [1 2 3</c>
+<c>*      4 5 6]</c>
+<l>gen_image_const (ImageA, 'uint2', 3, 2)</l>
+<l>set_grayval (ImageA, 0, 0, 1)</l>
+<l>set_grayval (ImageA, 0, 1, 2)</l>
+<l>set_grayval (ImageA, 0, 2, 3)</l>
+<l>set_grayval (ImageA, 1, 0, 4)</l>
+<l>set_grayval (ImageA, 1, 1, 5)</l>
+<l>set_grayval (ImageA, 1, 2, 6)</l>
+<c>* 创建矩阵 B（3 行 × 2 列，16 位单通道）</c>
+<c>* B = [ 7  8</c>
+<c>*       9 10</c>
+<c>*      11 12]</c>
+<l>gen_image_const (ImageB, 'uint2', 2, 3)</l>
+<l>set_grayval (ImageB, 0, 0, 7)</l>
+<l>set_grayval (ImageB, 0, 1, 8)</l>
+<l>set_grayval (ImageB, 1, 0, 9)</l>
+<l>set_grayval (ImageB, 1, 1, 10)</l>
+<l>set_grayval (ImageB, 2, 0, 11)</l>
+<l>set_grayval (ImageB, 2, 1, 12)</l>
+<c>* 矩阵乘法：C = A * B  (结果 2 行 × 2 列)</c>
+<c>* C = [ 58  64</c>
+<c>*      139 154]</c>
+<l>cv_mat_mul (ImageA, ImageB, ImageC)</l>
+<c>* 读取结果核对</c>
+<l>get_grayval (ImageC, 0, 0, C00)</l>
+<l>get_grayval (ImageC, 0, 1, C01)</l>
+<l>get_grayval (ImageC, 1, 0, C10)</l>
+<l>get_grayval (ImageC, 1, 1, C11)</l>
+<c>* 期望: C00=58, C01=64, C10=139, C11=154</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

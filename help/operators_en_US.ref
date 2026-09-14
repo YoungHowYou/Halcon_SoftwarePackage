@@ -1,3 +1,800 @@
+eigen_lm_fit_2d(expressions,paramNames,initialValues,xNames,xData,yData,maxIter,eps,paramValues,rss,iterations,status,statusMessage)
+short.ascii=Multi-variable multi-output nonlinear least-squares fit with shared parameters using Eigen LevenbergMarquardt.
+keywords=UserExtensionsFittingLevenbergMarquardtOptimizationEigenDistortion
+module=0 Foundation
+parameter=expressions
+description.ascii=One or more model expressions, e.g. one for dx and one for dy. All of them share ParamNames.
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+parameter=paramNames
+description.ascii=Names of the shared parameters, e.g. k1,k2,k3,p1,p2. Must be unique and differ from XNames.
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+parameter=initialValues
+description.ascii=Initial parameter values. Length must equal the number of ParamNames.
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=xNames
+description.ascii=One or more independent variable names, e.g. u,v. Precomputed terms such as r2=u^2+v^2 may be passed as extra variables.
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+parameter=xData
+description.ascii=Independent variable samples, length = numPoints * numXNames (M values per point, row major).
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=yData
+description.ascii=Observed values, length = numPoints * numExpressions (K values per point, row major).
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=maxIter
+description.ascii=Maximum number of function evaluations (0 selects 400*(numParams+1)).
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=eps
+description.ascii=Step size for numerical differentiation (0 selects it automatically).
+parameter_class=input_control
+type_list=real
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=paramValues
+description.ascii=Fitted parameter values, ordered like ParamNames.
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=rss
+description.ascii=Residual sum of squares over all outputs (-1 if the expression could not be evaluated).
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=false
+parameter=iterations
+description.ascii=Number of iterations performed.
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=status
+description.ascii=LevenbergMarquardt status code (1-4 converged, 5-8 finished without confirmation, 0 failed).
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=statusMessage
+description.ascii=Status text of the result (contains expression error: ... on failure).
+parameter_class=output_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+eigen_lm_fit(modelExpression,paramNames,initialValues,xData,yData,xName,maxIter,eps,paramValues,rss,iterations,status,statusMessage)
+short.ascii=Fit a user-supplied model expression to data using the Eigen LevenbergMarquardt algorithm.
+keywords=UserExtensionsFittingLevenbergMarquardtOptimizationEigen
+module=0 Foundation
+parameter=modelExpression
+description.ascii=Model expression to fit, e.g. a*exp(b*x)+c.
+parameter_class=input_control
+type_list=string
+default_value="a*x+b"
+default_type=string
+sem_type=string
+multivalue=false
+parameter=paramNames
+description.ascii=Names of the parameters to fit, e.g. a,b,c. Must be unique and differ from XName.
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+parameter=initialValues
+description.ascii=Initial parameter values. Length must equal the number of ParamNames.
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=xData
+description.ascii=Samples of the independent variable.
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=yData
+description.ascii=Samples of the dependent variable. Length must equal the number of XData.
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=xName
+description.ascii=Name of the independent variable used in the model expression (default: x).
+parameter_class=input_control
+type_list=string
+default_value="x"
+default_type=string
+sem_type=string
+multivalue=false
+parameter=maxIter
+description.ascii=Maximum number of function evaluations (0 selects 400*(numParams+1)).
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=eps
+description.ascii=Step size for numerical differentiation (0 selects it automatically).
+parameter_class=input_control
+type_list=real
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=paramValues
+description.ascii=Fitted parameter values, ordered like ParamNames.
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=rss
+description.ascii=Residual sum of squares (-1 if the expression could not be evaluated).
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=false
+parameter=iterations
+description.ascii=Number of iterations performed.
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=status
+description.ascii=LevenbergMarquardt status code (1-4 converged, 5-8 finished without confirmation, 0 failed).
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=statusMessage
+description.ascii=Status text of the result (contains expression error: ... on failure).
+parameter_class=output_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+arma_interp1(imageX,imageY,imageXI,imageYI,interpMethod)
+short.ascii=One-dimensional interpolation using Armadillo interp1.
+keywords=UserExtensionsInterp1InterpolationArmadillo
+module=0 Foundation
+parameter=imageX
+description.ascii=Sample points X (real, 1 x N or N x 1), ascending.
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageY
+description.ascii=Sample values Y (real, same length as X).
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageXI
+description.ascii=Query points XI (real, 1 x M or M x 1).
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageYI
+description.ascii=Interpolated values YI (real, same length as XI).
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=interpMethod
+description.ascii=Interpolation method, either linear or nearest (only the first letter is evaluated). A leading asterisk assumes monotonic X and XI.
+parameter_class=input_control
+type_list=string
+default_value="linear"
+default_type=string
+sem_type=string
+multivalue=false
+eigen_llt(imageA,imageB,imageX)
+short.ascii=Solve positive-definite linear equations A*x=b using Eigen LLT.
+keywords=UserExtensionsLLTLinearEigen
+module=0 Foundation
+parameter=imageA
+description.ascii=Positive-definite input matrix A (real, square).
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+description.ascii=Right hand side b (real, height = rows of A, width = 1).
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageX
+description.ascii=Solution vector x (real).
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+eigen_ldlt(imageA,imageB,imageX)
+short.ascii=Solve symmetric linear equations A*x=b using Eigen LDLT.
+keywords=UserExtensionsLDLTLinearEigen
+module=0 Foundation
+parameter=imageA
+description.ascii=Symmetric input matrix A (real, square).
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+description.ascii=Right hand side b (real, height = rows of A, width = 1).
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageX
+description.ascii=Solution vector x (real).
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+eigen_svd(imageA,imageU,imageS,imageV)
+short.ascii=Singular value decomposition (JacobiSVD) using Eigen.
+keywords=UserExtensionsSVDEigen
+module=0 Foundation
+parameter=imageA
+description.ascii=Input matrix A (real, height = rows, width = columns).
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageU
+description.ascii=Left singular vector matrix U (m x m).
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=imageS
+description.ascii=Singular values as row vector (1 x min(m,n)), in descending order.
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=imageV
+description.ascii=Right singular vector matrix V (n x n).
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+std_lower_bound(image,value,index)
+short.ascii=Binary search lower bound (input must be sorted ascending) using std::lower_bound.
+keywords=UserExtensionsBinarySearchLowerBoundStd
+module=0 Foundation
+parameter=image
+description.ascii=Ascending input image (real, single channel, must be sorted).
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=value
+description.ascii=Value to search for.
+parameter_class=input_control
+type_list=real
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=index
+description.ascii=Index of the first element not less than Value.
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+std_sort(image,imageOut,descending)
+short.ascii=Sort image elements (flattened) using std::sort.
+keywords=UserExtensionsSortStd
+module=0 Foundation
+parameter=image
+description.ascii=Input image (real, single channel).
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=Sorted image, same size as the input image.
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=descending
+description.ascii=Sort order: 0 = ascending, 1 = descending.
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+std_nth_element(image,nIndex,value)
+short.ascii=Find the n-th smallest element (flattened, 0-based) using std::nth_element.
+keywords=UserExtensionsSortNthElementStd
+module=0 Foundation
+parameter=image
+description.ascii=Input image (real, single channel).
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=nIndex
+description.ascii=Index of the wanted element (0-based, after flattening).
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=value
+description.ascii=Value of the n-th smallest element.
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=false
+cv_multi_frame_median(images,imageMedian)
+short.ascii=Compute the pixel-wise median over multiple real images using OpenCV.
+keywords=UserExtensionsMedianMultiFrameOpenCV
+module=0 Foundation
+parameter=images
+parameter_class=input_object
+sem_type=image
+multivalue=true
+parameter=imageMedian
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+cv_kmeans(samples,labels,centers,K,attempts,termEps,termMaxIter)
+short.ascii=K-means clustering (real NxD samples matrix).
+keywords=UserExtensionsKMeansClusterOpenCV
+module=0 Foundation
+parameter=samples
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=labels
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=centers
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=K
+parameter_class=input_control
+type_list=integer
+default_value=2
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=attempts
+parameter_class=input_control
+type_list=integer
+default_value=10
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=termEps
+parameter_class=input_control
+type_list=real
+default_value=1.0e-4
+default_type=real
+sem_type=number
+multivalue=false
+parameter=termMaxIter
+parameter_class=input_control
+type_list=integer
+default_value=100
+default_type=integer
+sem_type=number
+multivalue=false
+cv_match_template(image,templateImage,result)
+short.ascii=Template matching (TM_CCOEFF_NORMED, 8-bit or real single-channel).
+keywords=UserExtensionsTemplateMatchOpenCV
+module=0 Foundation
+parameter=image
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=templateImage
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=result
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+cv_calc_hist(image,histogram,histSize,rangeMin,rangeMax)
+short.ascii=Compute gray-level histogram (8/16-bit or real single-channel).
+keywords=UserExtensionsHistogramOpenCV
+module=0 Foundation
+parameter=image
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=histogram
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=histSize
+parameter_class=input_control
+type_list=integer
+default_value=256
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=rangeMin
+parameter_class=input_control
+type_list=real
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=rangeMax
+parameter_class=input_control
+type_list=real
+default_value=256.0
+default_type=real
+sem_type=number
+multivalue=false
+cv_threshold_triangle(image,imageOut,threshValue)
+short.ascii=Triangle automatic thresholding (THRESH_TRIANGLE, 8-bit single-channel only).
+keywords=UserExtensionsThresholdTriangleOpenCV
+module=0 Foundation
+parameter=image
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=threshValue
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=false
+cv_estimate_affine_2d(methodId,ransacThreshold,srcRow,srcCol,dstRow,dstCol,homMat2D,success,inlierCount)
+short.ascii=Estimate full affine transformation (6 parameters) using OpenCV.
+keywords=UserExtensionsAffineRANSACOpenCV
+module=0 Foundation
+parameter=methodId
+parameter_class=input_control
+type_list=integer
+default_value=8
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=ransacThreshold
+parameter_class=input_control
+type_list=real
+default_value=3.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=srcRow
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=srcCol
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=dstRow
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=dstCol
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=homMat2D
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=success
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=inlierCount
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+cv_solve(imageA,imageB,imageX,methodId)
+short.ascii=Solve linear equations A*x=b using OpenCV (real single-channel matrices).
+keywords=UserExtensionsSolveLinearOpenCV
+module=0 Foundation
+parameter=imageA
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageX
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=methodId
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+cv_add_weighted(imageA,imageB,imageOut,alpha,beta,gamma)
+short.ascii=Computes the weighted sum of two images (supports 8-bit, 16-bit and real single-channel images).
+keywords=UserExtensionsAddWeightedArithmeticOpenCV
+module=0 Foundation
+parameter=imageA
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=alpha
+parameter_class=input_control
+type_list=real
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=beta
+parameter_class=input_control
+type_list=real
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=gamma
+parameter_class=input_control
+type_list=real
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+cv_subtract(imageA,imageB,imageOut)
+short.ascii=Compute the per-element saturated difference of two images (supports 8-bit, 16-bit and real single-channel images).
+keywords=UserExtensionsSubtractArithmeticOpenCV
+module=0 Foundation
+parameter=imageA
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+cv_blur(image,imageOut,kwidth,kheight)
+short.ascii=Smooth an image using a normalized box filter (supports 8-bit, 16-bit and real single-channel images).
+keywords=UserExtensionsBlurSmoothOpenCV
+module=0 Foundation
+parameter=image
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=kwidth
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=kheight
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+cv_measure_pos(image,Column,Row,Phi,Length1,Length2,Sigma,Threshold,Transition,RowEdge,ColumnEdge,Amplitude)
+short.ascii=Measure straight edges perpendicular to a rectangle using OpenCV.
+keywords=UserExtensionsMeasureEdgeOpenCV
+module=0 Foundation
+parameter=image
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=Column
+parameter_class=input_control
+type_list=real
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Row
+parameter_class=input_control
+type_list=real
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Phi
+parameter_class=input_control
+type_list=real
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Length1
+parameter_class=input_control
+type_list=real
+default_value=10.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Length2
+parameter_class=input_control
+type_list=real
+default_value=5.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Sigma
+parameter_class=input_control
+type_list=real
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Threshold
+parameter_class=input_control
+type_list=real
+default_value=5.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Transition
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=RowEdge
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=ColumnEdge
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Amplitude
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_filter2d(image,kernel,imageOut)
+short.ascii=Convolve an image with a kernel (supports 8-bit, 16-bit and real single-channel images).
+keywords=UserExtensionsFilterConvolutionOpenCV
+module=0 Foundation
+parameter=image
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=kernel
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+cv_reshape(image,imageOut,rows)
+short.ascii=Reshape an image matrix (supports 8-bit, 16-bit and real single-channel images).
+keywords=UserExtensionsReshapeMatrixOpenCV
+module=0 Foundation
+parameter=image
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=rows
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+cv_median_blur(image,imageOut,ksize)
+short.ascii=Median blur filter (supports 8-bit, 16-bit and real images).
+keywords=UserExtensionsMedianBlurFilterOpenCV
+module=0 Foundation
+parameter=image
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=ksize
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+cv_mat_mul(imageA,imageB,outimage)
+short.ascii=Matrix multiplication of two 16-bit single-channel images (C = A * B).
+keywords=UserExtensionsMatrixMultiplyOpenCV
+module=0 Foundation
+parameter=imageA
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=outimage
+parameter_class=output_object
+sem_type=image
+multivalue=optional
 cv_write_image(inimage,filename,compression)
 short.ascii=Save image as PNG file (supports 8/16-bit, 1/3-channel).
 keywords=UserExtensionsPNGWriteOpenCV

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* eigen_llt — 解正定线性方程组 A*x = b（Eigen LLT）</c>
+<c>*   A: real 方阵 n×n（须正定），B: real n×k → X: real n×k</c>
+<c>* =============================================================</c>
+<c>* A = [4 1; 1 3]（正定矩阵）</c>
+<l>gen_image_const (ImageA, 'real', 2, 2)</l>
+<l>set_grayval (ImageA, 0, 0, 4.0)</l>
+<l>set_grayval (ImageA, 0, 1, 1.0)</l>
+<l>set_grayval (ImageA, 1, 0, 1.0)</l>
+<l>set_grayval (ImageA, 1, 1, 3.0)</l>
+<c>* b = [1; 2]</c>
+<l>gen_image_const (ImageB, 'real', 1, 2)</l>
+<l>set_grayval (ImageB, 0, 0, 1.0)</l>
+<l>set_grayval (ImageB, 1, 0, 2.0)</l>
+<c>* 求解</c>
+<l>eigen_llt (ImageA, ImageB, ImageX)</l>
+<l>get_grayval (ImageX, 0, 0, X0)</l>
+<l>get_grayval (ImageX, 1, 0, X1)</l>
+<c>* 解析解: x1 = 1/11 ≈ 0.0909, x2 = 7/11 ≈ 0.6364</c>
+<c>* 验证: A * x 应等于 b</c>
+<l>Validate0 := 4.0*X0 + 1.0*X1</l>
+<l>Validate1 := 1.0*X0 + 3.0*X1</l>
+<c>* 期望: Validate0 ≈ 1.0, Validate1 ≈ 2.0</c>
+<c>* 支持多右端项：k &gt; 1 时 X 会有多列</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

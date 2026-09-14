@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* arma_interp1 — 一维插值（Armadillo interp1）</c>
+<c>*   X: real 1×N（采样点坐标）、Y: real 1×N（采样值）、XI: real 1×M（查询点）</c>
+<c>*   输出 YI: real 1×M</c>
+<c>*   InterpMethod: 'linear' 或 'nearest'（Armadillo 仅比较前两个字符，</c>
+<c>*                 其它名称如 'previous' / 'pchip' / 'cubic' 会报错码 30003）</c>
+<c>*                 前缀 '*'（如 '*linear'）表示 X 与 XI 已单调递增，可加速</c>
+<c>* =============================================================</c>
+<c>* 采样点 X = [0, 1, 2, 3]，Y = [0, 10, 20, 30]（线性关系 y = 10x）</c>
+<l>gen_image_const (ImageX, 'real', 4, 1)</l>
+<l>set_grayval (ImageX, 0, 0, 0.0)</l>
+<l>set_grayval (ImageX, 0, 1, 1.0)</l>
+<l>set_grayval (ImageX, 0, 2, 2.0)</l>
+<l>set_grayval (ImageX, 0, 3, 3.0)</l>
+<l>gen_image_const (ImageY, 'real', 4, 1)</l>
+<l>set_grayval (ImageY, 0, 0, 0.0)</l>
+<l>set_grayval (ImageY, 0, 1, 10.0)</l>
+<l>set_grayval (ImageY, 0, 2, 20.0)</l>
+<l>set_grayval (ImageY, 0, 3, 30.0)</l>
+<c>* 查询点 XI = [0.5, 1.5, 2.5]</c>
+<l>gen_image_const (ImageXI, 'real', 3, 1)</l>
+<l>set_grayval (ImageXI, 0, 0, 0.5)</l>
+<l>set_grayval (ImageXI, 0, 1, 1.5)</l>
+<l>set_grayval (ImageXI, 0, 2, 2.5)</l>
+<c>* 线性插值</c>
+<l>arma_interp1 (ImageX, ImageY, ImageXI, ImageYI, 'linear')</l>
+<l>get_grayval (ImageYI, 0, 0, YI0)</l>
+<l>get_grayval (ImageYI, 0, 1, YI1)</l>
+<l>get_grayval (ImageYI, 0, 2, YI2)</l>
+<c>* 期望: YI0 = 5.0, YI1 = 15.0, YI2 = 25.0</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

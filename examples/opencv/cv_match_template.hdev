@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_match_template — 模板匹配（OpenCV, TM_CCOEFF_NORMED）</c>
+<c>*   仅支持 8 位 / 浮点单通道（OpenCV 限制），两图类型须一致</c>
+<c>*   输出 real 得分图，尺寸 = (W-w+1) × (H-h+1)</c>
+<c>* =============================================================</c>
+<c>* 大图：20×20，在 (行10, 列12) 处放一个 3×3 的亮块</c>
+<l>gen_image_const (Image, 'byte', 20, 20)</l>
+<l>set_grayval (Image, 9, 11, 255)</l>
+<l>set_grayval (Image, 9, 12, 255)</l>
+<l>set_grayval (Image, 9, 13, 255)</l>
+<l>set_grayval (Image, 10, 11, 255)</l>
+<l>set_grayval (Image, 10, 12, 255)</l>
+<l>set_grayval (Image, 10, 13, 255)</l>
+<l>set_grayval (Image, 11, 11, 255)</l>
+<l>set_grayval (Image, 11, 12, 255)</l>
+<l>set_grayval (Image, 11, 13, 255)</l>
+<c>* 模板：同样的 3×3 亮块</c>
+<l>gen_image_const (TemplateImage, 'byte', 3, 3)</l>
+<l>set_grayval (TemplateImage, 0, 0, 255)</l>
+<l>set_grayval (TemplateImage, 0, 1, 255)</l>
+<l>set_grayval (TemplateImage, 0, 2, 255)</l>
+<l>set_grayval (TemplateImage, 1, 0, 255)</l>
+<l>set_grayval (TemplateImage, 1, 1, 255)</l>
+<l>set_grayval (TemplateImage, 1, 2, 255)</l>
+<l>set_grayval (TemplateImage, 2, 0, 255)</l>
+<l>set_grayval (TemplateImage, 2, 1, 255)</l>
+<l>set_grayval (TemplateImage, 2, 2, 255)</l>
+<c>* 模板匹配</c>
+<l>cv_match_template (Image, TemplateImage, Result)</l>
+<l>get_image_size (Result, RW, RH)</l>
+<c>* 期望: RW = 18, RH = 18   (20-3+1)</c>
+<c>* 找最佳匹配位置（归一化互相关得分为 1 处）</c>
+<l>threshold (Result, Region, 0.99, 1.01)</l>
+<l>area_center (Region, Area, MatchRow, MatchCol)</l>
+<c>* 期望: MatchRow ≈ 9, MatchCol ≈ 11（模板左上角）</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

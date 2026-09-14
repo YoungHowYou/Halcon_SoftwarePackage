@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_add_weighted — OpenCV 图像加权求和</c>
+<c>*   支持 8 位(byte) / 16 位(uint2) / 浮点(real) 单通道图像</c>
+<c>*   ImageOut = saturate(alpha*ImageA + beta*ImageB + gamma)</c>
+<c>*   两图类型与尺寸须一致</c>
+<c>* =============================================================</c>
+<c>* ---- 1) 8 位图像 ----</c>
+<l>gen_image_const (ImageA, 'byte', 3, 3)</l>
+<l>gen_image_const (ImageB, 'byte', 3, 3)</l>
+<l>set_grayval (ImageA, 1, 1, 100)</l>
+<l>set_grayval (ImageB, 1, 1, 50)</l>
+<l>cv_add_weighted (ImageA, ImageB, ImageOut, 0.5, 0.5, 0.0)</l>
+<l>get_grayval (ImageOut, 1, 1, VOut)</l>
+<c>* 期望: VOut = 75</c>
+<c>* ---- 2) 16 位图像 ----</c>
+<l>gen_image_const (ImageA2, 'uint2', 3, 3)</l>
+<l>gen_image_const (ImageB2, 'uint2', 3, 3)</l>
+<l>set_grayval (ImageA2, 1, 1, 1000)</l>
+<l>set_grayval (ImageB2, 1, 1, 2000)</l>
+<l>cv_add_weighted (ImageA2, ImageB2, ImageOut2, 0.5, 0.5, 0.0)</l>
+<l>get_grayval (ImageOut2, 1, 1, VOut2)</l>
+<c>* 期望: VOut2 = 1500</c>
+<c>* ---- 3) 浮点(real)图像 ----</c>
+<l>gen_image_const (ImageA3, 'real', 3, 3)</l>
+<l>gen_image_const (ImageB3, 'real', 3, 3)</l>
+<l>set_grayval (ImageA3, 1, 1, 1.0)</l>
+<l>set_grayval (ImageB3, 1, 1, 2.0)</l>
+<l>cv_add_weighted (ImageA3, ImageB3, ImageOut3, 0.5, 0.5, 0.0)</l>
+<l>get_grayval (ImageOut3, 1, 1, VOut3)</l>
+<c>* 期望: VOut3 = 1.5</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

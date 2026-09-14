@@ -1108,6 +1108,14 @@ toggleLanguage(new_lang,1);return;}
 <dd>Add ROI to big image.</dd>
 </dl>
 <dl>
+<dt><a href="arma_interp1.html"><code><span data-if="hdevelop" style="display:inline;">arma_interp1</span><span data-if="dotnet" style="display:none;">ArmaInterp1</span><span data-if="python" style="display:none;">arma_interp1</span><span data-if="cpp" style="display:none;">ArmaInterp1</span><span data-if="c" style="display:none;">arma_interp1</span></code></a></dt>
+<dd>One-dimensional interpolation using Armadillo interp1.</dd>
+</dl>
+<dl>
+<dt><a href="cv_add_weighted.html"><code><span data-if="hdevelop" style="display:inline;">cv_add_weighted</span><span data-if="dotnet" style="display:none;">CvAddWeighted</span><span data-if="python" style="display:none;">cv_add_weighted</span><span data-if="cpp" style="display:none;">CvAddWeighted</span><span data-if="c" style="display:none;">cv_add_weighted</span></code></a></dt>
+<dd>Computes the weighted sum of two images (supports 8-bit, 16-bit and real single-channel images).</dd>
+</dl>
+<dl>
 <dt><a href="cv_akaze_detect.html"><code><span data-if="hdevelop" style="display:inline;">cv_akaze_detect</span><span data-if="dotnet" style="display:none;">CvAkazeDetect</span><span data-if="python" style="display:none;">cv_akaze_detect</span><span data-if="cpp" style="display:none;">CvAkazeDetect</span><span data-if="c" style="display:none;">cv_akaze_detect</span></code></a></dt>
 <dd>AKAZE feature detection and descriptor computation using OpenCV.</dd>
 </dl>
@@ -1116,12 +1124,68 @@ toggleLanguage(new_lang,1);return;}
 <dd>BF KNN feature matching with Lowe's ratio test using OpenCV.</dd>
 </dl>
 <dl>
+<dt><a href="cv_blur.html"><code><span data-if="hdevelop" style="display:inline;">cv_blur</span><span data-if="dotnet" style="display:none;">CvBlur</span><span data-if="python" style="display:none;">cv_blur</span><span data-if="cpp" style="display:none;">CvBlur</span><span data-if="c" style="display:none;">cv_blur</span></code></a></dt>
+<dd>Smooth an image using a normalized box filter (supports 8-bit, 16-bit and real single-channel images).</dd>
+</dl>
+<dl>
+<dt><a href="cv_calc_hist.html"><code><span data-if="hdevelop" style="display:inline;">cv_calc_hist</span><span data-if="dotnet" style="display:none;">CvCalcHist</span><span data-if="python" style="display:none;">cv_calc_hist</span><span data-if="cpp" style="display:none;">CvCalcHist</span><span data-if="c" style="display:none;">cv_calc_hist</span></code></a></dt>
+<dd>Compute gray-level histogram (8/16-bit or real single-channel).</dd>
+</dl>
+<dl>
+<dt><a href="cv_estimate_affine_2d.html"><code><span data-if="hdevelop" style="display:inline;">cv_estimate_affine_2d</span><span data-if="dotnet" style="display:none;">CvEstimateAffine2d</span><span data-if="python" style="display:none;">cv_estimate_affine_2d</span><span data-if="cpp" style="display:none;">CvEstimateAffine2d</span><span data-if="c" style="display:none;">cv_estimate_affine_2d</span></code></a></dt>
+<dd>Estimate full affine transformation (6 parameters) using OpenCV.</dd>
+</dl>
+<dl>
 <dt><a href="cv_estimate_affine_partial2d.html"><code><span data-if="hdevelop" style="display:inline;">cv_estimate_affine_partial2d</span><span data-if="dotnet" style="display:none;">CvEstimateAffinePartial2d</span><span data-if="python" style="display:none;">cv_estimate_affine_partial2d</span><span data-if="cpp" style="display:none;">CvEstimateAffinePartial2d</span><span data-if="c" style="display:none;">cv_estimate_affine_partial2d</span></code></a></dt>
 <dd>Estimate partial affine transformation using RANSAC (OpenCV).</dd>
 </dl>
 <dl>
+<dt><a href="cv_filter2d.html"><code><span data-if="hdevelop" style="display:inline;">cv_filter2d</span><span data-if="dotnet" style="display:none;">CvFilter2d</span><span data-if="python" style="display:none;">cv_filter2d</span><span data-if="cpp" style="display:none;">CvFilter2d</span><span data-if="c" style="display:none;">cv_filter2d</span></code></a></dt>
+<dd>Convolve an image with a kernel (supports 8-bit, 16-bit and real single-channel images).</dd>
+</dl>
+<dl>
+<dt><a href="cv_kmeans.html"><code><span data-if="hdevelop" style="display:inline;">cv_kmeans</span><span data-if="dotnet" style="display:none;">CvKmeans</span><span data-if="python" style="display:none;">cv_kmeans</span><span data-if="cpp" style="display:none;">CvKmeans</span><span data-if="c" style="display:none;">cv_kmeans</span></code></a></dt>
+<dd>K-means clustering (real NxD samples matrix).</dd>
+</dl>
+<dl>
+<dt><a href="cv_mat_mul.html"><code><span data-if="hdevelop" style="display:inline;">cv_mat_mul</span><span data-if="dotnet" style="display:none;">CvMatMul</span><span data-if="python" style="display:none;">cv_mat_mul</span><span data-if="cpp" style="display:none;">CvMatMul</span><span data-if="c" style="display:none;">cv_mat_mul</span></code></a></dt>
+<dd>Matrix multiplication of two 16-bit single-channel images (C = A * B).</dd>
+</dl>
+<dl>
+<dt><a href="cv_match_template.html"><code><span data-if="hdevelop" style="display:inline;">cv_match_template</span><span data-if="dotnet" style="display:none;">CvMatchTemplate</span><span data-if="python" style="display:none;">cv_match_template</span><span data-if="cpp" style="display:none;">CvMatchTemplate</span><span data-if="c" style="display:none;">cv_match_template</span></code></a></dt>
+<dd>Template matching (TM_CCOEFF_NORMED, 8-bit or real single-channel).</dd>
+</dl>
+<dl>
+<dt><a href="cv_measure_pos.html"><code><span data-if="hdevelop" style="display:inline;">cv_measure_pos</span><span data-if="dotnet" style="display:none;">CvMeasurePos</span><span data-if="python" style="display:none;">cv_measure_pos</span><span data-if="cpp" style="display:none;">CvMeasurePos</span><span data-if="c" style="display:none;">cv_measure_pos</span></code></a></dt>
+<dd>Measure straight edges perpendicular to a rectangle using OpenCV.</dd>
+</dl>
+<dl>
+<dt><a href="cv_median_blur.html"><code><span data-if="hdevelop" style="display:inline;">cv_median_blur</span><span data-if="dotnet" style="display:none;">CvMedianBlur</span><span data-if="python" style="display:none;">cv_median_blur</span><span data-if="cpp" style="display:none;">CvMedianBlur</span><span data-if="c" style="display:none;">cv_median_blur</span></code></a></dt>
+<dd>Median blur filter (supports 8-bit, 16-bit and real images).</dd>
+</dl>
+<dl>
+<dt><a href="cv_multi_frame_median.html"><code><span data-if="hdevelop" style="display:inline;">cv_multi_frame_median</span><span data-if="dotnet" style="display:none;">CvMultiFrameMedian</span><span data-if="python" style="display:none;">cv_multi_frame_median</span><span data-if="cpp" style="display:none;">CvMultiFrameMedian</span><span data-if="c" style="display:none;">cv_multi_frame_median</span></code></a></dt>
+<dd>Compute the pixel-wise median over multiple real images using OpenCV.</dd>
+</dl>
+<dl>
 <dt><a href="cv_orb_detect.html"><code><span data-if="hdevelop" style="display:inline;">cv_orb_detect</span><span data-if="dotnet" style="display:none;">CvOrbDetect</span><span data-if="python" style="display:none;">cv_orb_detect</span><span data-if="cpp" style="display:none;">CvOrbDetect</span><span data-if="c" style="display:none;">cv_orb_detect</span></code></a></dt>
 <dd>ORB feature detection and descriptor computation using OpenCV.</dd>
+</dl>
+<dl>
+<dt><a href="cv_reshape.html"><code><span data-if="hdevelop" style="display:inline;">cv_reshape</span><span data-if="dotnet" style="display:none;">CvReshape</span><span data-if="python" style="display:none;">cv_reshape</span><span data-if="cpp" style="display:none;">CvReshape</span><span data-if="c" style="display:none;">cv_reshape</span></code></a></dt>
+<dd>Reshape an image matrix (supports 8-bit, 16-bit and real single-channel images).</dd>
+</dl>
+<dl>
+<dt><a href="cv_solve.html"><code><span data-if="hdevelop" style="display:inline;">cv_solve</span><span data-if="dotnet" style="display:none;">CvSolve</span><span data-if="python" style="display:none;">cv_solve</span><span data-if="cpp" style="display:none;">CvSolve</span><span data-if="c" style="display:none;">cv_solve</span></code></a></dt>
+<dd>Solve linear equations A*x=b using OpenCV (real single-channel matrices).</dd>
+</dl>
+<dl>
+<dt><a href="cv_subtract.html"><code><span data-if="hdevelop" style="display:inline;">cv_subtract</span><span data-if="dotnet" style="display:none;">CvSubtract</span><span data-if="python" style="display:none;">cv_subtract</span><span data-if="cpp" style="display:none;">CvSubtract</span><span data-if="c" style="display:none;">cv_subtract</span></code></a></dt>
+<dd>Compute the per-element saturated difference of two images (supports 8-bit, 16-bit and real single-channel images).</dd>
+</dl>
+<dl>
+<dt><a href="cv_threshold_triangle.html"><code><span data-if="hdevelop" style="display:inline;">cv_threshold_triangle</span><span data-if="dotnet" style="display:none;">CvThresholdTriangle</span><span data-if="python" style="display:none;">cv_threshold_triangle</span><span data-if="cpp" style="display:none;">CvThresholdTriangle</span><span data-if="c" style="display:none;">cv_threshold_triangle</span></code></a></dt>
+<dd>Triangle automatic thresholding (THRESH_TRIANGLE, 8-bit single-channel only).</dd>
 </dl>
 <dl>
 <dt><a href="cv_write_image.html"><code><span data-if="hdevelop" style="display:inline;">cv_write_image</span><span data-if="dotnet" style="display:none;">CvWriteImage</span><span data-if="python" style="display:none;">cv_write_image</span><span data-if="cpp" style="display:none;">CvWriteImage</span><span data-if="c" style="display:none;">cv_write_image</span></code></a></dt>
@@ -1134,6 +1198,26 @@ toggleLanguage(new_lang,1);return;}
 <dl>
 <dt><a href="div_B_roi.html"><code><span data-if="hdevelop" style="display:inline;">div_B_roi</span><span data-if="dotnet" style="display:none;">DivBRoi</span><span data-if="python" style="display:none;">div_B_roi</span><span data-if="cpp" style="display:none;">DivBRoi</span><span data-if="c" style="display:none;">div_B_roi</span></code></a></dt>
 <dd>Divide ROI from big image (B / small).</dd>
+</dl>
+<dl>
+<dt><a href="eigen_ldlt.html"><code><span data-if="hdevelop" style="display:inline;">eigen_ldlt</span><span data-if="dotnet" style="display:none;">EigenLdlt</span><span data-if="python" style="display:none;">eigen_ldlt</span><span data-if="cpp" style="display:none;">EigenLdlt</span><span data-if="c" style="display:none;">eigen_ldlt</span></code></a></dt>
+<dd>Solve symmetric linear equations A*x=b using Eigen LDLT.</dd>
+</dl>
+<dl>
+<dt><a href="eigen_llt.html"><code><span data-if="hdevelop" style="display:inline;">eigen_llt</span><span data-if="dotnet" style="display:none;">EigenLlt</span><span data-if="python" style="display:none;">eigen_llt</span><span data-if="cpp" style="display:none;">EigenLlt</span><span data-if="c" style="display:none;">eigen_llt</span></code></a></dt>
+<dd>Solve positive-definite linear equations A*x=b using Eigen LLT.</dd>
+</dl>
+<dl>
+<dt><a href="eigen_lm_fit.html"><code><span data-if="hdevelop" style="display:inline;">eigen_lm_fit</span><span data-if="dotnet" style="display:none;">EigenLmFit</span><span data-if="python" style="display:none;">eigen_lm_fit</span><span data-if="cpp" style="display:none;">EigenLmFit</span><span data-if="c" style="display:none;">eigen_lm_fit</span></code></a></dt>
+<dd>Fit a user-supplied model expression to data using the Eigen LevenbergMarquardt algorithm.</dd>
+</dl>
+<dl>
+<dt><a href="eigen_lm_fit_2d.html"><code><span data-if="hdevelop" style="display:inline;">eigen_lm_fit_2d</span><span data-if="dotnet" style="display:none;">EigenLmFit2d</span><span data-if="python" style="display:none;">eigen_lm_fit_2d</span><span data-if="cpp" style="display:none;">EigenLmFit2d</span><span data-if="c" style="display:none;">eigen_lm_fit_2d</span></code></a></dt>
+<dd>Multi-variable multi-output nonlinear least-squares fit with shared parameters using Eigen LevenbergMarquardt.</dd>
+</dl>
+<dl>
+<dt><a href="eigen_svd.html"><code><span data-if="hdevelop" style="display:inline;">eigen_svd</span><span data-if="dotnet" style="display:none;">EigenSvd</span><span data-if="python" style="display:none;">eigen_svd</span><span data-if="cpp" style="display:none;">EigenSvd</span><span data-if="c" style="display:none;">eigen_svd</span></code></a></dt>
+<dd>Singular value decomposition (JacobiSVD) using Eigen.</dd>
 </dl>
 <dl>
 <dt><a href="modbus_close.html"><code><span data-if="hdevelop" style="display:inline;">modbus_close</span><span data-if="dotnet" style="display:none;">ModbusClose</span><span data-if="python" style="display:none;">modbus_close</span><span data-if="cpp" style="display:none;">ModbusClose</span><span data-if="c" style="display:none;">modbus_close</span></code></a></dt>
@@ -1318,6 +1402,18 @@ toggleLanguage(new_lang,1);return;}
 <dl>
 <dt><a href="sqlite3_open.html"><code><span data-if="hdevelop" style="display:inline;">sqlite3_open</span><span data-if="dotnet" style="display:none;">Sqlite3Open</span><span data-if="python" style="display:none;">sqlite3_open</span><span data-if="cpp" style="display:none;">Sqlite3Open</span><span data-if="c" style="display:none;">sqlite3_open</span></code></a></dt>
 <dd>Laplace Filter.</dd>
+</dl>
+<dl>
+<dt><a href="std_lower_bound.html"><code><span data-if="hdevelop" style="display:inline;">std_lower_bound</span><span data-if="dotnet" style="display:none;">StdLowerBound</span><span data-if="python" style="display:none;">std_lower_bound</span><span data-if="cpp" style="display:none;">StdLowerBound</span><span data-if="c" style="display:none;">std_lower_bound</span></code></a></dt>
+<dd>Binary search lower bound (input must be sorted ascending) using std::lower_bound.</dd>
+</dl>
+<dl>
+<dt><a href="std_nth_element.html"><code><span data-if="hdevelop" style="display:inline;">std_nth_element</span><span data-if="dotnet" style="display:none;">StdNthElement</span><span data-if="python" style="display:none;">std_nth_element</span><span data-if="cpp" style="display:none;">StdNthElement</span><span data-if="c" style="display:none;">std_nth_element</span></code></a></dt>
+<dd>Find the n-th smallest element (flattened, 0-based) using std::nth_element.</dd>
+</dl>
+<dl>
+<dt><a href="std_sort.html"><code><span data-if="hdevelop" style="display:inline;">std_sort</span><span data-if="dotnet" style="display:none;">StdSort</span><span data-if="python" style="display:none;">std_sort</span><span data-if="cpp" style="display:none;">StdSort</span><span data-if="c" style="display:none;">std_sort</span></code></a></dt>
+<dd>Sort image elements (flattened) using std::sort.</dd>
 </dl>
 <dl>
 <dt><a href="sub_A_roi.html"><code><span data-if="hdevelop" style="display:inline;">sub_A_roi</span><span data-if="dotnet" style="display:none;">SubARoi</span><span data-if="python" style="display:none;">sub_A_roi</span><span data-if="cpp" style="display:none;">SubARoi</span><span data-if="c" style="display:none;">sub_A_roi</span></code></a></dt>

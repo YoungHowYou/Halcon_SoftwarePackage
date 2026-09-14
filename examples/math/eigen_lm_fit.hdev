@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* ============================================================================</c>
+<c>* eigen_lm_fit — 通用非线性最小二乘拟合（Eigen LevenbergMarquardt）</c>
+<c>*   模型 y = a*exp(b*x) + c（真值 a=3.5, b=-0.45, c=1.2），叠加噪声后拟合</c>
+<c>*</c>
+<c>*   输入: ModelExpression 模型表达式（自变量 x + 待拟合参数 a/b/c）</c>
+<c>*         ParamNames      参数名元组 ['a','b','c']</c>
+<c>*         InitialValues   参数初值元组（长度须与 ParamNames 一致）</c>
+<c>*         XData / YData   观测数据元组（长度须一致，且不少于参数个数）</c>
+<c>*         XName           自变量名（此处为 'x'）</c>
+<c>*         MaxIter         最大函数求值次数（0 = 自动 400*(n+1)）</c>
+<c>*         Eps             数值微分步长（0 = 自动 sqrt(machine eps)）</c>
+<c>*   输出: ParamValues     拟合参数（顺序与 ParamNames 一致）</c>
+<c>*         Rss             残差平方和</c>
+<c>*         Iterations      迭代次数</c>
+<c>*         Status          状态码：1~4 已收敛、5~8 结束但未确认、0 失败</c>
+<c>*         StatusMessage   状态说明文本</c>
+<c>* ============================================================================</c>
+<l>dev_update_off ()</l>
+<l>dev_close_window ()</l>
+<l>dev_open_window (0, 0, 720, 480, 'black', WindowHandle)</l>
+<l>set_display_font (WindowHandle, 16, 'mono', 'true', 'false')</l>
+<l>dev_set_color ('white')</l>
+<c>* ---- 1. 生成带噪声的观测数据 ----</c>
+<l>TrueA := 3.5</l>
+<l>TrueB := -0.45</l>
+<l>TrueC := 1.2</l>
+<l>NumPoints := 40</l>
+<l>XData := []</l>
+<l>YData := []</l>
+<l>for i := 0 to NumPoints - 1 by 1</l>
+<l>    x := i * 0.15</l>
+<l>    Noise := (rand(1) - 0.5) * 0.10</l>
+<l>    y := TrueA * exp(TrueB * x) + TrueC + Noise</l>
+<l>    XData := [XData, x]</l>
+<l>    YData := [YData, y]</l>
+<l>endfor</l>
+<c>* ---- 2. 调用 eigen_lm_fit 拟合 ----</c>
+<l>ModelExpression := 'a*exp(b*x)+c'</l>
+<c>* 参数名与初值（初值只需大致量级，无需精确）</c>
+<l>ParamNames := ['a', 'b', 'c']</l>
+<l>InitialValues := [1.0, -0.1, 0.0]</l>
+<c>* MaxIter = 0 → 自动；Eps = 0 → 自动数值微分步长</c>
+<l>eigen_lm_fit (ModelExpression, ParamNames, InitialValues, XData, YData, 'x', 0, 0.0, \
+              ParamValues, Rss, Iterations, Status, StatusMessage)</l>
+<l>A := ParamValues[0]</l>
+<l>B := ParamValues[1]</l>
+<l>C := ParamValues[2]</l>
+<c>* ---- 3. 可视化：散点 + 拟合曲线 ----</c>
+<l>tuple_min (XData, MinX)</l>
+<l>tuple_max (XData, MaxX)</l>
+<l>tuple_min (YData, MinY)</l>
+<l>tuple_max (YData, MaxY)</l>
+<l>dev_set_part (MinY - 0.6, MinX - 0.4, MaxY + 0.6, MaxX + 0.4)</l>
+<c>* 观测散点（十字标记）</c>
+<l>gen_cross_contour_xld (Crosses, YData, XData, 0.1, 0.785398)</l>
+<l>dev_set_color ('green')</l>
+<l>dev_display (Crosses)</l>
+<c>* 拟合曲线 y = a*exp(b*x) + c</c>
+<l>CurveX := []</l>
+<l>CurveY := []</l>
+<l>for i := 0 to 200 by 1</l>
+<l>    xc := MinX + i * (MaxX - MinX) / 200.0</l>
+<l>    CurveX := [CurveX, xc]</l>
+<l>    CurveY := [CurveY, A * exp(B * xc) + C]</l>
+<l>endfor</l>
+<l>gen_contour_polygon_xld (FitCurve, CurveY, CurveX)</l>
+<l>dev_set_color ('red')</l>
+<l>dev_set_line_width (3)</l>
+<l>dev_display (FitCurve)</l>
+<l>dev_set_line_width (1)</l>
+<c>* ---- 4. 显示拟合结果 ----</c>
+<l>dev_set_color ('white')</l>
+<l>Message := 'Model     : ' + ModelExpression</l>
+<l>disp_message (WindowHandle, Message, 'window', 12, 12, 'white', 'false')</l>
+<l>Message := 'a = ' + A$'.4f' + '   (true ' + TrueA$'.4f' + ')'</l>
+<l>disp_message (WindowHandle, Message, 'window', 40, 12, 'white', 'false')</l>
+<l>Message := 'b = ' + B$'.4f' + '   (true ' + TrueB$'.4f' + ')'</l>
+<l>disp_message (WindowHandle, Message, 'window', 68, 12, 'white', 'false')</l>
+<l>Message := 'c = ' + C$'.4f' + '   (true ' + TrueC$'.4f' + ')'</l>
+<l>disp_message (WindowHandle, Message, 'window', 96, 12, 'white', 'false')</l>
+<l>Message := 'RSS = ' + Rss$'.6f' + '   Iterations = ' + Iterations</l>
+<l>disp_message (WindowHandle, Message, 'window', 124, 12, 'white', 'false')</l>
+<l>Message := 'Status = ' + Status + '  (' + StatusMessage + ')'</l>
+<l>disp_message (WindowHandle, Message, 'window', 152, 12, 'yellow', 'false')</l>
+<l>disp_message (WindowHandle, 'green: samples   red: LM fit', 'window', 440, 12, 'white', 'false')</l>
+<c>* Status 为 1~4 表示已收敛；5~8 表示迭代结束但未达严格收敛判据（结果通常仍可用）</c>
+<c>* 若 StatusMessage 含 'expression error'，说明模型表达式无法解析或求值失败</c>
+<c>* ---- 5. 容错演示：表达式含未定义变量 ----</c>
+<c>* 以下调用不会中断程序，而是返回 Status = 0 并在 StatusMessage 中给出原因</c>
+<l>eigen_lm_fit ('a*z+b', ['a', 'b'], [1.0, 1.0], XData, YData, 'x', 0, 0.0, \
+              BadParams, BadRss, BadIterations, BadStatus, BadMessage)</l>
+<c>* 期望: BadStatus = 0, BadRss = -1, BadMessage 以 'expression error:' 开头</c>
+<l>dev_update_on ()</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

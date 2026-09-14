@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* std_nth_element — 找第 n 小元素（C++ std::nth_element）</c>
+<c>*   输入 real 图像会被展平（行优先）成一维序列</c>
+<c>*   NIndex 为 0-based 索引，输出该位置的元素值（tuple）</c>
+<c>* =============================================================</c>
+<c>* 数据 [5, 3, 9, 1, 7]（5×1）</c>
+<l>gen_image_const (Image, 'real', 5, 1)</l>
+<l>set_grayval (Image, 0, 0, 5.0)</l>
+<l>set_grayval (Image, 1, 0, 3.0)</l>
+<l>set_grayval (Image, 2, 0, 9.0)</l>
+<l>set_grayval (Image, 3, 0, 1.0)</l>
+<l>set_grayval (Image, 4, 0, 7.0)</l>
+<c>* 排序后为 [1, 3, 5, 7, 9]</c>
+<c>* 取最小值（索引 0）</c>
+<l>std_nth_element (Image, 0, MinValue)</l>
+<c>* 期望: MinValue = 1.0</c>
+<c>* 取中位数（索引 2）</c>
+<l>std_nth_element (Image, 2, MedianValue)</l>
+<c>* 期望: MedianValue = 5.0</c>
+<c>* 取最大值（索引 4）</c>
+<l>std_nth_element (Image, 4, MaxValue)</l>
+<c>* 期望: MaxValue = 9.0</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>
