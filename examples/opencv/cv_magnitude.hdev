@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_magnitude — OpenCV 梯度幅值 sqrt(X^2 + Y^2)</c>
+<c>*   输入: X / Y，byte / uint2 / real 单通道，两图同类型同尺寸</c>
+<c>*   输出: Magnitude（real）</c>
+<c>* =============================================================</c>
+<c>* ---- 1) 8 位图像，X=3, Y=4 ----</c>
+<l>gen_image_const (X, 'byte', 3, 3)</l>
+<l>gen_image_const (Y, 'byte', 3, 3)</l>
+<l>set_grayval (X, 1, 1, 3)</l>
+<l>set_grayval (Y, 1, 1, 4)</l>
+<l>cv_magnitude (X, Y, Mag)</l>
+<l>get_grayval (Mag, 1, 1, VMag)</l>
+<c>* 期望: VMag = 5.0（sqrt(3^2+4^2)）</c>
+<c>* ---- 2) 16 位图像，X=300, Y=400 ----</c>
+<l>gen_image_const (X2, 'uint2', 3, 3)</l>
+<l>gen_image_const (Y2, 'uint2', 3, 3)</l>
+<l>set_grayval (X2, 1, 1, 300)</l>
+<l>set_grayval (Y2, 1, 1, 400)</l>
+<l>cv_magnitude (X2, Y2, Mag2)</l>
+<l>get_grayval (Mag2, 1, 1, VMag2)</l>
+<c>* 期望: VMag2 = 500.0（sqrt(300^2+400^2)）</c>
+<c>* ---- 3) 浮点图像，X=3.0, Y=4.0 ----</c>
+<l>gen_image_const (X3, 'real', 3, 3)</l>
+<l>gen_image_const (Y3, 'real', 3, 3)</l>
+<l>set_grayval (X3, 1, 1, 3.0)</l>
+<l>set_grayval (Y3, 1, 1, 4.0)</l>
+<l>cv_magnitude (X3, Y3, Mag3)</l>
+<l>get_grayval (Mag3, 1, 1, VMag3)</l>
+<c>* 期望: VMag3 = 5.0</c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

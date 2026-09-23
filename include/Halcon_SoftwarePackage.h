@@ -79,8 +79,10 @@ extern EXPORTS_API Herror HCCLAHE_image(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCWriteImageExif(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_orb_detect(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_akaze_detect(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_sift_detect(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_bf_knn_match(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_estimate_affine_partial2d(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_estimate_rigid_2d(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_write_image(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_mat_mul(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_median_blur(Hproc_handle proc_handle);
@@ -97,6 +99,8 @@ extern EXPORTS_API Herror HCcv_calc_hist(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_match_template(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_kmeans(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_multi_frame_median(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_sobel(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_magnitude(Hproc_handle proc_handle);
 #pragma endregion
 
 #pragma region math
@@ -109,6 +113,8 @@ extern EXPORTS_API Herror HCeigen_llt(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCarma_interp1(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCeigen_lm_fit(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCeigen_lm_fit_2d(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HLinear_fit(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HLinear_fit_2d(Hproc_handle proc_handle);
 #pragma endregion
 
 

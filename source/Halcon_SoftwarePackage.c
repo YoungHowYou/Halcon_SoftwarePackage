@@ -348,6 +348,11 @@ Herror Ccv_akaze_detect(Hproc_handle proc_handle)
     return HCcv_akaze_detect(proc_handle);
 }
 
+Herror Ccv_sift_detect(Hproc_handle proc_handle)
+{
+    return HCcv_sift_detect(proc_handle);
+}
+
 Herror Ccv_bf_knn_match(Hproc_handle proc_handle)
 {
     return HCcv_bf_knn_match(proc_handle);
@@ -356,6 +361,11 @@ Herror Ccv_bf_knn_match(Hproc_handle proc_handle)
 Herror Ccv_estimate_affine_partial2d(Hproc_handle proc_handle)
 {
     return HCcv_estimate_affine_partial2d(proc_handle);
+}
+
+Herror Ccv_estimate_rigid_2d(Hproc_handle proc_handle)
+{
+    return HCcv_estimate_rigid_2d(proc_handle);
 }
 
 Herror Ccv_write_image(Hproc_handle proc_handle)
@@ -437,6 +447,16 @@ Herror Ccv_multi_frame_median(Hproc_handle proc_handle)
 {
     return HCcv_multi_frame_median(proc_handle);
 }
+
+Herror Ccv_sobel(Hproc_handle proc_handle)
+{
+    return HCcv_sobel(proc_handle);
+}
+
+Herror Ccv_magnitude(Hproc_handle proc_handle)
+{
+    return HCcv_magnitude(proc_handle);
+}
 #pragma endregion
 
 #pragma region math
@@ -483,5 +503,15 @@ Herror Ceigen_lm_fit(Hproc_handle proc_handle)
 Herror Ceigen_lm_fit_2d(Hproc_handle proc_handle)
 {
     return HCeigen_lm_fit_2d(proc_handle);
+}
+
+Herror Clinear_fit(Hproc_handle proc_handle)
+{
+    return HLinear_fit(proc_handle);
+}
+
+Herror Clinear_fit_2d(Hproc_handle proc_handle)
+{
+    return HLinear_fit_2d(proc_handle);
 }
 #pragma endregion

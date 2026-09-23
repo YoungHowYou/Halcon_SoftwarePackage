@@ -6,7 +6,8 @@
  *   remap, PNGIn, PNGOut,
  *   add_roi, mul_roi, sub_B_roi, div_B_roi, div_A_roi, sub_A_roi,
  *   CLAHE_image, write_image_exif,
- *   cv_orb_detect, cv_akaze_detect, cv_bf_knn_match, cv_estimate_affine_partial2d
+ *   cv_orb_detect, cv_akaze_detect, cv_sift_detect, cv_bf_knn_match,
+ *   cv_estimate_affine_partial2d, cv_estimate_rigid_2d
  *===========================================================================*/
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -904,6 +905,68 @@ Herror HCcv_akaze_detect(Hproc_handle proc_handle)
 }
 
 /*=============================================================================
+ * cv_sift_detect — SIFT 特征检测
+ *===========================================================================*/
+Herror HCcv_sift_detect(Hproc_handle proc_handle)
+{
+    const Hcpar *dict;
+    INT4_8 num;
+    HAllocStringMem(proc_handle, 1024);
+    HGetPPar(proc_handle, 1, &dict, &num);
+    HTuple hv_DictHandle(const_cast<Hcpar*>(dict), 1);
+
+    HObject ho_InputImage;
+    GetDictObject(&ho_InputImage, hv_DictHandle, "InputImage");
+
+    HTuple hv_Pointer, hv_Type, hv_Width, hv_Height;
+    GetImagePointer1(ho_InputImage, &hv_Pointer, &hv_Type, &hv_Width, &hv_Height);
+
+    cv::Mat img((int)hv_Height.L(), (int)hv_Width.L(), CV_8UC1,
+                (uchar *)hv_Pointer.L());
+
+    HTuple hv_NFeatures;
+    try { GetDictTuple(hv_DictHandle, "NFeatures", &hv_NFeatures); }
+    catch (...) { hv_NFeatures = 0; }
+    int nFeatures = (int)hv_NFeatures.L();
+
+    // descriptorType 取 CV_8U，使描述子与 cv_bf_knn_match（NORM_HAMMING）直接兼容
+    cv::Ptr<cv::SIFT> sift = cv::SIFT::create(nFeatures, 3, 0.04, 10.0, 1.6, CV_8U);
+
+    std::vector<cv::KeyPoint> keypoints;
+    cv::Mat descriptors;
+    sift->detectAndCompute(img, cv::noArray(), keypoints, descriptors);
+
+    int nKP = (int)keypoints.size();
+
+    HTuple hv_Rows, hv_Cols;
+    for (int i = 0; i < nKP; i++)
+    {
+        hv_Rows[i] = (double)keypoints[i].pt.y;
+        hv_Cols[i] = (double)keypoints[i].pt.x;
+    }
+    SetDictTuple(hv_DictHandle, "KeypointsRow", hv_Rows);
+    SetDictTuple(hv_DictHandle, "KeypointsCol", hv_Cols);
+    SetDictTuple(hv_DictHandle, "NumKeypoints", (Hlong)nKP);
+
+    if (nKP > 0 && !descriptors.empty())
+    {
+        cv::Mat descU8;
+        if (descriptors.type() != CV_8UC1)
+            descriptors.convertTo(descU8, CV_8UC1);
+        else
+            descU8 = descriptors;
+
+        int descWidth = descU8.cols;
+        HObject ho_Desc;
+        GenImage1(&ho_Desc, "byte", descWidth, nKP, (Hlong)descU8.data);
+        SetDictObject(ho_Desc, hv_DictHandle, "Descriptors");
+        SetDictTuple(hv_DictHandle, "DescWidth", (Hlong)descWidth);
+    }
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
  * cv_bf_knn_match — BF 暴力匹配 + Lowe's Ratio Test
  *===========================================================================*/
 Herror HCcv_bf_knn_match(Hproc_handle proc_handle)
@@ -1066,6 +1129,169 @@ Herror HCcv_estimate_affine_partial2d(Hproc_handle proc_handle)
     SetDictTuple(hv_DictHandle, "TranslateCol", a02);
     SetDictTuple(hv_DictHandle, "Angle", angle);
     SetDictTuple(hv_DictHandle, "Scale", scale);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_estimate_rigid_2d — RANSAC 刚体变换估计（平移 + 旋转，无缩放）
+ *   与 cv_estimate_affine_partial2d 的区别：不含缩放自由度，更贴合
+ *   SIFT/ORB 匹配后的图像配准（尺度一致的场景）。
+ *===========================================================================*/
+Herror HCcv_estimate_rigid_2d(Hproc_handle proc_handle)
+{
+    const Hcpar *dict;
+    INT4_8 num;
+    HAllocStringMem(proc_handle, 1024);
+    HGetPPar(proc_handle, 1, &dict, &num);
+    HTuple hv_DictHandle(const_cast<Hcpar*>(dict), 1);
+
+    HTuple hv_SrcRow, hv_SrcCol, hv_DstRow, hv_DstCol;
+    GetDictTuple(hv_DictHandle, "SrcRow", &hv_SrcRow);
+    GetDictTuple(hv_DictHandle, "SrcCol", &hv_SrcCol);
+    GetDictTuple(hv_DictHandle, "DstRow", &hv_DstRow);
+    GetDictTuple(hv_DictHandle, "DstCol", &hv_DstCol);
+
+    int nPts = (int)hv_SrcRow.Length();
+    if (nPts < 2)
+    {
+        SetDictTuple(hv_DictHandle, "Success", (Hlong)0);
+        SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)0);
+        return H_MSG_TRUE;
+    }
+
+    HTuple hv_RansacThresh;
+    try { GetDictTuple(hv_DictHandle, "RansacThreshold", &hv_RansacThresh); }
+    catch (...) { hv_RansacThresh = 3.0; }
+    double ransacThresh = hv_RansacThresh.D();
+    const double thresh2 = ransacThresh * ransacThresh;
+
+    std::vector<cv::Point2f> srcPts(nPts), dstPts(nPts);
+    for (int i = 0; i < nPts; i++)
+    {
+        srcPts[i] = cv::Point2f((float)hv_SrcCol[i].D(), (float)hv_SrcRow[i].D());
+        dstPts[i] = cv::Point2f((float)hv_DstCol[i].D(), (float)hv_DstRow[i].D());
+    }
+
+    // ---- RANSAC：每次随机取 2 点求刚体变换，统计内点 ----
+    const int maxIter = 500;
+    double bestCos = 1.0, bestSin = 0.0, bestTx = 0.0, bestTy = 0.0;
+    int bestInliers = 0;
+
+    cv::RNG rng(12345);
+    for (int iter = 0; iter < maxIter; ++iter)
+    {
+        int i1 = rng.uniform(0, nPts);
+        int i2 = rng.uniform(0, nPts);
+        if (i1 == i2) continue;
+
+        double sx = (double)srcPts[i2].x - srcPts[i1].x;
+        double sy = (double)srcPts[i2].y - srcPts[i1].y;
+        double dx = (double)dstPts[i2].x - dstPts[i1].x;
+        double dy = (double)dstPts[i2].y - dstPts[i1].y;
+
+        double lenSrc2 = sx * sx + sy * sy;
+        double lenDst2 = dx * dx + dy * dy;
+        if (lenSrc2 < 1e-12 || lenDst2 < 1e-12) continue;
+
+        // 旋转角：cos = (s·d)/(|s||d|), sin = (s×d)/(|s||d|)
+        double dot   = sx * dx + sy * dy;
+        double cross = sx * dy - sy * dx;
+        double inv   = 1.0 / std::sqrt(lenSrc2 * lenDst2);
+        double cosT  = dot * inv;
+        double sinT  = cross * inv;
+
+        double tx = (double)dstPts[i1].x - (cosT * srcPts[i1].x - sinT * srcPts[i1].y);
+        double ty = (double)dstPts[i1].y - (sinT * srcPts[i1].x + cosT * srcPts[i1].y);
+
+        int inliers = 0;
+        for (int i = 0; i < nPts; ++i)
+        {
+            double px = cosT * srcPts[i].x - sinT * srcPts[i].y + tx;
+            double py = sinT * srcPts[i].x + cosT * srcPts[i].y + ty;
+            double ex = px - dstPts[i].x;
+            double ey = py - dstPts[i].y;
+            if (ex * ex + ey * ey <= thresh2) ++inliers;
+        }
+
+        if (inliers > bestInliers)
+        {
+            bestInliers = inliers;
+            bestCos = cosT; bestSin = sinT;
+            bestTx = tx;    bestTy = ty;
+        }
+    }
+
+    if (bestInliers < 2)
+    {
+        SetDictTuple(hv_DictHandle, "Success", (Hlong)0);
+        SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)0);
+        return H_MSG_TRUE;
+    }
+
+    // ---- 用内点做最小二乘精化（刚体，scale=1）----
+    std::vector<cv::Point2f> inSrc, inDst;
+    inSrc.reserve((size_t)bestInliers);
+    inDst.reserve((size_t)bestInliers);
+    for (int i = 0; i < nPts; ++i)
+    {
+        double px = bestCos * srcPts[i].x - bestSin * srcPts[i].y + bestTx;
+        double py = bestSin * srcPts[i].x + bestCos * srcPts[i].y + bestTy;
+        double ex = px - dstPts[i].x;
+        double ey = py - dstPts[i].y;
+        if (ex * ex + ey * ey <= thresh2)
+        {
+            inSrc.push_back(srcPts[i]);
+            inDst.push_back(dstPts[i]);
+        }
+    }
+
+    int nIn = (int)inSrc.size();
+    double cSx = 0.0, cSy = 0.0, cDx = 0.0, cDy = 0.0;
+    for (int i = 0; i < nIn; ++i)
+    {
+        cSx += inSrc[i].x; cSy += inSrc[i].y;
+        cDx += inDst[i].x; cDy += inDst[i].y;
+    }
+    cSx /= nIn; cSy /= nIn; cDx /= nIn; cDy /= nIn;
+
+    // H = Σ dst_i' * src_i'^T，刚体旋转角闭式解
+    double h00 = 0.0, h01 = 0.0, h10 = 0.0, h11 = 0.0;
+    for (int i = 0; i < nIn; ++i)
+    {
+        double sx = inSrc[i].x - cSx;
+        double sy = inSrc[i].y - cSy;
+        double dx = inDst[i].x - cDx;
+        double dy = inDst[i].y - cDy;
+        h00 += dx * sx;
+        h01 += dx * sy;
+        h10 += dy * sx;
+        h11 += dy * sy;
+    }
+
+    double angle = std::atan2(h10 - h01, h00 + h11);
+    double cosT  = std::cos(angle);
+    double sinT  = std::sin(angle);
+    double tx = cDx - (cosT * cSx - sinT * cSy);
+    double ty = cDy - (sinT * cSx + cosT * cSy);
+
+    // HomMat2D 排列与 cv_estimate_affine_partial2d 保持一致
+    //   a00=cos, a01=-sin, a02=tx, a10=sin, a11=cos, a12=ty
+    HTuple hv_HomMat2D;
+    hv_HomMat2D[0] = cosT;   // a11
+    hv_HomMat2D[1] = sinT;   // a10
+    hv_HomMat2D[2] = ty;     // a12
+    hv_HomMat2D[3] = -sinT;  // a01
+    hv_HomMat2D[4] = cosT;   // a00
+    hv_HomMat2D[5] = tx;     // a02
+
+    SetDictTuple(hv_DictHandle, "HomMat2D", hv_HomMat2D);
+    SetDictTuple(hv_DictHandle, "Success", (Hlong)1);
+    SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)nIn);
+    SetDictTuple(hv_DictHandle, "TranslateRow", ty);
+    SetDictTuple(hv_DictHandle, "TranslateCol", tx);
+    SetDictTuple(hv_DictHandle, "Angle", angle);
+    SetDictTuple(hv_DictHandle, "Scale", 1.0);
 
     return H_MSG_TRUE;
 }
@@ -2308,6 +2534,160 @@ Herror HCcv_multi_frame_median(Hproc_handle proc_handle)
 
     HCkP(HNewImage(proc_handle, &outimage, FLOAT_IMAGE, median.cols, median.rows));
     memcpy(outimage.pixel.f, median.data, (size_t)median.cols * median.rows * sizeof(float));
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_sobel — Sobel 边缘检测（cv::Sobel）
+ *   支持 8 位 / 16 位 / 浮点(real) 单通道图像
+ *   输出统一为 real（CV_32F），因为梯度结果含符号
+ *   Dx/Dy: 导数阶数（0~2，且 Dx+Dy >= 1）
+ *   Ksize: 核尺寸（1 / 3 / 5 / 7）
+ *   Ddepth: 输出深度（-1 / 3=CV_16S / 5=CV_32F / 6=CV_64F）
+ *   Scale / Delta: 缩放系数与偏置
+ *   BorderType: OpenCV 边界模式（1=BORDER_REPLICATE 等）
+ *===========================================================================*/
+Herror HCcv_sobel(Hproc_handle proc_handle)
+{
+    Hkey   in_obj_key, out_obj_key, out_image_key;
+    Himage inimage, outimage;
+    Hcpar  dx, dy, ksize, ddepth, scale, delta, borderType;
+
+    HGetSPar(proc_handle, 1, LONG_PAR, &dx, 1);
+    HGetSPar(proc_handle, 2, LONG_PAR, &dy, 1);
+    HGetSPar(proc_handle, 3, LONG_PAR, &ksize, 1);
+    HGetSPar(proc_handle, 4, LONG_PAR, &ddepth, 1);
+    HGetSPar(proc_handle, 5, DOUBLE_PAR, &scale, 1);
+    HGetSPar(proc_handle, 6, DOUBLE_PAR, &delta, 1);
+    HGetSPar(proc_handle, 7, LONG_PAR, &borderType, 1);
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+    HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+
+    int dxi = (int)dx.par.l;
+    int dyi = (int)dy.par.l;
+    if (dxi < 0 || dxi > 2 || dyi < 0 || dyi > 2 || (dxi + dyi) < 1)
+        return 30001;   // Dx/Dy 必须为 0~2，且至少一个非 0
+
+    int k = (int)ksize.par.l;
+    if (k != 1 && k != 3 && k != 5 && k != 7)
+        return 30002;   // Ksize 必须为 1 / 3 / 5 / 7
+
+    int dd = (int)ddepth.par.l;
+    if (dd != -1 && dd != CV_16S && dd != CV_32F && dd != CV_64F)
+        return 30003;   // Ddepth 非法（支持 -1 / CV_16S / CV_32F / CV_64F）
+
+    int  cvType;
+    void* inPixels;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:
+        cvType   = CV_8UC1;
+        inPixels = (void*)inimage.pixel.b;
+        break;
+    case UINT2_IMAGE:
+        cvType   = CV_16UC1;
+        inPixels = (void*)inimage.pixel.u.p;
+        break;
+    case FLOAT_IMAGE:
+        cvType   = CV_32FC1;
+        inPixels = (void*)inimage.pixel.f;
+        break;
+    default:
+        return 30004;   // 仅支持 byte / uint2 / real 单通道图像
+    }
+
+    cv::Mat imageIn(inimage.height, inimage.width, cvType, inPixels);
+
+    cv::Mat grad;
+    try
+    {
+        cv::Sobel(imageIn, grad, dd, dxi, dyi, k, scale.par.d, delta.par.d, (int)borderType.par.l);
+    }
+    catch (const cv::Exception&)
+    {
+        return 30005;
+    }
+
+    cv::Mat out;
+    if (grad.type() == CV_32FC1)
+        out = grad;
+    else
+        grad.convertTo(out, CV_32FC1);
+
+    HCkP(HNewImage(proc_handle, &outimage, FLOAT_IMAGE, out.cols, out.rows));
+    memcpy(outimage.pixel.f, out.data, (size_t)out.cols * out.rows * sizeof(float));
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_magnitude — 梯度幅值（cv::magnitude）
+ *   支持 8 位 / 16 位 / 浮点(real) 单通道图像，两图类型与尺寸须一致
+ *   Magnitude = sqrt(X^2 + Y^2)，输出统一为 real
+ *===========================================================================*/
+Herror HCcv_magnitude(Hproc_handle proc_handle)
+{
+    Hkey   inX_obj_key, inY_obj_key, out_obj_key, out_image_key;
+    Himage inX, inY, outimage;
+
+    HGetObj(proc_handle, 1, 1, &inX_obj_key);
+    HGetDImage(proc_handle, inX_obj_key, 1, &inX);
+    HGetObj(proc_handle, 2, 1, &inY_obj_key);
+    HGetDImage(proc_handle, inY_obj_key, 1, &inY);
+
+    if (inX.kind != BYTE_IMAGE && inX.kind != UINT2_IMAGE && inX.kind != FLOAT_IMAGE)
+        return 30001;   // 仅支持 byte / uint2 / real 单通道图像
+    if (inY.kind != inX.kind)
+        return 30002;   // 两图类型不一致
+    if (inX.width != inY.width || inX.height != inY.height)
+        return 30003;   // 两图尺寸不一致
+
+    int  cvType;
+    void* pixelsX;
+    void* pixelsY;
+    switch (inX.kind)
+    {
+    case BYTE_IMAGE:
+        cvType  = CV_8UC1;
+        pixelsX = (void*)inX.pixel.b;
+        pixelsY = (void*)inY.pixel.b;
+        break;
+    case UINT2_IMAGE:
+        cvType  = CV_16UC1;
+        pixelsX = (void*)inX.pixel.u.p;
+        pixelsY = (void*)inY.pixel.u.p;
+        break;
+    default:   // FLOAT_IMAGE
+        cvType  = CV_32FC1;
+        pixelsX = (void*)inX.pixel.f;
+        pixelsY = (void*)inY.pixel.f;
+        break;
+    }
+
+    cv::Mat X(inX.height, inX.width, cvType, pixelsX);
+    cv::Mat Y(inY.height, inY.width, cvType, pixelsY);
+
+    cv::Mat mag;
+    try
+    {
+        cv::magnitude(X, Y, mag);
+    }
+    catch (const cv::Exception&)
+    {
+        return 30004;
+    }
+
+    HCkP(HNewImage(proc_handle, &outimage, FLOAT_IMAGE, mag.cols, mag.rows));
+    memcpy(outimage.pixel.f, mag.data, (size_t)mag.cols * mag.rows * sizeof(float));
 
     HCrObj(proc_handle, 1, &out_obj_key);
     HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);

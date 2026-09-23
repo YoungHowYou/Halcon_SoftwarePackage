@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* linear_fit — 单自变量线性最小二乘拟合（Eigen ColPivHouseholderQR）</c>
+<c>*   模型: y = a + b*x</c>
+<c>*   注意: 数据元组必须是 real，整数要用 real() 转换</c>
+<c>*         （否则报 "Wrong type of control parameter 3"）</c>
+<c>* =============================================================</c>
+<l>Model := 'a + b*x'</l>
+<l>ParamNames := ['a', 'b']</l>
+<l>XData := real([0, 1, 2, 3])</l>
+<l>YData := real([2, 4, 6, 8])</l>
+<l>linear_fit (Model, ParamNames, XData, YData, 'x', 1e-10, ParamValues, Rss, Rank, Success, StatusMessage)</l>
+<c>* 期望: ParamValues = [2, 2], Rss = 0, Success = 1</c>
+<l>ACoef := ParamValues[0]</l>
+<l>BCoef := ParamValues[1]</l>
+<c>* 验证: y(5) = 2 + 2*5 = 12</c>
+<l>YAt5 := ACoef + BCoef*5</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

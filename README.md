@@ -202,6 +202,69 @@ cv_filter2d(Image, Kernel : ImageOut : :)
 
 ---
 
+#### cv_sobel
+
+Sobel 边缘检测（一阶/二阶导数），对应 `cv::Sobel`。
+
+```
+cv_sobel(Image : ImageOut : Dx, Dy, Ksize, Ddepth, Scale, Delta, BorderType)
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| Image | 图像 | 输入 | 单通道 `byte` / `uint2` / `real` |
+| ImageOut | 图像 | 输出 | 统一输出 `real`（CV_32F，梯度含符号） |
+| Dx | 整数 | 输入 | x 方向导数阶数（0~2），默认 1 |
+| Dy | 整数 | 输入 | y 方向导数阶数（0~2），默认 0 |
+| Ksize | 整数 | 输入 | 核尺寸（1 / 3 / 5 / 7），默认 3 |
+| Ddepth | 整数 | 输入 | 输出深度（-1 / 3=CV_16S / 5=CV_32F / 6=CV_64F），默认 6 |
+| Scale | 实数 | 输入 | 缩放系数，默认 1.0 |
+| Delta | 实数 | 输入 | 偏置，默认 0.0 |
+| BorderType | 整数 | 输入 | OpenCV 边界模式（1=REPLICATE 等），默认 1 |
+
+> 输出统一为 `real`：Ddepth 计算后统一 `convertTo` CV_32F，因为 HALCON 无 64 位浮点图。
+
+错误码：
+
+| 错误码 | 含义 |
+|---|---|
+| 30001 | Dx/Dy 非法（非 0~2，或 Dx+Dy < 1） |
+| 30002 | Ksize 非法（非 1/3/5/7） |
+| 30003 | Ddepth 非法（非 -1/CV_16S/CV_32F/CV_64F） |
+| 30004 | 输入图像类型不支持 |
+| 30005 | OpenCV 执行异常 |
+
+---
+
+#### cv_magnitude
+
+梯度幅值计算，对应 `cv::magnitude`。
+
+```
+cv_magnitude(X, Y : Magnitude : :)
+```
+
+`Magnitude = sqrt(X² + Y²)`
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| X | 图像 | 输入 | 单通道 `byte` / `uint2` / `real` |
+| Y | 图像 | 输入 | 与 X 同类型同尺寸 |
+| Magnitude | 图像 | 输出 | 统一输出 `real`（CV_32F） |
+
+> 输出统一为 `real`；`X`/`Y` 通常是 Sobel 的 x/y 梯度分量。
+
+错误码：
+
+| 错误码 | 含义 |
+|---|---|
+| 30001 | 输入图像类型不支持 |
+| 30002 | 两图类型不一致 |
+| 30003 | 两图尺寸不一致 |
+| 30004 | OpenCV 执行异常 |
+
+---
+
 #### CLAHE_image
 
 限制对比度自适应直方图均衡化，对应 `cv::createCLAHE`。
@@ -492,6 +555,26 @@ cv_akaze_detect(:: DictHandle)
 
 ---
 
+#### cv_sift_detect
+
+SIFT 特征检测与描述子计算，对应 `cv::SIFT`。
+
+```
+cv_sift_detect(:: DictHandle)
+```
+
+| 键 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| InputImage | 图像 | 输入 | 8 位单通道 |
+| NFeatures | 元组 | 输入 | 特征点数量上限，默认 0（不限制） |
+| KeypointsRow | 元组 | 输出 | 特征点行坐标 |
+| KeypointsCol | 元组 | 输出 | 特征点列坐标 |
+| NumKeypoints | 元组 | 输出 | 特征点数量 |
+| Descriptors | 图像 | 输出 | 描述子（byte，128×N） |
+| DescWidth | 元组 | 输出 | 描述子宽度 |
+
+---
+
 #### cv_bf_knn_match
 
 BF 暴力匹配 + Lowe's Ratio Test，对应 `cv::BFMatcher`（汉明距离）。
@@ -531,6 +614,28 @@ cv_estimate_affine_partial2d(:: DictHandle)
 | TranslateRow / TranslateCol | 元组 | 输出 | 平移量 |
 | Angle | 元组 | 输出 | 旋转角度 |
 | Scale | 元组 | 输出 | 缩放 |
+
+---
+
+#### cv_estimate_rigid_2d
+
+刚体变换估计（平移 + 旋转，无缩放，RANSAC），对应 `cv::estimateAffinePartial2D` 的刚体特例。
+
+```
+cv_estimate_rigid_2d(:: DictHandle)
+```
+
+| 键 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| SrcRow / SrcCol | 元组 | 输入 | 源点行/列坐标 |
+| DstRow / DstCol | 元组 | 输入 | 目标点行/列坐标 |
+| RansacThreshold | 元组 | 输入 | RANSAC 阈值，默认 3.0 |
+| HomMat2D | 元组 | 输出 | 刚体矩阵（2×3 展开） |
+| Success | 元组 | 输出 | 是否成功 |
+| InlierCount | 元组 | 输出 | 内点数量 |
+| TranslateRow / TranslateCol | 元组 | 输出 | 平移量 |
+| Angle | 元组 | 输出 | 旋转角度 |
+| Scale | 元组 | 输出 | 恒为 1.0 |
 
 ---
 
@@ -793,16 +898,20 @@ cv_kmeans(Samples : Labels, Centers : K, Attempts, TermEps, TermMaxIter)
 | cv_measure_pos | ✅ | ✅ | ✅ | ❌ |
 | cv_orb_detect | ✅ | ❌ | ❌ | ❌ |
 | cv_akaze_detect | ✅ | ❌ | ❌ | ❌ |
+| cv_sift_detect | ✅ | ❌ | ❌ | ❌ |
 | cv_write_image | ✅ | ✅ | ❌ | ✅(3) |
 | PNGIn | ✅ | ✅ | ❌ | ✅(3) |
 | PNGOut | ✅ | ✅ | ❌ | ✅(3) |
 | cv_solve | ❌ | ❌ | ✅ | ❌ |
 | cv_estimate_affine_2d | — | — | — | — |
+| cv_estimate_rigid_2d | — | — | — | — |
 | cv_threshold_triangle | ✅ | ❌ | ❌ | ❌ |
 | cv_calc_hist | ✅ | ✅ | ✅ | ❌ |
 | cv_match_template | ✅ | ❌ | ✅ | ❌ |
 | cv_kmeans | ❌ | ❌ | ✅ | ❌ |
 | cv_multi_frame_median | ❌ | ❌ | ✅ | ❌ |
+| cv_sobel | ✅ | ✅ | ✅ | ❌ |
+| cv_magnitude | ✅ | ✅ | ✅ | ❌ |
 
 ---
 
@@ -1123,6 +1232,81 @@ eigen_lm_fit_2d ([E1, E2], ['k1','k2','p1','p2'], [-0.1, 0.0, 0.0, 0.0], \
 
 ---
 
+#### linear_fit
+
+单自变量**线性**最小二乘拟合，对应 Eigen `ColPivHouseholderQR`（模型对参数线性，无需初值、无需迭代）。
+
+```
+linear_fit(ModelExpression, ParamNames, XData, YData, XName, LinearTolerance : ParamValues, Rss, Rank, Success, StatusMessage)
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| ModelExpression | string | 输入 | 对参数线性的模型表达式，如 `a+b*x+c*x*x` |
+| ParamNames | string 元组 | 输入 | 参数名，如 `['a','b','c']` |
+| XData | real 元组 | 输入 | 自变量观测值 |
+| YData | real 元组 | 输入 | 因变量观测值（长度与 XData 相同） |
+| XName | string | 输入 | 自变量名，默认 `x` |
+| LinearTolerance | real | 输入 | 线性验证容差，默认 `1e-10` |
+| ParamValues | real 元组 | 输出 | 拟合参数值 |
+| Rss | real | 输出 | 残差平方和（失败为 -1） |
+| Rank | integer | 输出 | 设计矩阵秩 |
+| Success | integer | 输出 | 1 = 成功，0 = 失败 |
+| StatusMessage | string | 输出 | 状态描述 |
+
+> 模型对参数必须线性（如 `a+b*x+c*x*x`）；自变量可非线性（如 `a+b*exp(-x)`）。
+> 不支持 `a*exp(b*x)+c` 这类参数非线性模型（请用 `eigen_lm_fit`）。
+
+错误码：
+
+| 错误码 | 含义 |
+|---|---|
+| 30001 | 表达式为空 |
+| 30002 | 参数为空 |
+| 30003 | X/Y 数据长度不符 |
+| 30004 | 数据点少于参数个数 |
+| 30005 | 参数名为空 |
+| 30006 | 参数名与自变量名冲突 |
+| 30007 | 参数名重复 |
+
+例程：`examples/math/linear_fit.hdev`；直线拟合演示（`ax+by+c=0` 归一化用法 + 可视化）：`examples/math/linear_fit_line.hdev`
+
+---
+
+#### linear_fit_2d
+
+双自变量（x、y）**线性**最小二乘拟合，与 `linear_fit` 的区别是自变量拆成两个独立参数。
+
+```
+linear_fit_2d(ModelExpression, ParamNames, XData, YData, ZData, LinearTolerance : ParamValues, Rss, Rank, Success, StatusMessage)
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| ModelExpression | string | 输入 | 对参数线性的模型表达式，自变量固定为 `x`、`y`，如 `a+b*x+c*y+d*x*y` |
+| ParamNames | string 元组 | 输入 | 参数名，须唯一且不同于 `x`、`y` |
+| XData | real 元组 | 输入 | 自变量 x 的观测值（N 个） |
+| YData | real 元组 | 输入 | 自变量 y 的观测值（N 个） |
+| ZData | real 元组 | 输入 | 因变量 z 的观测值（N 个） |
+| LinearTolerance | real | 输入 | 线性验证容差，默认 `1e-10` |
+| ParamValues / Rss / Rank / Success / StatusMessage | — | 输出 | 同 `linear_fit` |
+
+错误码：
+
+| 错误码 | 含义 |
+|---|---|
+| 30001 | 表达式为空 |
+| 30002 | 参数为空 |
+| 30003 | X/Y/Z 数据长度不一致 |
+| 30004 | 数据点少于参数个数 |
+| 30005 | 参数名为空 |
+| 30006 | 参数名与自变量名 x/y 冲突 |
+| 30007 | 参数名重复 |
+
+例程：`examples/math/linear_fit_2d.hdev`
+
+---
+
 ### 序列处理
 
 #### std_nth_element
@@ -1212,6 +1396,8 @@ std_lower_bound(Image : : Value : Index)
 | `arma_interp1` | 三个 real 向量 | 插值结果图像 | linear / nearest（可加 `*` 单调前缀） |
 | `eigen_lm_fit` | 8 个 tuple（表达式 + 数据） | 参数值 / RSS / 状态 | 通用表达式拟合，无需重编译 |
 | `eigen_lm_fit_2d` | 8 个 tuple（多表达式 + 数据） | 参数值 / RSS / 状态 | 多自变量 + 多输出共享参数，联合拟合 |
+| `linear_fit` | 6 个 tuple（表达式 + 数据） | 参数值 / RSS / 秩 / 状态 | 参数线性，单自变量，QR 求解 |
+| `linear_fit_2d` | 6 个 tuple（表达式 + X/Y/Z 数据） | 参数值 / RSS / 秩 / 状态 | 参数线性，双自变量 x/y，QR 求解 |
 | `std_nth_element` | real 图像 | 标量 tuple | 0-based，可用于求中位数 |
 | `std_sort` | real 图像 | 排序后图像 | 升/降序 |
 | `std_lower_bound` | real 升序图像 | 索引 tuple | 返回 `end` = 元素个数 |

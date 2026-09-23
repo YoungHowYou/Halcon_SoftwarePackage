@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* linear_fit_2d — 多自变量线性最小二乘拟合（Eigen ColPivHouseholderQR）</c>
+<c>*   模型: a + b*x + c*y + d*x*x + e*x*y + f*y*y</c>
+<c>*   数据: 3×3 网格上的 z 观测值</c>
+<c>* =============================================================</c>
+<l>Model := 'a + b*x + c*y + d*x*x + e*x*y + f*y*y'</l>
+<l>ParamNames := ['a', 'b', 'c', 'd', 'e', 'f']</l>
+<c>* 自变量拆成 XData（x 坐标）、YData（y 坐标），因变量 ZData</c>
+<l>XData := real([0, 1, 2, 0, 1, 2, 0, 1, 2])</l>
+<l>YData := real([0, 0, 0, 1, 1, 1, 2, 2, 2])</l>
+<l>ZData := real([10, 12, 16, 13, 15, 19, 18, 20, 24])</l>
+<l>linear_fit_2d (Model, ParamNames, XData, YData, ZData, 1e-10, ParamValues, Rss, Rank, Success, StatusMessage)</l>
+<c>* 期望: ParamValues = [10, 1, 2, 1, 0, 1], Rss = 0, Success = 1</c>
+<l>Acoef := ParamValues[0]</l>
+<l>Bcoef := ParamValues[1]</l>
+<l>Ccoef := ParamValues[2]</l>
+<l>Dcoef := ParamValues[3]</l>
+<l>Ecoef := ParamValues[4]</l>
+<l>Fcoef := ParamValues[5]</l>
+<c>* 验证: 代入 (2,2) 应得 24</c>
+<l>Z22 := Acoef + Bcoef*2 + Ccoef*2 + Dcoef*4 + Ecoef*4 + Fcoef*4</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

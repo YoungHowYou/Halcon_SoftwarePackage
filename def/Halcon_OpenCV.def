@@ -728,6 +728,39 @@ parameter
   type_list:          handle;
 
 
+cv_sift_detect<- Ccv_sift_detect[::DictHandle:]
+short.german
+  SIFT feature detection and descriptor computation using OpenCV.;
+
+short.english
+  SIFT feature detection and descriptor computation using OpenCV.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, SIFT, Feature, Detection, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  DictHandle:         input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+
 cv_bf_knn_match<- Ccv_bf_knn_match[::DictHandle:]
 short.german
   BF KNN feature matching with Lowe's ratio test using OpenCV.;
@@ -779,6 +812,38 @@ chapter.english
 
 keywords.english
   UserExtensions, Affine, RANSAC, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  DictHandle:         input_control;
+  default_type:       handle;
+  multivalue:         false;
+  sem_type:           handle;
+  type_list:          handle;
+
+cv_estimate_rigid_2d<- Ccv_estimate_rigid_2d[::DictHandle:]
+short.german
+  Estimate rigid transformation (rotation + translation) using RANSAC (OpenCV).;
+
+short.english
+  Estimate rigid transformation (rotation + translation) using RANSAC (OpenCV).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Rigid, Rotation, Translation, RANSAC, OpenCV;
 
 parallelization
   process_exclusively: false;
@@ -1657,5 +1722,136 @@ parameter
 
 parameter
   imageMedian:       output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+cv_sobel<- Ccv_sobel[image:imageOut:Dx,Dy,Ksize,Ddepth,Scale,Delta,BorderType:]
+short.german
+  Kantendetektion mit dem Sobel-Operator (OpenCV).;
+
+short.english
+  Edge detection using the Sobel operator (OpenCV).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Sobel, Edge, Gradient, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:          output_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  Dx:                input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     1;
+
+parameter
+  Dy:                input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     0;
+
+parameter
+  Ksize:             input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;
+
+parameter
+  Ddepth:            input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     6;
+
+parameter
+  Scale:             input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     1.0;
+
+parameter
+  Delta:             input_control;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     0.0;
+
+parameter
+  BorderType:        input_control;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     1;
+
+cv_magnitude<- Ccv_magnitude[X,Y:Magnitude::]
+short.german
+  Berechnet die Gradienten-Magnitude sqrt(X^2+Y^2) (OpenCV).;
+
+short.english
+  Compute the gradient magnitude sqrt(X^2+Y^2) using OpenCV.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Magnitude, Gradient, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  X:                 input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  Y:                 input_object;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  Magnitude:         output_object;
   sem_type:           image;
   multivalue:         optional;

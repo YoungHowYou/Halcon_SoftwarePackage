@@ -1,3 +1,170 @@
+linear_fit_2d(modelExpression,paramNames,xData,yData,zData,linearTolerance,paramValues,rss,rank,success,statusMessage)
+short.ascii=Fit a linear-in-parameters model with two independent variables using Eigen ColPivHouseholderQR.
+keywords=UserExtensionsFittingLinearLeastSquaresQREigen
+module=0 Foundation
+parameter=modelExpression
+description.ascii=Model expression, linear in parameters, e.g. a+b*x+c*y+d*x*y. Independent variables are named x and y.
+parameter_class=input_control
+type_list=string
+default_value="a+b*x+c*y"
+default_type=string
+sem_type=string
+multivalue=false
+parameter=paramNames
+description.ascii=Names of the parameters to fit, e.g. a,b,c,d. Must be unique and differ from x,y.
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+parameter=xData
+description.ascii=Samples of the independent variable x.
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=yData
+description.ascii=Samples of the independent variable y.
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=zData
+description.ascii=Observed values of the dependent variable z. Length must equal the number of XData/YData.
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=linearTolerance
+description.ascii=Tolerance for the parameter-linearity verification (default: 1e-10).
+parameter_class=input_control
+type_list=real
+default_value=1.0e-10
+default_type=real
+sem_type=number
+multivalue=false
+parameter=paramValues
+description.ascii=Fitted parameter values, ordered like ParamNames.
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=rss
+description.ascii=Residual sum of squares (-1 on failure).
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=false
+parameter=rank
+description.ascii=Rank of the design matrix.
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=success
+description.ascii=1 if the fit succeeded, 0 otherwise.
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=statusMessage
+description.ascii=Status text of the result.
+parameter_class=output_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+linear_fit(modelExpression,paramNames,xData,yData,xName,linearTolerance,paramValues,rss,rank,success,statusMessage)
+short.ascii=Fit a linear-in-parameters model expression to data using Eigen ColPivHouseholderQR.
+keywords=UserExtensionsFittingLinearLeastSquaresQREigen
+module=0 Foundation
+parameter=modelExpression
+description.ascii=Model expression, linear in parameters, e.g. a+b*x+c*x*x.
+parameter_class=input_control
+type_list=string
+default_value="a*x+b"
+default_type=string
+sem_type=string
+multivalue=false
+parameter=paramNames
+description.ascii=Names of the parameters to fit, e.g. a,b,c. Must be unique and differ from XName.
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+parameter=xData
+description.ascii=Samples of the independent variable.
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=yData
+description.ascii=Samples of the dependent variable. Length must equal the number of XData.
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=xName
+description.ascii=Name of the independent variable used in the model expression (default: x).
+parameter_class=input_control
+type_list=string
+default_value="x"
+default_type=string
+sem_type=string
+multivalue=false
+parameter=linearTolerance
+description.ascii=Tolerance for the parameter-linearity verification (default: 1e-10).
+parameter_class=input_control
+type_list=real
+default_value=1.0e-10
+default_type=real
+sem_type=number
+multivalue=false
+parameter=paramValues
+description.ascii=Fitted parameter values, ordered like ParamNames.
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=rss
+description.ascii=Residual sum of squares (-1 on failure).
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=false
+parameter=rank
+description.ascii=Rank of the design matrix.
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=success
+description.ascii=1 if the fit succeeded, 0 otherwise.
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=statusMessage
+description.ascii=Status text of the result.
+parameter_class=output_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
 eigen_lm_fit_2d(expressions,paramNames,initialValues,xNames,xData,yData,maxIter,eps,paramValues,rss,iterations,status,statusMessage)
 short.ascii=Multi-variable multi-output nonlinear least-squares fit with shared parameters using Eigen LevenbergMarquardt.
 keywords=UserExtensionsFittingLevenbergMarquardtOptimizationEigenDistortion
@@ -356,6 +523,83 @@ description.ascii=Value of the n-th smallest element.
 parameter_class=output_control
 type_list=real
 default_type=real
+sem_type=number
+multivalue=false
+cv_magnitude(X,Y,Magnitude)
+short.ascii=Compute the gradient magnitude sqrt(X^2+Y^2) using OpenCV.
+keywords=UserExtensionsMagnitudeGradientOpenCV
+module=0 Foundation
+parameter=X
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=Y
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=Magnitude
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+cv_sobel(image,imageOut,Dx,Dy,Ksize,Ddepth,Scale,Delta,BorderType)
+short.ascii=Edge detection using the Sobel operator (OpenCV).
+keywords=UserExtensionsSobelEdgeGradientOpenCV
+module=0 Foundation
+parameter=image
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=Dx
+parameter_class=input_control
+type_list=integer
+default_value=1
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Dy
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Ksize
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Ddepth
+parameter_class=input_control
+type_list=integer
+default_value=6
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Scale
+parameter_class=input_control
+type_list=real
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Delta
+parameter_class=input_control
+type_list=real
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=BorderType
+parameter_class=input_control
+type_list=integer
+default_value=1
+default_type=integer
 sem_type=number
 multivalue=false
 cv_multi_frame_median(images,imageMedian)
@@ -829,6 +1073,16 @@ multivalue=false
 cv_bf_knn_match(DictHandle)
 short.ascii=BF KNN feature matching with Lowe's ratio test using OpenCV.
 keywords=UserExtensionsBFKNNMatchOpenCV
+module=0 Foundation
+parameter=DictHandle
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+cv_sift_detect(DictHandle)
+short.ascii=SIFT feature detection and descriptor computation using OpenCV.
+keywords=UserExtensionsSIFTFeatureDetectionOpenCV
 module=0 Foundation
 parameter=DictHandle
 parameter_class=input_control

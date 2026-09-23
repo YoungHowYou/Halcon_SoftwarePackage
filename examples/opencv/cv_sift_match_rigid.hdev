@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* SIFT 特征检测 + BF 匹配 + 刚体变换估计示例</c>
+<l>read_image (Image1, 'D:/desk/data/newAA&amp;Keyence/keyence/2026_09_04_18_59_26_Gray.png')</l>
+<c>* 生成带平移旋转的第二幅图（旋转 10°，平移 (15,-8)）</c>
+<l>hom_mat2d_identity (HomMat2DIdentity)</l>
+<l>hom_mat2d_rotate (HomMat2DIdentity, rad(10), 256, 256, HomMat2DRotate)</l>
+<l>hom_mat2d_translate (HomMat2DRotate, 15, -8, HomMat2DTransform)</l>
+<l>affine_trans_image (Image1, Image2, HomMat2DTransform, 'constant', 'false')</l>
+<c></c>
+<c>* SIFT 检测图 1</c>
+<l>create_dict (Dict1)</l>
+<l>set_dict_object (Image1, Dict1, 'InputImage')</l>
+<l>set_dict_tuple (Dict1, 'NFeatures', 0)</l>
+<l>cv_sift_detect (Dict1)</l>
+<l>get_dict_tuple (Dict1, 'KeypointsRow', Rows1)</l>
+<l>get_dict_tuple (Dict1, 'KeypointsCol', Cols1)</l>
+<l>get_dict_object (Desc1, Dict1, 'Descriptors')</l>
+<l>get_dict_tuple (Dict1, 'DescWidth', DescWidth)</l>
+<c></c>
+<c>* SIFT 检测图 2</c>
+<l>create_dict (Dict2)</l>
+<l>set_dict_object (Image2, Dict2, 'InputImage')</l>
+<l>set_dict_tuple (Dict2, 'NFeatures', 0)</l>
+<l>cv_sift_detect (Dict2)</l>
+<l>get_dict_tuple (Dict2, 'KeypointsRow', Rows2)</l>
+<l>get_dict_tuple (Dict2, 'KeypointsCol', Cols2)</l>
+<l>get_dict_object (Desc2, Dict2, 'Descriptors')</l>
+<c></c>
+<c>* BF 暴力匹配 + Lowe 比值测试</c>
+<l>create_dict (DictMatch)</l>
+<l>set_dict_object (Desc1, DictMatch, 'DescriptorsRef')</l>
+<l>set_dict_object (Desc2, DictMatch, 'DescriptorsTarget')</l>
+<l>set_dict_tuple (DictMatch, 'DescWidth', DescWidth)</l>
+<l>set_dict_tuple (DictMatch, 'RatioThresh', 0.75)</l>
+<l>cv_bf_knn_match (DictMatch)</l>
+<l>get_dict_tuple (DictMatch, 'MatchIdxRef', IdxRef)</l>
+<l>get_dict_tuple (DictMatch, 'MatchIdxTarget', IdxTarget)</l>
+<l>get_dict_tuple (DictMatch, 'NumGoodMatches', NumMatches)</l>
+<c></c>
+<c>* 用匹配索引提取对应点对</c>
+<l>tuple_select (Rows1, IdxRef, SrcRow)</l>
+<l>tuple_select (Cols1, IdxRef, SrcCol)</l>
+<l>tuple_select (Rows2, IdxTarget, DstRow)</l>
+<l>tuple_select (Cols2, IdxTarget, DstCol)</l>
+<c></c>
+<c>* 刚体变换估计（平移 + 旋转，无缩放）</c>
+<l>create_dict (DictRigid)</l>
+<l>set_dict_tuple (DictRigid, 'SrcRow', SrcRow)</l>
+<l>set_dict_tuple (DictRigid, 'SrcCol', SrcCol)</l>
+<l>set_dict_tuple (DictRigid, 'DstRow', DstRow)</l>
+<l>set_dict_tuple (DictRigid, 'DstCol', DstCol)</l>
+<l>set_dict_tuple (DictRigid, 'RansacThreshold', 3.0)</l>
+<l>cv_estimate_rigid_2d (DictRigid)</l>
+<l>get_dict_tuple (DictRigid, 'Success', Success)</l>
+<l>get_dict_tuple (DictRigid, 'InlierCount', InlierCount)</l>
+<l>get_dict_tuple (DictRigid, 'Angle', Angle)</l>
+<l>get_dict_tuple (DictRigid, 'TranslateRow', TranslateRow)</l>
+<l>get_dict_tuple (DictRigid, 'TranslateCol', TranslateCol)</l>
+<l>get_dict_tuple (DictRigid, 'HomMat2D', HomMat2D)</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

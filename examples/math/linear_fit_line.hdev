@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* ============================================================================</c>
+<c>* linear_fit_line — 拟合直线 ax+by+c=0（linear_fit 显式形式用法）并可视化</c>
+<c>*</c>
+<c>*   隐式方程 ax+by+c=0 不能直接作为模型传入（对参数齐次 → 最小二乘退化为</c>
+<c>*   全零解）。常规做法：固定 b = -1，先拟合显式形式 y = k*x + d，再换算：</c>
+<c>*     (a, b, c) = (k, -1, d) / sqrt(k^2 + 1)        ← 单位法向形式</c>
+<c>*</c>
+<c>*   演示流程：</c>
+<c>*     1. 生成带噪声散点（真值 y = 0.45*x + 1.2）</c>
+<c>*     2. linear_fit 拟合 y = k*x + d（最小化竖直残差）</c>
+<c>*     3. 可视化 + 输出 (a, b, c)、最大垂距、Rss</c>
+<c>*   颜色：白 = 数据点，橙 = 竖直残差，灰 = 真值线，绿 = 拟合线</c>
+<c>*</c>
+<c>*   注意：数据元组必须是 real（本示例由浮点运算生成，天然满足）；</c>
+<c>*         直线接近垂直时应改用 x = k*y + d（互换 XData/YData，XName 用 'y'）；</c>
+<c>*         若需要垂直距离最小的 TLS 拟合，请使用 eigen_svd（见文件尾说明）。</c>
+<c>* ============================================================================</c>
+<l>dev_update_off ()</l>
+<l>dev_close_window ()</l>
+<l>dev_open_window (0, 0, 720, 480, 'black', WindowHandle)</l>
+<l>set_display_font (WindowHandle, 16, 'mono', 'true', 'false')</l>
+<l>dev_set_color ('white')</l>
+
+<c>* ---- 1. 生成带噪声的观测数据 ----</c>
+<l>TrueK := 0.45</l>
+<l>TrueD := 1.2</l>
+<l>NumPoints := 30</l>
+<l>Step := 8.0 / (NumPoints - 1.0)</l>
+<l>XData := []</l>
+<l>YData := []</l>
+<l>for i := 0 to NumPoints - 1 by 1</l>
+<l>    x := i * Step</l>
+<l>    Noise := (rand(1) - 0.5) * 0.30</l>
+<l>    XData := [XData, x]</l>
+<l>    YData := [YData, TrueK * x + TrueD + Noise]</l>
+<l>endfor</l>
+
+<c>* ---- 2. 拟合显式形式 y = k*x + d（等价于 b = -1 归一化的 ax+by+c=0）----</c>
+<l>Model := 'k*x + d'</l>
+<l>ParamNames := ['k', 'd']</l>
+<l>linear_fit (Model, ParamNames, XData, YData, 'x', 1e-10, \
+            ParamValues, Rss, Rank, Success, StatusMessage)</l>
+<l>KV := ParamValues[0]</l>
+<l>DV := ParamValues[1]</l>
+
+<c>* ---- 3. 换算为隐式形式 ax+by+c=0（单位法向）----</c>
+<c>*   k*x - y + d = 0  →  (a, b, c) = (k, -1, d) / sqrt(k^2+1)</c>
+<c>*   单位法向下 a*x + b*y + c 即点到直线的有符号垂距</c>
+<l>NormLen := sqrt(KV * KV + 1.0)</l>
+<l>A := KV / NormLen</l>
+<l>B := -1.0 / NormLen</l>
+<l>C := DV / NormLen</l>
+
+<c>* ---- 4. 可视化：散点 + 竖直残差 + 真值线 + 拟合线 ----</c>
+<l>tuple_min (XData, MinX)</l>
+<l>tuple_max (XData, MaxX)</l>
+<l>tuple_min (YData, MinY)</l>
+<l>tuple_max (YData, MaxY)</l>
+<l>dev_set_part (MinY - 1.0, MinX - 0.6, MaxY + 1.0, MaxX + 0.6)</l>
+<c>* 观测散点（十字标记）</c>
+<l>gen_cross_contour_xld (Crosses, YData, XData, 0.12, 0.785398)</l>
+<l>dev_set_line_width (1)</l>
+<l>dev_set_color ('white')</l>
+<l>dev_display (Crosses)</l>
+<c>* 竖直残差段（linear_fit 最小化的是竖直残差平方和，不是垂直距离）</c>
+<l>FitY := KV * XData + DV</l>
+<l>dev_set_color ('orange')</l>
+<l>for i := 0 to NumPoints - 1 by 1</l>
+<l>    gen_contour_polygon_xld (ResidualSeg, [YData[i], FitY[i]], [XData[i], XData[i]])</l>
+<l>    dev_display (ResidualSeg)</l>
+<l>endfor</l>
+<c>* 真值线（灰）与拟合线（绿）</c>
+<l>gen_contour_polygon_xld (TrueLine, [TrueK * MinX + TrueD, TrueK * MaxX + TrueD], [MinX, MaxX])</l>
+<l>dev_set_color ('dim gray')</l>
+<l>dev_set_line_width (2)</l>
+<l>dev_display (TrueLine)</l>
+<l>gen_contour_polygon_xld (FitLine, [KV * MinX + DV, KV * MaxX + DV], [MinX, MaxX])</l>
+<l>dev_set_color ('green')</l>
+<l>dev_set_line_width (3)</l>
+<l>dev_display (FitLine)</l>
+<l>dev_set_line_width (1)</l>
+
+<c>* ---- 5. 输出拟合结果与质量 ----</c>
+<l>SignedDist := A * XData + B * YData + C</l>
+<l>tuple_abs (SignedDist, AbsDist)</l>
+<l>tuple_max (AbsDist, MaxDist)</l>
+<l>dev_set_color ('white')</l>
+<l>Message := 'linear_fit : y = k*x + d   (normalized b = -1)'</l>
+<l>disp_message (WindowHandle, Message, 'window', 12, 12, 'white', 'false')</l>
+<l>Message := 'k = ' + KV$'.4f' + '   (true ' + TrueK$'.4f' + ')'</l>
+<l>disp_message (WindowHandle, Message, 'window', 40, 12, 'white', 'false')</l>
+<l>Message := 'd = ' + DV$'.4f' + '   (true ' + TrueD$'.4f' + ')'</l>
+<l>disp_message (WindowHandle, Message, 'window', 68, 12, 'white', 'false')</l>
+<l>Message := 'a = ' + A$'.4f' + '   b = ' + B$'.4f' + '   c = ' + C$'.4f</l>
+<l>disp_message (WindowHandle, Message, 'window', 96, 12, 'green', 'false')</l>
+<l>Message := 'max |dist| = ' + MaxDist$'.4f' + '   Rss = ' + Rss$'.6f</l>
+<l>disp_message (WindowHandle, Message, 'window', 124, 12, 'white', 'false')</l>
+<l>Message := 'Success = ' + Success + '   Rank = ' + Rank + '  (' + StatusMessage + ')'</l>
+<l>disp_message (WindowHandle, Message, 'window', 152, 12, 'yellow', 'false')</l>
+<l>disp_message (WindowHandle, 'white: samples   orange: residuals   gray: true line   green: fit', 'window', 440, 12, 'white', 'false')</l>
+
+<c>* ---- 补充说明 ----</c>
+<c>* 1) 不要把 ax+by+c=0 直接作为模型：即使把 zData 全填 0，最小二乘也只会</c>
+<c>*    返回全零参数（Success=1 但无意义）。必须像本例一样固定一个系数。</c>
+<c>* 2) 直线接近垂直时改用 x = k*y + d：</c>
+<c>*      linear_fit ('k*y + d', ['k','d'], YData, XData, 'y', 1e-10, ...)</c>
+<c>*      换算: x - k*y - d = 0  →  (a, b, c) = (1, -k, -d) / sqrt(k^2+1)</c>
+<c>* 3) 垂直距离最小（TLS）拟合：线性算子做不到；把坐标去均值后送 eigen_svd，</c>
+<c>*    最小奇异值对应的右奇异向量即法向 (a, b)，c = -(a*meanX + b*meanY)。</c>
+<c>* 4) 数据必须 real 元组；若点来自 XLD 轮廓，可先 get_contour_xld 取 Row/Col。</c>
+<l>dev_update_on ()</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>* SIFT 特征检测示例</l>
+<l>read_image (Image, 'printer_chip/printer_chip_01')</l>
+<l>create_dict (DictHandle)</l>
+<l>set_dict_object (Image, DictHandle, 'InputImage')</l>
+<l>set_dict_tuple (DictHandle, 'NFeatures', 0)</l>
+<l>cv_sift_detect (DictHandle)</l>
+<l>get_dict_tuple (DictHandle, 'NumKeypoints', NumKP)</l>
+<l>get_dict_tuple (DictHandle, 'KeypointsRow', Rows)</l>
+<l>get_dict_tuple (DictHandle, 'KeypointsCol', Cols)</l>
+<l>get_dict_tuple (DictHandle, 'DescWidth', DescWidth)</l>
+<l>get_dict_object (Descriptors, DictHandle, 'Descriptors')</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

@@ -658,3 +658,236 @@ parameter
   multivalue:        false;
   sem_type:          string;
   type_list:         string;
+
+
+linear_fit<- Clinear_fit[::modelExpression,paramNames,xData,yData,xName,linearTolerance:paramValues,rss,rank,success,statusMessage]
+short.german
+  Lineare Ausgleichsrechnung mit Eigen ColPivHouseholderQR (Laufzeit-Modellausdruck).;
+
+short.english
+  Fit a linear-in-parameters model expression to data using Eigen ColPivHouseholderQR.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Fitting, LinearLeastSquares, QR, Eigen;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  modelExpression:   input_control;
+  description.english: Model expression, linear in parameters, e.g. a+b*x+c*x*x.;
+  default_type:      string;
+  multivalue:        false;
+  sem_type:          string;
+  type_list:         string;
+  default_value:     "a*x+b";
+
+parameter
+  paramNames:        input_control;
+  description.english: Names of the parameters to fit, e.g. a,b,c. Must be unique and differ from XName.;
+  default_type:      string;
+  multivalue:        true;
+  sem_type:          string;
+  type_list:         string;
+
+parameter
+  xData:             input_control;
+  description.english: Samples of the independent variable.;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  yData:             input_control;
+  description.english: Samples of the dependent variable. Length must equal the number of XData.;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  xName:             input_control;
+  description.english: Name of the independent variable used in the model expression (default: x).;
+  default_type:      string;
+  multivalue:        false;
+  sem_type:          string;
+  type_list:         string;
+  default_value:     "x";
+
+parameter
+  linearTolerance:   input_control;
+  description.english: Tolerance for the parameter-linearity verification (default: 1e-10).;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     1.0e-10;
+
+parameter
+  paramValues:       output_control;
+  description.english: Fitted parameter values, ordered like ParamNames.;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  rss:               output_control;
+  description.english: Residual sum of squares (-1 on failure).;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  rank:              output_control;
+  description.english: Rank of the design matrix.;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+
+parameter
+  success:           output_control;
+  description.english: 1 if the fit succeeded, 0 otherwise.;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+
+parameter
+  statusMessage:     output_control;
+  description.english: Status text of the result.;
+  default_type:      string;
+  multivalue:        false;
+  sem_type:          string;
+  type_list:         string;
+
+
+linear_fit_2d<- Clinear_fit_2d[::modelExpression,paramNames,xData,yData,zData,linearTolerance:paramValues,rss,rank,success,statusMessage]
+short.german
+  Lineare Ausgleichsrechnung mit zwei unabhaengigen Variablen (Eigen ColPivHouseholderQR).;
+
+short.english
+  Fit a linear-in-parameters model with two independent variables using Eigen ColPivHouseholderQR.;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Fitting, LinearLeastSquares, QR, Eigen;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  modelExpression:   input_control;
+  description.english: Model expression, linear in parameters, e.g. a+b*x+c*y+d*x*y. Independent variables are named x and y.;
+  default_type:      string;
+  multivalue:        false;
+  sem_type:          string;
+  type_list:         string;
+  default_value:     "a+b*x+c*y";
+
+parameter
+  paramNames:        input_control;
+  description.english: Names of the parameters to fit, e.g. a,b,c,d. Must be unique and differ from x,y.;
+  default_type:      string;
+  multivalue:        true;
+  sem_type:          string;
+  type_list:         string;
+
+parameter
+  xData:             input_control;
+  description.english: Samples of the independent variable x.;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  yData:             input_control;
+  description.english: Samples of the independent variable y.;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  zData:             input_control;
+  description.english: Observed values of the dependent variable z. Length must equal the number of XData/YData.;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  linearTolerance:   input_control;
+  description.english: Tolerance for the parameter-linearity verification (default: 1e-10).;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     1.0e-10;
+
+parameter
+  paramValues:       output_control;
+  description.english: Fitted parameter values, ordered like ParamNames.;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  rss:               output_control;
+  description.english: Residual sum of squares (-1 on failure).;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+
+parameter
+  rank:              output_control;
+  description.english: Rank of the design matrix.;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+
+parameter
+  success:           output_control;
+  description.english: 1 if the fit succeeded, 0 otherwise.;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+
+parameter
+  statusMessage:     output_control;
+  description.english: Status text of the result.;
+  default_type:      string;
+  multivalue:        false;
+  sem_type:          string;
+  type_list:         string;

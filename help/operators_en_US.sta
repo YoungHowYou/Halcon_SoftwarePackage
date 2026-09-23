@@ -1,3 +1,5 @@
+modelExpression,paramNames,xData,yData,zData,linearTolerance,paramValues,rss,rank,success,statusMessage:userextensions:UserExtensions:
+modelExpression,paramNames,xData,yData,xName,linearTolerance,paramValues,rss,rank,success,statusMessage:userextensions:UserExtensions:
 expressions,paramNames,initialValues,xNames,xData,yData,maxIter,eps,paramValues,rss,iterations,status,statusMessage:userextensions:UserExtensions:
 modelExpression,paramNames,initialValues,xData,yData,xName,maxIter,eps,paramValues,rss,iterations,status,statusMessage:userextensions:UserExtensions:
 imageX,imageY,imageXI,imageYI,interpMethod:userextensions:UserExtensions:
@@ -7,6 +9,8 @@ imageA,imageU,imageS,imageV:userextensions:UserExtensions:
 image,value,index:userextensions:UserExtensions:
 image,imageOut,descending:userextensions:UserExtensions:
 image,nIndex,value:userextensions:UserExtensions:
+X,Y,Magnitude:userextensions:UserExtensions:
+image,imageOut,Dx,Dy,Ksize,Ddepth,Scale,Delta,BorderType:userextensions:UserExtensions:
 images,imageMedian:userextensions:UserExtensions:
 samples,labels,centers,K,attempts,termEps,termMaxIter:userextensions:UserExtensions:
 image,templateImage,result:userextensions:UserExtensions:
@@ -23,6 +27,7 @@ image,imageOut,rows:userextensions:UserExtensions:
 image,imageOut,ksize:userextensions:UserExtensions:
 imageA,imageB,outimage:userextensions:UserExtensions:
 inimage,filename,compression:userextensions:UserExtensions:
+DictHandle:userextensions:UserExtensions:
 DictHandle:userextensions:UserExtensions:
 DictHandle:userextensions:UserExtensions:
 DictHandle:userextensions:UserExtensions:
