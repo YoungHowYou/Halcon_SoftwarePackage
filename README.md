@@ -1547,7 +1547,7 @@ Halcon_SoftwarePackage/
 **Windows**
 ```bash
 cmake -B build -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake
-cmake --build build --config Debug
+cmake --build build --config Release
 ```
 
 **Linux / macOS**
@@ -1558,117 +1558,72 @@ cmake --build build
 
 编译产物输出到 `bin/`（Windows）或 `lib/<platform>/`（Linux/macOS）。首次会自动下载编译 vcpkg 依赖，后续秒级缓存。
 
-## 安装与使用
+## 部署与使用
 
-1. 编译项目，产物在 `bin/`（Windows）或 `lib/<platform>/`（Linux/macOS）
-2. 将编译输出目录下所有 `.dll` / `.so` / `.dylib` 复制到同一文件夹
-3. 添加系统环境变量 `HALCONEXTENSIONS`，值设为该文件夹路径
-4. 在 HDevelop 中即可直接调用扩展算子
+### 1. 编译
 
-### 示例：SQLite
-
-```
-sqlite3_open (':memory:', SQLHandle)
-sqlite3_exec (SQLHandle, 'CREATE TABLE test (id INTEGER, name TEXT)', ErrMsg)
-sqlite3_exec (SQLHandle, 'INSERT INTO test VALUES (1, "hello")', ErrMsg)
-sqlite3_get_table (SQLHandle, 'SELECT * FROM test', Names, Table, Rows, Cols, ErrMsg)
-sqlite3_close (SQLHandle)
+```bash
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake
+cmake --build build --config Release
 ```
 
-### 示例：spdlog 日志
+产物：`bin/Halcon_SoftwarePackage.dll`（+ `c`/`cpp`/`dotnet` 接口变体）及全部 vcpkg 运行库（OpenCV、muparser、spdlog 等，POST_BUILD 自动拷贝）。
+
+### 2. 包目录结构（部署依据）
+
+HALCON 要求扩展包目录**同时包含**以下子目录（缺一不可，否则算子加载不到或签名校验失败）：
 
 ```
-* （可选）自定义异步线程池参数
-spdlog_init_thread_pool (16384, 2)
-
-* 创建滚动文件日志（5MB/文件，最多保留3个，异步写入）
-spdlog_rotating_logger_mt ('app', 'D:/logs/app.log', 5242880, 3, LogHandle)
-
-* 设置级别为 debug，输出 debug 及以上的日志
-spdlog_set_level (LogHandle, 1)
-
-* 设置自定义格式
-spdlog_set_pattern (LogHandle, '[%Y-%m-%d %H:%M:%S.%e] [%l] %v')
-
-* 记录不同级别日志（异步入队，调用立即返回）
-spdlog_info (LogHandle, '程序启动完成')
-spdlog_warn (LogHandle, '检测到配置缺失，使用默认值')
-spdlog_err (LogHandle, '相机连接超时')
-
-* 确保日志写入文件
-spdlog_flush (LogHandle)
-
-* 程序结束时关闭日志系统（等待队列排空后释放）
-spdlog_shutdown ()
+PackageDir/                  # HALCONEXTENSIONS 指向这里（部署态自取目录名）
+├── bin/                     # 全部 .dll（含 vcpkg 运行库）
+├── help/                    # operators_en_US.* 算子签名数据库（调用校验依赖，见常见问题 3）
+└── doc/html/                # 算子帮助页（HDevelop 按 F1 查看，可选但强烈建议）
 ```
 
-### 示例：Modbus TCP
+**开发态**：直接指向本仓库根目录即可（仓库自带 bin/ + help/ + doc/html/）。
+**部署态**：把 `bin/`、`help/`、`doc/` 三个目录原样拷贝到目标机器同一文件夹。
+
+### 3. 设置环境变量
+
+**必需：`HALCONEXTENSIONS`** —— HALCON 扩展包搜索路径列表。
+
+- **Windows 必须是反斜杠路径**（正斜杠会导致包加载失败）；多路径用分号 `;` 分隔
+- 值为包目录（含 bin/ 的那一层），不是 bin 本身
+
+方式一（GUI）：系统属性 → 高级 → 环境变量 → 新建用户变量：
 
 ```
-modbus_tcp_connect ('127.0.0.1', 502, Handle)
-modbus_set_slave_ID (Handle, 1)
-modbus_write_bit (Handle, 0, 1)
-modbus_read_bits (Handle, 0, 8, Bits)
-modbus_read_registers (Handle, 0, 1, Registers)
-modbus_write_register_float (Handle, 0, 3.14, 'abcd')
-modbus_close (Handle)
+变量名:  HALCONEXTENSIONS
+变量值:  D:\desk\source\Halcon_Extension\Halcon_SoftwarePackage
 ```
 
-### 示例：MySQL
+方式二（PowerShell，立即写入用户注册表）：
 
-```
-* 连接 MySQL 服务器
-mysql_real_connect ('127.0.0.1', 'root', '123456', 'test', 3306, '', 0, Handle, ErrMsg)
-
-* 创建表并插入数据
-mysql_query (Handle, 'CREATE TABLE IF NOT EXISTS test (id INT, name VARCHAR(50))', Status1)
-mysql_query (Handle, 'INSERT INTO test VALUES (1, "halcon")', Status2)
-
-* 查询数据
-mysql_query (Handle, 'SELECT * FROM test', Status3)
-mysql_store_result (Handle, Result)
-
-* 断开连接（释放 Handle 自动关闭）
+```powershell
+[Environment]::SetEnvironmentVariable("HALCONEXTENSIONS", "D:\desk\source\Halcon_Extension\Halcon_SoftwarePackage", "User")
 ```
 
-### 示例：OpenCV
+前置条件：`HALCONROOT` 已在系统中配置好（HALCON 安装器默认完成）。
 
-```hdev
-* 均值滤波（字符串枚举边界模式）
-cv_blur (Image, ImageBlurred, 5, 5, -1, -1, 'border_default')
+**改完环境变量必须重开终端 / HDevelop 才生效**（进程启动时读一次）。
 
-* 灰度形态学
-cv_gray_opening_circle (Image, ImageOpened, 3.5)
-cv_morphology_ex (Image, Grad, 'gradient', 'ellipse', 5, 5, 1)
+### 4. 验证
 
-* 阈值分割（字符串枚举，"|" 组合自动阈值）
-cv_threshold (Image, Region, 128, 255, 'binary|otsu', ThreshUsed)
-
-* 矩阵乘法
-convert_image_type (Image, Image16, 'uint2')
-cv_mat_mul (ImageA16, ImageB16, ImageC, 1.0, 0.0, 'none')
-
-* ORB 特征检测与匹配（dict 设置）
-create_dict (D1)
-set_dict_object (Image1, D1, 'InputImage')
-set_dict_tuple (D1, 'NFeatures', 1000)
-cv_orb_detect (D1)
-get_dict_object (Desc1, D1, 'Descriptors')
-* ... 对 Image2 同样处理得到 D2/Desc2 ...
-create_dict (D4)
-set_dict_object (Desc1, D4, 'DescriptorsRef')
-set_dict_object (Desc2, D4, 'DescriptorsTarget')
-cv_bf_knn_match (D4)
-
-* ROI 加法（小图 300×400 加到 (100,200) 处）
-add_roi (SmallImage, BigImage, 100, 200, 300, 400)
-
-* 一维边缘测量
-cv_measure_pos (Image, 100, 50, 0, 60, 8, 1.0, 50, 0, RowEdge, ColEdge, Amplitude)
+```powershell
+# 新开的终端中：
+hrun -v examples\cv_region.hdev      # 跑通即部署成功（退出码 0）
 ```
 
-完整例程见 `examples/` 与 `examples/opencv/`（48 个 .hdev）。
+或在 HDevelop 中直接调用任意 cv_ 算子；按 F1 可查看带完整中文参数说明的帮助页。
 
+### 5. 常见问题
+
+| 现象 | 排查 |
+|---|---|
+| HDevelop 里算子名找不到（红色） | `HALCONEXTENSIONS` 路径是否反斜杠、是否指到含 bin/ 的那层、是否重开了 HDevelop |
+| 调用算子无反应、输出空、不报错 | help/ 签名库过期（多见于自编译更新后）：整包 `cmake --build build --config Release` 重建，或手动 `Copy-Item build\help\operators_en_US.* help\ -Force` |
+| 加载报缺 DLL | bin/ 不完整：POST_BUILD 应从 vcpkg 自动拷贝全部运行库，确认 bin/ 下 OpenCV/muparser 等 dll 存在 |
+| LNK1104 编译时 DLL 被占用 | 关掉 HDevelop/hrun 进程再编译 |
 
 ## 第三方依赖
 
