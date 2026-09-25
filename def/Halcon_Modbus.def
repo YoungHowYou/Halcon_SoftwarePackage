@@ -19,6 +19,7 @@ parallelization
 
 parameter
   port:               input_control;
+  description.english: 串口号（如 'COM9'）。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -26,6 +27,7 @@ parameter
 
 parameter
   baud:               input_control;
+  description.english: 波特率。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -33,6 +35,7 @@ parameter
 
 parameter
   parity:             input_control;
+  description.english: 校验（N/E/O 等，ASCII 码）。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -40,6 +43,7 @@ parameter
 
 parameter
   data_bits:          input_control;
+  description.english: 数据位（5/6/7/8）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -47,6 +51,7 @@ parameter
 
 parameter
   stop_bits:          input_control;
+  description.english: 停止位（1/2）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -54,6 +59,7 @@ parameter
 
 parameter
   RS233orRS485:       input_control;
+  description.english: RS232 或 RS485 标志。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -61,6 +67,7 @@ parameter
 
 parameter
   handle:             output_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   sem_type:           handle;
   type_list:          handle;
   default_type:       handle;
@@ -88,6 +95,7 @@ parallelization
 
 parameter
   ip:                 input_control;
+  description.english: IP 地址。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -95,6 +103,7 @@ parameter
 
 parameter
   port:               input_control;
+  description.english: 端口号。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -102,6 +111,7 @@ parameter
 
 parameter
   handle:             output_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   sem_type:           handle;
   type_list:          handle;
   default_type:       handle;
@@ -129,6 +139,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -156,6 +167,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -163,6 +175,7 @@ parameter
 
 parameter
   slave_id:           input_control;
+  description.english: 从站 ID。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -190,6 +203,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -197,6 +211,7 @@ parameter
 
 parameter
   address:            input_control;
+  description.english: 寄存器/线圈起始地址。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -204,6 +219,7 @@ parameter
 
 parameter
   num:                input_control;
+  description.english: 读取数量。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -211,6 +227,7 @@ parameter
 
 parameter
   bits:               output_control;
+  description.english: 读取到的位值数组（0/1）。;
   default_type:       integer;
   multivalue:         true;
   sem_type:           number;
@@ -238,6 +255,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -245,6 +263,7 @@ parameter
 
 parameter
   address:            input_control;
+  description.english: 寄存器/线圈起始地址。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -252,6 +271,7 @@ parameter
 
 parameter
   value:              input_control;
+  description.english: 写入/读取的数值。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -279,6 +299,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -286,6 +307,7 @@ parameter
 
 parameter
   address:            input_control;
+  description.english: 寄存器/线圈起始地址。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -293,6 +315,7 @@ parameter
 
 parameter
   Bitvalues:          input_control;
+  description.english: 待写入的位值元组（0/1）。;
   default_type:       integer;
   multivalue:         true;
   sem_type:           number;
@@ -320,6 +343,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -327,6 +351,7 @@ parameter
 
 parameter
   address:            input_control;
+  description.english: 寄存器/线圈起始地址。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -334,6 +359,7 @@ parameter
 
 parameter
   Bitvalues:          input_control;
+  description.english: 待写入的位值元组（0/1）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -361,6 +387,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -368,6 +395,7 @@ parameter
 
 parameter
   address:            input_control;
+  description.english: 寄存器/线圈起始地址。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -375,6 +403,7 @@ parameter
 
 parameter
   registersvalues:    input_control;
+  description.english: 待写入的寄存器值元组。;
   default_type:       integer;
   multivalue:         true;
   sem_type:           number;
@@ -402,6 +431,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -409,6 +439,7 @@ parameter
 
 parameter
   address:            input_control;
+  description.english: 寄存器/线圈起始地址。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -416,6 +447,7 @@ parameter
 
 parameter
   num:                input_control;
+  description.english: 读取数量。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -423,6 +455,7 @@ parameter
 
 parameter
   registers:          output_control;
+  description.english: 读取到的寄存器值数组。;
   default_type:       integer;
   multivalue:         true;
   sem_type:           number;
@@ -449,6 +482,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -456,6 +490,7 @@ parameter
 
 parameter
   address:            input_control;
+  description.english: 寄存器/线圈起始地址。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -463,6 +498,7 @@ parameter
 
 parameter
   value:              input_control;
+  description.english: 写入/读取的数值。;
   default_type:       real;
   multivalue:         false;
   sem_type:           real;
@@ -470,6 +506,7 @@ parameter
 
 parameter
   encodingType:       input_control;
+  description.english: 浮点编码字节序（如 'abcd'/'dcba'/'badc'/'cdab'）。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -496,6 +533,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -503,6 +541,7 @@ parameter
 
 parameter
   address:            input_control;
+  description.english: 寄存器/线圈起始地址。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -510,6 +549,7 @@ parameter
 
 parameter
   encodingType:           input_control;
+  description.english: 浮点编码字节序（如 'abcd'/'dcba'/'badc'/'cdab'）。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -518,6 +558,7 @@ parameter
 
 parameter
   value:              output_control;
+  description.english: 写入/读取的数值。;
   default_type:       real;
   multivalue:         false;
   sem_type:           real;
@@ -545,6 +586,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -552,6 +594,7 @@ parameter
 
 parameter
   address:            input_control;
+  description.english: 寄存器/线圈起始地址。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -559,6 +602,7 @@ parameter
 
 parameter
   value:              input_control;
+  description.english: 写入/读取的数值。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -566,6 +610,7 @@ parameter
 
 parameter
   bit_depth:          input_control;
+  description.english: 位宽（16/32/64）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -595,6 +640,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -602,6 +648,7 @@ parameter
 
 parameter
   address:            input_control;
+  description.english: 寄存器/线圈起始地址。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -609,6 +656,7 @@ parameter
 
 parameter
   bit_depth:          input_control;
+  description.english: 位宽（16/32/64）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -618,6 +666,7 @@ parameter
 
 parameter
   value:              output_control;
+  description.english: 写入/读取的数值。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -647,6 +696,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -654,6 +704,7 @@ parameter
 
 parameter
   address:            input_control;
+  description.english: 寄存器/线圈起始地址。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -661,6 +712,7 @@ parameter
 
 parameter
   num:                input_control;
+  description.english: 读取数量。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -668,6 +720,7 @@ parameter
 
 parameter
   bits:               output_control;
+  description.english: 读取到的位值数组（0/1）。;
   default_type:       integer;
   multivalue:         true;
   sem_type:           number;
@@ -702,6 +755,7 @@ parallelization
 
 parameter
   msg:                output_control;
+  description.english: 消息文本（日志内容或错误信息）。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;

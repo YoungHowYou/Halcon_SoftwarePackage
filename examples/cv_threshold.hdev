@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>* ===== 构造 4x1 精确 ramp: [0, 128, 129, 255] =====</l>
+<l>gen_image_const (Img, 'byte', 4, 1)</l>
+<l>set_grayval (Img, 0, 0, 0)</l>
+<l>set_grayval (Img, 0, 1, 128)</l>
+<l>set_grayval (Img, 0, 2, 129)</l>
+<l>set_grayval (Img, 0, 3, 255)</l>
+<c></c>
+<l>* ===== type=0 THRESH_BINARY: [0,0,255,255] =====</l>
+<l>cv_threshold (Img, R0, 128, 255, 'binary', U0)</l>
+<l>get_grayval (R0, 0, 0, G00)</l>
+<l>get_grayval (R0, 0, 1, G01)</l>
+<l>get_grayval (R0, 0, 2, G02)</l>
+<l>get_grayval (R0, 0, 3, G03)</l>
+<l>if (G00 != 0 or G01 != 0 or G02 != 255 or G03 != 255)</l>
+<l>  throw ('type 0 wrong: ' + G00 + ',' + G01 + ',' + G02 + ',' + G03)</l>
+<l>endif</l>
+<c></c>
+<l>* ===== type=1 THRESH_BINARY_INV: [255,255,0,0] =====</l>
+<l>cv_threshold (Img, R1, 128, 255, 'binary_inv', U1)</l>
+<l>get_grayval (R1, 0, 0, G10)</l>
+<l>get_grayval (R1, 0, 1, G11)</l>
+<l>get_grayval (R1, 0, 2, G12)</l>
+<l>get_grayval (R1, 0, 3, G13)</l>
+<l>if (G10 != 255 or G11 != 255 or G12 != 0 or G13 != 0)</l>
+<l>  throw ('type 1 wrong')</l>
+<l>endif</l>
+<c></c>
+<l>* ===== type=2 THRESH_TRUNC: [0,128,128,128] =====</l>
+<l>cv_threshold (Img, R2, 128, 255, 'trunc', U2)</l>
+<l>get_grayval (R2, 0, 0, G20)</l>
+<l>get_grayval (R2, 0, 1, G21)</l>
+<l>get_grayval (R2, 0, 2, G22)</l>
+<l>get_grayval (R2, 0, 3, G23)</l>
+<l>if (G20 != 0 or G21 != 128 or G22 != 128 or G23 != 128)</l>
+<l>  throw ('type 2 wrong')</l>
+<l>endif</l>
+<c></c>
+<l>* ===== type=3 THRESH_TOZERO: [0,0,129,255] =====</l>
+<l>cv_threshold (Img, R3, 128, 255, 'tozero', U3)</l>
+<l>get_grayval (R3, 0, 0, G30)</l>
+<l>get_grayval (R3, 0, 1, G31)</l>
+<l>get_grayval (R3, 0, 2, G32)</l>
+<l>get_grayval (R3, 0, 3, G33)</l>
+<l>if (G30 != 0 or G31 != 0 or G32 != 129 or G33 != 255)</l>
+<l>  throw ('type 3 wrong')</l>
+<l>endif</l>
+<c></c>
+<l>* ===== type=4 THRESH_TOZERO_INV: [0,128,0,0] =====</l>
+<l>cv_threshold (Img, R4, 128, 255, 'tozero_inv', U4)</l>
+<l>get_grayval (R4, 0, 0, G40)</l>
+<l>get_grayval (R4, 0, 1, G41)</l>
+<l>get_grayval (R4, 0, 2, G42)</l>
+<l>get_grayval (R4, 0, 3, G43)</l>
+<l>if (G40 != 0 or G41 != 128 or G42 != 0 or G43 != 0)</l>
+<l>  throw ('type 4 wrong')</l>
+<l>endif</l>
+<c></c>
+<l>* ===== type=8 THRESH_OTSU（双峰图，大津自动阈值） =====</l>
+<l>gen_image_const (Bimodal, 'byte', 100, 10)</l>
+<l>for C := 0 to 49 by 1</l>
+<l>  for R := 0 to 9 by 1</l>
+<l>    set_grayval (Bimodal, R, C, 50)</l>
+<l>  endfor</l>
+<l>endfor</l>
+<l>for C := 50 to 99 by 1</l>
+<l>  for R := 0 to 9 by 1</l>
+<l>    set_grayval (Bimodal, R, C, 200)</l>
+<l>  endfor</l>
+<l>endfor</l>
+<l>cv_threshold (Bimodal, RO, 0, 255, 'binary|otsu', UO)</l>
+<l>* 大津阈值应落在 [50,200]（双峰图取边界值也属正常）</l>
+<l>if (UO &lt; 50 or UO &gt; 200)</l>
+<l>  throw ('otsu threshold out of range: ' + UO)</l>
+<l>endif</l>
+<l>get_grayval (RO, 5, 25, GO1)</l>
+<l>get_grayval (RO, 5, 75, GO2)</l>
+<l>if (GO1 != 0 or GO2 != 255)</l>
+<l>  throw ('otsu binary wrong: ' + GO1 + ',' + GO2)</l>
+<l>endif</l>
+<c></c>
+<l>* ===== type=9 = 8|1 大津+BINARY_INV =====</l>
+<l>cv_threshold (Bimodal, RO9, 0, 255, 'binary_inv|otsu', UO9)</l>
+<l>get_grayval (RO9, 5, 25, GO91)</l>
+<l>get_grayval (RO9, 5, 75, GO92)</l>
+<l>if (GO91 != 255 or GO92 != 0)</l>
+<l>  throw ('otsu+inv wrong: ' + GO91 + ',' + GO92)</l>
+<l>endif</l>
+<c></c>
+<l>* ===== type=16 THRESH_TRIANGLE（三角法自动阈值） =====</l>
+<l>cv_threshold (Bimodal, RT, 0, 255, 'triangle', UT)</l>
+<l>if (UT &lt; 50 or UT &gt; 200)</l>
+<l>  throw ('triangle threshold out of range: ' + UT)</l>
+<l>endif</l>
+<c></c>
+<l>* ===== uint2 图像 type=0 THRESH_BINARY =====</l>
+<l>gen_image_const (Img16, 'uint2', 4, 1)</l>
+<l>set_grayval (Img16, 0, 0, 100)</l>
+<l>set_grayval (Img16, 0, 1, 128)</l>
+<l>set_grayval (Img16, 0, 2, 500)</l>
+<l>set_grayval (Img16, 0, 3, 65535)</l>
+<l>cv_threshold (Img16, R16, 128, 1000, 'binary', U16)</l>
+<l>get_grayval (R16, 0, 0, G160)</l>
+<l>get_grayval (R16, 0, 1, G161)</l>
+<l>get_grayval (R16, 0, 2, G162)</l>
+<l>get_grayval (R16, 0, 3, G163)</l>
+<l>if (G160 != 0 or G161 != 0 or G162 != 1000 or G163 != 1000)</l>
+<l>  throw ('uint2 type 0 wrong: ' + G160 + ',' + G161 + ',' + G162 + ',' + G163)</l>
+<l>endif</l>
+<c></c>
+<l>* ===== real 图像 type=3 THRESH_TOZERO =====</l>
+<l>gen_image_const (ImgF, 'real', 4, 1)</l>
+<l>set_grayval (ImgF, 0, 0, 0.5)</l>
+<l>set_grayval (ImgF, 0, 1, 1.5)</l>
+<l>set_grayval (ImgF, 0, 2, 2.5)</l>
+<l>set_grayval (ImgF, 0, 3, 3.5)</l>
+<l>cv_threshold (ImgF, RF, 2.0, 255, 'tozero', UF)</l>
+<l>get_grayval (RF, 0, 0, GF0)</l>
+<l>get_grayval (RF, 0, 1, GF1)</l>
+<l>get_grayval (RF, 0, 2, GF2)</l>
+<l>get_grayval (RF, 0, 3, GF3)</l>
+<l>if (GF0 != 0 or GF1 != 0 or fabs(GF2 - 2.5) &gt; 1e-6 or fabs(GF3 - 3.5) &gt; 1e-6)</l>
+<l>  throw ('real type 3 wrong: ' + GF0 + ',' + GF1 + ',' + GF2 + ',' + GF3)</l>
+<l>endif</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

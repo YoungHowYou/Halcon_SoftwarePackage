@@ -25,6 +25,7 @@ parallelization
 
 parameter
   filename:           input_control;
+  description.english: 数据库文件路径（':memory:' 为内存库）。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -32,6 +33,7 @@ parameter
 
 parameter
   DbNumber:           output_control;
+  description.english: 数据库连接句柄（sqlite3_open 的输出）。;
   sem_type:           handle;
   type_list:          handle;
   default_type:       handle;
@@ -65,6 +67,7 @@ parallelization
 
 parameter
   DbNumber:           input_control;
+  description.english: 数据库连接句柄（sqlite3_open 的输出）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -97,6 +100,7 @@ parallelization
 
 parameter
   DbNumber:           input_control;
+  description.english: 数据库连接句柄（sqlite3_open 的输出）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -104,6 +108,7 @@ parameter
 
 parameter
   sql:                input_control;
+  description.english: SQL 语句。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -111,6 +116,7 @@ parameter
 
 parameter
   table_names:        output_control;
+  description.english: 结果表（按行展开的字符串元组）。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -118,6 +124,7 @@ parameter
 
 parameter
   X:                  output_control;
+  description.english: 结果行数。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -125,6 +132,7 @@ parameter
 
 parameter
   Y:                  output_control;
+  description.english: 结果列数。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -132,6 +140,7 @@ parameter
 
 parameter
   errmsg:             output_control;
+  description.english: 错误消息输出。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -164,6 +173,7 @@ parallelization
 
 parameter
   DbNumber:           input_control;
+  description.english: 数据库连接句柄（sqlite3_open 的输出）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -171,6 +181,7 @@ parameter
 
 parameter
   sql:                input_control;
+  description.english: SQL 语句。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -179,6 +190,7 @@ parameter
 
 parameter
   errmsg:             output_control;
+  description.english: 错误消息输出。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -211,6 +223,7 @@ parallelization
 
 parameter
   DbNumber:           input_control;
+  description.english: 数据库连接句柄（sqlite3_open 的输出）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -218,6 +231,7 @@ parameter
 
 parameter
   zFilename:          input_control;
+  description.english: 文件路径。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -225,6 +239,7 @@ parameter
 
 parameter
   isSave:             input_control;
+  description.english: 1=保存（库→文件），0=加载（文件→库）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -258,11 +273,13 @@ parallelization
 
 parameter
   outimage:           output_object;
+  description.english: 输出图像（编码后的字符串图像）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   msg:                input_control;
+  description.english: 消息文本（日志内容或错误信息）。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -295,11 +312,13 @@ parallelization
 
 parameter
   outimage:           input_object;
+  description.english: 输出图像（编码后的字符串图像）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   msg:                output_control;
+  description.english: 消息文本（日志内容或错误信息）。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;

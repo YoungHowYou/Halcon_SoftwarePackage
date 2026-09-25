@@ -1119,43 +1119,43 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="port" class="parname"><b><code><span data-if="hdevelop" style="display:inline">port</span><span data-if="c" style="display:none">port</span><span data-if="cpp" style="display:none">port</span><span data-if="dotnet" style="display:none">port</span><span data-if="python" style="display:none">port</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">串口号（如 'COM9'）。</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="baud" class="parname"><b><code><span data-if="hdevelop" style="display:inline">baud</span><span data-if="c" style="display:none">baud</span><span data-if="cpp" style="display:none">baud</span><span data-if="dotnet" style="display:none">baud</span><span data-if="python" style="display:none">baud</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">波特率。</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="parity" class="parname"><b><code><span data-if="hdevelop" style="display:inline">parity</span><span data-if="c" style="display:none">parity</span><span data-if="cpp" style="display:none">parity</span><span data-if="dotnet" style="display:none">parity</span><span data-if="python" style="display:none">parity</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">校验（N/E/O 等，ASCII 码）。</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="data_bits" class="parname"><b><code><span data-if="hdevelop" style="display:inline">data_bits</span><span data-if="c" style="display:none">data_bits</span><span data-if="cpp" style="display:none">data_bits</span><span data-if="dotnet" style="display:none">dataBits</span><span data-if="python" style="display:none">data_bits</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">数据位（5/6/7/8）。</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="stop_bits" class="parname"><b><code><span data-if="hdevelop" style="display:inline">stop_bits</span><span data-if="c" style="display:none">stop_bits</span><span data-if="cpp" style="display:none">stop_bits</span><span data-if="dotnet" style="display:none">stopBits</span><span data-if="python" style="display:none">stop_bits</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">停止位（1/2）。</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="RS233orRS485" class="parname"><b><code><span data-if="hdevelop" style="display:inline">RS233orRS485</span><span data-if="c" style="display:none">RS233orRS485</span><span data-if="cpp" style="display:none">RS233orRS485</span><span data-if="dotnet" style="display:none">RS233orRS485</span><span data-if="python" style="display:none">rs233or_rs485</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">RS232 或 RS485 标志。</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="handle" class="parname"><b><code><span data-if="hdevelop" style="display:inline">handle</span><span data-if="c" style="display:none">handle</span><span data-if="cpp" style="display:none">handle</span><span data-if="dotnet" style="display:none">handle</span><span data-if="python" style="display:none">handle</span></code></b> (output_control)  </span><span>handle <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">HHandle</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (handle)</span><span data-if="dotnet" style="display:none"> (<i>IntPtr</i>)</span><span data-if="cpp" style="display:none"> (<i>HHandle</i>)</span><span data-if="c" style="display:none"> (<i>handle</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">连接/日志器句柄（连接类算子的输出，其余算子的输入）。</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

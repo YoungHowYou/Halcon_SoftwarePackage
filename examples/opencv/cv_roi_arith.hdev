@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv ROI 算术：add/sub_A/sub_B/mul/div_A/div_B_roi</c>
+<c>*   小图(uint2, 恰好 ew×eh) 与大图 ROI(位于 sy,sx 尺寸 ew×eh) 做算术，</c>
+<c>*   结果写回大图（原地修改）；仅支持 uint2</c>
+<c>* =============================================================</c>
+<l>gen_rectangle1 (Full, 0, 0, 4, 4)</l>
+<l>gen_image_const (Small, 'uint2', 2, 2)</l>
+<l>paint_region (Full, Small, Small, 30, 'fill')</l>
+<c>* ---- add_roi: ROI = 30 + 100 = 130 ----</c>
+<l>gen_image_const (Big1, 'uint2', 5, 5)</l>
+<l>paint_region (Full, Big1, Big1, 100, 'fill')</l>
+<l>add_roi (Small, Big1, 1, 1, 2, 2)</l>
+<l>get_grayval (Big1, 1, 1, A1)</l>
+<l>get_grayval (Big1, 0, 0, A0)</l>
+<l>if (A1 != 130 or A0 != 100)</l>
+<l>  throw ('add_roi wrong: ' + A1 + ',' + A0)</l>
+<l>endif</l>
+<c>* ---- mul_roi: ROI = 30 * 100 = 3000 ----</c>
+<l>gen_image_const (Big2, 'uint2', 5, 5)</l>
+<l>paint_region (Full, Big2, Big2, 100, 'fill')</l>
+<l>mul_roi (Small, Big2, 1, 1, 2, 2)</l>
+<l>get_grayval (Big2, 1, 1, M1)</l>
+<l>if (M1 != 3000)</l>
+<l>  throw ('mul_roi wrong: ' + M1)</l>
+<l>endif</l>
+<c>* ---- sub_A_roi: ROI = 100 - 30 = 70 ----</c>
+<l>gen_image_const (Big3, 'uint2', 5, 5)</l>
+<l>paint_region (Full, Big3, Big3, 100, 'fill')</l>
+<l>sub_A_roi (Small, Big3, 1, 1, 2, 2)</l>
+<l>get_grayval (Big3, 1, 1, SA1)</l>
+<l>if (SA1 != 70)</l>
+<l>  throw ('sub_A_roi wrong: ' + SA1)</l>
+<l>endif</l>
+<c>* ---- sub_B_roi: ROI = 30 - 100 饱和到 0 ----</c>
+<l>gen_image_const (Big4, 'uint2', 5, 5)</l>
+<l>paint_region (Full, Big4, Big4, 100, 'fill')</l>
+<l>sub_B_roi (Small, Big4, 1, 1, 2, 2)</l>
+<l>get_grayval (Big4, 1, 1, SB1)</l>
+<l>if (SB1 != 0)</l>
+<l>  throw ('sub_B_roi wrong: ' + SB1)</l>
+<l>endif</l>
+<c>* ---- div_A_roi: ROI = 100 / 30 = 3（整除） ----</c>
+<l>gen_image_const (Big5, 'uint2', 5, 5)</l>
+<l>paint_region (Full, Big5, Big5, 100, 'fill')</l>
+<l>div_A_roi (Small, Big5, 1, 1, 2, 2)</l>
+<l>get_grayval (Big5, 1, 1, DA1)</l>
+<l>if (DA1 != 3)</l>
+<l>  throw ('div_A_roi wrong: ' + DA1)</l>
+<l>endif</l>
+<c>* ---- div_B_roi: ROI = 30 / 100 = 0（整除） ----</c>
+<l>gen_image_const (Big6, 'uint2', 5, 5)</l>
+<l>paint_region (Full, Big6, Big6, 100, 'fill')</l>
+<l>div_B_roi (Small, Big6, 1, 1, 2, 2)</l>
+<l>get_grayval (Big6, 1, 1, DB1)</l>
+<l>if (DB1 != 0)</l>
+<l>  throw ('div_B_roi wrong: ' + DB1)</l>
+<l>endif</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

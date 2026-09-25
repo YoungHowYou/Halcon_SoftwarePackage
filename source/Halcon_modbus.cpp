@@ -108,6 +108,7 @@ Herror Hmodbus_read_bits(Hproc_handle proc_handle)
 
 	if (Get_Bits_Besult == -1)
 	{
+		HFreeTmp(proc_handle, Bits_Besult, AddresssLength.par.l);
 		return H__LINE__ * 10000;
 	}
 	int64_t *C;
@@ -118,6 +119,8 @@ Herror Hmodbus_read_bits(Hproc_handle proc_handle)
 	}
 
 	HPutElem(proc_handle, 1, C, AddresssLength.par.l, LONG_PAR);
+	HFreeTmp(proc_handle, C, AddresssLength.par.l * sizeof(int64_t));
+	HFreeTmp(proc_handle, Bits_Besult, AddresssLength.par.l);
 	return H_MSG_TRUE;
 }
 
@@ -137,6 +140,7 @@ Herror Hmodbus_read_inputbits(Hproc_handle proc_handle)
 
 	if (Get_Bits_Besult == -1)
 	{
+		HFreeTmp(proc_handle, Bits_Besult, AddresssLength.par.l);
 		return H__LINE__ * 10000;
 	}
 	int64_t *C;
@@ -147,6 +151,8 @@ Herror Hmodbus_read_inputbits(Hproc_handle proc_handle)
 	}
 
 	HPutElem(proc_handle, 1, C, AddresssLength.par.l, LONG_PAR);
+	HFreeTmp(proc_handle, C, AddresssLength.par.l * sizeof(int64_t));
+	HFreeTmp(proc_handle, Bits_Besult, AddresssLength.par.l);
 	return H_MSG_TRUE;
 }
 
@@ -188,6 +194,7 @@ Herror Hmodbus_write_bits(Hproc_handle proc_handle)
 	}
 
 	int Write_Bit_Besult = modbus_write_bits(pUserData->modbusCtx, Addressstrat.par.l, num_params, Bits_Besult);
+	HFreeTmp(proc_handle, Bits_Besult, num_params * sizeof(uint8_t));
 	if (Write_Bit_Besult == -1)
 	{
 		return H__LINE__ * 10000;
@@ -236,6 +243,7 @@ Herror Hmodbus_write_registers(Hproc_handle proc_handle)
 	}
 
 	int Write_Bit_Besult = modbus_write_registers(pUserData->modbusCtx, Addressstrat.par.l, num_params, Bits_Besult);
+	HFreeTmp(proc_handle, Bits_Besult, num_params * sizeof(uint16_t));
 	if (Write_Bit_Besult == -1)
 	{
 		return H__LINE__ * 10000;
@@ -262,6 +270,7 @@ Herror Hmodbus_read_registers(Hproc_handle proc_handle)
 
 	if (Read_Registers_Result == -1)
 	{
+		HFreeTmp(proc_handle, Read_Registers_Num, Length.par.l * sizeof(uint16_t));
 		return H__LINE__ * 10000;
 	}
 	else
@@ -275,6 +284,8 @@ Herror Hmodbus_read_registers(Hproc_handle proc_handle)
 		}
 
 		HPutElem(proc_handle, 1, C, Length.par.l, LONG_PAR);
+		HFreeTmp(proc_handle, C, Length.par.l * sizeof(int64_t));
+		HFreeTmp(proc_handle, Read_Registers_Num, Length.par.l * sizeof(uint16_t));
 		return H_MSG_TRUE;
 	}
 }
@@ -284,8 +295,6 @@ Herror Hmodbus_write_register_float(Hproc_handle proc_handle)
 	Hcpar Addressstrat; // 起始地址
 	Hcpar status;		// 状态
 	Hcpar EncodingMode;
-	HAllocStringMem(proc_handle, 16);
-
 	HAllocStringMem(proc_handle, 16);
 	Def_INModbusObject(1, pUserData);
 	HGetSPar(proc_handle, 2, LONG_PAR, &Addressstrat, 1);

@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">add_roi</span><span data-if="c" style="display:none;">add_roi</span><span data-if="cpp" style="display:none;">AddRoi</span><span data-if="dotnet" style="display:none;">AddRoi</span><span data-if="python" style="display:none;">add_roi</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">add_roi</span><span data-if="c" style="display:none;">add_roi</span><span data-if="cpp" style="display:none;">AddRoi</span><span data-if="dotnet" style="display:none;">AddRoi</span><span data-if="python" style="display:none;">add_roi</span></code> — Add ROI to big image.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">add_roi</span><span data-if="c" style="display:none;">add_roi</span><span data-if="cpp" style="display:none;">AddRoi</span><span data-if="dotnet" style="display:none;">AddRoi</span><span data-if="python" style="display:none;">add_roi</span></code> — ROI 加法：大图指定矩形区域与同样大小的小图逐像素相加（A + B∩Roi），结果写回大图（原地修改）。仅支持 uint2；小图尺寸必须等于 ROI（ew×eh）。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1120,37 +1120,37 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="smallimage" class="parname"><b><code><span data-if="hdevelop" style="display:inline">smallimage</span><span data-if="c" style="display:none">smallimage</span><span data-if="cpp" style="display:none">smallimage</span><span data-if="dotnet" style="display:none">smallimage</span><span data-if="python" style="display:none">smallimage</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">小图（uint2，尺寸必须等于 ROI 的 ew×eh）。</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="bigimage" class="parname"><b><code><span data-if="hdevelop" style="display:inline">bigimage</span><span data-if="c" style="display:none">bigimage</span><span data-if="cpp" style="display:none">bigimage</span><span data-if="dotnet" style="display:none">bigimage</span><span data-if="python" style="display:none">bigimage</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">大图（uint2，结果原地写回）。</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="sy" class="parname"><b><code><span data-if="hdevelop" style="display:inline">sy</span><span data-if="c" style="display:none">sy</span><span data-if="cpp" style="display:none">sy</span><span data-if="dotnet" style="display:none">sy</span><span data-if="python" style="display:none">sy</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">ROI 左上角行坐标。</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="sx" class="parname"><b><code><span data-if="hdevelop" style="display:inline">sx</span><span data-if="c" style="display:none">sx</span><span data-if="cpp" style="display:none">sx</span><span data-if="dotnet" style="display:none">sx</span><span data-if="python" style="display:none">sx</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">ROI 左上角列坐标。</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="ew" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ew</span><span data-if="c" style="display:none">ew</span><span data-if="cpp" style="display:none">ew</span><span data-if="dotnet" style="display:none">ew</span><span data-if="python" style="display:none">ew</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">ROI 宽度（= 小图宽度）。</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="eh" class="parname"><b><code><span data-if="hdevelop" style="display:inline">eh</span><span data-if="c" style="display:none">eh</span><span data-if="cpp" style="display:none">eh</span><span data-if="dotnet" style="display:none">eh</span><span data-if="python" style="display:none">eh</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">ROI 高度（= 小图高度）。</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

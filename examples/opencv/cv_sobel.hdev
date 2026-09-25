@@ -5,31 +5,37 @@
 <body>
 <c>* =============================================================</c>
 <c>* cv_sobel — OpenCV Sobel 边缘检测（一阶导数）</c>
-<c>*   输入: byte / uint2 / real 单通道</c>
-<c>*   输出: real（梯度结果含符号）</c>
-<c>*   Dx/Dy: 0 或 1，Dx+Dy &gt;= 1；Ksize: 1 / 3 / 5 / 7</c>
+<c>*   输入: byte / uint2 / real 单通道；输出: real（梯度含符号）</c>
+<c>*   Ddepth: 'same'/'s16'/'f32'/'f64' 或 -1/3/5/6；BorderType 字符串枚举</c>
 <c>* =============================================================</c>
-<c>* ---- 1) 8 位图像，水平梯度 (Dx=1, Dy=0) ----</c>
+<c>* ---- 1) 8 位图像，水平梯度 (Dx=1, Dy=0)，Ddepth='f64' ----</c>
 <l>gen_image_const (Image, 'byte', 5, 5)</l>
 <l>gen_rectangle1 (ROI, 0, 3, 4, 4)</l>
 <l>overpaint_region (Image, ROI, 255, 'fill')</l>
-<l>cv_sobel (Image, ImageOut, 1, 0, 3, 6, 1.0, 0.0, 1)</l>
+<l>cv_sobel (Image, ImageOut, 1, 0, 3, 'f64', 1.0, 0.0, 'replicate')</l>
 <l>get_grayval (ImageOut, 2, 2, VEdge)</l>
 <c>* 期望: VEdge &gt; 0（左黑右白 → 正梯度）</c>
-<c>* ---- 2) 16 位图像，垂直梯度 (Dx=0, Dy=1) ----</c>
+<l>if (VEdge &lt;= 0)</l>
+<l>  throw ('cv_sobel byte wrong: ' + VEdge)</l>
+<l>endif</l>
+<c>* ---- 2) 16 位图像，垂直梯度 (Dx=0, Dy=1)，整数枚举（向后兼容） ----</c>
 <l>gen_image_const (Image2, 'uint2', 5, 5)</l>
 <l>gen_rectangle1 (ROI2, 3, 0, 4, 4)</l>
 <l>overpaint_region (Image2, ROI2, 65535, 'fill')</l>
 <l>cv_sobel (Image2, ImageOut2, 0, 1, 3, 6, 1.0, 0.0, 1)</l>
 <l>get_grayval (ImageOut2, 2, 2, VEdge2)</l>
-<c>* 期望: VEdge2 &gt; 0（上黑下白 → 正梯度）</c>
+<l>if (VEdge2 &lt;= 0)</l>
+<l>  throw ('cv_sobel uint2 wrong: ' + VEdge2)</l>
+<l>endif</l>
 <c>* ---- 3) 浮点图像，水平梯度 ----</c>
 <l>gen_image_const (Image3, 'real', 5, 5)</l>
 <l>gen_rectangle1 (ROI3, 0, 3, 4, 4)</l>
 <l>overpaint_region (Image3, ROI3, 100.0, 'fill')</l>
-<l>cv_sobel (Image3, ImageOut3, 1, 0, 3, 6, 1.0, 0.0, 1)</l>
+<l>cv_sobel (Image3, ImageOut3, 1, 0, 3, 'f64', 1.0, 0.0, 'replicate')</l>
 <l>get_grayval (ImageOut3, 2, 2, VEdge3)</l>
-<c>* 期望: VEdge3 &gt; 0</c>
+<l>if (VEdge3 &lt;= 0)</l>
+<l>  throw ('cv_sobel real wrong: ' + VEdge3)</l>
+<l>endif</l>
 </body>
 <docu id="main">
 <parameters/>

@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_multi_frame_median</span><span data-if="c" style="display:none;">cv_multi_frame_median</span><span data-if="cpp" style="display:none;">CvMultiFrameMedian</span><span data-if="dotnet" style="display:none;">CvMultiFrameMedian</span><span data-if="python" style="display:none;">cv_multi_frame_median</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_multi_frame_median</span><span data-if="c" style="display:none;">cv_multi_frame_median</span><span data-if="cpp" style="display:none;">CvMultiFrameMedian</span><span data-if="dotnet" style="display:none;">CvMultiFrameMedian</span><span data-if="python" style="display:none;">cv_multi_frame_median</span></code> — Compute the pixel-wise median over multiple real images using OpenCV.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_multi_frame_median</span><span data-if="c" style="display:none;">cv_multi_frame_median</span><span data-if="cpp" style="display:none;">CvMultiFrameMedian</span><span data-if="dotnet" style="display:none;">CvMultiFrameMedian</span><span data-if="python" style="display:none;">cv_multi_frame_median</span></code> — 多帧中值滤波：对 N 张同尺寸 real 图像逐像素取中值，输出单张 real 中值图（N=3 有特化快路径）。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1120,13 +1120,13 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="images" class="parname"><b><code><span data-if="hdevelop" style="display:inline">images</span><span data-if="c" style="display:none">images</span><span data-if="cpp" style="display:none">images</span><span data-if="dotnet" style="display:none">images</span><span data-if="python" style="display:none">images</span></code></b> (input_object)  </span><span>image-array <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">N 张 real 单通道图，尺寸一致，N ≥ 2</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="imageMedian" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageMedian</span><span data-if="c" style="display:none">imageMedian</span><span data-if="cpp" style="display:none">imageMedian</span><span data-if="dotnet" style="display:none">imageMedian</span><span data-if="python" style="display:none">image_median</span></code></b> (output_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">real 单通道中值图</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

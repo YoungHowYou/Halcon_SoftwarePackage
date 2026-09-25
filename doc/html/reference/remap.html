@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">remap</span><span data-if="c" style="display:none;">T_remap</span><span data-if="cpp" style="display:none;">Remap</span><span data-if="dotnet" style="display:none;">Remap</span><span data-if="python" style="display:none;">remap</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">remap</span><span data-if="c" style="display:none;">T_remap</span><span data-if="cpp" style="display:none;">Remap</span><span data-if="dotnet" style="display:none;">Remap</span><span data-if="python" style="display:none;">remap</span></code> — Laplace Filter.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">remap</span><span data-if="c" style="display:none;">T_remap</span><span data-if="cpp" style="display:none;">Remap</span><span data-if="dotnet" style="display:none;">Remap</span><span data-if="python" style="display:none;">remap</span></code> — 几何变换重映射，对应 cv::remap。输入图/输出图/MapX/MapY 以 dict 对象传入（uint2 输入，real 映射图）；每个像素按映射表取源坐标，支持桶形/枕形畸变校正等。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1118,7 +1118,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="hv_DictHandle" class="parname"><b><code><span data-if="hdevelop" style="display:inline">hv_DictHandle</span><span data-if="c" style="display:none">hv_DictHandle</span><span data-if="cpp" style="display:none">hv_DictHandle</span><span data-if="dotnet" style="display:none">hvDictHandle</span><span data-if="python" style="display:none">hv__dict_handle</span></code></b> (input_control)  </span><span>handle <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">HHandle</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (handle)</span><span data-if="dotnet" style="display:none"> (<i>IntPtr</i>)</span><span data-if="cpp" style="display:none"> (<i>HHandle</i>)</span><span data-if="c" style="display:none"> (<i>handle</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">dict 句柄（输入图/输出图/MapX/MapY 以 dict 对象传入）。</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

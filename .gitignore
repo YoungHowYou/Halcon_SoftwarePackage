@@ -57,3 +57,10 @@ Desktop.ini
 *~
 .vs/
 .idea/
+# 调试/语法检查残留（hcomp -u 检查、hrun 输出、obj）
+/Hcvcheck.c
+/_hrun_err.txt
+/_hrun_out.txt
+/*.obj
+# 示例运行生成物
+/examples/*.db

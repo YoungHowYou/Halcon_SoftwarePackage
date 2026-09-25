@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_solve</span><span data-if="c" style="display:none;">cv_solve</span><span data-if="cpp" style="display:none;">CvSolve</span><span data-if="dotnet" style="display:none;">CvSolve</span><span data-if="python" style="display:none;">cv_solve</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_solve</span><span data-if="c" style="display:none;">cv_solve</span><span data-if="cpp" style="display:none;">CvSolve</span><span data-if="dotnet" style="display:none;">CvSolve</span><span data-if="python" style="display:none;">cv_solve</span></code> — Solve linear equations A*x=b using OpenCV (real single-channel matrices).</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_solve</span><span data-if="c" style="display:none;">cv_solve</span><span data-if="cpp" style="display:none;">CvSolve</span><span data-if="dotnet" style="display:none;">CvSolve</span><span data-if="python" style="display:none;">cv_solve</span></code> — 线性方程组求解 Ax=b，对应 cv::solve。A、B 为 real 单通道图像（A 为 n×n 方阵，B 为 n×m 右端），输出 X（n×m real）；flags 对应 DECOMP_* 方法。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1120,25 +1120,25 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="imageA" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageA</span><span data-if="c" style="display:none">imageA</span><span data-if="cpp" style="display:none">imageA</span><span data-if="dotnet" style="display:none">imageA</span><span data-if="python" style="display:none">image_a</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">real 单通道矩阵 A（m×n）</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="imageB" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageB</span><span data-if="c" style="display:none">imageB</span><span data-if="cpp" style="display:none">imageB</span><span data-if="dotnet" style="display:none">imageB</span><span data-if="python" style="display:none">image_b</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">real 单通道矩阵 b（m×1 或 m×k）</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="imageX" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageX</span><span data-if="c" style="display:none">imageX</span><span data-if="cpp" style="display:none">imageX</span><span data-if="dotnet" style="display:none">imageX</span><span data-if="python" style="display:none">image_x</span></code></b> (output_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">解 x（n×1 或 n×k，real）</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="methodId" class="parname"><b><code><span data-if="hdevelop" style="display:inline">methodId</span><span data-if="c" style="display:none">methodId</span><span data-if="cpp" style="display:none">methodId</span><span data-if="dotnet" style="display:none">methodId</span><span data-if="python" style="display:none">method_id</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">求解方法，默认 0</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0</p>

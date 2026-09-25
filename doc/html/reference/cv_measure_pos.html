@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_measure_pos</span><span data-if="c" style="display:none;">T_cv_measure_pos</span><span data-if="cpp" style="display:none;">CvMeasurePos</span><span data-if="dotnet" style="display:none;">CvMeasurePos</span><span data-if="python" style="display:none;">cv_measure_pos</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_measure_pos</span><span data-if="c" style="display:none;">T_cv_measure_pos</span><span data-if="cpp" style="display:none;">CvMeasurePos</span><span data-if="dotnet" style="display:none;">CvMeasurePos</span><span data-if="python" style="display:none;">cv_measure_pos</span></code> — Measure straight edges perpendicular to a rectangle using OpenCV.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_measure_pos</span><span data-if="c" style="display:none;">T_cv_measure_pos</span><span data-if="cpp" style="display:none;">CvMeasurePos</span><span data-if="dotnet" style="display:none;">CvMeasurePos</span><span data-if="python" style="display:none;">cv_measure_pos</span></code> — 一维边缘测量，复刻 HALCON measure_pos（算法本体在 cvr 库 cvr_measure_pos，7 步管线：剖面提取→高斯一阶导核→卷积→局部极大值+阈值→抛物线亚像素→排序→去重/方向过滤/映射）。沿测量矩形主轴扫描，输出边缘行/列坐标与振幅。注意：暗→亮边缘振幅为负（transition=-1 选中），亮→暗为正。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1118,13 +1118,13 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="image" class="parname"><b><code><span data-if="hdevelop" style="display:inline">image</span><span data-if="c" style="display:none">image</span><span data-if="cpp" style="display:none">image</span><span data-if="dotnet" style="display:none">image</span><span data-if="python" style="display:none">image</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">单通道 byte / uint2 / real（内部转 byte）</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="Column" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Column</span><span data-if="c" style="display:none">Column</span><span data-if="cpp" style="display:none">Column</span><span data-if="dotnet" style="display:none">column</span><span data-if="python" style="display:none">column</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">测量矩形中心列坐标 x</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0.0</p>
@@ -1133,7 +1133,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="Row" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Row</span><span data-if="c" style="display:none">Row</span><span data-if="cpp" style="display:none">Row</span><span data-if="dotnet" style="display:none">row</span><span data-if="python" style="display:none">row</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">测量矩形中心行坐标 y</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0.0</p>
@@ -1142,7 +1142,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="Phi" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Phi</span><span data-if="c" style="display:none">Phi</span><span data-if="cpp" style="display:none">Phi</span><span data-if="dotnet" style="display:none">phi</span><span data-if="python" style="display:none">phi</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">主轴角度（弧度，逆时针为正）</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0.0</p>
@@ -1151,7 +1151,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="Length1" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Length1</span><span data-if="c" style="display:none">Length1</span><span data-if="cpp" style="display:none">Length1</span><span data-if="dotnet" style="display:none">length1</span><span data-if="python" style="display:none">length_1</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">沿主轴半长</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>10.0</p>
@@ -1160,7 +1160,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="Length2" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Length2</span><span data-if="c" style="display:none">Length2</span><span data-if="cpp" style="display:none">Length2</span><span data-if="dotnet" style="display:none">length2</span><span data-if="python" style="display:none">length_2</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">垂直主轴半宽</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>5.0</p>
@@ -1169,7 +1169,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="Sigma" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Sigma</span><span data-if="c" style="display:none">Sigma</span><span data-if="cpp" style="display:none">Sigma</span><span data-if="dotnet" style="display:none">sigma</span><span data-if="python" style="display:none">sigma</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">高斯平滑标准差</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>1.0</p>
@@ -1178,7 +1178,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="Threshold" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Threshold</span><span data-if="c" style="display:none">Threshold</span><span data-if="cpp" style="display:none">Threshold</span><span data-if="dotnet" style="display:none">threshold</span><span data-if="python" style="display:none">threshold</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">振幅阈值</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>5.0</p>
@@ -1187,7 +1187,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="Transition" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Transition</span><span data-if="c" style="display:none">Transition</span><span data-if="cpp" style="display:none">Transition</span><span data-if="dotnet" style="display:none">transition</span><span data-if="python" style="display:none">transition</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">0=全部，1=暗→亮，-1=亮→暗</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0</p>
@@ -1196,19 +1196,19 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="RowEdge" class="parname"><b><code><span data-if="hdevelop" style="display:inline">RowEdge</span><span data-if="c" style="display:none">RowEdge</span><span data-if="cpp" style="display:none">RowEdge</span><span data-if="dotnet" style="display:none">rowEdge</span><span data-if="python" style="display:none">row_edge</span></code></b> (output_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">边缘行坐标</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="ColumnEdge" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ColumnEdge</span><span data-if="c" style="display:none">ColumnEdge</span><span data-if="cpp" style="display:none">ColumnEdge</span><span data-if="dotnet" style="display:none">columnEdge</span><span data-if="python" style="display:none">column_edge</span></code></b> (output_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">边缘列坐标</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="Amplitude" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Amplitude</span><span data-if="c" style="display:none">Amplitude</span><span data-if="cpp" style="display:none">Amplitude</span><span data-if="dotnet" style="display:none">amplitude</span><span data-if="python" style="display:none">amplitude</span></code></b> (output_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">边缘振幅</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

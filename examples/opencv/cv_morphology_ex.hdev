@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>* cv_morphology_ex / cv_gray_* —— 灰度形态学（cv::morphologyEx）</l>
+<l>* 支持 byte / uint2 / real 单通道；Op/Shape 支持字符串枚举（大小写不敏感）</l>
+<l>read_image (Image, 'printer_chip/printer_chip_01')</l>
+<l>get_image_size (Image, W, H)</l>
+<l>* --- 预设算子：rect / circle × erode/dilate/open/close ---</l>
+<l>cv_gray_erosion_rect (Image, EroR, 5, 5)</l>
+<l>cv_gray_dilation_rect (Image, DilR, 5, 5)</l>
+<l>cv_gray_opening_rect (Image, OpeR, 5, 5)</l>
+<l>cv_gray_closing_rect (Image, CloR, 5, 5)</l>
+<l>cv_gray_erosion_circle (Image, EroC, 3.5)</l>
+<l>cv_gray_dilation_circle (Image, DilC, 3.5)</l>
+<l>cv_gray_opening_circle (Image, OpeC, 2.0)</l>
+<l>cv_gray_closing_circle (Image, CloC, 2.0)</l>
+<l>* --- 通用算子：字符串 Op/Shape + 迭代次数 ---</l>
+<l>cv_morphology_ex (Image, Grad, 'gradient', 'ellipse', 5, 5, 1)</l>
+<l>cv_morphology_ex (Image, TopH, 'tophat', 'rect', 9, 9, 1)</l>
+<l>cv_morphology_ex (Image, BlackH, 'MORPH_BLACKHAT', 'CROSS', 9, 9, 1)</l>
+<l>cv_morphology_ex (Image, Op2, 'open', 'rect', 3, 3, 2)</l>
+<l>* --- uint2 也支持 ---</l>
+<l>convert_image_type (Image, Image16, 'uint2')</l>
+<l>cv_gray_opening_circle (Image16, Ope16, 2.0)</l>
+<l>* --- 校验：输出尺寸 == 输入尺寸 ---</l>
+<l>get_image_size (EroR, W1, H1)</l>
+<l>get_image_size (DilC, W2, H2)</l>
+<l>get_image_size (Grad, W3, H3)</l>
+<l>get_image_size (TopH, W4, H4)</l>
+<l>get_image_size (BlackH, W5, H5)</l>
+<l>get_image_size (Ope16, W6, H6)</l>
+<l>get_image_size (Op2, W7, H7)</l>
+<l>if (W1 != W or H1 != H or W2 != W or H2 != H or W3 != W or H3 != H or W4 != W or H4 != H or W5 != W or H5 != H or W6 != W or H6 != H or W7 != W or H7 != H)</l>
+<l>  throw ('gray morph: output size mismatch')</l>
+<l>endif</l>
+<l>* --- 校验：腐蚀 &lt;= 原图 &lt;= 膨胀（取同一点灰度；形态学单调性） ---</l>
+<l>get_grayval (Image, 200, 200, GV0)</l>
+<l>get_grayval (EroR, 200, 200, GV1)</l>
+<l>get_grayval (DilR, 200, 200, GV2)</l>
+<l>if (GV1 &gt; GV0 + 1 or GV2 &lt; GV0 - 1)</l>
+<l>  throw ('gray morph: monotonicity violated')</l>
+<l>endif</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

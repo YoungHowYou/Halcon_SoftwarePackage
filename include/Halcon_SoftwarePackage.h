@@ -1,4 +1,4 @@
-#include "Halcon.h"
+﻿#include "Halcon.h"
 #if defined(_WIN32) || defined(_WIN64)
 #define EXPORTS_API __declspec(dllexport)
 #else
@@ -95,12 +95,61 @@ extern EXPORTS_API Herror HCcv_add_weighted(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_solve(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_estimate_affine_2d(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_threshold_triangle(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_threshold(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_morphology_ex(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_gray_erosion_rect(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_gray_dilation_rect(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_gray_opening_rect(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_gray_closing_rect(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_gray_erosion_circle(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_gray_dilation_circle(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_gray_opening_circle(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_gray_closing_circle(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_calc_hist(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_match_template(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_kmeans(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_multi_frame_median(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_sobel(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_magnitude(Hproc_handle proc_handle);
+#pragma endregion
+
+#pragma region cv_region
+extern EXPORTS_API Herror Hcv_union2(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_intersection(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_erosion1(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_connection(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_select_shape(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_union1(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_difference(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_complement(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_symm_difference(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_dilation1(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_opening(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_closing(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_fill_up(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_gen_circle(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_gen_rectangle1(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_area_center(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_smallest_rectangle1(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_smallest_rectangle2(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_smallest_circle(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_elliptic_axis(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_contlength(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_circularity(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_compactness(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_convexity(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_rectangularity(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_anisometry(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_bulkiness(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_structure_factor(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_shape_trans(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_region_to_bin(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_bin_to_region(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_erosion_circle(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_dilation_circle(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_erosion_rectangle1(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_dilation_rectangle1(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_ransac_fit(Hproc_handle proc_handle);
 #pragma endregion
 
 #pragma region math

@@ -1,0 +1,1750 @@
+cv_union2<- CHcv_union2[Region1,Region2:RegionUnion::]
+short.german
+  Vereinigung zweier Regionen pro Index (cv_region).;
+
+short.english
+  两个 region 求并集，对应 HALCON union2（RLE 有序归并）。结果去重合并相邻 run。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Union;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region1:           input_object;
+  description.english: 输入 region 1。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Region2:           input_object;
+  description.english: 输入 region 2。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionUnion:        output_object;
+  description.english: 输出并集 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+value_number:
+  RegionUnion == Region1 && (Region2 == Region1 || Region2 == 1);
+
+
+cv_intersection<- CHcv_intersection[Region1,Region2:RegionIntersection::]
+short.german
+  Schnitt zweier Regionen pro Index (cv_region).;
+
+short.english
+  两个 region 求交集，对应 HALCON intersection（RLE 双指针归并）。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Intersection;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region1:           input_object;
+  description.english: 输入 region 1。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Region2:           input_object;
+  description.english: 输入 region 2。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionIntersection: output_object;
+  description.english: 输出交集 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+value_number:
+  RegionIntersection == Region1 && (Region2 == Region1 || Region2 == 1);
+
+
+cv_erosion1<- CHcv_erosion1[Region,StructElement:RegionErosion:Iterations:]
+short.german
+  Erosion einer Region mit beliebigem Strukturelement (cv_region).;
+
+short.english
+  region 腐蚀（自定义结构元），对应 HALCON erosion1。SE 参考点=质心四舍五入；按行 O(n×SE行数) 实现。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Erosion, Morphology;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region:            input_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  StructElement:     input_object;
+  description.english: 结构元（region），参考点取其质心四舍五入。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionErosion:      output_object;
+  description.english: 输出腐蚀结果 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Iterations:        input_control;
+  description.english: 迭代次数（≥1）。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      1;
+
+value_number:
+  RegionErosion == Region && (StructElement == Region || StructElement == 1);
+
+
+cv_connection<- CHcv_connection[Region:ConnectedRegions::]
+short.german
+  Zusammenhangskomponenten einer Region (cv_region).;
+
+short.english
+  连通域标记（8 连通），对应 HALCON connection。输出连通域元组。按行并查集 + 双指针实现。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Connection;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region:            input_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  ConnectedRegions:   output_object;
+  description.english: 输出连通域元组。;
+  sem_type:           region;
+  multivalue:         optional;
+
+value_number:
+  ConnectedRegions >= 0;
+
+
+cv_select_shape<- CHcv_select_shape[Regions:SelectedRegions:Features,Operation,Min,Max:]
+short.german
+  Auswahl von Regionen anhand von Formmerkmalen (cv_region).;
+
+short.english
+  按形状特征筛选 region 子集，对应 HALCON select_shape。Features 为多特征名元组，Operation 为 and/or，Min/Max 为阈值范围；输出保持引用语义。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Select, Shape;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  SelectedRegions:    output_object;
+  description.english: 输出筛选通过的 region 子集（引用语义）。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Features:          input_control;
+  description.english: 特征名元组（如 area/circularity，见 cvr_get_feature）。;
+  default_type:       string;
+  multivalue:         true;
+  sem_type:           string;
+  type_list:          string;
+  default_value:      "area";
+  value_list:         "area","row","column","width","height","row1","column1","row2","column2","circularity","compactness","convexity","rectangularity","contlength","phi","ra","rb","anisometry","bulkiness","structure_factor";
+
+parameter
+  Operation:         input_control;
+  description.english: 组合方式：'and'（全部满足）/ 'or'（任一满足）。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+  default_value:      "and";
+  value_list:         "and","or";
+
+parameter
+  Min:               input_control;
+  description.english: 特征下限元组（与 Features 一一对应）。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      0.0;
+
+parameter
+  Max:               input_control;
+  description.english: 特征上限元组（与 Features 一一对应）。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      10000.0;
+
+value_number:
+  SelectedRegions <= Regions;
+
+
+cv_union1<- CHcv_union1[Regions:RegionUnion::]
+short.german
+  Vereinigung aller Eingaberegionen (cv_region).;
+
+short.english
+  region 元组全部求并集，对应 HALCON union1。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Union;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionUnion:        output_object;
+  description.english: 输出并集 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+
+cv_difference<- CHcv_difference[Region1,Region2:RegionDifference::]
+short.german
+  Differenz zweier Regionen pro Index (cv_region).;
+
+short.english
+  两个 region 求差集（R1 − R2），对应 HALCON difference。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Difference;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region1:           input_object;
+  description.english: 输入 region 1。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Region2:           input_object;
+  description.english: 输入 region 2。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionDifference:   output_object;
+  description.english: 输出差集 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+value_number:
+  RegionDifference == Region1 && (Region2 == Region1 || Region2 == 1);
+
+
+cv_complement<- CHcv_complement[Region:RegionComplement::]
+short.german
+  Komplement einer Region (cv_region).;
+
+short.english
+  region 求补集，对应 HALCON complement（输出带 is_compl 标志，惰性表示）。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Complement;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region:            input_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionComplement:   output_object;
+  description.english: 输出补集 region（带 is_compl 标志）。;
+  sem_type:           region;
+  multivalue:         optional;
+
+value_number:
+  RegionComplement == Region;
+
+
+cv_symm_difference<- CHcv_symm_difference[Region1,Region2:RegionSymmDifference::]
+short.german
+  Symmetrische Differenz zweier Regionen pro Index (cv_region).;
+
+short.english
+  两个 region 求对称差，对应 HALCON symm_difference。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, SymmDifference;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region1:           input_object;
+  description.english: 输入 region 1。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Region2:           input_object;
+  description.english: 输入 region 2。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionSymmDifference: output_object;
+  description.english: 输出对称差 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+value_number:
+  RegionSymmDifference == Region1 && (Region2 == Region1 || Region2 == 1);
+
+
+cv_dilation1<- CHcv_dilation1[Region,StructElement:RegionDilation:Iterations:]
+short.german
+  Dilatation einer Region mit beliebigem Strukturelement (cv_region).;
+
+short.english
+  region 膨胀（自定义结构元），对应 HALCON dilation1。SE 参考点=质心四舍五入，用居中+反射 SE 做 Minkowski 和；按行 O(n×SE行数) 实现。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Dilation, Morphology;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region:            input_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  StructElement:     input_object;
+  description.english: 结构元（region），参考点取其质心四舍五入。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionDilation:     output_object;
+  description.english: 输出膨胀结果 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Iterations:        input_control;
+  description.english: 迭代次数（≥1）。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      1;
+
+value_number:
+  RegionDilation == Region && (StructElement == Region || StructElement == 1);
+
+
+cv_opening<- CHcv_opening[Region,StructElement:RegionOpening::]
+short.german
+  Opening einer Region mit beliebigem Strukturelement (cv_region).;
+
+short.english
+  region 开运算：先腐蚀后膨胀，去除细小亮结构。对应 HALCON opening。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Opening, Morphology;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region:            input_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  StructElement:     input_object;
+  description.english: 结构元（region），参考点取其质心四舍五入。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionOpening:      output_object;
+  description.english: 输出开运算结果 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+value_number:
+  RegionOpening == Region && (StructElement == Region || StructElement == 1);
+
+
+cv_closing<- CHcv_closing[Region,StructElement:RegionClosing::]
+short.german
+  Closing einer Region mit beliebigem Strukturelement (cv_region).;
+
+short.english
+  region 闭运算：先膨胀后腐蚀，填补细小暗孔洞。对应 HALCON closing。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Closing, Morphology;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region:            input_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  StructElement:     input_object;
+  description.english: 结构元（region），参考点取其质心四舍五入。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionClosing:      output_object;
+  description.english: 输出闭运算结果 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+value_number:
+  RegionClosing == Region && (StructElement == Region || StructElement == 1);
+
+
+cv_fill_up<- CHcv_fill_up[Region:RegionFillUp::]
+short.german
+  Fuellung von Loechern in einer Region (cv_region).;
+
+short.english
+  填充 region 内部孔洞，对应 HALCON fill_up。需要定义域（取全局 HGWidth/HGHeight，缺省时按输入 bbox 推导）。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, FillUp, Morphology;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region:            input_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionFillUp:       output_object;
+  description.english: 输出填充后的 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+value_number:
+  RegionFillUp == Region;
+
+
+cv_gen_circle<- CHcv_gen_circle[:Circle:Row,Column,Radius:]
+short.german
+  Erzeugt eine kreisfoermige Region (cv_region).;
+
+short.english
+  生成圆形 region，对应 HALCON gen_circle。负坐标按 HALCON 语义裁剪。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, GenCircle;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Circle:            output_object;
+  description.english: 输出圆形 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Row:               input_control;
+  description.english: 行坐标。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      0.0;
+
+parameter
+  Column:            input_control;
+  description.english: 列坐标。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      0.0;
+
+parameter
+  Radius:            input_control;
+  description.english: 半径（像素）。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      1.0;
+
+
+cv_gen_rectangle1<- CHcv_gen_rectangle1[:Rectangle:Row1,Column1,Row2,Column2:]
+short.german
+  Erzeugt eine achsenparallele rechteckige Region (cv_region).;
+
+short.english
+  生成轴对齐矩形 region，对应 HALCON gen_rectangle1。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, GenRectangle;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Rectangle:         output_object;
+  description.english: 输出矩形 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Row1:              input_control;
+  description.english: 矩形左上角行坐标。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      0;
+
+parameter
+  Column1:           input_control;
+  description.english: 矩形左上角列坐标。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      0;
+
+parameter
+  Row2:              input_control;
+  description.english: 矩形右下角行坐标。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      0;
+
+parameter
+  Column2:           input_control;
+  description.english: 矩形右下角列坐标。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      0;
+
+cv_area_center<- CHcv_area_center[Regions:::Area,Row,Column]
+short.german
+  Area and center of regions (cv_region).;
+
+short.english
+  region 面积与重心，对应 HALCON area_center。输出 Area/Row/Column。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Feature;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Area:              output_control;
+  description.english: 面积（像素数）。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+parameter
+  Row:              output_control;
+  description.english: 行坐标。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+parameter
+  Column:              output_control;
+  description.english: 列坐标。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+
+cv_smallest_rectangle1<- CHcv_smallest_rectangle1[Regions:::Row1,Column1,Row2,Column2]
+short.german
+  Smallest axis-parallel rectangle of regions (cv_region).;
+
+short.english
+  轴对齐最小外接矩形，对应 HALCON smallest_rectangle1。输出 Row1/Col1/Row2/Col2。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Feature;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Row1:              output_control;
+  description.english: 矩形左上角行坐标。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+parameter
+  Column1:              output_control;
+  description.english: 矩形左上角列坐标。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+parameter
+  Row2:              output_control;
+  description.english: 矩形右下角行坐标。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+parameter
+  Column2:              output_control;
+  description.english: 矩形右下角列坐标。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+
+cv_smallest_rectangle2<- CHcv_smallest_rectangle2[Regions:::Row,Column,Phi,Length1,Length2]
+short.german
+  Smallest oriented rectangle of regions (cv_region).;
+
+short.english
+  最小外接旋转矩形，对应 HALCON smallest_rectangle2。输出中心/角度/半边长。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Feature;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Row:              output_control;
+  description.english: 行坐标。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+parameter
+  Column:              output_control;
+  description.english: 列坐标。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+parameter
+  Phi:              output_control;
+  description.english: 主轴方向角（弧度，相对列轴）。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+parameter
+  Length1:              output_control;
+  description.english: 外接矩形半长。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+parameter
+  Length2:              output_control;
+  description.english: 外接矩形半宽。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+
+cv_smallest_circle<- CHcv_smallest_circle[Regions:::Row,Column,Radius]
+short.german
+  Smallest enclosing circle of regions (cv_region).;
+
+short.english
+  最小外接圆，对应 HALCON smallest_circle。输出圆心行/列与半径。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Feature;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Row:              output_control;
+  description.english: 行坐标。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+parameter
+  Column:              output_control;
+  description.english: 列坐标。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+parameter
+  Radius:              output_control;
+  description.english: 半径（像素）。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+
+cv_elliptic_axis<- CHcv_elliptic_axis[Regions:::Ra,Rb,Phi]
+short.german
+  Axes and orientation of the equivalent ellipse (cv_region).;
+
+short.english
+  等效椭圆轴（长半轴 Ra、短半轴 Rb、主轴角 Phi），对应 HALCON elliptic_axis。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Feature;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Ra:              output_control;
+  description.english: 等效椭圆长半轴。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+parameter
+  Rb:              output_control;
+  description.english: 等效椭圆短半轴。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+parameter
+  Phi:              output_control;
+  description.english: 主轴方向角（弧度，相对列轴）。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+
+cv_contlength<- CHcv_contlength[Regions:::Contlength]
+short.german
+  Contour length of regions (cv_region).;
+
+short.english
+  轮廓长度（含对角 sqrt(2) 修正），对应 HALCON contlength。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Feature;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Contlength:              output_control;
+  description.english: 轮廓长度。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+
+cv_circularity<- CHcv_circularity[Regions:::Circularity]
+short.german
+  Circularity of regions (cv_region).;
+
+short.english
+  圆度（4πA/C²），对应 HALCON circularity。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Feature;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Circularity:              output_control;
+  description.english: 圆度（0..1，越接近 1 越圆）。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+
+cv_compactness<- CHcv_compactness[Regions:::Compactness]
+short.german
+  Compactness of regions (cv_region).;
+
+short.english
+  紧凑度（C²/(4πA)），对应 HALCON compactness。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Feature;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Compactness:              output_control;
+  description.english: 紧凑度。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+
+cv_convexity<- CHcv_convexity[Regions:::Convexity]
+short.german
+  Convexity of regions (cv_region).;
+
+short.english
+  凸度（面积/凸包面积），对应 HALCON convexity。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Feature;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Convexity:              output_control;
+  description.english: 凸度（0..1）。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+
+cv_rectangularity<- CHcv_rectangularity[Regions:::Rectangularity]
+short.german
+  Rectangularity of regions (cv_region).;
+
+short.english
+  矩形度，对应 HALCON rectangularity。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Feature;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Rectangularity:              output_control;
+  description.english: 矩形度（0..1）。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+
+cv_anisometry<- CHcv_anisometry[Regions:::Anisometry]
+short.german
+  Anisometry of regions (cv_region).;
+
+short.english
+  各向异性（Ra/Rb），对应 HALCON anisometry。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Feature;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Anisometry:              output_control;
+  description.english: 各向异性（Ra/Rb，≥1）。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+
+cv_bulkiness<- CHcv_bulkiness[Regions:::Bulkiness]
+short.german
+  Bulkiness of regions (cv_region).;
+
+short.english
+  肥胖度，对应 HALCON bulkiness。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Feature;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Bulkiness:              output_control;
+  description.english: 肥胖度。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+
+cv_structure_factor<- CHcv_structure_factor[Regions:::StructureFactor]
+short.german
+  Structure factor of regions (cv_region).;
+
+short.english
+  结构因子（各向异性×肥胖度），对应 HALCON structure_factor。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Feature;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Regions:           input_object;
+  description.english: 输入 region 元组，逐元素计算。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  StructureFactor:              output_control;
+  description.english: 结构因子（各向异性×肥胖度）。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+
+cv_shape_trans<- CHcv_shape_trans[Region:RegionTrans:Type:]
+short.german
+  Formtransformation einer Region (cv_region).;
+
+short.english
+  region 形状变换，对应 HALCON shape_trans。Type 支持 convex（凸包）/outer_circle（外接圆）/inner_circle（内切圆）/rectangle1/rectangle2 等。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, ShapeTrans;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region:            input_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionTrans:        output_object;
+  description.english: 输出形状变换后的 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Type:              input_control;
+  description.english: 类型（字符串或整数，见算子说明）。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+  default_value:      "convex";
+  value_list:         "rectangle1","rectangle2","ellipse","outer_circle","convex";
+
+value_number:
+  RegionTrans == Region;
+
+cv_region_to_bin<- CHcv_region_to_bin[Region:BinImage:ForegroundGray,BackgroundGray,Width,Height:]
+short.german
+  Konvertiert eine Region in ein binaeres Bild (cv_region).;
+
+short.english
+  region 转 byte 二值图，对应 HALCON region_to_bin。可指定前景/背景灰度与图像尺寸（0 表示自动推导）。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, RegionToBin, Image;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region:            input_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  BinImage:          output_object;
+  description.english: byte 二值图。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  ForegroundGray:    input_control;
+  description.english: 前景灰度（0..255）。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      255;
+
+parameter
+  BackgroundGray:    input_control;
+  description.english: 背景灰度（0..255）。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      0;
+
+parameter
+  Width:             input_control;
+  description.english: 输出图像宽度（0=自动推导）。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      0;
+
+parameter
+  Height:            input_control;
+  description.english: 输出图像高度（0=自动推导）。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      0;
+
+value_number:
+  BinImage == Region;
+
+cv_bin_to_region<- CHcv_bin_to_region[BinImage:Region:Threshold:]
+short.german
+  Konvertiert ein binaeres Bild in eine Region (cv_region).;
+
+short.english
+  byte 二值图转 region（gray ≥ Threshold 的像素），对应 HALCON bin_threshold 的逆过程。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, BinToRegion, Image;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  BinImage:          input_object;
+  description.english: byte 二值图。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  Region:            output_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Threshold:         input_control;
+  description.english: 前景阈值（gray ≥ Threshold 为前景，0..255）。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      1;
+
+value_number:
+  Region == BinImage;
+
+
+cv_erosion_circle<- CHcv_erosion_circle[Region:RegionErosion:Radius:]
+short.german
+  Erosion einer Region mit kreisfoermigem Strukturelement (cv_region).;
+
+short.english
+  圆形结构元腐蚀，对应 HALCON erosion_circle。Radius 决定 SE 尺寸；按行算法实现。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Erosion, Morphology, Circle;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region:            input_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionErosion:      output_object;
+  description.english: 输出腐蚀结果 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Radius:            input_control;
+  description.english: 半径（像素）。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      1.0;
+
+value_number:
+  RegionErosion == Region;
+
+
+cv_dilation_circle<- CHcv_dilation_circle[Region:RegionDilation:Radius:]
+short.german
+  Dilatation einer Region mit kreisfoermigem Strukturelement (cv_region).;
+
+short.english
+  圆形结构元膨胀，对应 HALCON dilation_circle。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Dilation, Morphology, Circle;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region:            input_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionDilation:     output_object;
+  description.english: 输出膨胀结果 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Radius:            input_control;
+  description.english: 半径（像素）。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      1.0;
+
+value_number:
+  RegionDilation == Region;
+
+
+cv_erosion_rectangle1<- CHcv_erosion_rectangle1[Region:RegionErosion:Width,Height:]
+short.german
+  Erosion einer Region mit rechteckigem Strukturelement (cv_region).;
+
+short.english
+  矩形结构元腐蚀，对应 HALCON erosion_rectangle1。Width/Height 为核宽高。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Erosion, Morphology, Rectangle;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region:            input_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionErosion:      output_object;
+  description.english: 输出腐蚀结果 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Width:             input_control;
+  description.english: 宽度。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      3;
+
+parameter
+  Height:            input_control;
+  description.english: 高度。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      3;
+
+value_number:
+  RegionErosion == Region;
+
+
+cv_dilation_rectangle1<- CHcv_dilation_rectangle1[Region:RegionDilation:Width,Height:]
+short.german
+  Dilatation einer Region mit rechteckigem Strukturelement (cv_region).;
+
+short.english
+  矩形结构元膨胀，对应 HALCON dilation_rectangle1。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Dilation, Morphology, Rectangle;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region:            input_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  RegionDilation:     output_object;
+  description.english: 输出膨胀结果 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  Width:             input_control;
+  description.english: 宽度。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      3;
+
+parameter
+  Height:            input_control;
+  description.english: 高度。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      3;
+
+value_number:
+  RegionDilation == Region;

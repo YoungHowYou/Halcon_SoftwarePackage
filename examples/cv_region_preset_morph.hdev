@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>read_image (Image, 'printer_chip/printer_chip_01')</l>
+<l>threshold (Image, Regions, 66, 255)</l>
+<c></c>
+<l>* ---------- 圆结构元 ----------</l>
+<l>erosion_circle (Regions, ECH, 3.5)</l>
+<l>cv_erosion_circle (Regions, ECC, 3.5)</l>
+<l>symm_difference (ECH, ECC, D1)</l>
+<l>area_center (D1, A1, R1, C1)</l>
+<l>if (A1 != 0)</l>
+<l>  throw ('cv_erosion_circle mismatch, symm diff=' + A1)</l>
+<l>endif</l>
+<c></c>
+<l>dilation_circle (Regions, DCH, 3.5)</l>
+<l>cv_dilation_circle (Regions, DCC, 3.5)</l>
+<l>symm_difference (DCH, DCC, D2)</l>
+<l>area_center (D2, A2, R2, C2)</l>
+<l>if (A2 != 0)</l>
+<l>  throw ('cv_dilation_circle mismatch, symm diff=' + A2)</l>
+<l>endif</l>
+<c></c>
+<l>* ---------- 矩形结构元（宽高单独调） ----------</l>
+<l>erosion_rectangle1 (Regions, ERH, 7, 3)</l>
+<l>cv_erosion_rectangle1 (Regions, ERC, 7, 3)</l>
+<l>symm_difference (ERH, ERC, D3)</l>
+<l>area_center (D3, A3, R3, C3)</l>
+<l>if (A3 != 0)</l>
+<l>  throw ('cv_erosion_rectangle1 mismatch, symm diff=' + A3)</l>
+<l>endif</l>
+<c></c>
+<l>dilation_rectangle1 (Regions, DRH, 7, 3)</l>
+<l>cv_dilation_rectangle1 (Regions, DRC, 7, 3)</l>
+<l>symm_difference (DRH, DRC, D4)</l>
+<l>area_center (D4, A4, R4, C4)</l>
+<l>if (A4 != 0)</l>
+<l>  throw ('cv_dilation_rectangle1 mismatch, symm diff=' + A4)</l>
+<l>endif</l>
+<c></c>
+<l>* ---------- 换一组偶数宽高 ----------</l>
+<l>erosion_rectangle1 (Regions, ER2H, 4, 8)</l>
+<l>cv_erosion_rectangle1 (Regions, ER2C, 4, 8)</l>
+<l>symm_difference (ER2H, ER2C, D5)</l>
+<l>area_center (D5, A5, R5, C5)</l>
+<l>if (A5 != 0)</l>
+<l>  throw ('cv_erosion_rectangle1(4,8) mismatch, symm diff=' + A5)</l>
+<l>endif</l>
+<c></c>
+<l>* ---------- 小矩形上验证矩形结构元精确性 ----------</l>
+<l>gen_rectangle1 (Rect1, 10, 10, 50, 50)</l>
+<l>erosion_rectangle1 (Rect1, SRH, 5, 5)</l>
+<l>cv_erosion_rectangle1 (Rect1, SRC, 5, 5)</l>
+<l>symm_difference (SRH, SRC, D6)</l>
+<l>area_center (D6, A6, R6, C6)</l>
+<l>if (A6 != 0)</l>
+<l>  throw ('small rect cv_erosion_rectangle1 mismatch, symm diff=' + A6)</l>
+<l>endif</l>
+<l>dilation_rectangle1 (Rect1, SDH, 5, 5)</l>
+<l>cv_dilation_rectangle1 (Rect1, SDC, 5, 5)</l>
+<l>symm_difference (SDH, SDC, D7)</l>
+<l>area_center (D7, A7, R7, C7)</l>
+<l>if (A7 != 0)</l>
+<l>  throw ('small rect cv_dilation_rectangle1 mismatch, symm diff=' + A7)</l>
+<l>endif</l>
+<l>erosion_circle (Rect1, SCH, 3.5)</l>
+<l>cv_erosion_circle (Rect1, SCC, 3.5)</l>
+<l>symm_difference (SCH, SCC, D8)</l>
+<l>area_center (D8, A8, R8, C8)</l>
+<l>if (A8 != 0)</l>
+<l>  throw ('small rect cv_erosion_circle mismatch, symm diff=' + A8)</l>
+<l>endif</l>
+<l>dilation_circle (Rect1, SDCH, 3.5)</l>
+<l>cv_dilation_circle (Rect1, SDCC, 3.5)</l>
+<l>symm_difference (SDCH, SDCC, D9)</l>
+<l>area_center (D9, A9, R9, C9)</l>
+<l>if (A9 != 0)</l>
+<l>  throw ('small rect cv_dilation_circle mismatch, symm diff=' + A9)</l>
+<l>endif</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

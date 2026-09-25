@@ -1,4 +1,4 @@
-/*=============================================================================
+﻿/*=============================================================================
  * Halcon_OpenCV.cpp — HALCON OpenCV & exiv2 Extension Operators
  * 从 Halcon_YouloBe 迁移的非 OpenVINO 功能
  *
@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include "cvr/cvr_measure.hpp"
 #include "HalconCpp.h"
 #include "HDevThread.h"
 #include <string>
@@ -49,6 +50,147 @@
 
 using namespace std;
 using namespace HalconCpp;
+
+/*=============================================================================
+ * OpenCV 枚举字符串映射
+ *   DEF 中相应控制参数 type_list 为 string,integer（向后兼容整数输入）。
+ *   字符串不区分大小写；小表（≤16 项）线性查找——比 unordered_map 快且无
+ *   首次构造开销。数值字符串（如 "4"）自动按整数解析（HALCON 可能把整数
+ *   参数转成字符串再传给 supply）。
+ *===========================================================================*/
+struct CvEnumEntry { const char* name; int value; };
+
+static bool enum_from_string(const CvEnumEntry* table, size_t n,
+                             const char* s, int& out)
+{
+    if (!s || !*s) return false;
+    for (size_t i = 0; i < n; ++i) {
+        const char* p = s;
+        const char* q = table[i].name;
+        while (*p && *q) {
+            char a = *p, b = *q;
+            if (a >= 'A' && a <= 'Z') a = (char)(a - 'A' + 'a');
+            if (b >= 'A' && b <= 'Z') b = (char)(b - 'A' + 'a');
+            if (a != b) break;
+            ++p; ++q;
+        }
+        if (*p == '\0' && *q == '\0') { out = table[i].value; return true; }
+    }
+    return false;
+}
+
+/* 读"字符串或整数"参数。HGetSPar 宏失败时会 return，故拆到小函数里。
+ * 注意：不在这里分配字符串内存——每个算子开头统一 HAllocStringMem 一次
+ * （多次 HAllocStringMem 会泄漏 temp memory 块，触发 HALCON 弹窗检查）。 */
+static Herror fetch_str(Hproc_handle ph, INT4_8 par, std::string& out)
+{
+    Hcpar p;
+    HGetSPar(ph, par, STRING_PAR, &p, 1);
+    out = p.par.s ? p.par.s : "";
+    return H_MSG_TRUE;
+}
+static Herror fetch_long(Hproc_handle ph, INT4_8 par, long& out)
+{
+    Hcpar p;
+    HGetSPar(ph, par, LONG_PAR, &p, 1);
+    out = p.par.l;
+    return H_MSG_TRUE;
+}
+
+/* 读取枚举参数：字符串按表映射（大小写不敏感），数值字符串/整数直用。
+ * 失败返回 false（调用方应 HSetErrText + 返回参数错误码）。 */
+static bool read_enum_param(Hproc_handle ph, INT4_8 par,
+                            const CvEnumEntry* table, size_t n, int* out)
+{
+    std::string s;
+    if (fetch_str(ph, par, s) == H_MSG_OK && !s.empty()) {
+        if (enum_from_string(table, n, s.c_str(), *out)) return true;
+        char* end = nullptr;
+        const long v = std::strtol(s.c_str(), &end, 10);
+        if (end && *end == '\0') { *out = (int)v; return true; }
+        return false;
+    }
+    long v = 0;
+    if (fetch_long(ph, par, v) == H_MSG_OK) { *out = (int)v; return true; }
+    return false;
+}
+
+/* 预定义枚举表（值 = OpenCV 常量） */
+static const CvEnumEntry kBorderTypeTable[] = {
+    { "constant",  cv::BORDER_CONSTANT },
+    { "replicate", cv::BORDER_REPLICATE },
+    { "reflect",   cv::BORDER_REFLECT },
+    { "wrap",      cv::BORDER_WRAP },
+    { "reflect101", cv::BORDER_REFLECT101 },
+    { "default",   cv::BORDER_DEFAULT },
+    { "transparent", cv::BORDER_TRANSPARENT },
+    { "isolated",  cv::BORDER_ISOLATED },
+    { "border_constant",   cv::BORDER_CONSTANT },
+    { "border_replicate",  cv::BORDER_REPLICATE },
+    { "border_reflect",    cv::BORDER_REFLECT },
+    { "border_wrap",       cv::BORDER_WRAP },
+    { "border_reflect101", cv::BORDER_REFLECT101 },
+    { "border_default",    cv::BORDER_DEFAULT },
+    { "border_transparent", cv::BORDER_TRANSPARENT },
+    { "border_isolated",   cv::BORDER_ISOLATED },
+};
+static const size_t kBorderTypeN = sizeof(kBorderTypeTable) / sizeof(kBorderTypeTable[0]);
+
+static const CvEnumEntry kDdepthTable[] = {
+    { "src",   -1 },
+    { "same",  -1 },
+    { "u8",    CV_8U },  { "uint8",  CV_8U },
+    { "s8",    CV_8S },  { "int8",   CV_8S },
+    { "u16",   CV_16U }, { "uint16", CV_16U },
+    { "s16",   CV_16S }, { "int16",  CV_16S },
+    { "s32",   CV_32S }, { "int32",  CV_32S },
+    { "f32",   CV_32F }, { "float",  CV_32F }, { "float32", CV_32F },
+    { "f64",   CV_64F }, { "double", CV_64F }, { "float64", CV_64F },
+};
+static const size_t kDdepthN = sizeof(kDdepthTable) / sizeof(kDdepthTable[0]);
+
+static const CvEnumEntry kMatchMethodTable[] = {
+    { "sqdiff", 0 }, { "sqdiff_normed", 1 },
+    { "ccorr", 2 },  { "ccorr_normed", 3 },
+    { "ccoeff", 4 }, { "ccoeff_normed", 5 },
+    { "tm_sqdiff", 0 }, { "tm_sqdiff_normed", 1 },
+    { "tm_ccorr", 2 },  { "tm_ccorr_normed", 3 },
+    { "tm_ccoeff", 4 }, { "tm_ccoeff_normed", 5 },
+};
+static const size_t kMatchMethodN = sizeof(kMatchMethodTable) / sizeof(kMatchMethodTable[0]);
+
+static const CvEnumEntry kKmeansFlagsTable[] = {
+    { "random", 0 }, { "random_centers", 0 },
+    { "pp", 1 }, { "pp_centers", 1 },
+    { "use_initial_labels", 2 },
+};
+static const size_t kKmeansFlagsN = sizeof(kKmeansFlagsTable) / sizeof(kKmeansFlagsTable[0]);
+
+static const CvEnumEntry kGemmFlagsTable[] = {
+    { "none", 0 },
+    { "transpose_a", 1 }, { "a_trans", 1 }, { "a_t", 1 },
+    { "transpose_b", 2 }, { "b_trans", 2 }, { "b_t", 2 },
+    { "transpose_c", 4 }, { "c_trans", 4 }, { "c_t", 4 },
+};
+static const size_t kGemmFlagsN = sizeof(kGemmFlagsTable) / sizeof(kGemmFlagsTable[0]);
+
+static const CvEnumEntry kMorphOpTable[] = {
+    { "erode", 0 }, { "dilate", 1 },
+    { "open", 2 },  { "close", 3 },
+    { "gradient", 4 }, { "tophat", 5 }, { "blackhat", 6 },
+    { "morph_erode", 0 }, { "morph_dilate", 1 },
+    { "morph_open", 2 },  { "morph_close", 3 },
+    { "morph_gradient", 4 }, { "morph_tophat", 5 }, { "morph_blackhat", 6 },
+};
+static const size_t kMorphOpN = sizeof(kMorphOpTable) / sizeof(kMorphOpTable[0]);
+
+static const CvEnumEntry kMorphShapeTable[] = {
+    { "rect", cv::MORPH_RECT }, { "cross", cv::MORPH_CROSS },
+    { "ellipse", cv::MORPH_ELLIPSE },
+    { "morph_rect", cv::MORPH_RECT }, { "morph_cross", cv::MORPH_CROSS },
+    { "morph_ellipse", cv::MORPH_ELLIPSE },
+};
+static const size_t kMorphShapeN = sizeof(kMorphShapeTable) / sizeof(kMorphShapeTable[0]);
 
 /*=============================================================================
  * remap 算子
@@ -517,9 +659,10 @@ Herror HCdiv_A_roi(Hproc_handle proc_handle)
     HGetSPar(proc_handle, 3, LONG_PAR, &ew, 1);
     HGetSPar(proc_handle, 4, LONG_PAR, &eh, 1);
 
-    HGetObj(proc_handle, 2, 1, &in_smallobj_key);
+    /* DEF 对象顺序为 (smallimage, bigimage)，与 B 系算子保持一致 */
+    HGetObj(proc_handle, 1, 1, &in_smallobj_key);
     HGetDImage(proc_handle, in_smallobj_key, 1, &insmallimage);
-    HGetObj(proc_handle, 1, 1, &in_bigobj_key);
+    HGetObj(proc_handle, 2, 1, &in_bigobj_key);
     HGetDImage(proc_handle, in_bigobj_key, 1, &inbig_image);
 
     iRes = div_A_roi(inbig_image, insmallimage, sx.par.l, sy.par.l, ew.par.l, eh.par.l);
@@ -542,9 +685,10 @@ Herror HCsub_A_roi(Hproc_handle proc_handle)
     HGetSPar(proc_handle, 3, LONG_PAR, &ew, 1);
     HGetSPar(proc_handle, 4, LONG_PAR, &eh, 1);
 
-    HGetObj(proc_handle, 2, 1, &in_smallobj_key);
+    /* DEF 对象顺序为 (smallimage, bigimage)，与 B 系算子保持一致 */
+    HGetObj(proc_handle, 1, 1, &in_smallobj_key);
     HGetDImage(proc_handle, in_smallobj_key, 1, &insmallimage);
-    HGetObj(proc_handle, 1, 1, &in_bigobj_key);
+    HGetObj(proc_handle, 2, 1, &in_bigobj_key);
     HGetDImage(proc_handle, in_bigobj_key, 1, &inbig_image);
 
     iRes = sub_A_roi(inbig_image, insmallimage, sx.par.l, sy.par.l, ew.par.l, eh.par.l);
@@ -819,7 +963,29 @@ Herror HCcv_orb_detect(Hproc_handle proc_handle)
     catch (...) { hv_NFeatures = 3000; }
     int nFeatures = (int)hv_NFeatures.L();
 
-    cv::Ptr<cv::ORB> orb = cv::ORB::create(nFeatures);
+    /* ---- ORB 全开放参数（从 dict 键读取，带默认值） ---- */
+    HTuple t;
+    double scaleFactor  = 1.2;
+    int    nlevels      = 8;
+    int    edgeThreshold = 31;
+    int    firstLevel   = 0;
+    int    WTA_K        = 2;
+    int    scoreType    = 0;   // 0=HARRIS, 1=FAST
+    int    patchSize    = 31;
+    int    fastThreshold = 20;
+    try { GetDictTuple(hv_DictHandle, "ScaleFactor", &t);   scaleFactor   = t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "NLevels", &t);       nlevels       = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "EdgeThreshold", &t); edgeThreshold = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "FirstLevel", &t);    firstLevel    = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "WTA_K", &t);         WTA_K         = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "ScoreType", &t);     scoreType     = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "PatchSize", &t);     patchSize     = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "FastThreshold", &t); fastThreshold = (int)t.L(); } catch (...) {}
+
+    cv::Ptr<cv::ORB> orb = cv::ORB::create(
+        nFeatures, (float)scaleFactor, nlevels, edgeThreshold,
+        firstLevel, WTA_K, (cv::ORB::ScoreType)scoreType, patchSize,
+        fastThreshold);
 
     std::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
@@ -867,7 +1033,27 @@ Herror HCcv_akaze_detect(Hproc_handle proc_handle)
     cv::Mat img((int)hv_Height.L(), (int)hv_Width.L(), CV_8UC1,
                 (uchar *)hv_Pointer.L());
 
-    cv::Ptr<cv::AKAZE> akaze = cv::AKAZE::create();
+    /* ---- AKAZE 全开放参数（从 dict 键读取，带默认值） ---- */
+    HTuple t;
+    int    descriptorType     = 4;    // 4=MLDB（默认）；0=KAZE,1=KAZE_UPRIGHT,2=MLDB_UPRIGHT
+    int    descriptorSize     = 0;
+    int    descriptorChannels = 3;
+    double threshold          = 0.001;
+    int    nOctaves           = 4;
+    int    nOctaveLayers      = 4;
+    int    diffusivity        = 1;    // 1=PM_G2；0=PM_G1,2=WEICKERT,3=CHARBONNIER
+    try { GetDictTuple(hv_DictHandle, "DescriptorType", &t);     descriptorType     = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "DescriptorSize", &t);     descriptorSize     = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "DescriptorChannels", &t); descriptorChannels = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "Threshold", &t);          threshold          = t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "NOctaves", &t);           nOctaves           = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "NOctaveLayers", &t);      nOctaveLayers      = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "Diffusivity", &t);        diffusivity        = (int)t.L(); } catch (...) {}
+
+    cv::Ptr<cv::AKAZE> akaze = cv::AKAZE::create(
+        (cv::AKAZE::DescriptorType)descriptorType, descriptorSize,
+        descriptorChannels, (float)threshold, nOctaves, nOctaveLayers,
+        (cv::KAZE::DiffusivityType)diffusivity);
 
     std::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
@@ -929,8 +1115,21 @@ Herror HCcv_sift_detect(Hproc_handle proc_handle)
     catch (...) { hv_NFeatures = 0; }
     int nFeatures = (int)hv_NFeatures.L();
 
+    /* ---- SIFT 全开放参数（从 dict 键读取，带默认值） ---- */
+    HTuple t;
+    int    nOctaveLayers     = 3;
+    double contrastThreshold = 0.04;
+    double edgeThreshold     = 10.0;
+    double sigma             = 1.6;
+    try { GetDictTuple(hv_DictHandle, "NOctaveLayers", &t);     nOctaveLayers     = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "ContrastThreshold", &t); contrastThreshold = t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "EdgeThreshold", &t);     edgeThreshold     = t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "Sigma", &t);             sigma             = t.D(); } catch (...) {}
+
     // descriptorType 取 CV_8U，使描述子与 cv_bf_knn_match（NORM_HAMMING）直接兼容
-    cv::Ptr<cv::SIFT> sift = cv::SIFT::create(nFeatures, 3, 0.04, 10.0, 1.6, CV_8U);
+    cv::Ptr<cv::SIFT> sift = cv::SIFT::create(
+        nFeatures, nOctaveLayers, contrastThreshold, edgeThreshold,
+        sigma, CV_8U);
 
     std::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
@@ -997,13 +1196,22 @@ Herror HCcv_bf_knn_match(Hproc_handle proc_handle)
     catch (...) { hv_RatioThresh = 0.75; }
     double ratioThresh = hv_RatioThresh.D();
 
+    /* ---- BF 匹配全开放参数（从 dict 键读取，带默认值） ---- */
+    HTuple t;
+    int normType  = 4;   // 4=NORM_HAMMING；1=L1,2=L2,6=NORM_HAMMING2
+    int crossCheck = 0;  // 0=否，1=是（此时忽略 ratio 过滤，返回最佳匹配）
+    int knnK      = 2;   // knnMatch 的 k（ratio 过滤需要 >= 2）
+    try { GetDictTuple(hv_DictHandle, "NormType", &t);   normType   = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "CrossCheck", &t); crossCheck = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "K", &t);          knnK       = (int)t.L(); } catch (...) {}
+
     int nRef = (int)hRef.L();
     int nTarget = (int)hTarget.L();
 
     cv::Mat matRef(nRef, descWidth, CV_8UC1, (uchar *)ptrRef.L());
     cv::Mat matTarget(nTarget, descWidth, CV_8UC1, (uchar *)ptrTarget.L());
 
-    cv::BFMatcher bf(cv::NORM_HAMMING, false);
+    cv::BFMatcher bf(normType, crossCheck != 0);
     std::vector<std::vector<cv::DMatch>> knnMatches;
 
     if (nRef < 2 || nTarget < 2)
@@ -1012,23 +1220,43 @@ Herror HCcv_bf_knn_match(Hproc_handle proc_handle)
         return H_MSG_TRUE;
     }
 
-    try { bf.knnMatch(matRef, matTarget, knnMatches, 2); }
+    try { bf.knnMatch(matRef, matTarget, knnMatches, knnK); }
     catch (const cv::Exception &) {
         SetDictTuple(hv_DictHandle, "NumGoodMatches", (Hlong)0);
         return H_MSG_TRUE;
     }
 
     std::vector<int> goodIdxRef, goodIdxTarget;
-    for (size_t i = 0; i < knnMatches.size(); i++)
+    if (crossCheck)
     {
-        if (knnMatches[i].size() == 2)
+        /* crossCheck 模式：必须用 match()（crossCheck 仅在 match/k=1 语义下生效），
+           BFMatcher(crossCheck=true) 的 match 只返回互为最佳的匹配 */
+        std::vector<cv::DMatch> ccMatches;
+        try { bf.match(matRef, matTarget, ccMatches); }
+        catch (const cv::Exception &) {
+            SetDictTuple(hv_DictHandle, "NumGoodMatches", (Hlong)0);
+            return H_MSG_TRUE;
+        }
+        for (size_t i = 0; i < ccMatches.size(); i++)
         {
-            const cv::DMatch &m = knnMatches[i][0];
-            const cv::DMatch &n = knnMatches[i][1];
-            if (m.distance < ratioThresh * n.distance)
+            goodIdxRef.push_back(ccMatches[i].queryIdx);
+            goodIdxTarget.push_back(ccMatches[i].trainIdx);
+        }
+    }
+    else
+    {
+        /* 常规模式：Lowe's Ratio Test（需 knnK >= 2） */
+        for (size_t i = 0; i < knnMatches.size(); i++)
+        {
+            if (knnMatches[i].size() == 2)
             {
-                goodIdxRef.push_back(m.queryIdx);
-                goodIdxTarget.push_back(m.trainIdx);
+                const cv::DMatch &m = knnMatches[i][0];
+                const cv::DMatch &n = knnMatches[i][1];
+                if (m.distance < ratioThresh * n.distance)
+                {
+                    goodIdxRef.push_back(m.queryIdx);
+                    goodIdxTarget.push_back(m.trainIdx);
+                }
             }
         }
     }
@@ -1078,6 +1306,17 @@ Herror HCcv_estimate_affine_partial2d(Hproc_handle proc_handle)
     catch (...) { hv_RansacThresh = 3.0; }
     double ransacThresh = hv_RansacThresh.D();
 
+    /* ---- RANSAC 全开放参数（从 dict 键读取，带默认值） ---- */
+    HTuple t;
+    int    method     = 8;      // 8=RANSAC, 4=LMEDS
+    int    maxIters   = 2000;
+    double confidence = 0.99;
+    int    refineIters = 10;
+    try { GetDictTuple(hv_DictHandle, "Method", &t);      method      = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "MaxIters", &t);    maxIters    = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "Confidence", &t);  confidence  = t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "RefineIters", &t); refineIters = (int)t.L(); } catch (...) {}
+
     std::vector<cv::Point2f> srcPts(nPts), dstPts(nPts);
     for (int i = 0; i < nPts; i++)
     {
@@ -1087,7 +1326,8 @@ Herror HCcv_estimate_affine_partial2d(Hproc_handle proc_handle)
 
     cv::Mat inlierMask;
     cv::Mat M = cv::estimateAffinePartial2D(
-        srcPts, dstPts, inlierMask, cv::RANSAC, ransacThresh
+        srcPts, dstPts, inlierMask, method, ransacThresh,
+        (size_t)maxIters, confidence, (size_t)refineIters
     );
 
     if (M.empty())
@@ -1166,6 +1406,13 @@ Herror HCcv_estimate_rigid_2d(Hproc_handle proc_handle)
     double ransacThresh = hv_RansacThresh.D();
     const double thresh2 = ransacThresh * ransacThresh;
 
+    /* ---- RANSAC 全开放参数（从 dict 键读取，带默认值） ---- */
+    HTuple t;
+    int maxIter = 500;
+    int seed    = 12345;
+    try { GetDictTuple(hv_DictHandle, "MaxIter", &t); maxIter = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "Seed", &t);    seed    = (int)t.L(); } catch (...) {}
+
     std::vector<cv::Point2f> srcPts(nPts), dstPts(nPts);
     for (int i = 0; i < nPts; i++)
     {
@@ -1174,11 +1421,10 @@ Herror HCcv_estimate_rigid_2d(Hproc_handle proc_handle)
     }
 
     // ---- RANSAC：每次随机取 2 点求刚体变换，统计内点 ----
-    const int maxIter = 500;
     double bestCos = 1.0, bestSin = 0.0, bestTx = 0.0, bestTy = 0.0;
     int bestInliers = 0;
 
-    cv::RNG rng(12345);
+    cv::RNG rng((uint64)seed);
     for (int iter = 0; iter < maxIter; ++iter)
     {
         int i1 = rng.uniform(0, nPts);
@@ -1375,35 +1621,45 @@ Herror HCcv_write_image(Hproc_handle proc_handle)
  *===========================================================================*/
 Herror HCcv_mat_mul(Hproc_handle proc_handle)
 {
+    HAllocStringMem(proc_handle, 1024);  // 枚举字符串读取统一在此分配一次（多次分配会泄漏 temp memory）
     Hkey  inA_obj_key, inB_obj_key, out_obj_key, out_image_key;
     Himage inA, inB, outimage;
+    Hcpar  alpha, beta;
+
+    HGetSPar(proc_handle, 1, DOUBLE_PAR, &alpha, 1);
+    HGetSPar(proc_handle, 2, DOUBLE_PAR, &beta, 1);
+    int fl = 0;
+    if (!read_enum_param(proc_handle, 3, kGemmFlagsTable, kGemmFlagsN, &fl))
+    {
+        HSetErrText(const_cast<char*>(
+            "cv_mat_mul: unknown Flags (\"none\"/\"transpose_a\"/\"transpose_b\"/\"transpose_c\" or 0/1/2/4)"));
+        return 30003;
+    }
 
     HGetObj(proc_handle, 1, 1, &inA_obj_key);
     HGetObj(proc_handle, 2, 1, &inB_obj_key);
     HGetDImage(proc_handle, inA_obj_key, 1, &inA);
     HGetDImage(proc_handle, inB_obj_key, 1, &inB);
 
-
     if (inA.kind != UINT2_IMAGE || inB.kind != UINT2_IMAGE)
-        return 30001;   // 仅支持 16 位单通道
+        return 30001;
 
     cv::Mat A(inA.height, inA.width, CV_16UC1, inA.pixel.u.p);
     cv::Mat B(inB.height, inB.width, CV_16UC1, inB.pixel.u.p);
 
-    if (A.cols != B.rows)
-        return 30002;   // 维度不匹配：A 的列数必须等于 B 的行数
+    if (fl < 0 || fl > 7)
+        return 30003;
 
-    // 转 double 计算，避免 16 位乘积溢出，最后饱和截断回 16 位
     cv::Mat Af, Bf, Cf;
     A.convertTo(Af, CV_64F);
     B.convertTo(Bf, CV_64F);
-    cv::gemm(Af, Bf, 1.0, cv::noArray(), 0.0, Cf);
+    try { cv::gemm(Af, Bf, alpha.par.d, cv::noArray(), beta.par.d, Cf, fl); }
+    catch (const cv::Exception&) { return 30004; }
 
     cv::Mat C;
-    Cf.convertTo(C, CV_16UC1);   // saturate_cast 到 [0, 65535]
+    Cf.convertTo(C, CV_16UC1);
 
-    int outW = C.cols;
-    int outH = C.rows;
+    int outW = C.cols, outH = C.rows;
 
     HCkP(HNewImage(proc_handle, &outimage, UINT2_IMAGE, outW, outH));
     memcpy(outimage.pixel.u.p, C.data, (size_t)outW * outH * 2);
@@ -1556,6 +1812,7 @@ Herror HCcv_reshape(Hproc_handle proc_handle)
  *===========================================================================*/
 Herror HCcv_filter2d(Hproc_handle proc_handle)
 {
+    HAllocStringMem(proc_handle, 1024);  // 枚举字符串读取统一在此分配一次（多次分配会泄漏 temp memory）
     Hkey   in_obj_key, k_obj_key, out_obj_key, out_image_key;
     Himage inimage, kimage, outimage;
 
@@ -1590,6 +1847,26 @@ Herror HCcv_filter2d(Hproc_handle proc_handle)
     cv::Mat imageIn(inimage.height, inimage.width, cvType, inPixels);
     cv::Mat kernel(kimage.height, kimage.width, CV_32FC1, kimage.pixel.f);
 
+/* 全开放参数：ddepth / anchor / delta / borderType（ddepth/borderType 支持字符串枚举或整数） */
+Hcpar anchorX, anchorY, delta;
+HGetSPar(proc_handle, 2, LONG_PAR, &anchorX, 1);
+HGetSPar(proc_handle, 3, LONG_PAR, &anchorY, 1);
+HGetSPar(proc_handle, 4, DOUBLE_PAR, &delta, 1);
+int ddepth = -1;
+if (!read_enum_param(proc_handle, 1, kDdepthTable, kDdepthN, &ddepth))
+{
+    HSetErrText(const_cast<char*>(
+        "cv_filter2d: unknown Ddepth (e.g. \"same\",\"s16\",\"f32\" or integer)"));
+    return 30004;
+}
+int borderType = cv::BORDER_DEFAULT;
+if (!read_enum_param(proc_handle, 5, kBorderTypeTable, kBorderTypeN, &borderType))
+{
+    HSetErrText(const_cast<char*>(
+        "cv_filter2d: unknown BorderType (string or integer expected)"));
+    return 30003;
+}
+
     HCkP(HNewImage(proc_handle, &outimage, inimage.kind, inimage.width, inimage.height));
     void* outPixels;
     switch (inimage.kind)
@@ -1602,8 +1879,9 @@ Herror HCcv_filter2d(Hproc_handle proc_handle)
 
     try
     {
-        cv::filter2D(imageIn, imageOut, -1, kernel,
-                     cv::Point(-1, -1), 0.0, cv::BORDER_DEFAULT);
+cv::filter2D(imageIn, imageOut, ddepth, kernel,
+cv::Point((int)anchorX.par.l, (int)anchorY.par.l),
+delta.par.d, borderType);
     }
     catch (const cv::Exception&)
     {
@@ -1634,161 +1912,6 @@ Herror HCcv_filter2d(Hproc_handle proc_handle)
  *          Transition  0=全部 1=暗→亮(正) -1=亮→暗(负)
  *   输出 : RowEdge, ColumnEdge, Amplitude
  *===========================================================================*/
-static std::vector<cv::Point2f> cvMeasurePos(
-    const cv::Mat& gray,
-    cv::Point2f center,
-    float phi,
-    float length1,
-    float length2,
-    float sigma,
-    float threshold,
-    int transition,
-    std::vector<double>* out_amplitude)
-{
-    std::vector<cv::Point2f> result;
-    if (out_amplitude) out_amplitude->clear();
-    if (gray.empty()) return result;
-    if (gray.type() != CV_8UC1) return result;
-    if (sigma <= 0.0f || length1 < 1.0f) return result;
-
-    // 1) 沿测量矩形抽取一维剖面（双线性采样 + 垂直方向平均）
-    int n = 2 * (int)std::round(length1) + 1;
-    if (n < 3) return result;
-
-    std::vector<double> profile(n, 0.0);
-
-    const double cosA = std::cos(phi);
-    const double sinA = std::sin(phi);
-    const double ux = cosA,  uy = sinA;   // 主轴单位向量
-    const double vx = -sinA, vy = cosA;   // 垂直主轴单位向量
-    const int half_w = std::max(0, (int)std::round(length2));
-
-    for (int i = 0; i < n; ++i) {
-        const double t = i - (n - 1) * 0.5;
-        double sum = 0.0;
-        int cnt = 0;
-        for (int j = -half_w; j <= half_w; ++j) {
-            const double x = center.x + t * ux + j * vx;
-            const double y = center.y + t * uy + j * vy;
-
-            if (x >= 0.0 && y >= 0.0 &&
-                x <= gray.cols - 1.0 && y <= gray.rows - 1.0)
-            {
-                int x0 = std::min((int)x, gray.cols - 2);
-                int y0 = std::min((int)y, gray.rows - 2);
-                if (x0 < 0) x0 = 0;
-                if (y0 < 0) y0 = 0;
-                const double dx = x - x0;
-                const double dy = y - y0;
-                const uchar* p0 = gray.ptr<uchar>(y0);
-                const uchar* p1 = gray.ptr<uchar>(y0 + 1);
-                const double v00 = p0[x0];
-                const double v01 = p0[x0 + 1];
-                const double v10 = p1[x0];
-                const double v11 = p1[x0 + 1];
-                sum += (1.0 - dy) * ((1.0 - dx) * v00 + dx * v01)
-                     +        dy  * ((1.0 - dx) * v10 + dx * v11);
-            }
-            ++cnt;
-        }
-        profile[i] = (cnt > 0) ? (sum / cnt) : 0.0;
-    }
-
-    // 2) 构造高斯一阶导数核 G'(x)
-    const int half_k = std::max(1, (int)std::ceil(3.0 * sigma));
-    const int klen   = 2 * half_k + 1;
-    std::vector<double> kernel(klen);
-    {
-        const double s2    = (double)sigma * (double)sigma;
-        const double knorm = 1.0 / (std::sqrt(2.0 * CV_PI) * sigma * s2);
-        for (int i = 0; i < klen; ++i) {
-            const double x = i - half_k;
-            kernel[i] = -x * std::exp(-x * x / (2.0 * s2)) * knorm;
-        }
-    }
-
-    // 3) 卷积 d = profile * kernel（mode='same'）
-    std::vector<double> d(n, 0.0);
-    for (int i = 0; i < n; ++i) {
-        double sum = 0.0;
-        for (int j = 0; j < klen; ++j) {
-            const int idx = i - half_k + j;
-            if (idx >= 0 && idx < n) sum += profile[idx] * kernel[j];
-        }
-        d[i] = sum;
-    }
-
-    // 4) 找 |d| 的局部极大值 + 振幅阈值过滤
-    std::vector<double> ag(n);
-    for (int i = 0; i < n; ++i) ag[i] = std::abs(d[i]);
-
-    const double amp_scale = std::sqrt(2.0 * CV_PI) * (double)sigma;
-    std::vector<int>    cand;
-    std::vector<double> cand_amp;
-
-    for (int i = 0; i < n; ++i) {
-        const bool ge_l = (i > 0)     ? (ag[i] >= ag[i - 1]) : false;
-        const bool ge_r = (i < n - 1) ? (ag[i] >= ag[i + 1]) : false;
-        const bool gt_l = (i > 0)     ? (ag[i] >  ag[i - 1]) : false;
-        const bool gt_r = (i < n - 1) ? (ag[i] >  ag[i + 1]) : false;
-        if (ge_l && ge_r && (gt_l || gt_r)) {
-            const double amp = d[i] * amp_scale;
-            if (std::abs(amp) >= threshold) {
-                cand.push_back(i);
-                cand_amp.push_back(amp);
-            }
-        }
-    }
-    if (cand.empty()) return result;
-
-    // 5) 抛物线亚像素插值
-    const int m = (int)cand.size();
-    std::vector<double> pos(m), amps(m);
-    for (int j = 0; j < m; ++j) {
-        const int i = cand[j];
-        amps[j] = cand_amp[j];
-        if (i > 0 && i < n - 1) {
-            const double a = d[i - 1];
-            const double b = d[i];
-            const double c = d[i + 1];
-            const double denom = a - 2.0 * b + c;
-            double delta = 0.0;
-            if (std::abs(denom) > 1e-9) delta = 0.5 * (a - c) / denom;
-            pos[j] = (double)i + delta;
-        } else {
-            pos[j] = (double)i;
-        }
-    }
-
-    // 6) 按位置排序
-    std::vector<int> order(m);
-    for (int j = 0; j < m; ++j) order[j] = j;
-    std::sort(order.begin(), order.end(),
-              [&](int a, int b) { return pos[a] < pos[b]; });
-
-    // 7) 去重 + 方向过滤 + 一维位置映射回二维坐标
-    const double t0 = -(n - 1) * 0.5;
-    double last_pos = -1e18;
-
-    for (int j = 0; j < m; ++j) {
-        const int idx = order[j];
-
-        if (pos[idx] - last_pos <= 0.5) continue;
-        last_pos = pos[idx];
-
-        const double amp = amps[idx];
-        if (transition == 1  && amp <= 0.0) continue;
-        if (transition == -1 && amp >= 0.0) continue;
-
-        const double t = t0 + pos[idx];
-        result.emplace_back((float)(center.x + t * ux),
-                            (float)(center.y + t * uy));
-        if (out_amplitude) out_amplitude->push_back(amp);
-    }
-
-    return result;
-}
-
 Herror HCcv_measure_pos(Hproc_handle proc_handle)
 {
     Hkey   in_obj_key;
@@ -1829,29 +1952,18 @@ Herror HCcv_measure_pos(Hproc_handle proc_handle)
         return 30001;   // 仅支持 byte / uint2 / real 单通道图像
     }
 
-    std::vector<double> amplitudes;
-    std::vector<cv::Point2f> pts = cvMeasurePos(
-        gray,
-        cv::Point2f((float)column.par.d, (float)row.par.d),
-        (float)phi.par.d,
-        (float)length1.par.d,
-        (float)length2.par.d,
-        (float)sigma.par.d,
-        (float)threshold.par.d,
-        (int)transition.par.l,
-        &amplitudes);
+    cvr::CvrMeasureResult mres;
+    cvr::cvr_measure_pos(gray.data, gray.cols, gray.rows,
+                         column.par.d, row.par.d, phi.par.d,
+                         length1.par.d, length2.par.d, sigma.par.d,
+                         threshold.par.d, static_cast<int>(transition.par.l),
+                         mres);
 
-    const INT4_8 n = (INT4_8)pts.size();
-    std::vector<double> rows(n), cols(n);
-    for (INT4_8 i = 0; i < n; ++i)
-    {
-        rows[i] = (double)pts[i].y;
-        cols[i] = (double)pts[i].x;
-    }
+    const INT4_8 n = (INT4_8)mres.row.size();
 
-    HPutElem(proc_handle, 1, rows.data(), n, DOUBLE_PAR);
-    HPutElem(proc_handle, 2, cols.data(), n, DOUBLE_PAR);
-    HPutElem(proc_handle, 3, amplitudes.data(), n, DOUBLE_PAR);
+    HPutElem(proc_handle, 1, mres.row.data(), n, DOUBLE_PAR);
+    HPutElem(proc_handle, 2, mres.col.data(), n, DOUBLE_PAR);
+    HPutElem(proc_handle, 3, mres.amplitude.data(), n, DOUBLE_PAR);
 
     return H_MSG_TRUE;
 }
@@ -1863,6 +1975,7 @@ Herror HCcv_measure_pos(Hproc_handle proc_handle)
  *===========================================================================*/
 Herror HCcv_blur(Hproc_handle proc_handle)
 {
+    HAllocStringMem(proc_handle, 1024);  // 枚举字符串读取统一在此分配一次（多次分配会泄漏 temp memory）
     Hkey   in_obj_key, out_obj_key, out_image_key;
     Himage inimage, outimage;
     Hcpar  k_width, k_height;
@@ -1876,6 +1989,18 @@ Herror HCcv_blur(Hproc_handle proc_handle)
     int kh = (int)k_height.par.l;
     if (kw < 1 || (kw % 2) == 0 || kh < 1 || (kh % 2) == 0)
         return 30001;   // 滤波核宽/高必须为 ≥1 的奇数
+
+    /* 全开放参数：anchor / borderType（borderType 支持字符串枚举或整数） */
+    Hcpar anchorX, anchorY;
+    HGetSPar(proc_handle, 3, LONG_PAR, &anchorX, 1);
+    HGetSPar(proc_handle, 4, LONG_PAR, &anchorY, 1);
+    int borderType = cv::BORDER_DEFAULT;
+    if (!read_enum_param(proc_handle, 5, kBorderTypeTable, kBorderTypeN, &borderType))
+    {
+        HSetErrText(const_cast<char*>(
+            "cv_blur: unknown BorderType (string or integer expected)"));
+        return 30003;
+    }
 
     int  cvType;
     void* inPixels;
@@ -1912,7 +2037,8 @@ Herror HCcv_blur(Hproc_handle proc_handle)
     try
     {
         cv::blur(imageIn, imageOut, cv::Size(kw, kh),
-                 cv::Point(-1, -1), cv::BORDER_DEFAULT);
+                 cv::Point((int)anchorX.par.l, (int)anchorY.par.l),
+                 borderType);
     }
     catch (const cv::Exception&)
     {
@@ -2144,7 +2270,7 @@ Herror HCcv_estimate_affine_2d(Hproc_handle proc_handle)
     double const* dstRow;
     double const* dstCol;
     INT4_8 nSrc, nDst;
-    Hcpar  method, ransacThresh;
+    Hcpar  method, ransacThresh, maxIters, confidence, refineIters;
 
     HGetSPar(proc_handle, 1, LONG_PAR, &method, 1);
     HGetSPar(proc_handle, 2, DOUBLE_PAR, &ransacThresh, 1);
@@ -2152,6 +2278,9 @@ Herror HCcv_estimate_affine_2d(Hproc_handle proc_handle)
     HGetPElemD(proc_handle, 4, CONV_NONE, &srcCol, &nSrc);
     HGetPElemD(proc_handle, 5, CONV_NONE, &dstRow, &nDst);
     HGetPElemD(proc_handle, 6, CONV_NONE, &dstCol, &nDst);
+    HGetSPar(proc_handle, 7, LONG_PAR, &maxIters, 1);
+    HGetSPar(proc_handle, 8, DOUBLE_PAR, &confidence, 1);
+    HGetSPar(proc_handle, 9, LONG_PAR, &refineIters, 1);
 
     std::vector<double> hom(6, 0.0);
     INT4_8 success = 0, inliers = 0;
@@ -2169,7 +2298,9 @@ Herror HCcv_estimate_affine_2d(Hproc_handle proc_handle)
         try
         {
             M = cv::estimateAffine2D(from, to, inlierMask,
-                                     (int)method.par.l, ransacThresh.par.d);
+                                     (int)method.par.l, ransacThresh.par.d,
+                                     (size_t)maxIters.par.l, confidence.par.d,
+                                     (size_t)refineIters.par.l);
         }
         catch (const cv::Exception&)
         {
@@ -2232,6 +2363,143 @@ Herror HCcv_threshold_triangle(Hproc_handle proc_handle)
     HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
 
     HPutElem(proc_handle, 1, &thresh, 1, DOUBLE_PAR);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_threshold — 固定阈值分割（cv::threshold）
+ *
+ *   type 为 OpenCV 枚举整型，直接透传给 cv::threshold：
+ *     基础类型（type & 7）：
+ *       0 = THRESH_BINARY       （>thresh ? maxval : 0）
+ *       1 = THRESH_BINARY_INV   （>thresh ? 0 : maxval）
+ *       2 = THRESH_TRUNC        （>thresh ? thresh : 原值）
+ *       3 = THRESH_TOZERO       （>thresh ? 原值 : 0）
+ *       4 = THRESH_TOZERO_INV   （>thresh ? 0 : 原值）
+ *     附加标志（type & ~7，可与基础类型按位或）：
+ *       8  = THRESH_OTSU        （大津自动阈值，仅 8 位单通道，thresh 可省略）
+ *       16 = THRESH_TRIANGLE    （三角法自动阈值，仅 8 位单通道）
+ *     例：8 = 大津+BINARY；9 = 大津+BINARY_INV；17 = 三角法+BINARY_INV
+ *
+ *   threshUsed 输出实际使用的阈值（OTSU/TRIANGLE 时为自动计算值）。
+ *   支持 byte / uint2 / real 单通道（OTSU/TRIANGLE 仅 byte）。
+ *===========================================================================*/
+Herror HCcv_threshold(Hproc_handle proc_handle)
+{
+    HAllocStringMem(proc_handle, 1024);  // 枚举字符串读取统一在此分配一次（多次分配会泄漏 temp memory）
+    Hkey   in_obj_key, out_obj_key, out_image_key;
+    Himage inimage, outimage;
+    Hcpar  thresh_par, maxval_par;
+
+    HGetSPar(proc_handle, 1, DOUBLE_PAR, &thresh_par, 1);
+    HGetSPar(proc_handle, 2, DOUBLE_PAR, &maxval_par, 1);
+
+    /* Type：支持字符串枚举（可以 "|" 组合，如 "binary|otsu"）或整数（向后兼容） */
+    static const CvEnumEntry kThreshTypeTable[] = {
+        { "binary", 0 }, { "binary_inv", 1 }, { "trunc", 2 },
+        { "tozero", 3 }, { "tozero_inv", 4 },
+        { "otsu", 8 }, { "triangle", 16 },
+        { "thresh_binary", 0 }, { "thresh_binary_inv", 1 }, { "thresh_trunc", 2 },
+        { "thresh_tozero", 3 }, { "thresh_tozero_inv", 4 },
+        { "thresh_otsu", 8 }, { "thresh_triangle", 16 },
+    };
+    const size_t kThreshTypeN = sizeof(kThreshTypeTable) / sizeof(kThreshTypeTable[0]);
+    int type = 0;
+    {
+        std::string s;
+        bool ok = false;
+        if (fetch_str(proc_handle, 3, s) == H_MSG_OK && !s.empty()) {
+            type = 0;
+            size_t start = 0;
+            for (;;) {
+                const size_t sep = s.find('|', start);
+                std::string tok = (sep == std::string::npos)
+                                      ? s.substr(start)
+                                      : s.substr(start, sep - start);
+                const size_t b = tok.find_first_not_of(" \t");
+                const size_t e = tok.find_last_not_of(" \t");
+                tok = (b == std::string::npos) ? "" : tok.substr(b, e - b + 1);
+                int v = 0;
+                char* end = nullptr;
+                const long lv = std::strtol(tok.c_str(), &end, 10);
+                if (enum_from_string(kThreshTypeTable, kThreshTypeN, tok.c_str(), v))
+                    type |= v;
+                else if (end && *end == '\0' && !tok.empty())
+                    type |= (int)lv;
+                else {
+                    HSetErrText(const_cast<char*>(
+                        "cv_threshold: unknown Type token (e.g. \"binary\",\"otsu\",\"triangle\")"));
+                    return 30003;
+                }
+                if (sep == std::string::npos) break;
+                start = sep + 1;
+            }
+            ok = true;
+        } else {
+            long v = 0;
+            if (fetch_long(proc_handle, 3, v) == H_MSG_OK) { type = (int)v; ok = true; }
+        }
+        if (!ok) {
+            HSetErrText(const_cast<char*>("cv_threshold: invalid Type"));
+            return 30003;
+        }
+    }
+
+    const double thresh = thresh_par.par.d;
+    const double maxval = maxval_par.par.d;
+
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+    HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+
+    /* type 拆分：基础类型 = type & 7，自动阈值标志 = type & ~7 */
+    const int baseType = type & 7;
+    const int flags    = type & ~7;
+    if (baseType < 0 || baseType > 4) {
+        HSetErrText(const_cast<char*>("cv_threshold: invalid base Type (need 0..4)"));
+        return 30001;
+    }
+    if (flags != 0 && flags != 8 && flags != 16) {
+        HSetErrText(const_cast<char*>("cv_threshold: unsupported Type flag (need 0/8/16)"));
+        return 30002;
+    }
+    /* OTSU / TRIANGLE 仅支持 8 位单通道 */
+    if ((flags & (8 | 16)) && inimage.kind != BYTE_IMAGE) {
+        HSetErrText(const_cast<char*>("cv_threshold: OTSU/TRIANGLE require a byte image"));
+        return 30003;
+    }
+
+    int cvType = -1;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:  cvType = CV_8UC1;  break;
+    case UINT2_IMAGE: cvType = CV_16UC1; break;
+    case FLOAT_IMAGE: cvType = CV_32FC1; break;
+    default:
+        HSetErrText(const_cast<char*>("cv_threshold: unsupported image type"));
+        return 30004;
+    }
+
+    cv::Mat imageIn(inimage.height, inimage.width, cvType, inimage.pixel.b);
+    HCkP(HNewImage(proc_handle, &outimage, inimage.kind, inimage.width, inimage.height));
+    cv::Mat imageOut(outimage.height, outimage.width, cvType, outimage.pixel.b);
+
+    double used = 0.0;
+    try
+    {
+        used = cv::threshold(imageIn, imageOut, thresh, maxval, type);
+    }
+    catch (const cv::Exception&)
+    {
+        HSetErrText(const_cast<char*>("cv_threshold: cv::threshold failed"));
+        return 30005;
+    }
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    HPutElem(proc_handle, 1, &used, 1, DOUBLE_PAR);
 
     return H_MSG_TRUE;
 }
@@ -2310,6 +2578,7 @@ Herror HCcv_calc_hist(Hproc_handle proc_handle)
  *===========================================================================*/
 Herror HCcv_match_template(Hproc_handle proc_handle)
 {
+    HAllocStringMem(proc_handle, 1024);  // 枚举字符串读取统一在此分配一次（多次分配会泄漏 temp memory）
     Hkey   in_obj_key, tpl_obj_key, out_obj_key, out_image_key;
     Himage inimage, tplimage, outimage;
 
@@ -2341,12 +2610,25 @@ Herror HCcv_match_template(Hproc_handle proc_handle)
     tplPixels = (tplimage.kind == BYTE_IMAGE) ? (void*)tplimage.pixel.b
                                               : (void*)tplimage.pixel.f;
 
+    int method = 5;
+    if (!read_enum_param(proc_handle, 1, kMatchMethodTable, kMatchMethodN, &method))
+    {
+        HSetErrText(const_cast<char*>(
+            "cv_match_template: unknown MethodId (e.g. \"sqdiff_normed\",\"ccoeff_normed\" or 0..5)"));
+        return 30005;
+    }
+    if (method < 0 || method > 5)
+    {
+        HSetErrText(const_cast<char*>("cv_match_template: methodId must be 0..5 (TM_SQDIFF..TM_CCOEFF_NORMED)"));
+        return 30005;
+    }
+
     cv::Mat img(inimage.height, inimage.width, cvType, inPixels);
     cv::Mat tpl(tplimage.height, tplimage.width, cvType, tplPixels);
     cv::Mat result;
     try
     {
-        cv::matchTemplate(img, tpl, result, cv::TM_CCOEFF_NORMED);
+        cv::matchTemplate(img, tpl, result, method);
     }
     catch (const cv::Exception&)
     {
@@ -2371,6 +2653,7 @@ Herror HCcv_match_template(Hproc_handle proc_handle)
  *===========================================================================*/
 Herror HCcv_kmeans(Hproc_handle proc_handle)
 {
+    HAllocStringMem(proc_handle, 1024);  // 枚举字符串读取统一在此分配一次（多次分配会泄漏 temp memory）
     Hkey   in_obj_key, lbl_obj_key, cen_obj_key, out_image_key;
     Himage inimage, lblimage, cenimage;
     Hcpar  K, attempts, termEps, termMaxIter;
@@ -2390,17 +2673,29 @@ Herror HCcv_kmeans(Hproc_handle proc_handle)
     int N = (int)inimage.height, D = (int)inimage.width;
     if (k <= 0 || k > N) return 30002;
 
-    cv::Mat data(N, D, CV_32FC1, inimage.pixel.f);
+    /* 全开放参数：flags（支持字符串枚举或整数：0=RANDOM，1=PP，2=USE_INITIAL_LABEL） */
+    int kflags = 1;
+    if (!read_enum_param(proc_handle, 5, kKmeansFlagsTable, kKmeansFlagsN, &kflags))
+    {
+        HSetErrText(const_cast<char*>(
+            "cv_kmeans: unknown Flags (\"random\"/\"pp\"/\"use_initial_labels\" or 0..2)"));
+        return 30004;
+    }
+    if (kflags < 0 || kflags > 2)
+        return 30004;
+
+    cv::Mat data = cv::Mat(N, D, CV_32FC1, inimage.pixel.f).clone();
     cv::Mat labels, centers;
     try
     {
         cv::kmeans(data, k, labels,
                    cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::COUNT,
                                     (int)termMaxIter.par.l, termEps.par.d),
-                   (int)attempts.par.l, cv::KMEANS_PP_CENTERS, centers);
+                   (int)attempts.par.l, kflags, centers);
     }
-    catch (const cv::Exception&)
+    catch (const cv::Exception& e)
     {
+        HSetErrText(const_cast<char*>(e.what()));
         return 30003;
     }
 
@@ -2554,17 +2849,29 @@ Herror HCcv_multi_frame_median(Hproc_handle proc_handle)
  *===========================================================================*/
 Herror HCcv_sobel(Hproc_handle proc_handle)
 {
+    HAllocStringMem(proc_handle, 1024);  // 枚举字符串读取统一在此分配一次（多次分配会泄漏 temp memory）
     Hkey   in_obj_key, out_obj_key, out_image_key;
     Himage inimage, outimage;
-    Hcpar  dx, dy, ksize, ddepth, scale, delta, borderType;
-
-    HGetSPar(proc_handle, 1, LONG_PAR, &dx, 1);
-    HGetSPar(proc_handle, 2, LONG_PAR, &dy, 1);
-    HGetSPar(proc_handle, 3, LONG_PAR, &ksize, 1);
-    HGetSPar(proc_handle, 4, LONG_PAR, &ddepth, 1);
-    HGetSPar(proc_handle, 5, DOUBLE_PAR, &scale, 1);
-    HGetSPar(proc_handle, 6, DOUBLE_PAR, &delta, 1);
-    HGetSPar(proc_handle, 7, LONG_PAR, &borderType, 1);
+Hcpar  dx, dy, ksize, scale, delta;
+HGetSPar(proc_handle, 1, LONG_PAR, &dx, 1);
+HGetSPar(proc_handle, 2, LONG_PAR, &dy, 1);
+HGetSPar(proc_handle, 3, LONG_PAR, &ksize, 1);
+HGetSPar(proc_handle, 5, DOUBLE_PAR, &scale, 1);
+HGetSPar(proc_handle, 6, DOUBLE_PAR, &delta, 1);
+int ddepth = -1;
+if (!read_enum_param(proc_handle, 4, kDdepthTable, kDdepthN, &ddepth))
+{
+    HSetErrText(const_cast<char*>(
+        "cv_sobel: unknown Ddepth (e.g. \"same\",\"s16\",\"f32\" or integer)"));
+    return 30003;
+}
+int borderType = cv::BORDER_DEFAULT;
+if (!read_enum_param(proc_handle, 7, kBorderTypeTable, kBorderTypeN, &borderType))
+{
+    HSetErrText(const_cast<char*>(
+        "cv_sobel: unknown BorderType (string or integer expected)"));
+    return 30003;
+}
     HGetObj(proc_handle, 1, 1, &in_obj_key);
     HGetDImage(proc_handle, in_obj_key, 1, &inimage);
 
@@ -2577,8 +2884,8 @@ Herror HCcv_sobel(Hproc_handle proc_handle)
     if (k != 1 && k != 3 && k != 5 && k != 7)
         return 30002;   // Ksize 必须为 1 / 3 / 5 / 7
 
-    int dd = (int)ddepth.par.l;
-    if (dd != -1 && dd != CV_16S && dd != CV_32F && dd != CV_64F)
+const int dd = ddepth;
+if (dd != -1 && dd != CV_16S && dd != CV_32F && dd != CV_64F)
         return 30003;   // Ddepth 非法（支持 -1 / CV_16S / CV_32F / CV_64F）
 
     int  cvType;
@@ -2606,7 +2913,7 @@ Herror HCcv_sobel(Hproc_handle proc_handle)
     cv::Mat grad;
     try
     {
-        cv::Sobel(imageIn, grad, dd, dxi, dyi, k, scale.par.d, delta.par.d, (int)borderType.par.l);
+        cv::Sobel(imageIn, grad, dd, dxi, dyi, k, scale.par.d, delta.par.d, borderType);
     }
     catch (const cv::Exception&)
     {
@@ -2679,7 +2986,11 @@ Herror HCcv_magnitude(Hproc_handle proc_handle)
     cv::Mat mag;
     try
     {
-        cv::magnitude(X, Y, mag);
+        /* cv::magnitude 仅支持 32F/64F：byte/uint2 先转 float */
+        cv::Mat Xf, Yf;
+        X.convertTo(Xf, CV_32F);
+        Y.convertTo(Yf, CV_32F);
+        cv::magnitude(Xf, Yf, mag);
     }
     catch (const cv::Exception&)
     {
@@ -2694,4 +3005,146 @@ Herror HCcv_magnitude(Hproc_handle proc_handle)
     HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
 
     return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * 灰度形态学（cv::morphologyEx）：图像域 erode/dilate/open/close/gradient/
+ *   tophat/blackhat。支持 byte / uint2 / real 单通道
+ *   （OpenCV morphologyEx 支持 8U / 16U / 32F）。
+ *===========================================================================*/
+static Herror gray_morph_run(Hproc_handle proc_handle,
+                             int op, int shape, int kw, int kh, int iterations)
+{
+    Hkey   in_obj_key, out_obj_key, out_image_key;
+    Himage inimage, outimage;
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+    HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+
+    int  cvType;
+    void *inPixels;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:  cvType = CV_8UC1;  inPixels = (void*)inimage.pixel.b;   break;
+    case UINT2_IMAGE: cvType = CV_16UC1; inPixels = (void*)inimage.pixel.u.p; break;
+    case FLOAT_IMAGE: cvType = CV_32FC1; inPixels = (void*)inimage.pixel.f;   break;
+    default:
+        return 30001;   // 仅支持 byte / uint2 / real 单通道
+    }
+
+    cv::Mat imageIn(inimage.height, inimage.width, cvType, inPixels);
+    cv::Mat kernel = cv::getStructuringElement(shape, cv::Size(kw, kh));
+
+    HCkP(HNewImage(proc_handle, &outimage, inimage.kind, inimage.width, inimage.height));
+    void *outPixels;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:  outPixels = (void*)outimage.pixel.b;   break;
+    case UINT2_IMAGE: outPixels = (void*)outimage.pixel.u.p; break;
+    default:          outPixels = (void*)outimage.pixel.f;   break;
+    }
+    cv::Mat imageOut(outimage.height, outimage.width, cvType, outPixels);
+
+    try
+    {
+        cv::Mat a, b;
+        cv::morphologyEx(imageIn, a, op, kernel);   // morphologyEx 无 iterations 槽，循环实现
+        for (int it = 1; it < iterations; ++it)
+        {
+            cv::morphologyEx(a, b, op, kernel);
+            cv::swap(a, b);
+        }
+        a.copyTo(imageOut);
+    }
+    catch (const cv::Exception&)
+    {
+        return 30002;
+    }
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+    return H_MSG_TRUE;
+}
+
+/* rect 预设：参数 1/2 = Width/Height */
+static Herror gray_morph_rect(Hproc_handle proc_handle, int op)
+{
+    Hcpar w_par, h_par;
+    HGetSPar(proc_handle, 1, LONG_PAR, &w_par, 1);
+    HGetSPar(proc_handle, 2, LONG_PAR, &h_par, 1);
+    const int kw = (int)w_par.par.l;
+    const int kh = (int)h_par.par.l;
+    if (kw < 1 || kh < 1)
+    {
+        HSetErrText(const_cast<char*>("gray morph: Width/Height must be >= 1"));
+        return 30003;
+    }
+    return gray_morph_run(proc_handle, op, cv::MORPH_RECT, kw, kh, 1);
+}
+
+/* circle 预设：参数 1 = Radius，核尺寸 = 2R+1 椭圆核 */
+static Herror gray_morph_circle(Hproc_handle proc_handle, int op)
+{
+    Hcpar r_par;
+    HGetSPar(proc_handle, 1, DOUBLE_PAR, &r_par, 1);
+    if (r_par.par.d < 0.0)
+    {
+        HSetErrText(const_cast<char*>("gray morph: Radius must be >= 0"));
+        return 30003;
+    }
+    const int k = 2 * (int)std::lround(r_par.par.d) + 1;
+    return gray_morph_run(proc_handle, op, cv::MORPH_ELLIPSE, k, k, 1);
+}
+
+Herror HCcv_gray_erosion_rect(Hproc_handle proc_handle)
+{ return gray_morph_rect(proc_handle, cv::MORPH_ERODE); }
+Herror HCcv_gray_dilation_rect(Hproc_handle proc_handle)
+{ return gray_morph_rect(proc_handle, cv::MORPH_DILATE); }
+Herror HCcv_gray_opening_rect(Hproc_handle proc_handle)
+{ return gray_morph_rect(proc_handle, cv::MORPH_OPEN); }
+Herror HCcv_gray_closing_rect(Hproc_handle proc_handle)
+{ return gray_morph_rect(proc_handle, cv::MORPH_CLOSE); }
+
+Herror HCcv_gray_erosion_circle(Hproc_handle proc_handle)
+{ return gray_morph_circle(proc_handle, cv::MORPH_ERODE); }
+Herror HCcv_gray_dilation_circle(Hproc_handle proc_handle)
+{ return gray_morph_circle(proc_handle, cv::MORPH_DILATE); }
+Herror HCcv_gray_opening_circle(Hproc_handle proc_handle)
+{ return gray_morph_circle(proc_handle, cv::MORPH_OPEN); }
+Herror HCcv_gray_closing_circle(Hproc_handle proc_handle)
+{ return gray_morph_circle(proc_handle, cv::MORPH_CLOSE); }
+
+/* 通用灰度形态学：Op/Shape 字符串枚举（或整数），Kwidth/Kheight 核尺寸，Iterations 迭代 */
+Herror HCcv_morphology_ex(Hproc_handle proc_handle)
+{
+    HAllocStringMem(proc_handle, 1024);  // 枚举字符串读取统一在此分配一次（多次分配会泄漏 temp memory）
+    int op = cv::MORPH_OPEN;
+    if (!read_enum_param(proc_handle, 1, kMorphOpTable, kMorphOpN, &op))
+    {
+        HSetErrText(const_cast<char*>(
+            "cv_morphology_ex: unknown Op (\"erode\"/\"dilate\"/\"open\"/\"close\"/\"gradient\"/\"tophat\"/\"blackhat\")"));
+        return 30003;
+    }
+    int shape = cv::MORPH_RECT;
+    if (!read_enum_param(proc_handle, 2, kMorphShapeTable, kMorphShapeN, &shape))
+    {
+        HSetErrText(const_cast<char*>(
+            "cv_morphology_ex: unknown Shape (\"rect\"/\"cross\"/\"ellipse\")"));
+        return 30003;
+    }
+    Hcpar kw_par, kh_par, it_par;
+    HGetSPar(proc_handle, 3, LONG_PAR, &kw_par, 1);
+    HGetSPar(proc_handle, 4, LONG_PAR, &kh_par, 1);
+    HGetSPar(proc_handle, 5, LONG_PAR, &it_par, 1);
+    const int kw = (int)kw_par.par.l;
+    const int kh = (int)kh_par.par.l;
+    if (kw < 1 || kh < 1)
+    {
+        HSetErrText(const_cast<char*>("cv_morphology_ex: Kwidth/Kheight must be >= 1"));
+        return 30003;
+    }
+    int iterations = (int)it_par.par.l;
+    if (iterations < 1) iterations = 1;
+
+    return gray_morph_run(proc_handle, op, shape, kw, kh, iterations);
 }

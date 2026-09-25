@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_magnitude</span><span data-if="c" style="display:none;">cv_magnitude</span><span data-if="cpp" style="display:none;">CvMagnitude</span><span data-if="dotnet" style="display:none;">CvMagnitude</span><span data-if="python" style="display:none;">cv_magnitude</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_magnitude</span><span data-if="c" style="display:none;">cv_magnitude</span><span data-if="cpp" style="display:none;">CvMagnitude</span><span data-if="dotnet" style="display:none;">CvMagnitude</span><span data-if="python" style="display:none;">cv_magnitude</span></code> — Compute the gradient magnitude sqrt(X^2+Y^2) using OpenCV.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_magnitude</span><span data-if="c" style="display:none;">cv_magnitude</span><span data-if="cpp" style="display:none;">CvMagnitude</span><span data-if="dotnet" style="display:none;">CvMagnitude</span><span data-if="python" style="display:none;">cv_magnitude</span></code> — 二维向量模长 sqrt(x²+y²)，对应 cv::magnitude。输入两图同类型同尺寸（byte/uint2/real），内部转 32F 计算，输出 real。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1120,19 +1120,19 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="X" class="parname"><b><code><span data-if="hdevelop" style="display:inline">X</span><span data-if="c" style="display:none">X</span><span data-if="cpp" style="display:none">X</span><span data-if="dotnet" style="display:none">x</span><span data-if="python" style="display:none">x</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">单通道 byte / uint2 / real</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="Y" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Y</span><span data-if="c" style="display:none">Y</span><span data-if="cpp" style="display:none">Y</span><span data-if="dotnet" style="display:none">y</span><span data-if="python" style="display:none">y</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">与 X 同类型同尺寸</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="Magnitude" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Magnitude</span><span data-if="c" style="display:none">Magnitude</span><span data-if="cpp" style="display:none">Magnitude</span><span data-if="dotnet" style="display:none">magnitude</span><span data-if="python" style="display:none">magnitude</span></code></b> (output_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">统一输出 real（CV_32F）</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

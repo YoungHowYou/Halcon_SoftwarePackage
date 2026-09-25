@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>* ===== 设计文档验收例：y = x^2 + x + 1，应得 a=b=c=1，全内点 =====</l>
+<l>XData := [0,1,2,3,4]</l>
+<l>YData := [1,3,7,13,21]</l>
+<l>cv_ransac_fit ('a*pow(x,2)+b*x+c', ['a','b','c'], [0.5,0.5,0.5], XData, YData, 'x', 1.0, 1000, 0.2, 0, 'x', 3, 0.99, 0, ParamValues, InlierMask, ResidualSum, Iterations, Status, StatusMessage, InlierRatio)</l>
+<l>if (Status != 0)</l>
+<l>  throw ('cv_ransac_fit status!=0: ' + StatusMessage)</l>
+<l>endif</l>
+<l>if (fabs(ParamValues[0] - 1.0) &gt; 1e-4 or fabs(ParamValues[1] - 1.0) &gt; 1e-4 or fabs(ParamValues[2] - 1.0) &gt; 1e-4)</l>
+<l>  throw ('cv_ransac_fit params wrong: ' + ParamValues)</l>
+<l>endif</l>
+<l>if (|InlierMask| != 5)</l>
+<l>  throw ('cv_ransac_fit mask length wrong')</l>
+<l>endif</l>
+<l>for I := 0 to 4 by 1</l>
+<l>  if (InlierMask[I] == 0)</l>
+<l>    throw ('cv_ransac_fit: inlier marked outlier at ' + I)</l>
+<l>  endif</l>
+<l>endfor</l>
+<l>if (ResidualSum &gt; 1e-6)</l>
+<l>  throw ('cv_ransac_fit rss too large: ' + ResidualSum)</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 直线 + 离群点：内点 y=2x+1，3 个离群点应被掩掉 =====</l>
+<l>X2 := [0,1,2,3,4,5,6,7,8,9]</l>
+<l>Y2 := [1,3,5,7,9,11,13,15,17,19]</l>
+<l>* 注入 3 个离群点</l>
+<l>Y2[3] := 100</l>
+<l>Y2[5] := -50</l>
+<l>Y2[8] := 200</l>
+<l>cv_ransac_fit ('a*x+b', ['a','b'], [0,0], X2, Y2, 'x', 1.0, 2000, 0.3, 0, 'x', 2, 0.99, 0, PV2, Mask2, RSS2, IT2, ST2, SM2, RT2)</l>
+<l>if (ST2 != 0)</l>
+<l>  throw ('cv_ransac_fit line status!=0: ' + SM2)</l>
+<l>endif</l>
+<l>if (fabs(PV2[0] - 2.0) &gt; 1e-2 or fabs(PV2[1] - 1.0) &gt; 1e-2)</l>
+<l>  throw ('cv_ransac_fit line params wrong: ' + PV2)</l>
+<l>endif</l>
+<l>if (Mask2[3] != 0 or Mask2[5] != 0 or Mask2[8] != 0)</l>
+<l>  throw ('cv_ransac_fit: outlier not masked')</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 参数校验：空表达式 / 点数不足 / XName 冲突，Status 应为 -1 =====</l>
+<l>cv_ransac_fit ('', ['a','b'], [0,0], X2, Y2, 'x', 1.0, 100, 0.2, 0, 'x', 2, 0.99, 0, PV3, M3, R3, I3, ST3, SM3, RT3)</l>
+<l>if (ST3 != -2)</l>
+<l>  throw ('empty expr should give Status=-2, got ' + ST3)</l>
+<l>endif</l>
+<l>* 2 点对 3 参数（欠定）</l>
+<l>cv_ransac_fit ('a*pow(x,2)+b*x+c', ['a','b','c'], [0,0,0], [0,1], [0,1], 'x', 1.0, 100, 0.2, 0, 'x', 3, 0.99, 0, PV4, M4, R4, I4, ST4, SM4, RT4)</l>
+<l>if (ST4 != -5)</l>
+<l>  throw ('too few points should give Status=-5, got ' + ST4)</l>
+<l>endif</l>
+<l>cv_ransac_fit ('a*x+b', ['a','b'], [0,0], X2, Y2, 'a', 1.0, 100, 0.2, 0, 'x', 2, 0.99, 0, PV5, M5, R5, I5, ST5, SM5, RT5)</l>
+<l>if (ST5 != -2)</l>
+<l>  throw ('XName conflict should give Status=-2, got ' + ST5)</l>
+<l>endif</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

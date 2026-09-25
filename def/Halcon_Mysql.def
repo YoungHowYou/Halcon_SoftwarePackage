@@ -19,6 +19,7 @@ parallelization
 
 parameter
   host:               input_control;
+  description.english: 主机地址。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -26,6 +27,7 @@ parameter
 
 parameter
   user:               input_control;
+  description.english: 用户名。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -33,6 +35,7 @@ parameter
 
 parameter
   passwd:             input_control;
+  description.english: 密码。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -40,6 +43,7 @@ parameter
 
 parameter
   db:                 input_control;
+  description.english: 数据库名。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -47,6 +51,7 @@ parameter
 
 parameter
   port:               input_control;
+  description.english: 端口号。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -54,6 +59,7 @@ parameter
 
 parameter
   unix_socket:        input_control;
+  description.english: Unix socket 路径（可空）。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -61,6 +67,7 @@ parameter
 
 parameter
   client_flag:        input_control;
+  description.english: 连接选项标志。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -68,6 +75,7 @@ parameter
 
 parameter
   handle:             output_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   sem_type:           handle;
   type_list:          handle;
   default_type:       handle;
@@ -75,6 +83,7 @@ parameter
 
 parameter
   errmsg:             output_control;
+  description.english: 错误消息输出。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -102,6 +111,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -109,6 +119,7 @@ parameter
 
 parameter
   sql:                input_control;
+  description.english: SQL 语句。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -116,6 +127,7 @@ parameter
 
 parameter
   errmsg:             output_control;
+  description.english: 错误消息输出。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -143,6 +155,7 @@ parallelization
 
 parameter
   handle:             input_control;
+  description.english: 连接/日志器句柄（连接类算子的输出，其余算子的输入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -150,6 +163,7 @@ parameter
 
 parameter
   result:             output_control;
+  description.english: 查询结果集输出。;
   default_type:       string;
   multivalue:         true;
   sem_type:           string;

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_write_image_exif — 给已有图像文件写入 EXIF（GPS/光圈/快门/ISO 等）</c>
+<c>*   基于 exiv2；文件必须先存在（先用 write_image 写出）</c>
+<c>* =============================================================</c>
+<l>read_image (Image, 'printer_chip/printer_chip_01')</l>
+<l>write_image (Image, 'jpg', 0, 'exif_test.jpg')</l>
+<l>write_image_exif ('exif_test.jpg', 31.2304, 121.4737, 468.0, 2.8, 0.004, 200, 35.0, '2024:11:29 16:05:21', 'TestMake', 'TestModel')</l>
+<l>file_exists ('exif_test.jpg', Exists)</l>
+<l>if (Exists != 1)</l>
+<l>  throw ('write_image_exif: output file missing')</l>
+<l>endif</l>
+<c>* 读回确认图像仍有效</c>
+<l>read_image (Back, 'exif_test.jpg')</l>
+<l>get_image_size (Back, BW, BH)</l>
+<l>if (BW != 1600 or BH != 1200)</l>
+<l>  throw ('write_image_exif: image corrupted')</l>
+<l>endif</l>
+<l>delete_file ('exif_test.jpg')</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

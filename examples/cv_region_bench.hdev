@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>read_image (Image, 'printer_chip/printer_chip_01')</l>
+<l>threshold (Image, RegText, 0, 90)</l>
+<l>dilation_circle (RegText, RegBig, 3.5)</l>
+<l>move_region (RegBig, RegMoved, 5, 3)</l>
+<l>N := 50</l>
+<l>count_seconds (T0)</l>
+<l>for i := 1 to N by 1</l>
+<l>  cv_connection (RegBig, Conns)</l>
+<l>endfor</l>
+<l>count_seconds (T1)</l>
+<l>count_seconds (T2)</l>
+<l>for i := 1 to N by 1</l>
+<l>  connection (RegBig, ConnsH)</l>
+<l>endfor</l>
+<l>count_seconds (T3)</l>
+<l>count_seconds (T4)</l>
+<l>for i := 1 to N by 1</l>
+<l>  cv_union2 (RegBig, RegMoved, U)</l>
+<l>endfor</l>
+<l>count_seconds (T5)</l>
+<l>count_seconds (T6)</l>
+<l>for i := 1 to N by 1</l>
+<l>  union2 (RegBig, RegMoved, U2)</l>
+<l>endfor</l>
+<l>count_seconds (T7)</l>
+<l>count_seconds (T8)</l>
+<l>for i := 1 to N by 1</l>
+<l>  cv_intersection (RegBig, RegMoved, I)</l>
+<l>endfor</l>
+<l>count_seconds (T9)</l>
+<l>count_seconds (T10)</l>
+<l>for i := 1 to N by 1</l>
+<l>  intersection (RegBig, RegMoved, I2)</l>
+<l>endfor</l>
+<l>count_seconds (T11)</l>
+<l>count_seconds (T12)</l>
+<l>for i := 1 to N by 1</l>
+<l>  cv_erosion_circle (RegBig, E, 5.5)</l>
+<l>endfor</l>
+<l>count_seconds (T13)</l>
+<l>count_seconds (T14)</l>
+<l>for i := 1 to N by 1</l>
+<l>  erosion_circle (RegBig, E2, 5.5)</l>
+<l>endfor</l>
+<l>count_seconds (T15)</l>
+<l>count_obj (Conns, NC)</l>
+<l>count_obj (ConnsH, NCH)</l>
+<l>DCvConn := (T1 - T0) / N</l>
+<l>DHalConn := (T3 - T2) / N</l>
+<l>DCvUnion := (T5 - T4) / N</l>
+<l>DHalUnion := (T7 - T6) / N</l>
+<l>DCvInter := (T9 - T8) / N</l>
+<l>DHalInter := (T11 - T10) / N</l>
+<l>DCvEro := (T13 - T12) / N</l>
+<l>DHalEro := (T15 - T14) / N</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

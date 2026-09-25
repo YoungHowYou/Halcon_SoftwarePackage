@@ -1,4 +1,4 @@
-/*=============================================================================
+﻿/*=============================================================================
  * Halcon_Math.cpp — HALCON 数学/矩阵扩展算子
  *
  * 涵盖:
@@ -583,6 +583,7 @@ Herror HCeigen_lm_fit(Hproc_handle proc_handle)
     HAllocTmp(proc_handle, &msgOut, (INT4_8)message.size() + 1);
     memcpy(msgOut, message.c_str(), message.size() + 1);
     HPutElem(proc_handle, 5, &msgOut, 1, STRING_PAR);
+    HFreeTmp(proc_handle, msgOut, (INT4_8)message.size() + 1);
 
     return H_MSG_TRUE;
 }
@@ -881,6 +882,7 @@ Herror HCeigen_lm_fit_2d(Hproc_handle proc_handle)
     HAllocTmp(proc_handle, &msgOut, (INT4_8)message.size() + 1);
     memcpy(msgOut, message.c_str(), message.size() + 1);
     HPutElem(proc_handle, 5, &msgOut, 1, STRING_PAR);
+    HFreeTmp(proc_handle, msgOut, (INT4_8)message.size() + 1);
 
     return H_MSG_TRUE;
 }
@@ -1302,6 +1304,7 @@ Herror HLinear_fit(Hproc_handle proc_handle)
     HAllocTmp(proc_handle, &msgOut, (INT4_8)res.message.size() + 1);
     memcpy(msgOut, res.message.c_str(), res.message.size() + 1);
     HPutElem(proc_handle, 5, &msgOut, 1, STRING_PAR);
+    HFreeTmp(proc_handle, msgOut, (INT4_8)res.message.size() + 1);
 
     return H_MSG_TRUE;
 }
@@ -1382,6 +1385,7 @@ Herror HLinear_fit_2d(Hproc_handle proc_handle)
     HAllocTmp(proc_handle, &msgOut, (INT4_8)res.message.size() + 1);
     memcpy(msgOut, res.message.c_str(), res.message.size() + 1);
     HPutElem(proc_handle, 5, &msgOut, 1, STRING_PAR);
+    HFreeTmp(proc_handle, msgOut, (INT4_8)res.message.size() + 1);
 
     return H_MSG_TRUE;
 }

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>* ===== 数据准备 =====</l>
+<l>gen_rectangle1 (R1, 10, 10, 50, 50)</l>
+<l>gen_rectangle1 (R2, 30, 30, 70, 70)</l>
+<l>cv_gen_circle (C1, 100, 100, 20.0)</l>
+<l>cv_gen_rectangle1 (Rect1, 5, 5, 20, 20)</l>
+<c></c>
+<l>* ===== 集合代数 =====</l>
+<l>cv_union2 (R1, R2, RUnion)</l>
+<l>concat_obj (R1, R2, Two0)</l>
+      <l>concat_obj (Two0, C1, Three)</l>
+      <l>cv_union1 (Three, RUnion1)</l>
+<l>cv_intersection (R1, R2, RInter)</l>
+<l>cv_difference (R1, R2, RDiff)</l>
+<l>cv_symm_difference (R1, R2, RSymm)</l>
+<l>cv_complement (R1, RCompl)</l>
+<c></c>
+<l>area_center (RUnion, AH, RH, CH)</l>
+<l>cv_area_center (RUnion, AC, RC, CC)</l>
+<l>if (abs(AH - AC) &gt; 0.5)</l>
+<l>  throw ('cv_union2 area mismatch: ' + AC + ' vs ' + AH)</l>
+<l>endif</l>
+<l>area_center (RInter, AI, RI, CI)</l>
+<l>if (AI &lt; 400 or AI &gt; 900)</l>
+<l>  throw ('cv_intersection area unexpected: ' + AI)</l>
+<l>endif</l>
+<l>area_center (RDiff, AD, RD, CD)</l>
+<l>area_center (R1, A1, RR1, CR1)</l>
+<l>if (abs(AD - (A1 - AI)) &gt; 1)</l>
+<l>  throw ('cv_difference area unexpected: ' + AD)</l>
+<l>endif</l>
+<l>area_center (RSymm, AS, RS, CS)</l>
+<l>if (abs(AS - (AH - AI)) &gt; 1)</l>
+<l>  throw ('cv_symm_difference area unexpected: ' + AS)</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 形态学 =====</l>
+<l>gen_circle (SE, 0, 0, 3.5)</l>
+<l>cv_dilation1 (R1, SE, RDil, 1)</l>
+<l>area_center (RDil, ADil, RDilR, CDilR)</l>
+<l>if (ADil &lt;= A1)</l>
+<l>  throw ('cv_dilation1 did not grow region')</l>
+<l>endif</l>
+<l>cv_erosion1 (R1, SE, REro, 1)</l>
+<l>area_center (REro, AEro, REroR, CEroR)</l>
+<l>if (AEro &gt;= A1)</l>
+<l>  throw ('cv_erosion1 did not shrink region')</l>
+<l>endif</l>
+<l>cv_opening (R1, SE, ROpen)</l>
+<l>cv_closing (R1, SE, RClose)</l>
+<l>area_center (ROpen, AOpen, ROR, COR)</l>
+<l>area_center (RClose, AClose, RCR, CCR)</l>
+<l>if (AOpen &gt; A1 or AClose &lt; A1)</l>
+<l>  throw ('cv_opening/closing area anomaly')</l>
+<l>endif</l>
+<l>cv_fill_up (C1, C1Fill)</l>
+<l>area_center (C1Fill, AF, RF, CF)</l>
+<l>if (AF &lt; 1200)</l>
+<l>  throw ('cv_fill_up area too small: ' + AF)</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 连通域 =====</l>
+<l>union2 (R1, C1, TwoBlobs)</l>
+<l>cv_connection (TwoBlobs, Conn)</l>
+<l>count_obj (Conn, NConn)</l>
+<l>if (NConn != 2)</l>
+<l>  throw ('cv_connection expected 2, got ' + NConn)</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 特征 =====</l>
+<l>concat_obj (R1, C1, TwoAC)</l>
+      <l>cv_area_center (TwoAC, Areas, Rows, Cols)</l>
+<l>if (|Areas| != 2)</l>
+<l>  throw ('cv_area_center tuple length wrong')</l>
+<l>endif</l>
+<l>cv_smallest_rectangle1 (TwoAC, R1s, C1s, R2s, C2s)</l>
+<l>if (R1s[0] != 10 or C2s[0] != 50)</l>
+<l>  throw ('cv_smallest_rectangle1 wrong on R1')</l>
+<l>endif</l>
+<l>cv_smallest_rectangle2 (R1, RR2, CR2, Phi2, L1, L2)</l>
+<l>cv_smallest_circle (R1, RCi, CCi, Rad)</l>
+<l>cv_elliptic_axis (R1, Ra, Rb, PhiE)</l>
+<l>cv_contlength (TwoAC, CLs)</l>
+<l>cv_circularity (TwoAC, Circs)</l>
+<l>cv_compactness (R1, Comps)</l>
+<l>cv_convexity (TwoAC, Convs)</l>
+<l>cv_rectangularity (R1, Rects)</l>
+<l>cv_anisometry (R1, Anis)</l>
+<l>cv_bulkiness (R1, Bulks)</l>
+<l>cv_structure_factor (R1, Structs)</l>
+<l>if (Convs[0] &lt; 0.99)</l>
+<l>  throw ('cv_convexity: rectangle should be convex')</l>
+<l>endif</l>
+<l>if (Rects[0] &lt; 0.99)</l>
+<l>  throw ('cv_rectangularity: rectangle should be ~1')</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 形状变换 =====</l>
+<l>cv_shape_trans (C1, C1Rect, 'rectangle1')</l>
+<l>cv_shape_trans (C1, C1Conv, 'convex')</l>
+<l>cv_shape_trans (C1, C1Ell, 'ellipse')</l>
+<l>cv_shape_trans (C1, C1Circ, 'outer_circle')</l>
+<l>area_center (C1Rect, ARect, RRR, CRR)</l>
+<l>if (ARect &lt; 1200)</l>
+<l>  throw ('cv_shape_trans rectangle1 area too small')</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 筛选 =====</l>
+<l>cv_select_shape (Conn, Sel, 'area', 'and', 500, 99999999)</l>
+<l>count_obj (Sel, NSel)</l>
+<l>if (NSel &lt; 1)</l>
+<l>  throw ('cv_select_shape returned empty')</l>
+<l>endif</l>
+<c></c>
+<l>* ===== region 与图像互转 =====</l>
+<l>cv_region_to_bin (RUnion, BinImg, 255, 0, 200, 200)</l>
+<l>get_image_size (BinImg, BW, BH)</l>
+<l>if (BW != 200 or BH != 200)</l>
+<l>  throw ('cv_region_to_bin size wrong')</l>
+<l>endif</l>
+<l>cv_bin_to_region (BinImg, RBack, 1)</l>
+<l>cv_area_center (RBack, ABack, RBk, CBk)</l>
+<l>if (abs(ABack - AH) &gt; 0.5)</l>
+<l>  throw ('cv_bin_to_region roundtrip area mismatch: ' + ABack + ' vs ' + AH)</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 与 HALCON 原生对照（printer_chip 真实图像） =====</l>
+<l>read_image (Image, 'printer_chip/printer_chip_01')</l>
+<l>threshold (Image, Regions, 66, 255)</l>
+<l>connection (Regions, ConnH)</l>
+<l>cv_connection (Regions, ConnC)</l>
+<l>count_obj (ConnH, NH)</l>
+<l>count_obj (ConnC, NC)</l>
+<l>if (NH != NC)</l>
+<l>  throw ('cv_connection count mismatch: ' + NC + ' vs ' + NH)</l>
+<l>endif</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h4 id="section_list">List of Operators</h4>
 <dl>
 <dt><a href="CLAHE_image.html"><code><span data-if="hdevelop" style="display:inline;">CLAHE_image</span><span data-if="dotnet" style="display:none;">CLAHEImage</span><span data-if="python" style="display:none;">CLAHE_image</span><span data-if="cpp" style="display:none;">CLAHEImage</span><span data-if="c" style="display:none;">CLAHE_image</span></code></a></dt>
-<dd>CLAHE image enhancement.</dd>
+<dd>对比度受限自适应直方图均衡，对应 cv::CLAHE。支持 byte/uint2 单通道；TileGridSize 为网格行列数，ClipLimit 为对比度限制阈值。</dd>
 </dl>
 <dl>
 <dt><a href="GetStringByImageOut.html"><code><span data-if="hdevelop" style="display:inline;">GetStringByImageOut</span><span data-if="dotnet" style="display:none;">GetStringByImageOut</span><span data-if="python" style="display:none;">GetStringByImageOut</span><span data-if="cpp" style="display:none;">GetStringByImageOut</span><span data-if="c" style="display:none;">GetStringByImageOut</span></code></a></dt>
@@ -1093,11 +1093,11 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="PNGIn.html"><code><span data-if="hdevelop" style="display:inline;">PNGIn</span><span data-if="dotnet" style="display:none;">PNGIn</span><span data-if="python" style="display:none;">PNGIn</span><span data-if="cpp" style="display:none;">PNGIn</span><span data-if="c" style="display:none;">PNGIn</span></code></a></dt>
-<dd>Laplace Filter.</dd>
+<dd>PNG 图像解码输入。</dd>
 </dl>
 <dl>
 <dt><a href="PNGOut.html"><code><span data-if="hdevelop" style="display:inline;">PNGOut</span><span data-if="dotnet" style="display:none;">PNGOut</span><span data-if="python" style="display:none;">PNGOut</span><span data-if="cpp" style="display:none;">PNGOut</span><span data-if="c" style="display:none;">PNGOut</span></code></a></dt>
-<dd>Laplace Filter.</dd>
+<dd>PNG 图像编码输出。</dd>
 </dl>
 <dl>
 <dt><a href="SetStringByImageIn.html"><code><span data-if="hdevelop" style="display:inline;">SetStringByImageIn</span><span data-if="dotnet" style="display:none;">SetStringByImageIn</span><span data-if="python" style="display:none;">SetStringByImageIn</span><span data-if="cpp" style="display:none;">SetStringByImageIn</span><span data-if="c" style="display:none;">SetStringByImageIn</span></code></a></dt>
@@ -1105,7 +1105,7 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="add_roi.html"><code><span data-if="hdevelop" style="display:inline;">add_roi</span><span data-if="dotnet" style="display:none;">AddRoi</span><span data-if="python" style="display:none;">add_roi</span><span data-if="cpp" style="display:none;">AddRoi</span><span data-if="c" style="display:none;">add_roi</span></code></a></dt>
-<dd>Add ROI to big image.</dd>
+<dd>ROI 加法：大图指定矩形区域与同样大小的小图逐像素相加（A + B∩Roi），结果写回大图（原地修改）。仅支持 uint2；小图尺寸必须等于 ROI（ew×eh）。</dd>
 </dl>
 <dl>
 <dt><a href="arma_interp1.html"><code><span data-if="hdevelop" style="display:inline;">arma_interp1</span><span data-if="dotnet" style="display:none;">ArmaInterp1</span><span data-if="python" style="display:none;">arma_interp1</span><span data-if="cpp" style="display:none;">ArmaInterp1</span><span data-if="c" style="display:none;">arma_interp1</span></code></a></dt>
@@ -1113,103 +1113,291 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="cv_add_weighted.html"><code><span data-if="hdevelop" style="display:inline;">cv_add_weighted</span><span data-if="dotnet" style="display:none;">CvAddWeighted</span><span data-if="python" style="display:none;">cv_add_weighted</span><span data-if="cpp" style="display:none;">CvAddWeighted</span><span data-if="c" style="display:none;">cv_add_weighted</span></code></a></dt>
-<dd>Computes the weighted sum of two images (supports 8-bit, 16-bit and real single-channel images).</dd>
+<dd>两图加权相加：Out = alpha*Src1 + beta*Src2 + gamma，对应 cv::addWeighted。支持 byte/uint2/real 单通道。</dd>
 </dl>
 <dl>
 <dt><a href="cv_akaze_detect.html"><code><span data-if="hdevelop" style="display:inline;">cv_akaze_detect</span><span data-if="dotnet" style="display:none;">CvAkazeDetect</span><span data-if="python" style="display:none;">cv_akaze_detect</span><span data-if="cpp" style="display:none;">CvAkazeDetect</span><span data-if="c" style="display:none;">cv_akaze_detect</span></code></a></dt>
-<dd>AKAZE feature detection and descriptor computation using OpenCV.</dd>
+<dd>AKAZE 特征检测与描述子计算，对应 cv::AKAZE。输入 8 位单通道图像，输出关键点与描述子写回 dict。参数经 dict 键全开放（DescriptorType/Threshold/NOctaves/NOctaveLayers/Diffusivity 等），未设取默认。</dd>
+</dl>
+<dl>
+<dt><a href="cv_anisometry.html"><code><span data-if="hdevelop" style="display:inline;">cv_anisometry</span><span data-if="dotnet" style="display:none;">CvAnisometry</span><span data-if="python" style="display:none;">cv_anisometry</span><span data-if="cpp" style="display:none;">CvAnisometry</span><span data-if="c" style="display:none;">cv_anisometry</span></code></a></dt>
+<dd>各向异性（Ra/Rb），对应 HALCON anisometry。</dd>
+</dl>
+<dl>
+<dt><a href="cv_area_center.html"><code><span data-if="hdevelop" style="display:inline;">cv_area_center</span><span data-if="dotnet" style="display:none;">CvAreaCenter</span><span data-if="python" style="display:none;">cv_area_center</span><span data-if="cpp" style="display:none;">CvAreaCenter</span><span data-if="c" style="display:none;">cv_area_center</span></code></a></dt>
+<dd>region 面积与重心，对应 HALCON area_center。输出 Area/Row/Column。</dd>
 </dl>
 <dl>
 <dt><a href="cv_bf_knn_match.html"><code><span data-if="hdevelop" style="display:inline;">cv_bf_knn_match</span><span data-if="dotnet" style="display:none;">CvBfKnnMatch</span><span data-if="python" style="display:none;">cv_bf_knn_match</span><span data-if="cpp" style="display:none;">CvBfKnnMatch</span><span data-if="c" style="display:none;">cv_bf_knn_match</span></code></a></dt>
-<dd>BF KNN feature matching with Lowe's ratio test using OpenCV.</dd>
+<dd>BF 暴力匹配，对应 cv::BFMatcher。参考/目标描述子以 dict 图像传入，输出匹配索引与良好匹配数写回 dict。CrossCheck=1 时走 bf.match()（互为最佳匹配），=0 时走 knnMatch+Lowe ratio test（K≥2）。NormType 默认 NORM_HAMMING，适配 ORB/AKAZE 二进制描述子。</dd>
+</dl>
+<dl>
+<dt><a href="cv_bin_to_region.html"><code><span data-if="hdevelop" style="display:inline;">cv_bin_to_region</span><span data-if="dotnet" style="display:none;">CvBinToRegion</span><span data-if="python" style="display:none;">cv_bin_to_region</span><span data-if="cpp" style="display:none;">CvBinToRegion</span><span data-if="c" style="display:none;">cv_bin_to_region</span></code></a></dt>
+<dd>byte 二值图转 region（gray ≥ Threshold 的像素），对应 HALCON bin_threshold 的逆过程。</dd>
 </dl>
 <dl>
 <dt><a href="cv_blur.html"><code><span data-if="hdevelop" style="display:inline;">cv_blur</span><span data-if="dotnet" style="display:none;">CvBlur</span><span data-if="python" style="display:none;">cv_blur</span><span data-if="cpp" style="display:none;">CvBlur</span><span data-if="c" style="display:none;">cv_blur</span></code></a></dt>
-<dd>Smooth an image using a normalized box filter (supports 8-bit, 16-bit and real single-channel images).</dd>
+<dd>对图像做归一化盒式滤波（均值滤波），对应 cv::blur；输出与输入同类型同尺寸的单通道图像，支持 byte / uint2 / real。AnchorX/AnchorY 指定核锚点（-1=核中心）；BorderType 为边界模式，支持字符串枚举（如 'border_default'，大小写不敏感）或整数；核宽/高须为 ≥1 的奇数。</dd>
+</dl>
+<dl>
+<dt><a href="cv_bulkiness.html"><code><span data-if="hdevelop" style="display:inline;">cv_bulkiness</span><span data-if="dotnet" style="display:none;">CvBulkiness</span><span data-if="python" style="display:none;">cv_bulkiness</span><span data-if="cpp" style="display:none;">CvBulkiness</span><span data-if="c" style="display:none;">cv_bulkiness</span></code></a></dt>
+<dd>肥胖度，对应 HALCON bulkiness。</dd>
 </dl>
 <dl>
 <dt><a href="cv_calc_hist.html"><code><span data-if="hdevelop" style="display:inline;">cv_calc_hist</span><span data-if="dotnet" style="display:none;">CvCalcHist</span><span data-if="python" style="display:none;">cv_calc_hist</span><span data-if="cpp" style="display:none;">CvCalcHist</span><span data-if="c" style="display:none;">cv_calc_hist</span></code></a></dt>
-<dd>Compute gray-level histogram (8/16-bit or real single-channel).</dd>
+<dd>灰度直方图，对应 cv::calcHist。支持 byte/uint2/real 单通道；输出 1×HistSize 的 real 直方图，范围 [RangeMin, RangeMax)。</dd>
+</dl>
+<dl>
+<dt><a href="cv_circularity.html"><code><span data-if="hdevelop" style="display:inline;">cv_circularity</span><span data-if="dotnet" style="display:none;">CvCircularity</span><span data-if="python" style="display:none;">cv_circularity</span><span data-if="cpp" style="display:none;">CvCircularity</span><span data-if="c" style="display:none;">cv_circularity</span></code></a></dt>
+<dd>圆度（4πA/C²），对应 HALCON circularity。</dd>
+</dl>
+<dl>
+<dt><a href="cv_closing.html"><code><span data-if="hdevelop" style="display:inline;">cv_closing</span><span data-if="dotnet" style="display:none;">CvClosing</span><span data-if="python" style="display:none;">cv_closing</span><span data-if="cpp" style="display:none;">CvClosing</span><span data-if="c" style="display:none;">cv_closing</span></code></a></dt>
+<dd>region 闭运算：先膨胀后腐蚀，填补细小暗孔洞。对应 HALCON closing。</dd>
+</dl>
+<dl>
+<dt><a href="cv_compactness.html"><code><span data-if="hdevelop" style="display:inline;">cv_compactness</span><span data-if="dotnet" style="display:none;">CvCompactness</span><span data-if="python" style="display:none;">cv_compactness</span><span data-if="cpp" style="display:none;">CvCompactness</span><span data-if="c" style="display:none;">cv_compactness</span></code></a></dt>
+<dd>紧凑度（C²/(4πA)），对应 HALCON compactness。</dd>
+</dl>
+<dl>
+<dt><a href="cv_complement.html"><code><span data-if="hdevelop" style="display:inline;">cv_complement</span><span data-if="dotnet" style="display:none;">CvComplement</span><span data-if="python" style="display:none;">cv_complement</span><span data-if="cpp" style="display:none;">CvComplement</span><span data-if="c" style="display:none;">cv_complement</span></code></a></dt>
+<dd>region 求补集，对应 HALCON complement（输出带 is_compl 标志，惰性表示）。</dd>
+</dl>
+<dl>
+<dt><a href="cv_connection.html"><code><span data-if="hdevelop" style="display:inline;">cv_connection</span><span data-if="dotnet" style="display:none;">CvConnection</span><span data-if="python" style="display:none;">cv_connection</span><span data-if="cpp" style="display:none;">CvConnection</span><span data-if="c" style="display:none;">cv_connection</span></code></a></dt>
+<dd>连通域标记（8 连通），对应 HALCON connection。输出连通域元组。按行并查集 + 双指针实现。</dd>
+</dl>
+<dl>
+<dt><a href="cv_contlength.html"><code><span data-if="hdevelop" style="display:inline;">cv_contlength</span><span data-if="dotnet" style="display:none;">CvContlength</span><span data-if="python" style="display:none;">cv_contlength</span><span data-if="cpp" style="display:none;">CvContlength</span><span data-if="c" style="display:none;">cv_contlength</span></code></a></dt>
+<dd>轮廓长度（含对角 sqrt(2) 修正），对应 HALCON contlength。</dd>
+</dl>
+<dl>
+<dt><a href="cv_convexity.html"><code><span data-if="hdevelop" style="display:inline;">cv_convexity</span><span data-if="dotnet" style="display:none;">CvConvexity</span><span data-if="python" style="display:none;">cv_convexity</span><span data-if="cpp" style="display:none;">CvConvexity</span><span data-if="c" style="display:none;">cv_convexity</span></code></a></dt>
+<dd>凸度（面积/凸包面积），对应 HALCON convexity。</dd>
+</dl>
+<dl>
+<dt><a href="cv_difference.html"><code><span data-if="hdevelop" style="display:inline;">cv_difference</span><span data-if="dotnet" style="display:none;">CvDifference</span><span data-if="python" style="display:none;">cv_difference</span><span data-if="cpp" style="display:none;">CvDifference</span><span data-if="c" style="display:none;">cv_difference</span></code></a></dt>
+<dd>两个 region 求差集（R1 − R2），对应 HALCON difference。</dd>
+</dl>
+<dl>
+<dt><a href="cv_dilation1.html"><code><span data-if="hdevelop" style="display:inline;">cv_dilation1</span><span data-if="dotnet" style="display:none;">CvDilation1</span><span data-if="python" style="display:none;">cv_dilation1</span><span data-if="cpp" style="display:none;">CvDilation1</span><span data-if="c" style="display:none;">cv_dilation1</span></code></a></dt>
+<dd>region 膨胀（自定义结构元），对应 HALCON dilation1。SE 参考点=质心四舍五入，用居中+反射 SE 做 Minkowski 和；按行 O(n×SE行数) 实现。</dd>
+</dl>
+<dl>
+<dt><a href="cv_dilation_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_dilation_circle</span><span data-if="dotnet" style="display:none;">CvDilationCircle</span><span data-if="python" style="display:none;">cv_dilation_circle</span><span data-if="cpp" style="display:none;">CvDilationCircle</span><span data-if="c" style="display:none;">cv_dilation_circle</span></code></a></dt>
+<dd>圆形结构元膨胀，对应 HALCON dilation_circle。</dd>
+</dl>
+<dl>
+<dt><a href="cv_dilation_rectangle1.html"><code><span data-if="hdevelop" style="display:inline;">cv_dilation_rectangle1</span><span data-if="dotnet" style="display:none;">CvDilationRectangle1</span><span data-if="python" style="display:none;">cv_dilation_rectangle1</span><span data-if="cpp" style="display:none;">CvDilationRectangle1</span><span data-if="c" style="display:none;">cv_dilation_rectangle1</span></code></a></dt>
+<dd>矩形结构元膨胀，对应 HALCON dilation_rectangle1。</dd>
+</dl>
+<dl>
+<dt><a href="cv_elliptic_axis.html"><code><span data-if="hdevelop" style="display:inline;">cv_elliptic_axis</span><span data-if="dotnet" style="display:none;">CvEllipticAxis</span><span data-if="python" style="display:none;">cv_elliptic_axis</span><span data-if="cpp" style="display:none;">CvEllipticAxis</span><span data-if="c" style="display:none;">cv_elliptic_axis</span></code></a></dt>
+<dd>等效椭圆轴（长半轴 Ra、短半轴 Rb、主轴角 Phi），对应 HALCON elliptic_axis。</dd>
+</dl>
+<dl>
+<dt><a href="cv_erosion1.html"><code><span data-if="hdevelop" style="display:inline;">cv_erosion1</span><span data-if="dotnet" style="display:none;">CvErosion1</span><span data-if="python" style="display:none;">cv_erosion1</span><span data-if="cpp" style="display:none;">CvErosion1</span><span data-if="c" style="display:none;">cv_erosion1</span></code></a></dt>
+<dd>region 腐蚀（自定义结构元），对应 HALCON erosion1。SE 参考点=质心四舍五入；按行 O(n×SE行数) 实现。</dd>
+</dl>
+<dl>
+<dt><a href="cv_erosion_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_erosion_circle</span><span data-if="dotnet" style="display:none;">CvErosionCircle</span><span data-if="python" style="display:none;">cv_erosion_circle</span><span data-if="cpp" style="display:none;">CvErosionCircle</span><span data-if="c" style="display:none;">cv_erosion_circle</span></code></a></dt>
+<dd>圆形结构元腐蚀，对应 HALCON erosion_circle。Radius 决定 SE 尺寸；按行算法实现。</dd>
+</dl>
+<dl>
+<dt><a href="cv_erosion_rectangle1.html"><code><span data-if="hdevelop" style="display:inline;">cv_erosion_rectangle1</span><span data-if="dotnet" style="display:none;">CvErosionRectangle1</span><span data-if="python" style="display:none;">cv_erosion_rectangle1</span><span data-if="cpp" style="display:none;">CvErosionRectangle1</span><span data-if="c" style="display:none;">cv_erosion_rectangle1</span></code></a></dt>
+<dd>矩形结构元腐蚀，对应 HALCON erosion_rectangle1。Width/Height 为核宽高。</dd>
 </dl>
 <dl>
 <dt><a href="cv_estimate_affine_2d.html"><code><span data-if="hdevelop" style="display:inline;">cv_estimate_affine_2d</span><span data-if="dotnet" style="display:none;">CvEstimateAffine2d</span><span data-if="python" style="display:none;">cv_estimate_affine_2d</span><span data-if="cpp" style="display:none;">CvEstimateAffine2d</span><span data-if="c" style="display:none;">cv_estimate_affine_2d</span></code></a></dt>
-<dd>Estimate full affine transformation (6 parameters) using OpenCV.</dd>
+<dd>完整仿射变换估计（6 参数），对应 cv::estimateAffine2D。源/目标点集为等长实数元组（≥3 点）；MethodId（RANSAC=8 默认/LMEDS=4）、MaxIters/Confidence/RefineIters 可调；输出 6 元素矩阵 [R00,R10,T0,R01,R11,T1]，顺序同 HALCON hom_mat2d。</dd>
 </dl>
 <dl>
 <dt><a href="cv_estimate_affine_partial2d.html"><code><span data-if="hdevelop" style="display:inline;">cv_estimate_affine_partial2d</span><span data-if="dotnet" style="display:none;">CvEstimateAffinePartial2d</span><span data-if="python" style="display:none;">cv_estimate_affine_partial2d</span><span data-if="cpp" style="display:none;">CvEstimateAffinePartial2d</span><span data-if="c" style="display:none;">cv_estimate_affine_partial2d</span></code></a></dt>
-<dd>Estimate partial affine transformation using RANSAC (OpenCV).</dd>
+<dd>部分仿射变换估计（4 自由度：平移+旋转+各向同性缩放），对应 cv::estimateAffinePartial2D。源/目标点集经 dict 元组传入（各 ≥3 点），结果 HomMat2D（2×3 展开）/Success/InlierCount 及平移/角度/缩放写回 dict；Method/MaxIters/Confidence/RefineIters 经 dict 键可调。</dd>
+</dl>
+<dl>
+<dt><a href="cv_estimate_rigid_2d.html"><code><span data-if="hdevelop" style="display:inline;">cv_estimate_rigid_2d</span><span data-if="dotnet" style="display:none;">CvEstimateRigid2d</span><span data-if="python" style="display:none;">cv_estimate_rigid_2d</span><span data-if="cpp" style="display:none;">CvEstimateRigid2d</span><span data-if="c" style="display:none;">cv_estimate_rigid_2d</span></code></a></dt>
+<dd>刚体变换估计（平移+旋转，无缩放），自实现 RANSAC：每轮采样 2 点对闭式解 cos/sin+平移，统计内点取最优。点集经 dict 传入，MaxIter/Seed 可调；结果 HomMat2D/角度/平移写回 dict，Scale 恒为 1.0。</dd>
+</dl>
+<dl>
+<dt><a href="cv_fill_up.html"><code><span data-if="hdevelop" style="display:inline;">cv_fill_up</span><span data-if="dotnet" style="display:none;">CvFillUp</span><span data-if="python" style="display:none;">cv_fill_up</span><span data-if="cpp" style="display:none;">CvFillUp</span><span data-if="c" style="display:none;">cv_fill_up</span></code></a></dt>
+<dd>填充 region 内部孔洞，对应 HALCON fill_up。需要定义域（取全局 HGWidth/HGHeight，缺省时按输入 bbox 推导）。</dd>
 </dl>
 <dl>
 <dt><a href="cv_filter2d.html"><code><span data-if="hdevelop" style="display:inline;">cv_filter2d</span><span data-if="dotnet" style="display:none;">CvFilter2d</span><span data-if="python" style="display:none;">cv_filter2d</span><span data-if="cpp" style="display:none;">CvFilter2d</span><span data-if="c" style="display:none;">cv_filter2d</span></code></a></dt>
-<dd>Convolve an image with a kernel (supports 8-bit, 16-bit and real single-channel images).</dd>
+<dd>图像卷积，对应 cv::filter2D。卷积核经 real 单通道图像传入；Ddepth 支持字符串枚举（same/s16/f32/f64）或整数（-1=保持原深度）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数。</dd>
+</dl>
+<dl>
+<dt><a href="cv_gen_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_gen_circle</span><span data-if="dotnet" style="display:none;">CvGenCircle</span><span data-if="python" style="display:none;">cv_gen_circle</span><span data-if="cpp" style="display:none;">CvGenCircle</span><span data-if="c" style="display:none;">cv_gen_circle</span></code></a></dt>
+<dd>生成圆形 region，对应 HALCON gen_circle。负坐标按 HALCON 语义裁剪。</dd>
+</dl>
+<dl>
+<dt><a href="cv_gen_rectangle1.html"><code><span data-if="hdevelop" style="display:inline;">cv_gen_rectangle1</span><span data-if="dotnet" style="display:none;">CvGenRectangle1</span><span data-if="python" style="display:none;">cv_gen_rectangle1</span><span data-if="cpp" style="display:none;">CvGenRectangle1</span><span data-if="c" style="display:none;">cv_gen_rectangle1</span></code></a></dt>
+<dd>生成轴对齐矩形 region，对应 HALCON gen_rectangle1。</dd>
+</dl>
+<dl>
+<dt><a href="cv_gray_closing_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_gray_closing_circle</span><span data-if="dotnet" style="display:none;">CvGrayClosingCircle</span><span data-if="python" style="display:none;">cv_gray_closing_circle</span><span data-if="cpp" style="display:none;">CvGrayClosingCircle</span><span data-if="c" style="display:none;">cv_gray_closing_circle</span></code></a></dt>
+<dd>灰度闭运算（圆核）。对应 cv::morphologyEx MORPH_CLOSE，核尺寸 2R+1。</dd>
+</dl>
+<dl>
+<dt><a href="cv_gray_closing_rect.html"><code><span data-if="hdevelop" style="display:inline;">cv_gray_closing_rect</span><span data-if="dotnet" style="display:none;">CvGrayClosingRect</span><span data-if="python" style="display:none;">cv_gray_closing_rect</span><span data-if="cpp" style="display:none;">CvGrayClosingRect</span><span data-if="c" style="display:none;">cv_gray_closing_rect</span></code></a></dt>
+<dd>灰度闭运算（矩形核）：先膨胀后腐蚀，填暗孔洞。对应 cv::morphologyEx MORPH_CLOSE。</dd>
+</dl>
+<dl>
+<dt><a href="cv_gray_dilation_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_gray_dilation_circle</span><span data-if="dotnet" style="display:none;">CvGrayDilationCircle</span><span data-if="python" style="display:none;">cv_gray_dilation_circle</span><span data-if="cpp" style="display:none;">CvGrayDilationCircle</span><span data-if="c" style="display:none;">cv_gray_dilation_circle</span></code></a></dt>
+<dd>灰度膨胀（圆核）：核为 2R+1 椭圆核。对应 cv::morphologyEx MORPH_DILATE。</dd>
+</dl>
+<dl>
+<dt><a href="cv_gray_dilation_rect.html"><code><span data-if="hdevelop" style="display:inline;">cv_gray_dilation_rect</span><span data-if="dotnet" style="display:none;">CvGrayDilationRect</span><span data-if="python" style="display:none;">cv_gray_dilation_rect</span><span data-if="cpp" style="display:none;">CvGrayDilationRect</span><span data-if="c" style="display:none;">cv_gray_dilation_rect</span></code></a></dt>
+<dd>灰度膨胀（矩形核），对应 cv::morphologyEx MORPH_DILATE。核尺寸 Width×Height；支持 byte/uint2/real。</dd>
+</dl>
+<dl>
+<dt><a href="cv_gray_erosion_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_gray_erosion_circle</span><span data-if="dotnet" style="display:none;">CvGrayErosionCircle</span><span data-if="python" style="display:none;">cv_gray_erosion_circle</span><span data-if="cpp" style="display:none;">CvGrayErosionCircle</span><span data-if="c" style="display:none;">cv_gray_erosion_circle</span></code></a></dt>
+<dd>灰度腐蚀（圆核）：核为 2R+1 椭圆核。对应 cv::morphologyEx MORPH_ERODE。</dd>
+</dl>
+<dl>
+<dt><a href="cv_gray_erosion_rect.html"><code><span data-if="hdevelop" style="display:inline;">cv_gray_erosion_rect</span><span data-if="dotnet" style="display:none;">CvGrayErosionRect</span><span data-if="python" style="display:none;">cv_gray_erosion_rect</span><span data-if="cpp" style="display:none;">CvGrayErosionRect</span><span data-if="c" style="display:none;">cv_gray_erosion_rect</span></code></a></dt>
+<dd>灰度腐蚀（矩形核），对应 cv::morphologyEx MORPH_ERODE。核尺寸 Width×Height；支持 byte/uint2/real，输出同类型。</dd>
+</dl>
+<dl>
+<dt><a href="cv_gray_opening_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_gray_opening_circle</span><span data-if="dotnet" style="display:none;">CvGrayOpeningCircle</span><span data-if="python" style="display:none;">cv_gray_opening_circle</span><span data-if="cpp" style="display:none;">CvGrayOpeningCircle</span><span data-if="c" style="display:none;">cv_gray_opening_circle</span></code></a></dt>
+<dd>灰度开运算（圆核）。对应 cv::morphologyEx MORPH_OPEN，核尺寸 2R+1。</dd>
+</dl>
+<dl>
+<dt><a href="cv_gray_opening_rect.html"><code><span data-if="hdevelop" style="display:inline;">cv_gray_opening_rect</span><span data-if="dotnet" style="display:none;">CvGrayOpeningRect</span><span data-if="python" style="display:none;">cv_gray_opening_rect</span><span data-if="cpp" style="display:none;">CvGrayOpeningRect</span><span data-if="c" style="display:none;">cv_gray_opening_rect</span></code></a></dt>
+<dd>灰度开运算（矩形核）：先腐蚀后膨胀，去亮噪点。对应 cv::morphologyEx MORPH_OPEN。</dd>
+</dl>
+<dl>
+<dt><a href="cv_intersection.html"><code><span data-if="hdevelop" style="display:inline;">cv_intersection</span><span data-if="dotnet" style="display:none;">CvIntersection</span><span data-if="python" style="display:none;">cv_intersection</span><span data-if="cpp" style="display:none;">CvIntersection</span><span data-if="c" style="display:none;">cv_intersection</span></code></a></dt>
+<dd>两个 region 求交集，对应 HALCON intersection（RLE 双指针归并）。</dd>
 </dl>
 <dl>
 <dt><a href="cv_kmeans.html"><code><span data-if="hdevelop" style="display:inline;">cv_kmeans</span><span data-if="dotnet" style="display:none;">CvKmeans</span><span data-if="python" style="display:none;">cv_kmeans</span><span data-if="cpp" style="display:none;">CvKmeans</span><span data-if="c" style="display:none;">cv_kmeans</span></code></a></dt>
-<dd>K-means clustering (real NxD samples matrix).</dd>
+<dd>K 均值聚类，对应 cv::kmeans。样本为 real N×D 图像（N 样本每行 D 维）；输出 Labels（N×1）与 Centers（K×D）。Flags 支持字符串枚举（random/pp/use_initial_labels）或整数，默认 pp。</dd>
 </dl>
 <dl>
 <dt><a href="cv_magnitude.html"><code><span data-if="hdevelop" style="display:inline;">cv_magnitude</span><span data-if="dotnet" style="display:none;">CvMagnitude</span><span data-if="python" style="display:none;">cv_magnitude</span><span data-if="cpp" style="display:none;">CvMagnitude</span><span data-if="c" style="display:none;">cv_magnitude</span></code></a></dt>
-<dd>Compute the gradient magnitude sqrt(X^2+Y^2) using OpenCV.</dd>
+<dd>二维向量模长 sqrt(x²+y²)，对应 cv::magnitude。输入两图同类型同尺寸（byte/uint2/real），内部转 32F 计算，输出 real。</dd>
 </dl>
 <dl>
 <dt><a href="cv_mat_mul.html"><code><span data-if="hdevelop" style="display:inline;">cv_mat_mul</span><span data-if="dotnet" style="display:none;">CvMatMul</span><span data-if="python" style="display:none;">cv_mat_mul</span><span data-if="cpp" style="display:none;">CvMatMul</span><span data-if="c" style="display:none;">cv_mat_mul</span></code></a></dt>
-<dd>Matrix multiplication of two 16-bit single-channel images (C = A * B).</dd>
+<dd>两个 16 位单通道图像做矩阵乘法，对应 cv::gemm：C = alpha*A*B (+ beta)。A 为 m×k、B 为 k×n，结果 C 为 m×n；内部转 double 计算后饱和截断回 16 位。Flags 支持字符串枚举（none/transpose_a/transpose_b/transpose_c）或整数 0/1/2/4。</dd>
 </dl>
 <dl>
 <dt><a href="cv_match_template.html"><code><span data-if="hdevelop" style="display:inline;">cv_match_template</span><span data-if="dotnet" style="display:none;">CvMatchTemplate</span><span data-if="python" style="display:none;">cv_match_template</span><span data-if="cpp" style="display:none;">CvMatchTemplate</span><span data-if="c" style="display:none;">cv_match_template</span></code></a></dt>
-<dd>Template matching (TM_CCOEFF_NORMED, 8-bit or real single-channel).</dd>
+<dd>模板匹配，对应 cv::matchTemplate。支持 byte/real（OpenCV 限制不支持 16 位）；MethodId 支持字符串枚举（sqdiff/sqdiff_normed/ccorr/ccorr_normed/ccoeff/ccoeff_normed）或 0-5，默认 ccoeff_normed。输出 real 得分图，尺寸 (W−w+1)×(H−h+1)。</dd>
 </dl>
 <dl>
 <dt><a href="cv_measure_pos.html"><code><span data-if="hdevelop" style="display:inline;">cv_measure_pos</span><span data-if="dotnet" style="display:none;">CvMeasurePos</span><span data-if="python" style="display:none;">cv_measure_pos</span><span data-if="cpp" style="display:none;">CvMeasurePos</span><span data-if="c" style="display:none;">cv_measure_pos</span></code></a></dt>
-<dd>Measure straight edges perpendicular to a rectangle using OpenCV.</dd>
+<dd>一维边缘测量，复刻 HALCON measure_pos（算法本体在 cvr 库 cvr_measure_pos，7 步管线：剖面提取→高斯一阶导核→卷积→局部极大值+阈值→抛物线亚像素→排序→去重/方向过滤/映射）。沿测量矩形主轴扫描，输出边缘行/列坐标与振幅。注意：暗→亮边缘振幅为负（transition=-1 选中），亮→暗为正。</dd>
 </dl>
 <dl>
 <dt><a href="cv_median_blur.html"><code><span data-if="hdevelop" style="display:inline;">cv_median_blur</span><span data-if="dotnet" style="display:none;">CvMedianBlur</span><span data-if="python" style="display:none;">cv_median_blur</span><span data-if="cpp" style="display:none;">CvMedianBlur</span><span data-if="c" style="display:none;">cv_median_blur</span></code></a></dt>
-<dd>Median blur filter (supports 8-bit, 16-bit and real images).</dd>
+<dd>中值滤波，对应 cv::medianBlur。支持 byte/uint2/real 单通道；16 位与浮点图仅支持 Ksize=3 或 5。Ksize 为 ≥1 的奇数核尺寸。</dd>
+</dl>
+<dl>
+<dt><a href="cv_morphology_ex.html"><code><span data-if="hdevelop" style="display:inline;">cv_morphology_ex</span><span data-if="dotnet" style="display:none;">CvMorphologyEx</span><span data-if="python" style="display:none;">cv_morphology_ex</span><span data-if="cpp" style="display:none;">CvMorphologyEx</span><span data-if="c" style="display:none;">cv_morphology_ex</span></code></a></dt>
+<dd>通用灰度形态学，对应 cv::morphologyEx。Op/Shape 支持字符串枚举（erode/dilate/open/close/gradient/tophat/blackhat × rect/cross/ellipse）或整数；Iterations≥1 循环实现。支持 byte/uint2/real。</dd>
 </dl>
 <dl>
 <dt><a href="cv_multi_frame_median.html"><code><span data-if="hdevelop" style="display:inline;">cv_multi_frame_median</span><span data-if="dotnet" style="display:none;">CvMultiFrameMedian</span><span data-if="python" style="display:none;">cv_multi_frame_median</span><span data-if="cpp" style="display:none;">CvMultiFrameMedian</span><span data-if="c" style="display:none;">cv_multi_frame_median</span></code></a></dt>
-<dd>Compute the pixel-wise median over multiple real images using OpenCV.</dd>
+<dd>多帧中值滤波：对 N 张同尺寸 real 图像逐像素取中值，输出单张 real 中值图（N=3 有特化快路径）。</dd>
+</dl>
+<dl>
+<dt><a href="cv_opening.html"><code><span data-if="hdevelop" style="display:inline;">cv_opening</span><span data-if="dotnet" style="display:none;">CvOpening</span><span data-if="python" style="display:none;">cv_opening</span><span data-if="cpp" style="display:none;">CvOpening</span><span data-if="c" style="display:none;">cv_opening</span></code></a></dt>
+<dd>region 开运算：先腐蚀后膨胀，去除细小亮结构。对应 HALCON opening。</dd>
 </dl>
 <dl>
 <dt><a href="cv_orb_detect.html"><code><span data-if="hdevelop" style="display:inline;">cv_orb_detect</span><span data-if="dotnet" style="display:none;">CvOrbDetect</span><span data-if="python" style="display:none;">cv_orb_detect</span><span data-if="cpp" style="display:none;">CvOrbDetect</span><span data-if="c" style="display:none;">cv_orb_detect</span></code></a></dt>
-<dd>ORB feature detection and descriptor computation using OpenCV.</dd>
+<dd>ORB 特征检测与描述子计算，对应 cv::ORB。输入为 8 位单通道图像（以 dict 对象 InputImage 传入）；输出关键点坐标/数量与描述子（byte，32×N）写回同一 dict。检测参数经 dict 键全开放（NFeatures/ScaleFactor/NLevels/EdgeThreshold/FirstLevel/WTA_K/ScoreType/PatchSize/FastThreshold），未设键取 OpenCV 默认。</dd>
+</dl>
+<dl>
+<dt><a href="cv_ransac_fit.html"><code><span data-if="hdevelop" style="display:inline;">cv_ransac_fit</span><span data-if="dotnet" style="display:none;">CvRansacFit</span><span data-if="python" style="display:none;">cv_ransac_fit</span><span data-if="cpp" style="display:none;">CvRansacFit</span><span data-if="c" style="display:none;">cv_ransac_fit</span></code></a></dt>
+<dd>RANSAC generic geometric fitting (cv_region).</dd>
+</dl>
+<dl>
+<dt><a href="cv_rectangularity.html"><code><span data-if="hdevelop" style="display:inline;">cv_rectangularity</span><span data-if="dotnet" style="display:none;">CvRectangularity</span><span data-if="python" style="display:none;">cv_rectangularity</span><span data-if="cpp" style="display:none;">CvRectangularity</span><span data-if="c" style="display:none;">cv_rectangularity</span></code></a></dt>
+<dd>矩形度，对应 HALCON rectangularity。</dd>
+</dl>
+<dl>
+<dt><a href="cv_region_to_bin.html"><code><span data-if="hdevelop" style="display:inline;">cv_region_to_bin</span><span data-if="dotnet" style="display:none;">CvRegionToBin</span><span data-if="python" style="display:none;">cv_region_to_bin</span><span data-if="cpp" style="display:none;">CvRegionToBin</span><span data-if="c" style="display:none;">cv_region_to_bin</span></code></a></dt>
+<dd>region 转 byte 二值图，对应 HALCON region_to_bin。可指定前景/背景灰度与图像尺寸（0 表示自动推导）。</dd>
 </dl>
 <dl>
 <dt><a href="cv_reshape.html"><code><span data-if="hdevelop" style="display:inline;">cv_reshape</span><span data-if="dotnet" style="display:none;">CvReshape</span><span data-if="python" style="display:none;">cv_reshape</span><span data-if="cpp" style="display:none;">CvReshape</span><span data-if="c" style="display:none;">cv_reshape</span></code></a></dt>
-<dd>Reshape an image matrix (supports 8-bit, 16-bit and real single-channel images).</dd>
+<dd>改变图像尺寸（最近邻重采样），对应 cv::resize。输出宽为 Rows 参数（历史命名），高度按比例缩放。</dd>
+</dl>
+<dl>
+<dt><a href="cv_select_shape.html"><code><span data-if="hdevelop" style="display:inline;">cv_select_shape</span><span data-if="dotnet" style="display:none;">CvSelectShape</span><span data-if="python" style="display:none;">cv_select_shape</span><span data-if="cpp" style="display:none;">CvSelectShape</span><span data-if="c" style="display:none;">cv_select_shape</span></code></a></dt>
+<dd>按形状特征筛选 region 子集，对应 HALCON select_shape。Features 为多特征名元组，Operation 为 and/or，Min/Max 为阈值范围；输出保持引用语义。</dd>
+</dl>
+<dl>
+<dt><a href="cv_shape_trans.html"><code><span data-if="hdevelop" style="display:inline;">cv_shape_trans</span><span data-if="dotnet" style="display:none;">CvShapeTrans</span><span data-if="python" style="display:none;">cv_shape_trans</span><span data-if="cpp" style="display:none;">CvShapeTrans</span><span data-if="c" style="display:none;">cv_shape_trans</span></code></a></dt>
+<dd>region 形状变换，对应 HALCON shape_trans。Type 支持 convex（凸包）/outer_circle（外接圆）/inner_circle（内切圆）/rectangle1/rectangle2 等。</dd>
 </dl>
 <dl>
 <dt><a href="cv_sift_detect.html"><code><span data-if="hdevelop" style="display:inline;">cv_sift_detect</span><span data-if="dotnet" style="display:none;">CvSiftDetect</span><span data-if="python" style="display:none;">cv_sift_detect</span><span data-if="cpp" style="display:none;">CvSiftDetect</span><span data-if="c" style="display:none;">cv_sift_detect</span></code></a></dt>
-<dd>SIFT feature detection and descriptor computation using OpenCV.</dd>
+<dd>SIFT 特征检测与描述子计算，对应 cv::SIFT。输入 8 位单通道图像，输出 128 维浮点描述子。参数经 dict 键全开放（NFeatures/NOctaveLayers/ContrastThreshold/EdgeThreshold/Sigma）。</dd>
+</dl>
+<dl>
+<dt><a href="cv_smallest_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_smallest_circle</span><span data-if="dotnet" style="display:none;">CvSmallestCircle</span><span data-if="python" style="display:none;">cv_smallest_circle</span><span data-if="cpp" style="display:none;">CvSmallestCircle</span><span data-if="c" style="display:none;">cv_smallest_circle</span></code></a></dt>
+<dd>最小外接圆，对应 HALCON smallest_circle。输出圆心行/列与半径。</dd>
+</dl>
+<dl>
+<dt><a href="cv_smallest_rectangle1.html"><code><span data-if="hdevelop" style="display:inline;">cv_smallest_rectangle1</span><span data-if="dotnet" style="display:none;">CvSmallestRectangle1</span><span data-if="python" style="display:none;">cv_smallest_rectangle1</span><span data-if="cpp" style="display:none;">CvSmallestRectangle1</span><span data-if="c" style="display:none;">cv_smallest_rectangle1</span></code></a></dt>
+<dd>轴对齐最小外接矩形，对应 HALCON smallest_rectangle1。输出 Row1/Col1/Row2/Col2。</dd>
+</dl>
+<dl>
+<dt><a href="cv_smallest_rectangle2.html"><code><span data-if="hdevelop" style="display:inline;">cv_smallest_rectangle2</span><span data-if="dotnet" style="display:none;">CvSmallestRectangle2</span><span data-if="python" style="display:none;">cv_smallest_rectangle2</span><span data-if="cpp" style="display:none;">CvSmallestRectangle2</span><span data-if="c" style="display:none;">cv_smallest_rectangle2</span></code></a></dt>
+<dd>最小外接旋转矩形，对应 HALCON smallest_rectangle2。输出中心/角度/半边长。</dd>
 </dl>
 <dl>
 <dt><a href="cv_sobel.html"><code><span data-if="hdevelop" style="display:inline;">cv_sobel</span><span data-if="dotnet" style="display:none;">CvSobel</span><span data-if="python" style="display:none;">cv_sobel</span><span data-if="cpp" style="display:none;">CvSobel</span><span data-if="c" style="display:none;">cv_sobel</span></code></a></dt>
-<dd>Edge detection using the Sobel operator (OpenCV).</dd>
+<dd>Sobel 一阶导数边缘检测，对应 cv::Sobel。输入 byte/uint2/real，输出 real 梯度；Dx/Dy 为求导阶数（0/1，和≥1），Ksize 为核尺寸（1/3/5/7），Ddepth 支持字符串枚举（same/s16/f32/f64），BorderType 支持字符串枚举或整数。</dd>
 </dl>
 <dl>
 <dt><a href="cv_solve.html"><code><span data-if="hdevelop" style="display:inline;">cv_solve</span><span data-if="dotnet" style="display:none;">CvSolve</span><span data-if="python" style="display:none;">cv_solve</span><span data-if="cpp" style="display:none;">CvSolve</span><span data-if="c" style="display:none;">cv_solve</span></code></a></dt>
-<dd>Solve linear equations A*x=b using OpenCV (real single-channel matrices).</dd>
+<dd>线性方程组求解 Ax=b，对应 cv::solve。A、B 为 real 单通道图像（A 为 n×n 方阵，B 为 n×m 右端），输出 X（n×m real）；flags 对应 DECOMP_* 方法。</dd>
+</dl>
+<dl>
+<dt><a href="cv_structure_factor.html"><code><span data-if="hdevelop" style="display:inline;">cv_structure_factor</span><span data-if="dotnet" style="display:none;">CvStructureFactor</span><span data-if="python" style="display:none;">cv_structure_factor</span><span data-if="cpp" style="display:none;">CvStructureFactor</span><span data-if="c" style="display:none;">cv_structure_factor</span></code></a></dt>
+<dd>结构因子（各向异性×肥胖度），对应 HALCON structure_factor。</dd>
 </dl>
 <dl>
 <dt><a href="cv_subtract.html"><code><span data-if="hdevelop" style="display:inline;">cv_subtract</span><span data-if="dotnet" style="display:none;">CvSubtract</span><span data-if="python" style="display:none;">cv_subtract</span><span data-if="cpp" style="display:none;">CvSubtract</span><span data-if="c" style="display:none;">cv_subtract</span></code></a></dt>
-<dd>Compute the per-element saturated difference of two images (supports 8-bit, 16-bit and real single-channel images).</dd>
+<dd>两图相减（饱和截断），对应 cv::subtract。支持 byte/uint2/real 单通道，两图类型尺寸须一致。</dd>
+</dl>
+<dl>
+<dt><a href="cv_symm_difference.html"><code><span data-if="hdevelop" style="display:inline;">cv_symm_difference</span><span data-if="dotnet" style="display:none;">CvSymmDifference</span><span data-if="python" style="display:none;">cv_symm_difference</span><span data-if="cpp" style="display:none;">CvSymmDifference</span><span data-if="c" style="display:none;">cv_symm_difference</span></code></a></dt>
+<dd>两个 region 求对称差，对应 HALCON symm_difference。</dd>
+</dl>
+<dl>
+<dt><a href="cv_threshold.html"><code><span data-if="hdevelop" style="display:inline;">cv_threshold</span><span data-if="dotnet" style="display:none;">CvThreshold</span><span data-if="python" style="display:none;">cv_threshold</span><span data-if="cpp" style="display:none;">CvThreshold</span><span data-if="c" style="display:none;">cv_threshold</span></code></a></dt>
+<dd>固定/自动阈值分割，对应 cv::threshold。Type 支持字符串枚举或整数：基础类型 binary/binary_inv/trunc/tozero/tozero_inv，可与 otsu/triangle 用 | 组合（如 binary|otsu）。支持 byte/uint2/real；OTSU/TRIANGLE 仅 byte。输出实际使用阈值 ThreshUsed。</dd>
 </dl>
 <dl>
 <dt><a href="cv_threshold_triangle.html"><code><span data-if="hdevelop" style="display:inline;">cv_threshold_triangle</span><span data-if="dotnet" style="display:none;">CvThresholdTriangle</span><span data-if="python" style="display:none;">cv_threshold_triangle</span><span data-if="cpp" style="display:none;">CvThresholdTriangle</span><span data-if="c" style="display:none;">cv_threshold_triangle</span></code></a></dt>
-<dd>Triangle automatic thresholding (THRESH_TRIANGLE, 8-bit single-channel only).</dd>
+<dd>三角法自动阈值分割（THRESH_TRIANGLE），仅支持 8 位单通道。输出二值图与自动阈值。</dd>
+</dl>
+<dl>
+<dt><a href="cv_union1.html"><code><span data-if="hdevelop" style="display:inline;">cv_union1</span><span data-if="dotnet" style="display:none;">CvUnion1</span><span data-if="python" style="display:none;">cv_union1</span><span data-if="cpp" style="display:none;">CvUnion1</span><span data-if="c" style="display:none;">cv_union1</span></code></a></dt>
+<dd>region 元组全部求并集，对应 HALCON union1。</dd>
+</dl>
+<dl>
+<dt><a href="cv_union2.html"><code><span data-if="hdevelop" style="display:inline;">cv_union2</span><span data-if="dotnet" style="display:none;">CvUnion2</span><span data-if="python" style="display:none;">cv_union2</span><span data-if="cpp" style="display:none;">CvUnion2</span><span data-if="c" style="display:none;">cv_union2</span></code></a></dt>
+<dd>两个 region 求并集，对应 HALCON union2（RLE 有序归并）。结果去重合并相邻 run。</dd>
 </dl>
 <dl>
 <dt><a href="cv_write_image.html"><code><span data-if="hdevelop" style="display:inline;">cv_write_image</span><span data-if="dotnet" style="display:none;">CvWriteImage</span><span data-if="python" style="display:none;">cv_write_image</span><span data-if="cpp" style="display:none;">CvWriteImage</span><span data-if="c" style="display:none;">cv_write_image</span></code></a></dt>
-<dd>Save image as PNG file (supports 8/16-bit, 1/3-channel).</dd>
+<dd>写图像文件，对应 cv::imwrite。支持 byte/uint2 单通道按扩展名编码（png/jpg/bmp 等）；写失败返回错误码。</dd>
 </dl>
 <dl>
 <dt><a href="div_A_roi.html"><code><span data-if="hdevelop" style="display:inline;">div_A_roi</span><span data-if="dotnet" style="display:none;">DivARoi</span><span data-if="python" style="display:none;">div_A_roi</span><span data-if="cpp" style="display:none;">DivARoi</span><span data-if="c" style="display:none;">div_A_roi</span></code></a></dt>
-<dd>Divide big image by ROI (small / B).</dd>
+<dd>ROI 除法（A 系）：大图 ROI 除以小图（整除），结果写回大图。仅支持 uint2。</dd>
 </dl>
 <dl>
 <dt><a href="div_B_roi.html"><code><span data-if="hdevelop" style="display:inline;">div_B_roi</span><span data-if="dotnet" style="display:none;">DivBRoi</span><span data-if="python" style="display:none;">div_B_roi</span><span data-if="cpp" style="display:none;">DivBRoi</span><span data-if="c" style="display:none;">div_B_roi</span></code></a></dt>
-<dd>Divide ROI from big image (B / small).</dd>
+<dd>ROI 除法（B 系）：小图除以大图 ROI（整除），结果写回大图。仅支持 uint2。</dd>
 </dl>
 <dl>
 <dt><a href="eigen_ldlt.html"><code><span data-if="hdevelop" style="display:inline;">eigen_ldlt</span><span data-if="dotnet" style="display:none;">EigenLdlt</span><span data-if="python" style="display:none;">eigen_ldlt</span><span data-if="cpp" style="display:none;">EigenLdlt</span><span data-if="c" style="display:none;">eigen_ldlt</span></code></a></dt>
@@ -1305,7 +1493,7 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="mul_roi.html"><code><span data-if="hdevelop" style="display:inline;">mul_roi</span><span data-if="dotnet" style="display:none;">MulRoi</span><span data-if="python" style="display:none;">mul_roi</span><span data-if="cpp" style="display:none;">MulRoi</span><span data-if="c" style="display:none;">mul_roi</span></code></a></dt>
-<dd>Multiply ROI to big image.</dd>
+<dd>ROI 乘法：大图 ROI 与小图逐像素相乘，结果写回大图（原地修改）。仅支持 uint2。</dd>
 </dl>
 <dl>
 <dt><a href="mysql_query.html"><code><span data-if="hdevelop" style="display:inline;">mysql_query</span><span data-if="dotnet" style="display:none;">MysqlQuery</span><span data-if="python" style="display:none;">mysql_query</span><span data-if="cpp" style="display:none;">MysqlQuery</span><span data-if="c" style="display:none;">mysql_query</span></code></a></dt>
@@ -1321,7 +1509,7 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="remap.html"><code><span data-if="hdevelop" style="display:inline;">remap</span><span data-if="dotnet" style="display:none;">Remap</span><span data-if="python" style="display:none;">remap</span><span data-if="cpp" style="display:none;">Remap</span><span data-if="c" style="display:none;">remap</span></code></a></dt>
-<dd>Laplace Filter.</dd>
+<dd>几何变换重映射，对应 cv::remap。输入图/输出图/MapX/MapY 以 dict 对象传入（uint2 输入，real 映射图）；每个像素按映射表取源坐标，支持桶形/枕形畸变校正等。</dd>
 </dl>
 <dl>
 <dt><a href="spdlog_basic_logger_mt.html"><code><span data-if="hdevelop" style="display:inline;">spdlog_basic_logger_mt</span><span data-if="dotnet" style="display:none;">SpdlogBasicLoggerMt</span><span data-if="python" style="display:none;">spdlog_basic_logger_mt</span><span data-if="cpp" style="display:none;">SpdlogBasicLoggerMt</span><span data-if="c" style="display:none;">spdlog_basic_logger_mt</span></code></a></dt>
@@ -1437,15 +1625,15 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="sub_A_roi.html"><code><span data-if="hdevelop" style="display:inline;">sub_A_roi</span><span data-if="dotnet" style="display:none;">SubARoi</span><span data-if="python" style="display:none;">sub_A_roi</span><span data-if="cpp" style="display:none;">SubARoi</span><span data-if="c" style="display:none;">sub_A_roi</span></code></a></dt>
-<dd>Subtract big image from ROI (small - B).</dd>
+<dd>ROI 减法（A 系）：大图 ROI 减小图（(A∩Roi) − B），结果写回大图。仅支持 uint2。</dd>
 </dl>
 <dl>
 <dt><a href="sub_B_roi.html"><code><span data-if="hdevelop" style="display:inline;">sub_B_roi</span><span data-if="dotnet" style="display:none;">SubBRoi</span><span data-if="python" style="display:none;">sub_B_roi</span><span data-if="cpp" style="display:none;">SubBRoi</span><span data-if="c" style="display:none;">sub_B_roi</span></code></a></dt>
-<dd>Subtract ROI from big image (B - small).</dd>
+<dd>ROI 减法（B 系）：小图减大图 ROI（B − A∩Roi），结果写回大图。仅支持 uint2。</dd>
 </dl>
 <dl>
 <dt><a href="write_image_exif.html"><code><span data-if="hdevelop" style="display:inline;">write_image_exif</span><span data-if="dotnet" style="display:none;">WriteImageExif</span><span data-if="python" style="display:none;">write_image_exif</span><span data-if="cpp" style="display:none;">WriteImageExif</span><span data-if="c" style="display:none;">write_image_exif</span></code></a></dt>
-<dd>Write EXIF metadata to image file.</dd>
+<dd>给已有图像文件写入 EXIF 元数据（GPS 经纬度/海拔、光圈、快门、ISO、焦距、时间、厂商/型号），基于 exiv2。文件须先存在；字段以多值控制参数传入。</dd>
 </dl>
 <!--OP_REF_FOOTER_START-->
 <hr>

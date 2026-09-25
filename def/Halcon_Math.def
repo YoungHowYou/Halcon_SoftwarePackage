@@ -30,14 +30,12 @@ parallelization
 parameter
   image:             input_object;
   description.german:  Eingabebild (real, einkanalig).;
-  description.english: Input image (real, single channel).;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   nIndex:            input_control;
   description.german:  Index des gesuchten Elementes (0-basiert, nach dem Flachlegen).;
-  description.english: Index of the wanted element (0-based, after flattening).;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -47,7 +45,6 @@ parameter
 parameter
   value:             output_control;
   description.german:  Wert des n-ten Elementes.;
-  description.english: Value of the n-th smallest element.;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -82,21 +79,18 @@ parallelization
 parameter
   image:             input_object;
   description.german:  Eingabebild (real, einkanalig).;
-  description.english: Input image (real, single channel).;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageOut:          output_object;
   description.german:  Sortiertes Bild, gleiche Groesse wie das Eingabebild.;
-  description.english: Sorted image, same size as the input image.;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   descending:        input_control;
   description.german:  Sortierrichtung: 0 = aufsteigend, 1 = absteigend.;
-  description.english: Sort order: 0 = ascending, 1 = descending.;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -132,14 +126,12 @@ parallelization
 parameter
   image:             input_object;
   description.german:  Aufsteigend sortiertes Eingabebild (real, einkanalig).;
-  description.english: Ascending input image (real, single channel, must be sorted).;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   value:             input_control;
   description.german:  Suchwert.;
-  description.english: Value to search for.;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -149,7 +141,6 @@ parameter
 parameter
   index:             output_control;
   description.german:  Index des ersten Elementes groesser oder gleich Value.;
-  description.english: Index of the first element not less than Value.;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -184,28 +175,24 @@ parallelization
 parameter
   imageA:            input_object;
   description.german:  Eingabematrix A (real, Hoehe = Zeilen, Breite = Spalten).;
-  description.english: Input matrix A (real, height = rows, width = columns).;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageU:            output_object;
   description.german:  Linke Singulaervektormatrix U (m x m).;
-  description.english: Left singular vector matrix U (m x m).;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageS:            output_object;
   description.german:  Singulaerwerte als Zeilenvektor (1 x min(m,n)), absteigend.;
-  description.english: Singular values as row vector (1 x min(m,n)), in descending order.;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageV:            output_object;
   description.german:  Rechte Singulaervektormatrix V (n x n).;
-  description.english: Right singular vector matrix V (n x n).;
   sem_type:           image;
   multivalue:         optional;
 
@@ -238,21 +225,18 @@ parallelization
 parameter
   imageA:            input_object;
   description.german:  Symmetrische Eingabematrix A (real, quadratisch).;
-  description.english: Symmetric input matrix A (real, square).;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageB:            input_object;
   description.german:  Rechte Seite b (real, Hoehe = Zeilen von A, Breite = 1).;
-  description.english: Right hand side b (real, height = rows of A, width = 1).;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageX:            output_object;
   description.german:  Loesungsvektor x (real).;
-  description.english: Solution vector x (real).;
   sem_type:           image;
   multivalue:         optional;
 
@@ -285,21 +269,18 @@ parallelization
 parameter
   imageA:            input_object;
   description.german:  Positiv definite Eingabematrix A (real, quadratisch).;
-  description.english: Positive-definite input matrix A (real, square).;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageB:            input_object;
   description.german:  Rechte Seite b (real, Hoehe = Zeilen von A, Breite = 1).;
-  description.english: Right hand side b (real, height = rows of A, width = 1).;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageX:            output_object;
   description.german:  Loesungsvektor x (real).;
-  description.english: Solution vector x (real).;
   sem_type:           image;
   multivalue:         optional;
 
@@ -332,35 +313,30 @@ parallelization
 parameter
   imageX:            input_object;
   description.german:  Stuetzstellen X (real, 1 x N oder N x 1), aufsteigend.;
-  description.english: Sample points X (real, 1 x N or N x 1), ascending.;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageY:            input_object;
   description.german:  Stuetzwerte Y (real, gleiche Laenge wie X).;
-  description.english: Sample values Y (real, same length as X).;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageXI:           input_object;
   description.german:  Abfragepunkte XI (real, 1 x M oder M x 1).;
-  description.english: Query points XI (real, 1 x M or M x 1).;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageYI:           output_object;
   description.german:  Interpolierte Werte YI (real, gleiche Laenge wie XI).;
-  description.english: Interpolated values YI (real, same length as XI).;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   interpMethod:      input_control;
   description.german:  Interpolationsverfahren: linear oder nearest (nur der erste Buchstabe wird ausgewertet). Ein fuehrendes Sternchen setzt monotone X und XI voraus.;
-  description.english: Interpolation method, either linear or nearest (only the first letter is evaluated). A leading asterisk assumes monotonic X and XI.;
   default_type:      string;
   multivalue:        false;
   sem_type:          string;
@@ -396,7 +372,6 @@ parallelization
 parameter
   modelExpression:   input_control;
   description.german:  Modellausdruck, z.B. a*exp(b*x)+c.;
-  description.english: Model expression to fit, e.g. a*exp(b*x)+c.;
   default_type:      string;
   multivalue:        false;
   sem_type:          string;
@@ -406,7 +381,6 @@ parameter
 parameter
   paramNames:        input_control;
   description.german:  Namen der anzupassenden Parameter, z.B. a,b,c.;
-  description.english: Names of the parameters to fit, e.g. a,b,c. Must be unique and differ from XName.;
   default_type:      string;
   multivalue:        true;
   sem_type:          string;
@@ -415,7 +389,6 @@ parameter
 parameter
   initialValues:     input_control;
   description.german:  Startwerte der Parameter, Laenge muss der Anzahl von ParamNames entsprechen.;
-  description.english: Initial parameter values. Length must equal the number of ParamNames.;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
@@ -424,7 +397,6 @@ parameter
 parameter
   xData:             input_control;
   description.german:  Stuetzstellen der unabhaengigen Variablen.;
-  description.english: Samples of the independent variable.;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
@@ -433,7 +405,6 @@ parameter
 parameter
   yData:             input_control;
   description.german:  Stuetzstellen der abhaengigen Variablen, Laenge muss der Anzahl von XData entsprechen.;
-  description.english: Samples of the dependent variable. Length must equal the number of XData.;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
@@ -442,7 +413,6 @@ parameter
 parameter
   xName:             input_control;
   description.german:  Name der unabhaengigen Variablen im Modellausdruck (Standard: x).;
-  description.english: Name of the independent variable used in the model expression (default: x).;
   default_type:      string;
   multivalue:        false;
   sem_type:          string;
@@ -452,7 +422,6 @@ parameter
 parameter
   maxIter:           input_control;
   description.german:  Maximale Anzahl der Funktionsaufrufe (0 = 400*(Anzahl Parameter+1)).;
-  description.english: Maximum number of function evaluations (0 selects 400*(numParams+1)).;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -462,7 +431,6 @@ parameter
 parameter
   eps:               input_control;
   description.german:  Schrittweite der numerischen Differentiation (0 = automatisch).;
-  description.english: Step size for numerical differentiation (0 selects it automatically).;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -472,7 +440,6 @@ parameter
 parameter
   paramValues:       output_control;
   description.german:  Angepasste Parameterwerte in der Reihenfolge von ParamNames.;
-  description.english: Fitted parameter values, ordered like ParamNames.;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
@@ -481,7 +448,6 @@ parameter
 parameter
   rss:               output_control;
   description.german:  Summe der Fehlerquadrate (-1 bei Ausdrucksfehler).;
-  description.english: Residual sum of squares (-1 if the expression could not be evaluated).;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -490,7 +456,6 @@ parameter
 parameter
   iterations:        output_control;
   description.german:  Anzahl der durchgefuehrten Iterationen.;
-  description.english: Number of iterations performed.;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -499,7 +464,6 @@ parameter
 parameter
   status:            output_control;
   description.german:  Statuscode des LevenbergMarquardt-Algorithmus (1-4 konvergiert, 5-8 beendet, 0 fehlgeschlagen).;
-  description.english: LevenbergMarquardt status code (1-4 converged, 5-8 finished without confirmation, 0 failed).;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -508,7 +472,6 @@ parameter
 parameter
   statusMessage:     output_control;
   description.german:  Statustext des Ergebnisses (bei Ausdrucksfehler mit expression error: ...).;
-  description.english: Status text of the result (contains expression error: ... on failure).;
   default_type:      string;
   multivalue:        false;
   sem_type:          string;
@@ -543,7 +506,6 @@ parallelization
 parameter
   expressions:       input_control;
   description.german:  Modellausdruecke (einer oder mehr), z.B. je einer fuer dx und dy. Alle teilen sich ParamNames.;
-  description.english: One or more model expressions, e.g. one for dx and one for dy. All of them share ParamNames.;
   default_type:      string;
   multivalue:        true;
   sem_type:          string;
@@ -552,7 +514,6 @@ parameter
 parameter
   paramNames:        input_control;
   description.german:  Namen der gemeinsamen Parameter, z.B. k1,k2,k3,p1,p2.;
-  description.english: Names of the shared parameters, e.g. k1,k2,k3,p1,p2. Must be unique and differ from XNames.;
   default_type:      string;
   multivalue:        true;
   sem_type:          string;
@@ -561,7 +522,6 @@ parameter
 parameter
   initialValues:     input_control;
   description.german:  Startwerte der Parameter, Laenge muss der Anzahl von ParamNames entsprechen.;
-  description.english: Initial parameter values. Length must equal the number of ParamNames.;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
@@ -570,7 +530,6 @@ parameter
 parameter
   xNames:            input_control;
   description.german:  Namen der unabhaengigen Variablen (eine oder mehr), z.B. u,v. Ableitungen wie r2=u^2+v^2 duerfen vorab berechnet mitgegeben werden.;
-  description.english: One or more independent variable names, e.g. u,v. Precomputed terms such as r2=u^2+v^2 may be passed as extra variables.;
   default_type:      string;
   multivalue:        true;
   sem_type:          string;
@@ -579,7 +538,6 @@ parameter
 parameter
   xData:             input_control;
   description.german:  Werte der unabhaengigen Variablen, Laenge = Anzahl Punkte mal Anzahl XNames (pro Punkt M Werte).;
-  description.english: Independent variable samples, length = numPoints * numXNames (M values per point, row major).;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
@@ -588,7 +546,6 @@ parameter
 parameter
   yData:             input_control;
   description.german:  Beobachtete Werte, Laenge = Anzahl Punkte mal Anzahl Expressions (pro Punkt K Werte).;
-  description.english: Observed values, length = numPoints * numExpressions (K values per point, row major).;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
@@ -597,7 +554,6 @@ parameter
 parameter
   maxIter:           input_control;
   description.german:  Maximale Anzahl der Funktionsaufrufe (0 = 400*(Anzahl Parameter+1)).;
-  description.english: Maximum number of function evaluations (0 selects 400*(numParams+1)).;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -607,7 +563,6 @@ parameter
 parameter
   eps:               input_control;
   description.german:  Schrittweite der numerischen Differentiation (0 = automatisch).;
-  description.english: Step size for numerical differentiation (0 selects it automatically).;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -617,7 +572,6 @@ parameter
 parameter
   paramValues:       output_control;
   description.german:  Angepasste Parameterwerte in der Reihenfolge von ParamNames.;
-  description.english: Fitted parameter values, ordered like ParamNames.;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
@@ -626,7 +580,6 @@ parameter
 parameter
   rss:               output_control;
   description.german:  Summe der Fehlerquadrate aller Ausgaenge (-1 bei Ausdrucksfehler).;
-  description.english: Residual sum of squares over all outputs (-1 if the expression could not be evaluated).;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -635,7 +588,6 @@ parameter
 parameter
   iterations:        output_control;
   description.german:  Anzahl der durchgefuehrten Iterationen.;
-  description.english: Number of iterations performed.;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -644,7 +596,6 @@ parameter
 parameter
   status:            output_control;
   description.german:  Statuscode des LevenbergMarquardt-Algorithmus (1-4 konvergiert, 5-8 beendet, 0 fehlgeschlagen).;
-  description.english: LevenbergMarquardt status code (1-4 converged, 5-8 finished without confirmation, 0 failed).;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -653,7 +604,6 @@ parameter
 parameter
   statusMessage:     output_control;
   description.german:  Statustext des Ergebnisses (bei Ausdrucksfehler mit expression error: ...).;
-  description.english: Status text of the result (contains expression error: ... on failure).;
   default_type:      string;
   multivalue:        false;
   sem_type:          string;

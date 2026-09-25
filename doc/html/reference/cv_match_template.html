@@ -1085,29 +1085,29 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_match_template</span><span data-if="c" style="display:none;">cv_match_template</span><span data-if="cpp" style="display:none;">CvMatchTemplate</span><span data-if="dotnet" style="display:none;">CvMatchTemplate</span><span data-if="python" style="display:none;">cv_match_template</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_match_template</span><span data-if="c" style="display:none;">cv_match_template</span><span data-if="cpp" style="display:none;">CvMatchTemplate</span><span data-if="dotnet" style="display:none;">CvMatchTemplate</span><span data-if="python" style="display:none;">cv_match_template</span></code> — Template matching (TM_CCOEFF_NORMED, 8-bit or real single-channel).</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_match_template</span><span data-if="c" style="display:none;">cv_match_template</span><span data-if="cpp" style="display:none;">CvMatchTemplate</span><span data-if="dotnet" style="display:none;">CvMatchTemplate</span><span data-if="python" style="display:none;">cv_match_template</span></code> — 模板匹配，对应 cv::matchTemplate。支持 byte/real（OpenCV 限制不支持 16 位）；MethodId 支持字符串枚举（sqdiff/sqdiff_normed/ccorr/ccorr_normed/ccoeff/ccoeff_normed）或 0-5，默认 ccoeff_normed。输出 real 得分图，尺寸 (W−w+1)×(H−h+1)。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
-<code><b>cv_match_template</b>(<a href="#image"><i>image</i></a>, <a href="#templateImage"><i>templateImage</i></a> : <a href="#result"><i>result</i></a> :  : )</code></p>
+<code><b>cv_match_template</b>(<a href="#image"><i>image</i></a>, <a href="#templateImage"><i>templateImage</i></a> : <a href="#result"><i>result</i></a> : <a href="#methodId"><i>methodId</i></a> : )</code></p>
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>cv_match_template</b>(const Hobject <a href="#image"><i>image</i></a>, const Hobject <a href="#templateImage"><i>templateImage</i></a>, Hobject* <a href="#result"><i>result</i></a>)</code></p>
+<code>Herror <b>cv_match_template</b>(const Hobject <a href="#image"><i>image</i></a>, const Hobject <a href="#templateImage"><i>templateImage</i></a>, Hobject* <a href="#result"><i>result</i></a>, const Hlong <a href="#methodId"><i>methodId</i></a>)</code></p>
 <p>
-<code>Herror <b>T_cv_match_template</b>(const Hobject <a href="#image"><i>image</i></a>, const Hobject <a href="#templateImage"><i>templateImage</i></a>, Hobject* <a href="#result"><i>result</i></a>)</code></p>
+<code>Herror <b>T_cv_match_template</b>(const Hobject <a href="#image"><i>image</i></a>, const Hobject <a href="#templateImage"><i>templateImage</i></a>, Hobject* <a href="#result"><i>result</i></a>, const Htuple <a href="#methodId"><i>methodId</i></a>)</code></p>
 </div>
 <div data-if="cpp" style="display:none;">
 <p>
-<code>void <b>CvMatchTemplate</b>(const HObject&amp; <a href="#image"><i>image</i></a>, const HObject&amp; <a href="#templateImage"><i>templateImage</i></a>, HObject* <a href="#result"><i>result</i></a>)</code></p>
+<code>void <b>CvMatchTemplate</b>(const HObject&amp; <a href="#image"><i>image</i></a>, const HObject&amp; <a href="#templateImage"><i>templateImage</i></a>, HObject* <a href="#result"><i>result</i></a>, const HTuple&amp; <a href="#methodId"><i>methodId</i></a>)</code></p>
 </div>
 <div data-if="dotnet" style="display:none;">
 <p>
-<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvMatchTemplate</b>(<a href="HObject.html">HObject</a> <a href="#image"><i>image</i></a>, <a href="HObject.html">HObject</a> <a href="#templateImage"><i>templateImage</i></a>, out <a href="HObject.html">HObject</a> <a href="#result"><i>result</i></a>)</code></p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvMatchTemplate</b>(<a href="HObject.html">HObject</a> <a href="#image"><i>image</i></a>, <a href="HObject.html">HObject</a> <a href="#templateImage"><i>templateImage</i></a>, out <a href="HObject.html">HObject</a> <a href="#result"><i>result</i></a>, <a href="HTuple.html">HTuple</a> <a href="#methodId"><i>methodId</i></a>)</code></p>
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>cv_match_template</b>(<a href="#image"><i>image</i></a>: HObject, <a href="#templateImage"><i>template_image</i></a>: HObject) -&gt; HObject</code></p>
+<code>def <b>cv_match_template</b>(<a href="#image"><i>image</i></a>: HObject, <a href="#templateImage"><i>template_image</i></a>: HObject, <a href="#methodId"><i>method_id</i></a>: Union[str, int]) -&gt; HObject</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1120,19 +1120,31 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="image" class="parname"><b><code><span data-if="hdevelop" style="display:inline">image</span><span data-if="c" style="display:none">image</span><span data-if="cpp" style="display:none">image</span><span data-if="dotnet" style="display:none">image</span><span data-if="python" style="display:none">image</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">单通道 byte / real（OpenCV 限制，不支持 16 位）</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="templateImage" class="parname"><b><code><span data-if="hdevelop" style="display:inline">templateImage</span><span data-if="c" style="display:none">templateImage</span><span data-if="cpp" style="display:none">templateImage</span><span data-if="dotnet" style="display:none">templateImage</span><span data-if="python" style="display:none">template_image</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">与 Image 同类型，尺寸 ≤ Image</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="result" class="parname"><b><code><span data-if="hdevelop" style="display:inline">result</span><span data-if="c" style="display:none">result</span><span data-if="cpp" style="display:none">result</span><span data-if="dotnet" style="display:none">result</span><span data-if="python" style="display:none">result</span></code></b> (output_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">real 得分图，尺寸 (W−w+1)×(H−h+1)</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="methodId" class="parname"><b><code><span data-if="hdevelop" style="display:inline">methodId</span><span data-if="c" style="display:none">methodId</span><span data-if="cpp" style="display:none">methodId</span><span data-if="dotnet" style="display:none">methodId</span><span data-if="python" style="display:none">method_id</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[str, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer / </span><span data-if="hdevelop" style="display:inline">string)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long / </span><span data-if="dotnet" style="display:none">string)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i> / </span><span data-if="cpp" style="display:none">HString)</span><span data-if="c" style="display:none"> (<i>Hlong</i> / </span><span data-if="c" style="display:none">char*)</span></span>
+</div>
+<p class="pardesc">匹配方法（'sqdiff'/'sqdiff_normed'/'ccorr'/'ccorr_normed'/'ccoeff'/'ccoeff_normed' 或 0-5，默认 5）</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>5</p>
+<p class="pardesc"><span class="parcat">List of values:
+
+      </span>0, 1, 2, 3, 4, 5</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

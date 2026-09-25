@@ -1092,7 +1092,7 @@ toggleLanguage(new_lang,1);return;}
         <tr>
 <td><code><a href="CLAHE_image.html">CLAHEImage</a></code></td>
 <td>  </td>
-<td>CLAHE image enhancement.</td>
+<td>对比度受限自适应直方图均衡，对应 cv::CLAHE。支持 byte/uint2 单通道；TileGridSize 为网格行列数，ClipLimit 为对比度限制阈值。</td>
 </tr>
         <tr>
 <td><code><a href="GetStringByImageOut.html">GetStringByImageOut</a></code></td>
@@ -1102,12 +1102,12 @@ toggleLanguage(new_lang,1);return;}
         <tr>
 <td><code><a href="PNGIn.html">PNGIn</a></code></td>
 <td>  </td>
-<td>Laplace Filter.</td>
+<td>PNG 图像解码输入。</td>
 </tr>
         <tr>
 <td><code><a href="PNGOut.html">PNGOut</a></code></td>
 <td>  </td>
-<td>Laplace Filter.</td>
+<td>PNG 图像编码输出。</td>
 </tr>
         <tr>
 <td><code><a href="SetStringByImageIn.html">SetStringByImageIn</a></code></td>
@@ -1117,7 +1117,7 @@ toggleLanguage(new_lang,1);return;}
         <tr>
 <td><code><a href="add_roi.html">AddRoi</a></code></td>
 <td>  </td>
-<td>Add ROI to big image.</td>
+<td>ROI 加法：大图指定矩形区域与同样大小的小图逐像素相加（A + B∩Roi），结果写回大图（原地修改）。仅支持 uint2；小图尺寸必须等于 ROI（ew×eh）。</td>
 </tr>
         <tr>
 <td><code><a href="arma_interp1.html">ArmaInterp1</a></code></td>
@@ -1127,127 +1127,362 @@ toggleLanguage(new_lang,1);return;}
         <tr>
 <td><code><a href="cv_add_weighted.html">CvAddWeighted</a></code></td>
 <td>  </td>
-<td>Computes the weighted sum of two images (supports 8-bit, 16-bit and real single-channel images).</td>
+<td>两图加权相加：Out = alpha*Src1 + beta*Src2 + gamma，对应 cv::addWeighted。支持 byte/uint2/real 单通道。</td>
 </tr>
         <tr>
 <td><code><a href="cv_akaze_detect.html">CvAkazeDetect</a></code></td>
 <td>  </td>
-<td>AKAZE feature detection and descriptor computation using OpenCV.</td>
+<td>AKAZE 特征检测与描述子计算，对应 cv::AKAZE。输入 8 位单通道图像，输出关键点与描述子写回 dict。参数经 dict 键全开放（DescriptorType/Threshold/NOctaves/NOctaveLayers/Diffusivity 等），未设取默认。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_anisometry.html">CvAnisometry</a></code></td>
+<td>  </td>
+<td>各向异性（Ra/Rb），对应 HALCON anisometry。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_area_center.html">CvAreaCenter</a></code></td>
+<td>  </td>
+<td>region 面积与重心，对应 HALCON area_center。输出 Area/Row/Column。</td>
 </tr>
         <tr>
 <td><code><a href="cv_bf_knn_match.html">CvBfKnnMatch</a></code></td>
 <td>  </td>
-<td>BF KNN feature matching with Lowe's ratio test using OpenCV.</td>
+<td>BF 暴力匹配，对应 cv::BFMatcher。参考/目标描述子以 dict 图像传入，输出匹配索引与良好匹配数写回 dict。CrossCheck=1 时走 bf.match()（互为最佳匹配），=0 时走 knnMatch+Lowe ratio test（K≥2）。NormType 默认 NORM_HAMMING，适配 ORB/AKAZE 二进制描述子。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_bin_to_region.html">CvBinToRegion</a></code></td>
+<td>  </td>
+<td>byte 二值图转 region（gray ≥ Threshold 的像素），对应 HALCON bin_threshold 的逆过程。</td>
 </tr>
         <tr>
 <td><code><a href="cv_blur.html">CvBlur</a></code></td>
 <td>  </td>
-<td>Smooth an image using a normalized box filter (supports 8-bit, 16-bit and real single-channel images).</td>
+<td>对图像做归一化盒式滤波（均值滤波），对应 cv::blur；输出与输入同类型同尺寸的单通道图像，支持 byte / uint2 / real。AnchorX/AnchorY 指定核锚点（-1=核中心）；BorderType 为边界模式，支持字符串枚举（如 'border_default'，大小写不敏感）或整数；核宽/高须为 ≥1 的奇数。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_bulkiness.html">CvBulkiness</a></code></td>
+<td>  </td>
+<td>肥胖度，对应 HALCON bulkiness。</td>
 </tr>
         <tr>
 <td><code><a href="cv_calc_hist.html">CvCalcHist</a></code></td>
 <td>  </td>
-<td>Compute gray-level histogram (8/16-bit or real single-channel).</td>
+<td>灰度直方图，对应 cv::calcHist。支持 byte/uint2/real 单通道；输出 1×HistSize 的 real 直方图，范围 [RangeMin, RangeMax)。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_circularity.html">CvCircularity</a></code></td>
+<td>  </td>
+<td>圆度（4πA/C²），对应 HALCON circularity。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_closing.html">CvClosing</a></code></td>
+<td>  </td>
+<td>region 闭运算：先膨胀后腐蚀，填补细小暗孔洞。对应 HALCON closing。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_compactness.html">CvCompactness</a></code></td>
+<td>  </td>
+<td>紧凑度（C²/(4πA)），对应 HALCON compactness。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_complement.html">CvComplement</a></code></td>
+<td>  </td>
+<td>region 求补集，对应 HALCON complement（输出带 is_compl 标志，惰性表示）。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_connection.html">CvConnection</a></code></td>
+<td>  </td>
+<td>连通域标记（8 连通），对应 HALCON connection。输出连通域元组。按行并查集 + 双指针实现。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_contlength.html">CvContlength</a></code></td>
+<td>  </td>
+<td>轮廓长度（含对角 sqrt(2) 修正），对应 HALCON contlength。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_convexity.html">CvConvexity</a></code></td>
+<td>  </td>
+<td>凸度（面积/凸包面积），对应 HALCON convexity。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_difference.html">CvDifference</a></code></td>
+<td>  </td>
+<td>两个 region 求差集（R1 − R2），对应 HALCON difference。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_dilation1.html">CvDilation1</a></code></td>
+<td>  </td>
+<td>region 膨胀（自定义结构元），对应 HALCON dilation1。SE 参考点=质心四舍五入，用居中+反射 SE 做 Minkowski 和；按行 O(n×SE行数) 实现。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_dilation_circle.html">CvDilationCircle</a></code></td>
+<td>  </td>
+<td>圆形结构元膨胀，对应 HALCON dilation_circle。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_dilation_rectangle1.html">CvDilationRectangle1</a></code></td>
+<td>  </td>
+<td>矩形结构元膨胀，对应 HALCON dilation_rectangle1。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_elliptic_axis.html">CvEllipticAxis</a></code></td>
+<td>  </td>
+<td>等效椭圆轴（长半轴 Ra、短半轴 Rb、主轴角 Phi），对应 HALCON elliptic_axis。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_erosion1.html">CvErosion1</a></code></td>
+<td>  </td>
+<td>region 腐蚀（自定义结构元），对应 HALCON erosion1。SE 参考点=质心四舍五入；按行 O(n×SE行数) 实现。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_erosion_circle.html">CvErosionCircle</a></code></td>
+<td>  </td>
+<td>圆形结构元腐蚀，对应 HALCON erosion_circle。Radius 决定 SE 尺寸；按行算法实现。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_erosion_rectangle1.html">CvErosionRectangle1</a></code></td>
+<td>  </td>
+<td>矩形结构元腐蚀，对应 HALCON erosion_rectangle1。Width/Height 为核宽高。</td>
 </tr>
         <tr>
 <td><code><a href="cv_estimate_affine_2d.html">CvEstimateAffine2d</a></code></td>
 <td>  </td>
-<td>Estimate full affine transformation (6 parameters) using OpenCV.</td>
+<td>完整仿射变换估计（6 参数），对应 cv::estimateAffine2D。源/目标点集为等长实数元组（≥3 点）；MethodId（RANSAC=8 默认/LMEDS=4）、MaxIters/Confidence/RefineIters 可调；输出 6 元素矩阵 [R00,R10,T0,R01,R11,T1]，顺序同 HALCON hom_mat2d。</td>
 </tr>
         <tr>
 <td><code><a href="cv_estimate_affine_partial2d.html">CvEstimateAffinePartial2d</a></code></td>
 <td>  </td>
-<td>Estimate partial affine transformation using RANSAC (OpenCV).</td>
+<td>部分仿射变换估计（4 自由度：平移+旋转+各向同性缩放），对应 cv::estimateAffinePartial2D。源/目标点集经 dict 元组传入（各 ≥3 点），结果 HomMat2D（2×3 展开）/Success/InlierCount 及平移/角度/缩放写回 dict；Method/MaxIters/Confidence/RefineIters 经 dict 键可调。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_estimate_rigid_2d.html">CvEstimateRigid2d</a></code></td>
+<td>  </td>
+<td>刚体变换估计（平移+旋转，无缩放），自实现 RANSAC：每轮采样 2 点对闭式解 cos/sin+平移，统计内点取最优。点集经 dict 传入，MaxIter/Seed 可调；结果 HomMat2D/角度/平移写回 dict，Scale 恒为 1.0。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_fill_up.html">CvFillUp</a></code></td>
+<td>  </td>
+<td>填充 region 内部孔洞，对应 HALCON fill_up。需要定义域（取全局 HGWidth/HGHeight，缺省时按输入 bbox 推导）。</td>
 </tr>
         <tr>
 <td><code><a href="cv_filter2d.html">CvFilter2d</a></code></td>
 <td>  </td>
-<td>Convolve an image with a kernel (supports 8-bit, 16-bit and real single-channel images).</td>
+<td>图像卷积，对应 cv::filter2D。卷积核经 real 单通道图像传入；Ddepth 支持字符串枚举（same/s16/f32/f64）或整数（-1=保持原深度）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_gen_circle.html">CvGenCircle</a></code></td>
+<td>  </td>
+<td>生成圆形 region，对应 HALCON gen_circle。负坐标按 HALCON 语义裁剪。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_gen_rectangle1.html">CvGenRectangle1</a></code></td>
+<td>  </td>
+<td>生成轴对齐矩形 region，对应 HALCON gen_rectangle1。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_gray_closing_circle.html">CvGrayClosingCircle</a></code></td>
+<td>  </td>
+<td>灰度闭运算（圆核）。对应 cv::morphologyEx MORPH_CLOSE，核尺寸 2R+1。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_gray_closing_rect.html">CvGrayClosingRect</a></code></td>
+<td>  </td>
+<td>灰度闭运算（矩形核）：先膨胀后腐蚀，填暗孔洞。对应 cv::morphologyEx MORPH_CLOSE。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_gray_dilation_circle.html">CvGrayDilationCircle</a></code></td>
+<td>  </td>
+<td>灰度膨胀（圆核）：核为 2R+1 椭圆核。对应 cv::morphologyEx MORPH_DILATE。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_gray_dilation_rect.html">CvGrayDilationRect</a></code></td>
+<td>  </td>
+<td>灰度膨胀（矩形核），对应 cv::morphologyEx MORPH_DILATE。核尺寸 Width×Height；支持 byte/uint2/real。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_gray_erosion_circle.html">CvGrayErosionCircle</a></code></td>
+<td>  </td>
+<td>灰度腐蚀（圆核）：核为 2R+1 椭圆核。对应 cv::morphologyEx MORPH_ERODE。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_gray_erosion_rect.html">CvGrayErosionRect</a></code></td>
+<td>  </td>
+<td>灰度腐蚀（矩形核），对应 cv::morphologyEx MORPH_ERODE。核尺寸 Width×Height；支持 byte/uint2/real，输出同类型。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_gray_opening_circle.html">CvGrayOpeningCircle</a></code></td>
+<td>  </td>
+<td>灰度开运算（圆核）。对应 cv::morphologyEx MORPH_OPEN，核尺寸 2R+1。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_gray_opening_rect.html">CvGrayOpeningRect</a></code></td>
+<td>  </td>
+<td>灰度开运算（矩形核）：先腐蚀后膨胀，去亮噪点。对应 cv::morphologyEx MORPH_OPEN。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_intersection.html">CvIntersection</a></code></td>
+<td>  </td>
+<td>两个 region 求交集，对应 HALCON intersection（RLE 双指针归并）。</td>
 </tr>
         <tr>
 <td><code><a href="cv_kmeans.html">CvKmeans</a></code></td>
 <td>  </td>
-<td>K-means clustering (real NxD samples matrix).</td>
+<td>K 均值聚类，对应 cv::kmeans。样本为 real N×D 图像（N 样本每行 D 维）；输出 Labels（N×1）与 Centers（K×D）。Flags 支持字符串枚举（random/pp/use_initial_labels）或整数，默认 pp。</td>
 </tr>
         <tr>
 <td><code><a href="cv_magnitude.html">CvMagnitude</a></code></td>
 <td>  </td>
-<td>Compute the gradient magnitude sqrt(X^2+Y^2) using OpenCV.</td>
+<td>二维向量模长 sqrt(x²+y²)，对应 cv::magnitude。输入两图同类型同尺寸（byte/uint2/real），内部转 32F 计算，输出 real。</td>
 </tr>
         <tr>
 <td><code><a href="cv_mat_mul.html">CvMatMul</a></code></td>
 <td>  </td>
-<td>Matrix multiplication of two 16-bit single-channel images (C = A * B).</td>
+<td>两个 16 位单通道图像做矩阵乘法，对应 cv::gemm：C = alpha*A*B (+ beta)。A 为 m×k、B 为 k×n，结果 C 为 m×n；内部转 double 计算后饱和截断回 16 位。Flags 支持字符串枚举（none/transpose_a/transpose_b/transpose_c）或整数 0/1/2/4。</td>
 </tr>
         <tr>
 <td><code><a href="cv_match_template.html">CvMatchTemplate</a></code></td>
 <td>  </td>
-<td>Template matching (TM_CCOEFF_NORMED, 8-bit or real single-channel).</td>
+<td>模板匹配，对应 cv::matchTemplate。支持 byte/real（OpenCV 限制不支持 16 位）；MethodId 支持字符串枚举（sqdiff/sqdiff_normed/ccorr/ccorr_normed/ccoeff/ccoeff_normed）或 0-5，默认 ccoeff_normed。输出 real 得分图，尺寸 (W−w+1)×(H−h+1)。</td>
 </tr>
         <tr>
 <td><code><a href="cv_measure_pos.html">CvMeasurePos</a></code></td>
 <td>  </td>
-<td>Measure straight edges perpendicular to a rectangle using OpenCV.</td>
+<td>一维边缘测量，复刻 HALCON measure_pos（算法本体在 cvr 库 cvr_measure_pos，7 步管线：剖面提取→高斯一阶导核→卷积→局部极大值+阈值→抛物线亚像素→排序→去重/方向过滤/映射）。沿测量矩形主轴扫描，输出边缘行/列坐标与振幅。注意：暗→亮边缘振幅为负（transition=-1 选中），亮→暗为正。</td>
 </tr>
         <tr>
 <td><code><a href="cv_median_blur.html">CvMedianBlur</a></code></td>
 <td>  </td>
-<td>Median blur filter (supports 8-bit, 16-bit and real images).</td>
+<td>中值滤波，对应 cv::medianBlur。支持 byte/uint2/real 单通道；16 位与浮点图仅支持 Ksize=3 或 5。Ksize 为 ≥1 的奇数核尺寸。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_morphology_ex.html">CvMorphologyEx</a></code></td>
+<td>  </td>
+<td>通用灰度形态学，对应 cv::morphologyEx。Op/Shape 支持字符串枚举（erode/dilate/open/close/gradient/tophat/blackhat × rect/cross/ellipse）或整数；Iterations≥1 循环实现。支持 byte/uint2/real。</td>
 </tr>
         <tr>
 <td><code><a href="cv_multi_frame_median.html">CvMultiFrameMedian</a></code></td>
 <td>  </td>
-<td>Compute the pixel-wise median over multiple real images using OpenCV.</td>
+<td>多帧中值滤波：对 N 张同尺寸 real 图像逐像素取中值，输出单张 real 中值图（N=3 有特化快路径）。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_opening.html">CvOpening</a></code></td>
+<td>  </td>
+<td>region 开运算：先腐蚀后膨胀，去除细小亮结构。对应 HALCON opening。</td>
 </tr>
         <tr>
 <td><code><a href="cv_orb_detect.html">CvOrbDetect</a></code></td>
 <td>  </td>
-<td>ORB feature detection and descriptor computation using OpenCV.</td>
+<td>ORB 特征检测与描述子计算，对应 cv::ORB。输入为 8 位单通道图像（以 dict 对象 InputImage 传入）；输出关键点坐标/数量与描述子（byte，32×N）写回同一 dict。检测参数经 dict 键全开放（NFeatures/ScaleFactor/NLevels/EdgeThreshold/FirstLevel/WTA_K/ScoreType/PatchSize/FastThreshold），未设键取 OpenCV 默认。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_ransac_fit.html">CvRansacFit</a></code></td>
+<td>  </td>
+<td>RANSAC generic geometric fitting (cv_region).</td>
+</tr>
+        <tr>
+<td><code><a href="cv_rectangularity.html">CvRectangularity</a></code></td>
+<td>  </td>
+<td>矩形度，对应 HALCON rectangularity。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_region_to_bin.html">CvRegionToBin</a></code></td>
+<td>  </td>
+<td>region 转 byte 二值图，对应 HALCON region_to_bin。可指定前景/背景灰度与图像尺寸（0 表示自动推导）。</td>
 </tr>
         <tr>
 <td><code><a href="cv_reshape.html">CvReshape</a></code></td>
 <td>  </td>
-<td>Reshape an image matrix (supports 8-bit, 16-bit and real single-channel images).</td>
+<td>改变图像尺寸（最近邻重采样），对应 cv::resize。输出宽为 Rows 参数（历史命名），高度按比例缩放。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_select_shape.html">CvSelectShape</a></code></td>
+<td>  </td>
+<td>按形状特征筛选 region 子集，对应 HALCON select_shape。Features 为多特征名元组，Operation 为 and/or，Min/Max 为阈值范围；输出保持引用语义。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_shape_trans.html">CvShapeTrans</a></code></td>
+<td>  </td>
+<td>region 形状变换，对应 HALCON shape_trans。Type 支持 convex（凸包）/outer_circle（外接圆）/inner_circle（内切圆）/rectangle1/rectangle2 等。</td>
 </tr>
         <tr>
 <td><code><a href="cv_sift_detect.html">CvSiftDetect</a></code></td>
 <td>  </td>
-<td>SIFT feature detection and descriptor computation using OpenCV.</td>
+<td>SIFT 特征检测与描述子计算，对应 cv::SIFT。输入 8 位单通道图像，输出 128 维浮点描述子。参数经 dict 键全开放（NFeatures/NOctaveLayers/ContrastThreshold/EdgeThreshold/Sigma）。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_smallest_circle.html">CvSmallestCircle</a></code></td>
+<td>  </td>
+<td>最小外接圆，对应 HALCON smallest_circle。输出圆心行/列与半径。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_smallest_rectangle1.html">CvSmallestRectangle1</a></code></td>
+<td>  </td>
+<td>轴对齐最小外接矩形，对应 HALCON smallest_rectangle1。输出 Row1/Col1/Row2/Col2。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_smallest_rectangle2.html">CvSmallestRectangle2</a></code></td>
+<td>  </td>
+<td>最小外接旋转矩形，对应 HALCON smallest_rectangle2。输出中心/角度/半边长。</td>
 </tr>
         <tr>
 <td><code><a href="cv_sobel.html">CvSobel</a></code></td>
 <td>  </td>
-<td>Edge detection using the Sobel operator (OpenCV).</td>
+<td>Sobel 一阶导数边缘检测，对应 cv::Sobel。输入 byte/uint2/real，输出 real 梯度；Dx/Dy 为求导阶数（0/1，和≥1），Ksize 为核尺寸（1/3/5/7），Ddepth 支持字符串枚举（same/s16/f32/f64），BorderType 支持字符串枚举或整数。</td>
 </tr>
         <tr>
 <td><code><a href="cv_solve.html">CvSolve</a></code></td>
 <td>  </td>
-<td>Solve linear equations A*x=b using OpenCV (real single-channel matrices).</td>
+<td>线性方程组求解 Ax=b，对应 cv::solve。A、B 为 real 单通道图像（A 为 n×n 方阵，B 为 n×m 右端），输出 X（n×m real）；flags 对应 DECOMP_* 方法。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_structure_factor.html">CvStructureFactor</a></code></td>
+<td>  </td>
+<td>结构因子（各向异性×肥胖度），对应 HALCON structure_factor。</td>
 </tr>
         <tr>
 <td><code><a href="cv_subtract.html">CvSubtract</a></code></td>
 <td>  </td>
-<td>Compute the per-element saturated difference of two images (supports 8-bit, 16-bit and real single-channel images).</td>
+<td>两图相减（饱和截断），对应 cv::subtract。支持 byte/uint2/real 单通道，两图类型尺寸须一致。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_symm_difference.html">CvSymmDifference</a></code></td>
+<td>  </td>
+<td>两个 region 求对称差，对应 HALCON symm_difference。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_threshold.html">CvThreshold</a></code></td>
+<td>  </td>
+<td>固定/自动阈值分割，对应 cv::threshold。Type 支持字符串枚举或整数：基础类型 binary/binary_inv/trunc/tozero/tozero_inv，可与 otsu/triangle 用 | 组合（如 binary|otsu）。支持 byte/uint2/real；OTSU/TRIANGLE 仅 byte。输出实际使用阈值 ThreshUsed。</td>
 </tr>
         <tr>
 <td><code><a href="cv_threshold_triangle.html">CvThresholdTriangle</a></code></td>
 <td>  </td>
-<td>Triangle automatic thresholding (THRESH_TRIANGLE, 8-bit single-channel only).</td>
+<td>三角法自动阈值分割（THRESH_TRIANGLE），仅支持 8 位单通道。输出二值图与自动阈值。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_union1.html">CvUnion1</a></code></td>
+<td>  </td>
+<td>region 元组全部求并集，对应 HALCON union1。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_union2.html">CvUnion2</a></code></td>
+<td>  </td>
+<td>两个 region 求并集，对应 HALCON union2（RLE 有序归并）。结果去重合并相邻 run。</td>
 </tr>
         <tr>
 <td><code><a href="cv_write_image.html">CvWriteImage</a></code></td>
 <td>  </td>
-<td>Save image as PNG file (supports 8/16-bit, 1/3-channel).</td>
+<td>写图像文件，对应 cv::imwrite。支持 byte/uint2 单通道按扩展名编码（png/jpg/bmp 等）；写失败返回错误码。</td>
 </tr>
         <tr>
 <td><code><a href="div_A_roi.html">DivARoi</a></code></td>
 <td>  </td>
-<td>Divide big image by ROI (small / B).</td>
+<td>ROI 除法（A 系）：大图 ROI 除以小图（整除），结果写回大图。仅支持 uint2。</td>
 </tr>
         <tr>
 <td><code><a href="div_B_roi.html">DivBRoi</a></code></td>
 <td>  </td>
-<td>Divide ROI from big image (B / small).</td>
+<td>ROI 除法（B 系）：小图除以大图 ROI（整除），结果写回大图。仅支持 uint2。</td>
 </tr>
         <tr>
 <td><code><a href="eigen_ldlt.html">EigenLdlt</a></code></td>
@@ -1367,7 +1602,7 @@ toggleLanguage(new_lang,1);return;}
         <tr>
 <td><code><a href="mul_roi.html">MulRoi</a></code></td>
 <td>  </td>
-<td>Multiply ROI to big image.</td>
+<td>ROI 乘法：大图 ROI 与小图逐像素相乘，结果写回大图（原地修改）。仅支持 uint2。</td>
 </tr>
         <tr>
 <td><code><a href="mysql_query.html">MysqlQuery</a></code></td>
@@ -1387,7 +1622,7 @@ toggleLanguage(new_lang,1);return;}
         <tr>
 <td><code><a href="remap.html">Remap</a></code></td>
 <td>  </td>
-<td>Laplace Filter.</td>
+<td>几何变换重映射，对应 cv::remap。输入图/输出图/MapX/MapY 以 dict 对象传入（uint2 输入，real 映射图）；每个像素按映射表取源坐标，支持桶形/枕形畸变校正等。</td>
 </tr>
         <tr>
 <td><code><a href="spdlog_basic_logger_mt.html">SpdlogBasicLoggerMt</a></code></td>
@@ -1532,17 +1767,17 @@ toggleLanguage(new_lang,1);return;}
         <tr>
 <td><code><a href="sub_A_roi.html">SubARoi</a></code></td>
 <td>  </td>
-<td>Subtract big image from ROI (small - B).</td>
+<td>ROI 减法（A 系）：大图 ROI 减小图（(A∩Roi) − B），结果写回大图。仅支持 uint2。</td>
 </tr>
         <tr>
 <td><code><a href="sub_B_roi.html">SubBRoi</a></code></td>
 <td>  </td>
-<td>Subtract ROI from big image (B - small).</td>
+<td>ROI 减法（B 系）：小图减大图 ROI（B − A∩Roi），结果写回大图。仅支持 uint2。</td>
 </tr>
         <tr>
 <td><code><a href="write_image_exif.html">WriteImageExif</a></code></td>
 <td>  </td>
-<td>Write EXIF metadata to image file.</td>
+<td>给已有图像文件写入 EXIF 元数据（GPS 经纬度/海拔、光圈、快门、ISO、焦距、时间、厂商/型号），基于 exiv2。文件须先存在；字段以多值控制参数传入。</td>
 </tr>
       </table>
     </div>

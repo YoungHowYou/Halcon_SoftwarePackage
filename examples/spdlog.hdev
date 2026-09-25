@@ -54,6 +54,8 @@
 <l>spdlog_stdout_color_mt ('console', ConsoleHandle)</l>
 <l>spdlog_info (ConsoleHandle, 'Hello from console logger!')</l>
 <l>spdlog_drop ('console')</l>
+<c>* ----- 丢弃所有 logger -----</c>
+<l>spdlog_drop_all ()</l>
 <c>* =============================================================</c>
 <c>* Get existing logger by name</c>
 <c>* =============================================================</c>

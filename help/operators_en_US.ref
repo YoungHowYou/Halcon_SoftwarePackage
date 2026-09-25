@@ -1,3 +1,1024 @@
+cv_ransac_fit(ModelExpression,ParamNames,InitialValues,XData,YData,XName,Threshold,MaxIter,OutlierRatio,ModelType,YName,MinSampleSize,Confidence,Seed,ParamValues,InlierMask,ResidualSum,Iterations,Status,StatusMessage,InlierRatio)
+short.ascii=RANSAC generic geometric fitting (cv_region).
+keywords=UserExtensionsRANSACFittingMuparser
+module=0 Foundation
+parameter=ModelExpression
+description.ascii=模型表达式（muparser 语法）：显式 y=f(x) 或隐式 F(x,y)=0。
+parameter_class=input_control
+type_list=string
+default_value="a*x+b"
+default_type=string
+sem_type=string
+multivalue=false
+parameter=ParamNames
+description.ascii=参数名元组（与 InitialValues/ParamValues 一一对应）。
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+parameter=InitialValues
+description.ascii=参数初值元组（可为空，默认全 0）。
+parameter_class=input_control
+type_list=realinteger
+default_type=real
+sem_type=number
+multivalue=true
+parameter=XData
+description.ascii=自变量数据元组。
+parameter_class=input_control
+type_list=realinteger
+default_type=real
+sem_type=number
+multivalue=true
+parameter=YData
+description.ascii=因变量数据元组（与 XData 等长）。
+parameter_class=input_control
+type_list=realinteger
+default_type=real
+sem_type=number
+multivalue=true
+parameter=XName
+description.ascii=表达式中自变量名（默认 x）。
+parameter_class=input_control
+type_list=string
+default_value="x"
+default_type=string
+sem_type=string
+multivalue=false
+parameter=Threshold
+description.ascii=内点残差阈值（几何距离，像素）。
+parameter_class=input_control
+type_list=realinteger
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=MaxIter
+description.ascii=RANSAC 最大迭代次数。
+parameter_class=input_control
+type_list=integer
+default_value=1000
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=OutlierRatio
+description.ascii=预估外点比例 [0,1)。
+parameter_class=input_control
+type_list=realinteger
+default_value=0.2
+default_type=real
+sem_type=number
+multivalue=false
+parameter=ModelType
+description.ascii=0=显式 y=f(x)，1=隐式 F(x,y)=0。
+parameter_class=input_control
+value_list=01
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=YName
+description.ascii=表达式中因变量名（隐式模型必填）。
+parameter_class=input_control
+type_list=string
+default_value="y"
+default_type=string
+sem_type=string
+multivalue=false
+parameter=MinSampleSize
+description.ascii=每轮采样点数（0=自动取参数个数）。
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Confidence
+description.ascii=置信度（0,1），默认 0.99。
+parameter_class=input_control
+type_list=realinteger
+default_value=0.99
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Seed
+description.ascii=随机种子（0=非确定）。
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=ParamValues
+description.ascii=拟合参数输出元组。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=InlierMask
+description.ascii=内点掩码（1=内点）。
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=true
+parameter=ResidualSum
+description.ascii=内点残差平方和。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Iterations
+description.ascii=迭代次数（≥1）。
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Status
+description.ascii=状态码（0=成功，负值见状态说明）。
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=StatusMessage
+description.ascii=状态描述文本。
+parameter_class=output_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=InlierRatio
+description.ascii=内点比例输出。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=false
+cv_dilation_rectangle1(Region,RegionDilation,Width,Height)
+short.ascii=矩形结构元膨胀，对应 HALCON dilation_rectangle1。
+keywords=UserExtensionsCVRegionDilationMorphologyRectangle
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionDilation
+description.ascii=输出膨胀结果 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Width
+description.ascii=宽度。
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Height
+description.ascii=高度。
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+value_number=RegionDilation == Region
+cv_erosion_rectangle1(Region,RegionErosion,Width,Height)
+short.ascii=矩形结构元腐蚀，对应 HALCON erosion_rectangle1。Width/Height 为核宽高。
+keywords=UserExtensionsCVRegionErosionMorphologyRectangle
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionErosion
+description.ascii=输出腐蚀结果 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Width
+description.ascii=宽度。
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Height
+description.ascii=高度。
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+value_number=RegionErosion == Region
+cv_dilation_circle(Region,RegionDilation,Radius)
+short.ascii=圆形结构元膨胀，对应 HALCON dilation_circle。
+keywords=UserExtensionsCVRegionDilationMorphologyCircle
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionDilation
+description.ascii=输出膨胀结果 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Radius
+description.ascii=半径（像素）。
+parameter_class=input_control
+type_list=realinteger
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+value_number=RegionDilation == Region
+cv_erosion_circle(Region,RegionErosion,Radius)
+short.ascii=圆形结构元腐蚀，对应 HALCON erosion_circle。Radius 决定 SE 尺寸；按行算法实现。
+keywords=UserExtensionsCVRegionErosionMorphologyCircle
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionErosion
+description.ascii=输出腐蚀结果 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Radius
+description.ascii=半径（像素）。
+parameter_class=input_control
+type_list=realinteger
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+value_number=RegionErosion == Region
+cv_bin_to_region(BinImage,Region,Threshold)
+short.ascii=byte 二值图转 region（gray ≥ Threshold 的像素），对应 HALCON bin_threshold 的逆过程。
+keywords=UserExtensionsCVRegionBinToRegionImage
+module=0 Foundation
+parameter=BinImage
+description.ascii=byte 二值图。
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=Region
+description.ascii=输入 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Threshold
+description.ascii=前景阈值（gray ≥ Threshold 为前景，0..255）。
+parameter_class=input_control
+type_list=integer
+default_value=1
+default_type=integer
+sem_type=number
+multivalue=false
+value_number=Region == BinImage
+cv_region_to_bin(Region,BinImage,ForegroundGray,BackgroundGray,Width,Height)
+short.ascii=region 转 byte 二值图，对应 HALCON region_to_bin。可指定前景/背景灰度与图像尺寸（0 表示自动推导）。
+keywords=UserExtensionsCVRegionRegionToBinImage
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=BinImage
+description.ascii=byte 二值图。
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=ForegroundGray
+description.ascii=前景灰度（0..255）。
+parameter_class=input_control
+type_list=integer
+default_value=255
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=BackgroundGray
+description.ascii=背景灰度（0..255）。
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Width
+description.ascii=输出图像宽度（0=自动推导）。
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Height
+description.ascii=输出图像高度（0=自动推导）。
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+value_number=BinImage == Region
+cv_shape_trans(Region,RegionTrans,Type)
+short.ascii=region 形状变换，对应 HALCON shape_trans。Type 支持 convex（凸包）/outer_circle（外接圆）/inner_circle（内切圆）/rectangle1/rectangle2 等。
+keywords=UserExtensionsCVRegionShapeTrans
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionTrans
+description.ascii=输出形状变换后的 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Type
+description.ascii=类型（字符串或整数，见算子说明）。
+parameter_class=input_control
+value_list="rectangle1""rectangle2""ellipse""outer_circle""convex"
+type_list=string
+default_value="convex"
+default_type=string
+sem_type=string
+multivalue=false
+value_number=RegionTrans == Region
+cv_structure_factor(Regions,StructureFactor)
+short.ascii=结构因子（各向异性×肥胖度），对应 HALCON structure_factor。
+keywords=UserExtensionsCVRegionFeature
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=StructureFactor
+description.ascii=结构因子（各向异性×肥胖度）。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_bulkiness(Regions,Bulkiness)
+short.ascii=肥胖度，对应 HALCON bulkiness。
+keywords=UserExtensionsCVRegionFeature
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Bulkiness
+description.ascii=肥胖度。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_anisometry(Regions,Anisometry)
+short.ascii=各向异性（Ra/Rb），对应 HALCON anisometry。
+keywords=UserExtensionsCVRegionFeature
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Anisometry
+description.ascii=各向异性（Ra/Rb，≥1）。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_rectangularity(Regions,Rectangularity)
+short.ascii=矩形度，对应 HALCON rectangularity。
+keywords=UserExtensionsCVRegionFeature
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Rectangularity
+description.ascii=矩形度（0..1）。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_convexity(Regions,Convexity)
+short.ascii=凸度（面积/凸包面积），对应 HALCON convexity。
+keywords=UserExtensionsCVRegionFeature
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Convexity
+description.ascii=凸度（0..1）。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_compactness(Regions,Compactness)
+short.ascii=紧凑度（C²/(4πA)），对应 HALCON compactness。
+keywords=UserExtensionsCVRegionFeature
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Compactness
+description.ascii=紧凑度。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_circularity(Regions,Circularity)
+short.ascii=圆度（4πA/C²），对应 HALCON circularity。
+keywords=UserExtensionsCVRegionFeature
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Circularity
+description.ascii=圆度（0..1，越接近 1 越圆）。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_contlength(Regions,Contlength)
+short.ascii=轮廓长度（含对角 sqrt(2) 修正），对应 HALCON contlength。
+keywords=UserExtensionsCVRegionFeature
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Contlength
+description.ascii=轮廓长度。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_elliptic_axis(Regions,Ra,Rb,Phi)
+short.ascii=等效椭圆轴（长半轴 Ra、短半轴 Rb、主轴角 Phi），对应 HALCON elliptic_axis。
+keywords=UserExtensionsCVRegionFeature
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Ra
+description.ascii=等效椭圆长半轴。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Rb
+description.ascii=等效椭圆短半轴。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Phi
+description.ascii=主轴方向角（弧度，相对列轴）。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_smallest_circle(Regions,Row,Column,Radius)
+short.ascii=最小外接圆，对应 HALCON smallest_circle。输出圆心行/列与半径。
+keywords=UserExtensionsCVRegionFeature
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Row
+description.ascii=行坐标。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Column
+description.ascii=列坐标。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Radius
+description.ascii=半径（像素）。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_smallest_rectangle2(Regions,Row,Column,Phi,Length1,Length2)
+short.ascii=最小外接旋转矩形，对应 HALCON smallest_rectangle2。输出中心/角度/半边长。
+keywords=UserExtensionsCVRegionFeature
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Row
+description.ascii=行坐标。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Column
+description.ascii=列坐标。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Phi
+description.ascii=主轴方向角（弧度，相对列轴）。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Length1
+description.ascii=外接矩形半长。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Length2
+description.ascii=外接矩形半宽。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_smallest_rectangle1(Regions,Row1,Column1,Row2,Column2)
+short.ascii=轴对齐最小外接矩形，对应 HALCON smallest_rectangle1。输出 Row1/Col1/Row2/Col2。
+keywords=UserExtensionsCVRegionFeature
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Row1
+description.ascii=矩形左上角行坐标。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Column1
+description.ascii=矩形左上角列坐标。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Row2
+description.ascii=矩形右下角行坐标。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Column2
+description.ascii=矩形右下角列坐标。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_area_center(Regions,Area,Row,Column)
+short.ascii=region 面积与重心，对应 HALCON area_center。输出 Area/Row/Column。
+keywords=UserExtensionsCVRegionFeature
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Area
+description.ascii=面积（像素数）。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Row
+description.ascii=行坐标。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Column
+description.ascii=列坐标。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_gen_rectangle1(Rectangle,Row1,Column1,Row2,Column2)
+short.ascii=生成轴对齐矩形 region，对应 HALCON gen_rectangle1。
+keywords=UserExtensionsCVRegionGenRectangle
+module=0 Foundation
+parameter=Rectangle
+description.ascii=输出矩形 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Row1
+description.ascii=矩形左上角行坐标。
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Column1
+description.ascii=矩形左上角列坐标。
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Row2
+description.ascii=矩形右下角行坐标。
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Column2
+description.ascii=矩形右下角列坐标。
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+cv_gen_circle(Circle,Row,Column,Radius)
+short.ascii=生成圆形 region，对应 HALCON gen_circle。负坐标按 HALCON 语义裁剪。
+keywords=UserExtensionsCVRegionGenCircle
+module=0 Foundation
+parameter=Circle
+description.ascii=输出圆形 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Row
+description.ascii=行坐标。
+parameter_class=input_control
+type_list=realinteger
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Column
+description.ascii=列坐标。
+parameter_class=input_control
+type_list=realinteger
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Radius
+description.ascii=半径（像素）。
+parameter_class=input_control
+type_list=realinteger
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+cv_fill_up(Region,RegionFillUp)
+short.ascii=填充 region 内部孔洞，对应 HALCON fill_up。需要定义域（取全局 HGWidth/HGHeight，缺省时按输入 bbox 推导）。
+keywords=UserExtensionsCVRegionFillUpMorphology
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionFillUp
+description.ascii=输出填充后的 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+value_number=RegionFillUp == Region
+cv_closing(Region,StructElement,RegionClosing)
+short.ascii=region 闭运算：先膨胀后腐蚀，填补细小暗孔洞。对应 HALCON closing。
+keywords=UserExtensionsCVRegionClosingMorphology
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=StructElement
+description.ascii=结构元（region），参考点取其质心四舍五入。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionClosing
+description.ascii=输出闭运算结果 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+value_number=RegionClosing == Region && StructElement == Region || StructElement == 1
+cv_opening(Region,StructElement,RegionOpening)
+short.ascii=region 开运算：先腐蚀后膨胀，去除细小亮结构。对应 HALCON opening。
+keywords=UserExtensionsCVRegionOpeningMorphology
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=StructElement
+description.ascii=结构元（region），参考点取其质心四舍五入。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionOpening
+description.ascii=输出开运算结果 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+value_number=RegionOpening == Region && StructElement == Region || StructElement == 1
+cv_dilation1(Region,StructElement,RegionDilation,Iterations)
+short.ascii=region 膨胀（自定义结构元），对应 HALCON dilation1。SE 参考点=质心四舍五入，用居中+反射 SE 做 Minkowski 和；按行 O(n×SE行数) 实现。
+keywords=UserExtensionsCVRegionDilationMorphology
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=StructElement
+description.ascii=结构元（region），参考点取其质心四舍五入。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionDilation
+description.ascii=输出膨胀结果 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Iterations
+description.ascii=迭代次数（≥1）。
+parameter_class=input_control
+type_list=integer
+default_value=1
+default_type=integer
+sem_type=number
+multivalue=false
+value_number=RegionDilation == Region && StructElement == Region || StructElement == 1
+cv_symm_difference(Region1,Region2,RegionSymmDifference)
+short.ascii=两个 region 求对称差，对应 HALCON symm_difference。
+keywords=UserExtensionsCVRegionSymmDifference
+module=0 Foundation
+parameter=Region1
+description.ascii=输入 region 1。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Region2
+description.ascii=输入 region 2。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionSymmDifference
+description.ascii=输出对称差 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+value_number=RegionSymmDifference == Region1 && Region2 == Region1 || Region2 == 1
+cv_complement(Region,RegionComplement)
+short.ascii=region 求补集，对应 HALCON complement（输出带 is_compl 标志，惰性表示）。
+keywords=UserExtensionsCVRegionComplement
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionComplement
+description.ascii=输出补集 region（带 is_compl 标志）。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+value_number=RegionComplement == Region
+cv_difference(Region1,Region2,RegionDifference)
+short.ascii=两个 region 求差集（R1 − R2），对应 HALCON difference。
+keywords=UserExtensionsCVRegionDifference
+module=0 Foundation
+parameter=Region1
+description.ascii=输入 region 1。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Region2
+description.ascii=输入 region 2。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionDifference
+description.ascii=输出差集 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+value_number=RegionDifference == Region1 && Region2 == Region1 || Region2 == 1
+cv_union1(Regions,RegionUnion)
+short.ascii=region 元组全部求并集，对应 HALCON union1。
+keywords=UserExtensionsCVRegionUnion
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionUnion
+description.ascii=输出并集 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+cv_select_shape(Regions,SelectedRegions,Features,Operation,Min,Max)
+short.ascii=按形状特征筛选 region 子集，对应 HALCON select_shape。Features 为多特征名元组，Operation 为 and/or，Min/Max 为阈值范围；输出保持引用语义。
+keywords=UserExtensionsCVRegionSelectShape
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=SelectedRegions
+description.ascii=输出筛选通过的 region 子集（引用语义）。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Features
+description.ascii=特征名元组（如 area/circularity，见 cvr_get_feature）。
+parameter_class=input_control
+value_list="area""row""column""width""height""row1""column1""row2""column2""circularity""compactness""convexity""rectangularity""contlength""phi""ra""rb""anisometry""bulkiness""structure_factor"
+type_list=string
+default_value="area"
+default_type=string
+sem_type=string
+multivalue=true
+parameter=Operation
+description.ascii=组合方式：'and'（全部满足）/ 'or'（任一满足）。
+parameter_class=input_control
+value_list="and""or"
+type_list=string
+default_value="and"
+default_type=string
+sem_type=string
+multivalue=false
+parameter=Min
+description.ascii=特征下限元组（与 Features 一一对应）。
+parameter_class=input_control
+type_list=realinteger
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Max
+description.ascii=特征上限元组（与 Features 一一对应）。
+parameter_class=input_control
+type_list=realinteger
+default_value=10000.0
+default_type=real
+sem_type=number
+multivalue=true
+value_number=SelectedRegions <= Regions
+cv_connection(Region,ConnectedRegions)
+short.ascii=连通域标记（8 连通），对应 HALCON connection。输出连通域元组。按行并查集 + 双指针实现。
+keywords=UserExtensionsCVRegionConnection
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=ConnectedRegions
+description.ascii=输出连通域元组。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+value_number=ConnectedRegions >= 0
+cv_erosion1(Region,StructElement,RegionErosion,Iterations)
+short.ascii=region 腐蚀（自定义结构元），对应 HALCON erosion1。SE 参考点=质心四舍五入；按行 O(n×SE行数) 实现。
+keywords=UserExtensionsCVRegionErosionMorphology
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=StructElement
+description.ascii=结构元（region），参考点取其质心四舍五入。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionErosion
+description.ascii=输出腐蚀结果 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Iterations
+description.ascii=迭代次数（≥1）。
+parameter_class=input_control
+type_list=integer
+default_value=1
+default_type=integer
+sem_type=number
+multivalue=false
+value_number=RegionErosion == Region && StructElement == Region || StructElement == 1
+cv_intersection(Region1,Region2,RegionIntersection)
+short.ascii=两个 region 求交集，对应 HALCON intersection（RLE 双指针归并）。
+keywords=UserExtensionsCVRegionIntersection
+module=0 Foundation
+parameter=Region1
+description.ascii=输入 region 1。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Region2
+description.ascii=输入 region 2。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionIntersection
+description.ascii=输出交集 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+value_number=RegionIntersection == Region1 && Region2 == Region1 || Region2 == 1
+cv_union2(Region1,Region2,RegionUnion)
+short.ascii=两个 region 求并集，对应 HALCON union2（RLE 有序归并）。结果去重合并相邻 run。
+keywords=UserExtensionsCVRegionUnion
+module=0 Foundation
+parameter=Region1
+description.ascii=输入 region 1。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Region2
+description.ascii=输入 region 2。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionUnion
+description.ascii=输出并集 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+value_number=RegionUnion == Region1 && Region2 == Region1 || Region2 == 1
 linear_fit_2d(modelExpression,paramNames,xData,yData,zData,linearTolerance,paramValues,rss,rank,success,statusMessage)
 short.ascii=Fit a linear-in-parameters model with two independent variables using Eigen ColPivHouseholderQR.
 keywords=UserExtensionsFittingLinearLeastSquaresQREigen
@@ -170,49 +1191,49 @@ short.ascii=Multi-variable multi-output nonlinear least-squares fit with shared 
 keywords=UserExtensionsFittingLevenbergMarquardtOptimizationEigenDistortion
 module=0 Foundation
 parameter=expressions
-description.ascii=One or more model expressions, e.g. one for dx and one for dy. All of them share ParamNames.
+description.ascii=Modellausdruecke (einer oder mehr), z.B. je einer fuer dx und dy. Alle teilen sich ParamNames.
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=true
 parameter=paramNames
-description.ascii=Names of the shared parameters, e.g. k1,k2,k3,p1,p2. Must be unique and differ from XNames.
+description.ascii=Namen der gemeinsamen Parameter, z.B. k1,k2,k3,p1,p2.
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=true
 parameter=initialValues
-description.ascii=Initial parameter values. Length must equal the number of ParamNames.
+description.ascii=Startwerte der Parameter, Laenge muss der Anzahl von ParamNames entsprechen.
 parameter_class=input_control
 type_list=real
 default_type=real
 sem_type=number
 multivalue=true
 parameter=xNames
-description.ascii=One or more independent variable names, e.g. u,v. Precomputed terms such as r2=u^2+v^2 may be passed as extra variables.
+description.ascii=Namen der unabhaengigen Variablen (eine oder mehr), z.B. u,v. Ableitungen wie r2=u^2+v^2 duerfen vorab berechnet mitgegeben werden.
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=true
 parameter=xData
-description.ascii=Independent variable samples, length = numPoints * numXNames (M values per point, row major).
+description.ascii=Werte der unabhaengigen Variablen, Laenge = Anzahl Punkte mal Anzahl XNames (pro Punkt M Werte).
 parameter_class=input_control
 type_list=real
 default_type=real
 sem_type=number
 multivalue=true
 parameter=yData
-description.ascii=Observed values, length = numPoints * numExpressions (K values per point, row major).
+description.ascii=Beobachtete Werte, Laenge = Anzahl Punkte mal Anzahl Expressions (pro Punkt K Werte).
 parameter_class=input_control
 type_list=real
 default_type=real
 sem_type=number
 multivalue=true
 parameter=maxIter
-description.ascii=Maximum number of function evaluations (0 selects 400*(numParams+1)).
+description.ascii=Maximale Anzahl der Funktionsaufrufe (0 = 400*(Anzahl Parameter+1)).
 parameter_class=input_control
 type_list=integer
 default_value=0
@@ -220,7 +1241,7 @@ default_type=integer
 sem_type=number
 multivalue=false
 parameter=eps
-description.ascii=Step size for numerical differentiation (0 selects it automatically).
+description.ascii=Schrittweite der numerischen Differentiation (0 = automatisch).
 parameter_class=input_control
 type_list=real
 default_value=0.0
@@ -228,35 +1249,35 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=paramValues
-description.ascii=Fitted parameter values, ordered like ParamNames.
+description.ascii=Angepasste Parameterwerte in der Reihenfolge von ParamNames.
 parameter_class=output_control
 type_list=real
 default_type=real
 sem_type=number
 multivalue=true
 parameter=rss
-description.ascii=Residual sum of squares over all outputs (-1 if the expression could not be evaluated).
+description.ascii=Summe der Fehlerquadrate aller Ausgaenge (-1 bei Ausdrucksfehler).
 parameter_class=output_control
 type_list=real
 default_type=real
 sem_type=number
 multivalue=false
 parameter=iterations
-description.ascii=Number of iterations performed.
+description.ascii=Anzahl der durchgefuehrten Iterationen.
 parameter_class=output_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=status
-description.ascii=LevenbergMarquardt status code (1-4 converged, 5-8 finished without confirmation, 0 failed).
+description.ascii=Statuscode des LevenbergMarquardt-Algorithmus (1-4 konvergiert, 5-8 beendet, 0 fehlgeschlagen).
 parameter_class=output_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=statusMessage
-description.ascii=Status text of the result (contains expression error: ... on failure).
+description.ascii=Statustext des Ergebnisses (bei Ausdrucksfehler mit expression error: ...).
 parameter_class=output_control
 type_list=string
 default_type=string
@@ -267,7 +1288,7 @@ short.ascii=Fit a user-supplied model expression to data using the Eigen Levenbe
 keywords=UserExtensionsFittingLevenbergMarquardtOptimizationEigen
 module=0 Foundation
 parameter=modelExpression
-description.ascii=Model expression to fit, e.g. a*exp(b*x)+c.
+description.ascii=Modellausdruck, z.B. a*exp(b*x)+c.
 parameter_class=input_control
 type_list=string
 default_value="a*x+b"
@@ -275,35 +1296,35 @@ default_type=string
 sem_type=string
 multivalue=false
 parameter=paramNames
-description.ascii=Names of the parameters to fit, e.g. a,b,c. Must be unique and differ from XName.
+description.ascii=Namen der anzupassenden Parameter, z.B. a,b,c.
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=true
 parameter=initialValues
-description.ascii=Initial parameter values. Length must equal the number of ParamNames.
+description.ascii=Startwerte der Parameter, Laenge muss der Anzahl von ParamNames entsprechen.
 parameter_class=input_control
 type_list=real
 default_type=real
 sem_type=number
 multivalue=true
 parameter=xData
-description.ascii=Samples of the independent variable.
+description.ascii=Stuetzstellen der unabhaengigen Variablen.
 parameter_class=input_control
 type_list=real
 default_type=real
 sem_type=number
 multivalue=true
 parameter=yData
-description.ascii=Samples of the dependent variable. Length must equal the number of XData.
+description.ascii=Stuetzstellen der abhaengigen Variablen, Laenge muss der Anzahl von XData entsprechen.
 parameter_class=input_control
 type_list=real
 default_type=real
 sem_type=number
 multivalue=true
 parameter=xName
-description.ascii=Name of the independent variable used in the model expression (default: x).
+description.ascii=Name der unabhaengigen Variablen im Modellausdruck (Standard: x).
 parameter_class=input_control
 type_list=string
 default_value="x"
@@ -311,7 +1332,7 @@ default_type=string
 sem_type=string
 multivalue=false
 parameter=maxIter
-description.ascii=Maximum number of function evaluations (0 selects 400*(numParams+1)).
+description.ascii=Maximale Anzahl der Funktionsaufrufe (0 = 400*(Anzahl Parameter+1)).
 parameter_class=input_control
 type_list=integer
 default_value=0
@@ -319,7 +1340,7 @@ default_type=integer
 sem_type=number
 multivalue=false
 parameter=eps
-description.ascii=Step size for numerical differentiation (0 selects it automatically).
+description.ascii=Schrittweite der numerischen Differentiation (0 = automatisch).
 parameter_class=input_control
 type_list=real
 default_value=0.0
@@ -327,35 +1348,35 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=paramValues
-description.ascii=Fitted parameter values, ordered like ParamNames.
+description.ascii=Angepasste Parameterwerte in der Reihenfolge von ParamNames.
 parameter_class=output_control
 type_list=real
 default_type=real
 sem_type=number
 multivalue=true
 parameter=rss
-description.ascii=Residual sum of squares (-1 if the expression could not be evaluated).
+description.ascii=Summe der Fehlerquadrate (-1 bei Ausdrucksfehler).
 parameter_class=output_control
 type_list=real
 default_type=real
 sem_type=number
 multivalue=false
 parameter=iterations
-description.ascii=Number of iterations performed.
+description.ascii=Anzahl der durchgefuehrten Iterationen.
 parameter_class=output_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=status
-description.ascii=LevenbergMarquardt status code (1-4 converged, 5-8 finished without confirmation, 0 failed).
+description.ascii=Statuscode des LevenbergMarquardt-Algorithmus (1-4 konvergiert, 5-8 beendet, 0 fehlgeschlagen).
 parameter_class=output_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=statusMessage
-description.ascii=Status text of the result (contains expression error: ... on failure).
+description.ascii=Statustext des Ergebnisses (bei Ausdrucksfehler mit expression error: ...).
 parameter_class=output_control
 type_list=string
 default_type=string
@@ -366,27 +1387,27 @@ short.ascii=One-dimensional interpolation using Armadillo interp1.
 keywords=UserExtensionsInterp1InterpolationArmadillo
 module=0 Foundation
 parameter=imageX
-description.ascii=Sample points X (real, 1 x N or N x 1), ascending.
+description.ascii=Stuetzstellen X (real, 1 x N oder N x 1), aufsteigend.
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageY
-description.ascii=Sample values Y (real, same length as X).
+description.ascii=Stuetzwerte Y (real, gleiche Laenge wie X).
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageXI
-description.ascii=Query points XI (real, 1 x M or M x 1).
+description.ascii=Abfragepunkte XI (real, 1 x M oder M x 1).
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageYI
-description.ascii=Interpolated values YI (real, same length as XI).
+description.ascii=Interpolierte Werte YI (real, gleiche Laenge wie XI).
 parameter_class=output_object
 sem_type=image
 multivalue=optional
 parameter=interpMethod
-description.ascii=Interpolation method, either linear or nearest (only the first letter is evaluated). A leading asterisk assumes monotonic X and XI.
+description.ascii=Interpolationsverfahren: linear oder nearest (nur der erste Buchstabe wird ausgewertet). Ein fuehrendes Sternchen setzt monotone X und XI voraus.
 parameter_class=input_control
 type_list=string
 default_value="linear"
@@ -398,17 +1419,17 @@ short.ascii=Solve positive-definite linear equations A*x=b using Eigen LLT.
 keywords=UserExtensionsLLTLinearEigen
 module=0 Foundation
 parameter=imageA
-description.ascii=Positive-definite input matrix A (real, square).
+description.ascii=Positiv definite Eingabematrix A (real, quadratisch).
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageB
-description.ascii=Right hand side b (real, height = rows of A, width = 1).
+description.ascii=Rechte Seite b (real, Hoehe = Zeilen von A, Breite = 1).
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageX
-description.ascii=Solution vector x (real).
+description.ascii=Loesungsvektor x (real).
 parameter_class=output_object
 sem_type=image
 multivalue=optional
@@ -417,17 +1438,17 @@ short.ascii=Solve symmetric linear equations A*x=b using Eigen LDLT.
 keywords=UserExtensionsLDLTLinearEigen
 module=0 Foundation
 parameter=imageA
-description.ascii=Symmetric input matrix A (real, square).
+description.ascii=Symmetrische Eingabematrix A (real, quadratisch).
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageB
-description.ascii=Right hand side b (real, height = rows of A, width = 1).
+description.ascii=Rechte Seite b (real, Hoehe = Zeilen von A, Breite = 1).
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageX
-description.ascii=Solution vector x (real).
+description.ascii=Loesungsvektor x (real).
 parameter_class=output_object
 sem_type=image
 multivalue=optional
@@ -436,22 +1457,22 @@ short.ascii=Singular value decomposition (JacobiSVD) using Eigen.
 keywords=UserExtensionsSVDEigen
 module=0 Foundation
 parameter=imageA
-description.ascii=Input matrix A (real, height = rows, width = columns).
+description.ascii=Eingabematrix A (real, Hoehe = Zeilen, Breite = Spalten).
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageU
-description.ascii=Left singular vector matrix U (m x m).
+description.ascii=Linke Singulaervektormatrix U (m x m).
 parameter_class=output_object
 sem_type=image
 multivalue=optional
 parameter=imageS
-description.ascii=Singular values as row vector (1 x min(m,n)), in descending order.
+description.ascii=Singulaerwerte als Zeilenvektor (1 x min(m,n)), absteigend.
 parameter_class=output_object
 sem_type=image
 multivalue=optional
 parameter=imageV
-description.ascii=Right singular vector matrix V (n x n).
+description.ascii=Rechte Singulaervektormatrix V (n x n).
 parameter_class=output_object
 sem_type=image
 multivalue=optional
@@ -460,12 +1481,12 @@ short.ascii=Binary search lower bound (input must be sorted ascending) using std
 keywords=UserExtensionsBinarySearchLowerBoundStd
 module=0 Foundation
 parameter=image
-description.ascii=Ascending input image (real, single channel, must be sorted).
+description.ascii=Aufsteigend sortiertes Eingabebild (real, einkanalig).
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=value
-description.ascii=Value to search for.
+description.ascii=Suchwert.
 parameter_class=input_control
 type_list=real
 default_value=0.0
@@ -473,7 +1494,7 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=index
-description.ascii=Index of the first element not less than Value.
+description.ascii=Index des ersten Elementes groesser oder gleich Value.
 parameter_class=output_control
 type_list=integer
 default_type=integer
@@ -484,17 +1505,17 @@ short.ascii=Sort image elements (flattened) using std::sort.
 keywords=UserExtensionsSortStd
 module=0 Foundation
 parameter=image
-description.ascii=Input image (real, single channel).
+description.ascii=Eingabebild (real, einkanalig).
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageOut
-description.ascii=Sorted image, same size as the input image.
+description.ascii=Sortiertes Bild, gleiche Groesse wie das Eingabebild.
 parameter_class=output_object
 sem_type=image
 multivalue=optional
 parameter=descending
-description.ascii=Sort order: 0 = ascending, 1 = descending.
+description.ascii=Sortierrichtung: 0 = aufsteigend, 1 = absteigend.
 parameter_class=input_control
 type_list=integer
 default_value=0
@@ -506,12 +1527,12 @@ short.ascii=Find the n-th smallest element (flattened, 0-based) using std::nth_e
 keywords=UserExtensionsSortNthElementStd
 module=0 Foundation
 parameter=image
-description.ascii=Input image (real, single channel).
+description.ascii=Eingabebild (real, einkanalig).
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=nIndex
-description.ascii=Index of the wanted element (0-based, after flattening).
+description.ascii=Index des gesuchten Elementes (0-basiert, nach dem Flachlegen).
 parameter_class=input_control
 type_list=integer
 default_value=0
@@ -519,361 +1540,252 @@ default_type=integer
 sem_type=number
 multivalue=false
 parameter=value
-description.ascii=Value of the n-th smallest element.
+description.ascii=Wert des n-ten Elementes.
 parameter_class=output_control
 type_list=real
 default_type=real
 sem_type=number
 multivalue=false
-cv_magnitude(X,Y,Magnitude)
-short.ascii=Compute the gradient magnitude sqrt(X^2+Y^2) using OpenCV.
-keywords=UserExtensionsMagnitudeGradientOpenCV
-module=0 Foundation
-parameter=X
-parameter_class=input_object
-sem_type=image
-multivalue=optional
-parameter=Y
-parameter_class=input_object
-sem_type=image
-multivalue=optional
-parameter=Magnitude
-parameter_class=output_object
-sem_type=image
-multivalue=optional
-cv_sobel(image,imageOut,Dx,Dy,Ksize,Ddepth,Scale,Delta,BorderType)
-short.ascii=Edge detection using the Sobel operator (OpenCV).
-keywords=UserExtensionsSobelEdgeGradientOpenCV
+cv_gray_closing_circle(image,imageOut,radius)
+short.ascii=灰度闭运算（圆核）。对应 cv::morphologyEx MORPH_CLOSE，核尺寸 2R+1。
+keywords=UserExtensionsMorphologyGrayscaleClosingOpenCV
 module=0 Foundation
 parameter=image
+description.ascii=输入单通道图像。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageOut
+description.ascii=输出图像，类型尺寸与输入一致。
 parameter_class=output_object
 sem_type=image
 multivalue=optional
-parameter=Dx
+parameter=radius
+description.ascii=圆半径（核尺寸 = 2R+1 椭圆核）
 parameter_class=input_control
-type_list=integer
-default_value=1
-default_type=integer
+type_list=realinteger
+default_value=3.0
+default_type=real
 sem_type=number
 multivalue=false
-parameter=Dy
+cv_gray_opening_circle(image,imageOut,radius)
+short.ascii=灰度开运算（圆核）。对应 cv::morphologyEx MORPH_OPEN，核尺寸 2R+1。
+keywords=UserExtensionsMorphologyGrayscaleOpeningOpenCV
+module=0 Foundation
+parameter=image
+description.ascii=输入单通道图像。
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像，类型尺寸与输入一致。
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=radius
+description.ascii=圆半径（核尺寸 = 2R+1 椭圆核）
 parameter_class=input_control
-type_list=integer
-default_value=0
-default_type=integer
+type_list=realinteger
+default_value=3.0
+default_type=real
 sem_type=number
 multivalue=false
-parameter=Ksize
+cv_gray_dilation_circle(image,imageOut,radius)
+short.ascii=灰度膨胀（圆核）：核为 2R+1 椭圆核。对应 cv::morphologyEx MORPH_DILATE。
+keywords=UserExtensionsMorphologyGrayscaleDilationOpenCV
+module=0 Foundation
+parameter=image
+description.ascii=输入单通道图像。
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像，类型尺寸与输入一致。
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=radius
+description.ascii=圆半径（核尺寸 = 2R+1 椭圆核）
+parameter_class=input_control
+type_list=realinteger
+default_value=3.0
+default_type=real
+sem_type=number
+multivalue=false
+cv_gray_erosion_circle(image,imageOut,radius)
+short.ascii=灰度腐蚀（圆核）：核为 2R+1 椭圆核。对应 cv::morphologyEx MORPH_ERODE。
+keywords=UserExtensionsMorphologyGrayscaleErosionOpenCV
+module=0 Foundation
+parameter=image
+description.ascii=输入单通道图像。
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像，类型尺寸与输入一致。
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=radius
+description.ascii=圆半径（核尺寸 = 2R+1 椭圆核）
+parameter_class=input_control
+type_list=realinteger
+default_value=3.0
+default_type=real
+sem_type=number
+multivalue=false
+cv_gray_closing_rect(image,imageOut,width,height)
+short.ascii=灰度闭运算（矩形核）：先膨胀后腐蚀，填暗孔洞。对应 cv::morphologyEx MORPH_CLOSE。
+keywords=UserExtensionsMorphologyGrayscaleClosingOpenCV
+module=0 Foundation
+parameter=image
+description.ascii=输入单通道图像。
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像，类型尺寸与输入一致。
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=width
+description.ascii=矩形核宽度（MaskWidth）
 parameter_class=input_control
 type_list=integer
 default_value=3
 default_type=integer
 sem_type=number
 multivalue=false
-parameter=Ddepth
+parameter=height
+description.ascii=矩形核高度（MaskHeight）
 parameter_class=input_control
 type_list=integer
-default_value=6
+default_value=3
 default_type=integer
 sem_type=number
 multivalue=false
-parameter=Scale
-parameter_class=input_control
-type_list=real
-default_value=1.0
-default_type=real
-sem_type=number
-multivalue=false
-parameter=Delta
-parameter_class=input_control
-type_list=real
-default_value=0.0
-default_type=real
-sem_type=number
-multivalue=false
-parameter=BorderType
-parameter_class=input_control
-type_list=integer
-default_value=1
-default_type=integer
-sem_type=number
-multivalue=false
-cv_multi_frame_median(images,imageMedian)
-short.ascii=Compute the pixel-wise median over multiple real images using OpenCV.
-keywords=UserExtensionsMedianMultiFrameOpenCV
-module=0 Foundation
-parameter=images
-parameter_class=input_object
-sem_type=image
-multivalue=true
-parameter=imageMedian
-parameter_class=output_object
-sem_type=image
-multivalue=optional
-cv_kmeans(samples,labels,centers,K,attempts,termEps,termMaxIter)
-short.ascii=K-means clustering (real NxD samples matrix).
-keywords=UserExtensionsKMeansClusterOpenCV
-module=0 Foundation
-parameter=samples
-parameter_class=input_object
-sem_type=image
-multivalue=optional
-parameter=labels
-parameter_class=output_object
-sem_type=image
-multivalue=optional
-parameter=centers
-parameter_class=output_object
-sem_type=image
-multivalue=optional
-parameter=K
-parameter_class=input_control
-type_list=integer
-default_value=2
-default_type=integer
-sem_type=number
-multivalue=false
-parameter=attempts
-parameter_class=input_control
-type_list=integer
-default_value=10
-default_type=integer
-sem_type=number
-multivalue=false
-parameter=termEps
-parameter_class=input_control
-type_list=real
-default_value=1.0e-4
-default_type=real
-sem_type=number
-multivalue=false
-parameter=termMaxIter
-parameter_class=input_control
-type_list=integer
-default_value=100
-default_type=integer
-sem_type=number
-multivalue=false
-cv_match_template(image,templateImage,result)
-short.ascii=Template matching (TM_CCOEFF_NORMED, 8-bit or real single-channel).
-keywords=UserExtensionsTemplateMatchOpenCV
+cv_gray_opening_rect(image,imageOut,width,height)
+short.ascii=灰度开运算（矩形核）：先腐蚀后膨胀，去亮噪点。对应 cv::morphologyEx MORPH_OPEN。
+keywords=UserExtensionsMorphologyGrayscaleOpeningOpenCV
 module=0 Foundation
 parameter=image
-parameter_class=input_object
-sem_type=image
-multivalue=optional
-parameter=templateImage
-parameter_class=input_object
-sem_type=image
-multivalue=optional
-parameter=result
-parameter_class=output_object
-sem_type=image
-multivalue=optional
-cv_calc_hist(image,histogram,histSize,rangeMin,rangeMax)
-short.ascii=Compute gray-level histogram (8/16-bit or real single-channel).
-keywords=UserExtensionsHistogramOpenCV
-module=0 Foundation
-parameter=image
-parameter_class=input_object
-sem_type=image
-multivalue=optional
-parameter=histogram
-parameter_class=output_object
-sem_type=image
-multivalue=optional
-parameter=histSize
-parameter_class=input_control
-type_list=integer
-default_value=256
-default_type=integer
-sem_type=number
-multivalue=false
-parameter=rangeMin
-parameter_class=input_control
-type_list=real
-default_value=0.0
-default_type=real
-sem_type=number
-multivalue=false
-parameter=rangeMax
-parameter_class=input_control
-type_list=real
-default_value=256.0
-default_type=real
-sem_type=number
-multivalue=false
-cv_threshold_triangle(image,imageOut,threshValue)
-short.ascii=Triangle automatic thresholding (THRESH_TRIANGLE, 8-bit single-channel only).
-keywords=UserExtensionsThresholdTriangleOpenCV
-module=0 Foundation
-parameter=image
+description.ascii=输入单通道图像。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageOut
+description.ascii=输出图像，类型尺寸与输入一致。
 parameter_class=output_object
 sem_type=image
 multivalue=optional
-parameter=threshValue
-parameter_class=output_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=false
-cv_estimate_affine_2d(methodId,ransacThreshold,srcRow,srcCol,dstRow,dstCol,homMat2D,success,inlierCount)
-short.ascii=Estimate full affine transformation (6 parameters) using OpenCV.
-keywords=UserExtensionsAffineRANSACOpenCV
-module=0 Foundation
-parameter=methodId
+parameter=width
+description.ascii=矩形核宽度（MaskWidth）
 parameter_class=input_control
 type_list=integer
-default_value=8
+default_value=3
 default_type=integer
 sem_type=number
 multivalue=false
-parameter=ransacThreshold
+parameter=height
+description.ascii=矩形核高度（MaskHeight）
 parameter_class=input_control
-type_list=real
-default_value=3.0
-default_type=real
-sem_type=number
-multivalue=false
-parameter=srcRow
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=srcCol
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=dstRow
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=dstCol
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=homMat2D
-parameter_class=output_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=success
-parameter_class=output_control
 type_list=integer
+default_value=3
 default_type=integer
 sem_type=number
 multivalue=false
-parameter=inlierCount
-parameter_class=output_control
-type_list=integer
-default_type=integer
-sem_type=number
-multivalue=false
-cv_solve(imageA,imageB,imageX,methodId)
-short.ascii=Solve linear equations A*x=b using OpenCV (real single-channel matrices).
-keywords=UserExtensionsSolveLinearOpenCV
-module=0 Foundation
-parameter=imageA
-parameter_class=input_object
-sem_type=image
-multivalue=optional
-parameter=imageB
-parameter_class=input_object
-sem_type=image
-multivalue=optional
-parameter=imageX
-parameter_class=output_object
-sem_type=image
-multivalue=optional
-parameter=methodId
-parameter_class=input_control
-type_list=integer
-default_value=0
-default_type=integer
-sem_type=number
-multivalue=false
-cv_add_weighted(imageA,imageB,imageOut,alpha,beta,gamma)
-short.ascii=Computes the weighted sum of two images (supports 8-bit, 16-bit and real single-channel images).
-keywords=UserExtensionsAddWeightedArithmeticOpenCV
-module=0 Foundation
-parameter=imageA
-parameter_class=input_object
-sem_type=image
-multivalue=optional
-parameter=imageB
-parameter_class=input_object
-sem_type=image
-multivalue=optional
-parameter=imageOut
-parameter_class=output_object
-sem_type=image
-multivalue=optional
-parameter=alpha
-parameter_class=input_control
-type_list=real
-default_value=1.0
-default_type=real
-sem_type=number
-multivalue=false
-parameter=beta
-parameter_class=input_control
-type_list=real
-default_value=1.0
-default_type=real
-sem_type=number
-multivalue=false
-parameter=gamma
-parameter_class=input_control
-type_list=real
-default_value=0.0
-default_type=real
-sem_type=number
-multivalue=false
-cv_subtract(imageA,imageB,imageOut)
-short.ascii=Compute the per-element saturated difference of two images (supports 8-bit, 16-bit and real single-channel images).
-keywords=UserExtensionsSubtractArithmeticOpenCV
-module=0 Foundation
-parameter=imageA
-parameter_class=input_object
-sem_type=image
-multivalue=optional
-parameter=imageB
-parameter_class=input_object
-sem_type=image
-multivalue=optional
-parameter=imageOut
-parameter_class=output_object
-sem_type=image
-multivalue=optional
-cv_blur(image,imageOut,kwidth,kheight)
-short.ascii=Smooth an image using a normalized box filter (supports 8-bit, 16-bit and real single-channel images).
-keywords=UserExtensionsBlurSmoothOpenCV
+cv_gray_dilation_rect(image,imageOut,width,height)
+short.ascii=灰度膨胀（矩形核），对应 cv::morphologyEx MORPH_DILATE。核尺寸 Width×Height；支持 byte/uint2/real。
+keywords=UserExtensionsMorphologyGrayscaleDilationOpenCV
 module=0 Foundation
 parameter=image
+description.ascii=输入单通道图像。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageOut
+description.ascii=输出图像，类型尺寸与输入一致。
 parameter_class=output_object
 sem_type=image
 multivalue=optional
+parameter=width
+description.ascii=矩形核宽度（MaskWidth）
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=height
+description.ascii=矩形核高度（MaskHeight）
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+cv_gray_erosion_rect(image,imageOut,width,height)
+short.ascii=灰度腐蚀（矩形核），对应 cv::morphologyEx MORPH_ERODE。核尺寸 Width×Height；支持 byte/uint2/real，输出同类型。
+keywords=UserExtensionsMorphologyGrayscaleErosionOpenCV
+module=0 Foundation
+parameter=image
+description.ascii=输入单通道图像。
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像，类型尺寸与输入一致。
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=width
+description.ascii=矩形核宽度（MaskWidth）
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=height
+description.ascii=矩形核高度（MaskHeight）
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+cv_morphology_ex(image,imageOut,op,shape,kwidth,kheight,iterations)
+short.ascii=通用灰度形态学，对应 cv::morphologyEx。Op/Shape 支持字符串枚举（erode/dilate/open/close/gradient/tophat/blackhat × rect/cross/ellipse）或整数；Iterations≥1 循环实现。支持 byte/uint2/real。
+keywords=UserExtensionsMorphologyGrayscaleOpenCV
+module=0 Foundation
+parameter=image
+description.ascii=输入单通道图像。
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像，类型尺寸与输入一致。
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=op
+description.ascii=形态学操作（erode/dilate/open/close/gradient/tophat/blackhat，也可整数 0-6）
+parameter_class=input_control
+type_list=stringinteger
+default_value="open"
+default_type=string
+sem_type=string
+multivalue=false
+parameter=shape
+description.ascii=结构元形状（rect/cross/ellipse，也可整数 0-2）
+parameter_class=input_control
+type_list=stringinteger
+default_value="rect"
+default_type=string
+sem_type=string
+multivalue=false
 parameter=kwidth
+description.ascii=核宽度，≥1
 parameter_class=input_control
 type_list=integer
 default_value=3
@@ -881,21 +1793,564 @@ default_type=integer
 sem_type=number
 multivalue=false
 parameter=kheight
+description.ascii=核高度，≥1
 parameter_class=input_control
 type_list=integer
 default_value=3
 default_type=integer
 sem_type=number
 multivalue=false
+parameter=iterations
+description.ascii=迭代次数 ≥1（morphologyEx 循环实现）
+parameter_class=input_control
+type_list=integer
+default_value=1
+default_type=integer
+sem_type=number
+multivalue=false
+cv_magnitude(X,Y,Magnitude)
+short.ascii=二维向量模长 sqrt(x²+y²)，对应 cv::magnitude。输入两图同类型同尺寸（byte/uint2/real），内部转 32F 计算，输出 real。
+keywords=UserExtensionsMagnitudeGradientOpenCV
+module=0 Foundation
+parameter=X
+description.ascii=单通道 byte / uint2 / real
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=Y
+description.ascii=与 X 同类型同尺寸
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=Magnitude
+description.ascii=统一输出 real（CV_32F）
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+cv_sobel(image,imageOut,Dx,Dy,Ksize,Ddepth,Scale,Delta,BorderType)
+short.ascii=Sobel 一阶导数边缘检测，对应 cv::Sobel。输入 byte/uint2/real，输出 real 梯度；Dx/Dy 为求导阶数（0/1，和≥1），Ksize 为核尺寸（1/3/5/7），Ddepth 支持字符串枚举（same/s16/f32/f64），BorderType 支持字符串枚举或整数。
+keywords=UserExtensionsSobelEdgeGradientOpenCV
+module=0 Foundation
+parameter=image
+description.ascii=单通道 byte / uint2 / real
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=统一输出 real（CV_32F，梯度含符号）
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=Dx
+description.ascii=x 方向导数阶数（0~2），默认 1
+parameter_class=input_control
+type_list=integer
+default_value=1
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Dy
+description.ascii=y 方向导数阶数（0~2），默认 0
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Ksize
+description.ascii=核尺寸（1 / 3 / 5 / 7），默认 3
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Ddepth
+description.ascii=输出深度（-1 / 3=CV_16S / 5=CV_32F / 6=CV_64F），默认 6
+parameter_class=input_control
+type_list=stringinteger
+default_value=6
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Scale
+description.ascii=缩放系数，默认 1.0
+parameter_class=input_control
+type_list=real
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Delta
+description.ascii=偏置，默认 0.0
+parameter_class=input_control
+type_list=real
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=BorderType
+description.ascii=OpenCV 边界模式（1=REPLICATE 等），默认 1
+parameter_class=input_control
+type_list=stringinteger
+default_value=1
+default_type=integer
+sem_type=number
+multivalue=false
+cv_multi_frame_median(images,imageMedian)
+short.ascii=多帧中值滤波：对 N 张同尺寸 real 图像逐像素取中值，输出单张 real 中值图（N=3 有特化快路径）。
+keywords=UserExtensionsMedianMultiFrameOpenCV
+module=0 Foundation
+parameter=images
+description.ascii=N 张 real 单通道图，尺寸一致，N ≥ 2
+parameter_class=input_object
+sem_type=image
+multivalue=true
+parameter=imageMedian
+description.ascii=real 单通道中值图
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+cv_kmeans(samples,labels,centers,K,attempts,termEps,termMaxIter,flags)
+short.ascii=K 均值聚类，对应 cv::kmeans。样本为 real N×D 图像（N 样本每行 D 维）；输出 Labels（N×1）与 Centers（K×D）。Flags 支持字符串枚举（random/pp/use_initial_labels）或整数，默认 pp。
+keywords=UserExtensionsKMeansClusterOpenCV
+module=0 Foundation
+parameter=samples
+description.ascii=real N×D（N 个样本，每行 D 维特征）
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=labels
+description.ascii=real N×1（整数标签，以浮点承载）
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=centers
+description.ascii=real K×D 聚类中心
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=K
+description.ascii=聚类数，默认 2
+parameter_class=input_control
+type_list=integer
+default_value=2
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=attempts
+description.ascii=重复尝试次数，默认 10
+parameter_class=input_control
+type_list=integer
+default_value=10
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=termEps
+description.ascii=终止精度，默认 1.0e-4
+parameter_class=input_control
+type_list=real
+default_value=1.0e-4
+default_type=real
+sem_type=number
+multivalue=false
+parameter=termMaxIter
+description.ascii=最大迭代次数，默认 100
+parameter_class=input_control
+type_list=integer
+default_value=100
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=flags
+description.ascii=中心初始化（'random'/'pp'/'use_initial_labels' 或 0/1/2，默认 1）
+parameter_class=input_control
+value_list=012
+type_list=stringinteger
+default_value=1
+default_type=integer
+sem_type=number
+multivalue=false
+cv_match_template(image,templateImage,result,methodId)
+short.ascii=模板匹配，对应 cv::matchTemplate。支持 byte/real（OpenCV 限制不支持 16 位）；MethodId 支持字符串枚举（sqdiff/sqdiff_normed/ccorr/ccorr_normed/ccoeff/ccoeff_normed）或 0-5，默认 ccoeff_normed。输出 real 得分图，尺寸 (W−w+1)×(H−h+1)。
+keywords=UserExtensionsTemplateMatchOpenCV
+module=0 Foundation
+parameter=image
+description.ascii=单通道 byte / real（OpenCV 限制，不支持 16 位）
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=templateImage
+description.ascii=与 Image 同类型，尺寸 ≤ Image
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=result
+description.ascii=real 得分图，尺寸 (W−w+1)×(H−h+1)
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=methodId
+description.ascii=匹配方法（'sqdiff'/'sqdiff_normed'/'ccorr'/'ccorr_normed'/'ccoeff'/'ccoeff_normed' 或 0-5，默认 5）
+parameter_class=input_control
+value_list=012345
+type_list=stringinteger
+default_value=5
+default_type=integer
+sem_type=number
+multivalue=false
+cv_calc_hist(image,histogram,histSize,rangeMin,rangeMax)
+short.ascii=灰度直方图，对应 cv::calcHist。支持 byte/uint2/real 单通道；输出 1×HistSize 的 real 直方图，范围 [RangeMin, RangeMax)。
+keywords=UserExtensionsHistogramOpenCV
+module=0 Foundation
+parameter=image
+description.ascii=单通道 byte / uint2 / real
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=histogram
+description.ascii=real，1×HistSize（各桶计数）
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=histSize
+description.ascii=直方图桶数，默认 256
+parameter_class=input_control
+type_list=integer
+default_value=256
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=rangeMin
+description.ascii=像素值范围，默认 0.0 / 256.0
+parameter_class=input_control
+type_list=real
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=rangeMax
+description.ascii=像素值范围，默认 0.0 / 256.0
+parameter_class=input_control
+type_list=real
+default_value=256.0
+default_type=real
+sem_type=number
+multivalue=false
+cv_threshold(image,imageOut,thresh,maxval,type,threshUsed)
+short.ascii=固定/自动阈值分割，对应 cv::threshold。Type 支持字符串枚举或整数：基础类型 binary/binary_inv/trunc/tozero/tozero_inv，可与 otsu/triangle 用 | 组合（如 binary|otsu）。支持 byte/uint2/real；OTSU/TRIANGLE 仅 byte。输出实际使用阈值 ThreshUsed。
+keywords=UserExtensionsThresholdOpenCV
+module=0 Foundation
+parameter=image
+description.ascii=输入单通道图像。
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像，类型尺寸与输入一致。
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=thresh
+description.ascii=阈值（OTSU/TRIANGLE 时作初值，实际值见 ThreshUsed）。
+parameter_class=input_control
+type_list=realinteger
+default_value=128.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=maxval
+description.ascii=最大值（二值化输出值）。
+parameter_class=input_control
+type_list=realinteger
+default_value=255.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=type
+description.ascii=阈值类型：字符串（binary/binary_inv/trunc/tozero/tozero_inv，可与 otsu/triangle 用 | 组合）或整数。
+parameter_class=input_control
+value_list=012347816
+type_list=stringinteger
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=threshUsed
+description.ascii=实际使用的阈值（OTSU/TRIANGLE 时为自动值）。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=false
+cv_threshold_triangle(image,imageOut,threshValue)
+short.ascii=三角法自动阈值分割（THRESH_TRIANGLE），仅支持 8 位单通道。输出二值图与自动阈值。
+keywords=UserExtensionsThresholdTriangleOpenCV
+module=0 Foundation
+parameter=image
+description.ascii=**仅 8 位单通道**（OpenCV 限制）
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=二值图（byte，0 / 255）
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=threshValue
+description.ascii=自动计算出的阈值
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=false
+cv_estimate_affine_2d(methodId,ransacThreshold,srcRow,srcCol,dstRow,dstCol,maxIters,confidence,refineIters,homMat2D,success,inlierCount)
+short.ascii=完整仿射变换估计（6 参数），对应 cv::estimateAffine2D。源/目标点集为等长实数元组（≥3 点）；MethodId（RANSAC=8 默认/LMEDS=4）、MaxIters/Confidence/RefineIters 可调；输出 6 元素矩阵 [R00,R10,T0,R01,R11,T1]，顺序同 HALCON hom_mat2d。
+keywords=UserExtensionsAffineRANSACOpenCV
+module=0 Foundation
+parameter=methodId
+description.ascii=RANSAC=8（默认）/ LMEDS=4
+parameter_class=input_control
+type_list=integer
+default_value=8
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=ransacThreshold
+description.ascii=重投影阈值，默认 3.0
+parameter_class=input_control
+type_list=real
+default_value=3.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=srcRow
+description.ascii=源点行 / 列坐标
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=srcCol
+description.ascii=源点行 / 列坐标
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=dstRow
+description.ascii=目标点行 / 列坐标
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=dstCol
+description.ascii=目标点行 / 列坐标
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=maxIters
+description.ascii=RANSAC 最大迭代次数，默认 2000
+parameter_class=input_control
+type_list=integer
+default_value=2000
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=confidence
+description.ascii=置信度，默认 0.99
+parameter_class=input_control
+type_list=real
+default_value=0.99
+default_type=real
+sem_type=number
+multivalue=false
+parameter=refineIters
+description.ascii=最小二乘精炼迭代次数，默认 10
+parameter_class=input_control
+type_list=integer
+default_value=10
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=homMat2D
+description.ascii=6 元素仿射矩阵 [R00,R10,T0,R01,R11,T1]
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+parameter=success
+description.ascii=1 = 成功，0 = 失败
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=inlierCount
+description.ascii=内点数量
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+cv_solve(imageA,imageB,imageX,methodId)
+short.ascii=线性方程组求解 Ax=b，对应 cv::solve。A、B 为 real 单通道图像（A 为 n×n 方阵，B 为 n×m 右端），输出 X（n×m real）；flags 对应 DECOMP_* 方法。
+keywords=UserExtensionsSolveLinearOpenCV
+module=0 Foundation
+parameter=imageA
+description.ascii=real 单通道矩阵 A（m×n）
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+description.ascii=real 单通道矩阵 b（m×1 或 m×k）
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageX
+description.ascii=解 x（n×1 或 n×k，real）
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=methodId
+description.ascii=求解方法，默认 0
+parameter_class=input_control
+type_list=integer
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
+cv_add_weighted(imageA,imageB,imageOut,alpha,beta,gamma)
+short.ascii=两图加权相加：Out = alpha*Src1 + beta*Src2 + gamma，对应 cv::addWeighted。支持 byte/uint2/real 单通道。
+keywords=UserExtensionsAddWeightedArithmeticOpenCV
+module=0 Foundation
+parameter=imageA
+description.ascii=单通道 byte / uint2 / real
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+description.ascii=与 ImageA 同类型同尺寸
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=与输入同类型同尺寸
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=alpha
+description.ascii=权重，默认 1.0
+parameter_class=input_control
+type_list=real
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=beta
+description.ascii=权重，默认 1.0
+parameter_class=input_control
+type_list=real
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=gamma
+description.ascii=偏置，默认 0.0
+parameter_class=input_control
+type_list=real
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+cv_subtract(imageA,imageB,imageOut)
+short.ascii=两图相减（饱和截断），对应 cv::subtract。支持 byte/uint2/real 单通道，两图类型尺寸须一致。
+keywords=UserExtensionsSubtractArithmeticOpenCV
+module=0 Foundation
+parameter=imageA
+description.ascii=单通道 byte / uint2 / real
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+description.ascii=与 ImageA 同类型同尺寸
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=与输入同类型同尺寸
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+cv_blur(image,imageOut,kwidth,kheight,anchorX,anchorY,borderType)
+short.ascii=对图像做归一化盒式滤波（均值滤波），对应 cv::blur；输出与输入同类型同尺寸的单通道图像，支持 byte / uint2 / real。AnchorX/AnchorY 指定核锚点（-1=核中心）；BorderType 为边界模式，支持字符串枚举（如 'border_default'，大小写不敏感）或整数；核宽/高须为 ≥1 的奇数。
+keywords=UserExtensionsBlurSmoothOpenCV
+module=0 Foundation
+parameter=image
+description.ascii=输入单通道图像（byte/uint2/real）。
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像，类型尺寸与输入一致。
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=kwidth
+description.ascii=滤波核宽度，≥1 的奇数，默认 3。
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=kheight
+description.ascii=滤波核高度，≥1 的奇数，默认 3。
+parameter_class=input_control
+type_list=integer
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=anchorX
+description.ascii=锚点 X（-1=核中心），默认 -1。
+parameter_class=input_control
+type_list=integer
+default_value=-1
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=anchorY
+description.ascii=锚点 Y（-1=核中心），默认 -1。
+parameter_class=input_control
+type_list=integer
+default_value=-1
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=borderType
+description.ascii=边界模式，支持字符串枚举（如 border_default）或整数，默认 4。
+parameter_class=input_control
+type_list=stringinteger
+default_value=4
+default_type=integer
+sem_type=number
+multivalue=false
 cv_measure_pos(image,Column,Row,Phi,Length1,Length2,Sigma,Threshold,Transition,RowEdge,ColumnEdge,Amplitude)
-short.ascii=Measure straight edges perpendicular to a rectangle using OpenCV.
+short.ascii=一维边缘测量，复刻 HALCON measure_pos（算法本体在 cvr 库 cvr_measure_pos，7 步管线：剖面提取→高斯一阶导核→卷积→局部极大值+阈值→抛物线亚像素→排序→去重/方向过滤/映射）。沿测量矩形主轴扫描，输出边缘行/列坐标与振幅。注意：暗→亮边缘振幅为负（transition=-1 选中），亮→暗为正。
 keywords=UserExtensionsMeasureEdgeOpenCV
 module=0 Foundation
 parameter=image
+description.ascii=单通道 byte / uint2 / real（内部转 byte）
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=Column
+description.ascii=测量矩形中心列坐标 x
 parameter_class=input_control
 type_list=real
 default_value=0.0
@@ -903,6 +2358,7 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=Row
+description.ascii=测量矩形中心行坐标 y
 parameter_class=input_control
 type_list=real
 default_value=0.0
@@ -910,6 +2366,7 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=Phi
+description.ascii=主轴角度（弧度，逆时针为正）
 parameter_class=input_control
 type_list=real
 default_value=0.0
@@ -917,6 +2374,7 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=Length1
+description.ascii=沿主轴半长
 parameter_class=input_control
 type_list=real
 default_value=10.0
@@ -924,6 +2382,7 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=Length2
+description.ascii=垂直主轴半宽
 parameter_class=input_control
 type_list=real
 default_value=5.0
@@ -931,6 +2390,7 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=Sigma
+description.ascii=高斯平滑标准差
 parameter_class=input_control
 type_list=real
 default_value=1.0
@@ -938,6 +2398,7 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=Threshold
+description.ascii=振幅阈值
 parameter_class=input_control
 type_list=real
 default_value=5.0
@@ -945,6 +2406,7 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=Transition
+description.ascii=0=全部，1=暗→亮，-1=亮→暗
 parameter_class=input_control
 type_list=integer
 default_value=0
@@ -952,52 +2414,101 @@ default_type=integer
 sem_type=number
 multivalue=false
 parameter=RowEdge
+description.ascii=边缘行坐标
 parameter_class=output_control
 type_list=real
 default_type=real
 sem_type=number
 multivalue=true
 parameter=ColumnEdge
+description.ascii=边缘列坐标
 parameter_class=output_control
 type_list=real
 default_type=real
 sem_type=number
 multivalue=true
 parameter=Amplitude
+description.ascii=边缘振幅
 parameter_class=output_control
 type_list=real
 default_type=real
 sem_type=number
 multivalue=true
-cv_filter2d(image,kernel,imageOut)
-short.ascii=Convolve an image with a kernel (supports 8-bit, 16-bit and real single-channel images).
+cv_filter2d(image,kernel,imageOut,ddepth,anchorX,anchorY,delta,borderType)
+short.ascii=图像卷积，对应 cv::filter2D。卷积核经 real 单通道图像传入；Ddepth 支持字符串枚举（same/s16/f32/f64）或整数（-1=保持原深度）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数。
 keywords=UserExtensionsFilterConvolutionOpenCV
 module=0 Foundation
 parameter=image
+description.ascii=单通道 byte / uint2 / real
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=kernel
+description.ascii=卷积核，必须为 real 单通道，任意宽高
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageOut
+description.ascii=与输入同类型同尺寸
 parameter_class=output_object
 sem_type=image
 multivalue=optional
+parameter=ddepth
+description.ascii=输出深度（'same'=-1 / 's16' / 'f32' / 'f64' 或整数）
+parameter_class=input_control
+type_list=stringinteger
+default_value=-1
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=anchorX
+description.ascii=锚点 X（-1=核中心）
+parameter_class=input_control
+type_list=integer
+default_value=-1
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=anchorY
+description.ascii=锚点 Y（-1=核中心）
+parameter_class=input_control
+type_list=integer
+default_value=-1
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=delta
+description.ascii=结果叠加偏移量
+parameter_class=input_control
+type_list=realinteger
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=borderType
+description.ascii=边界模式（字符串枚举或整数）
+parameter_class=input_control
+type_list=stringinteger
+default_value=4
+default_type=integer
+sem_type=number
+multivalue=false
 cv_reshape(image,imageOut,rows)
-short.ascii=Reshape an image matrix (supports 8-bit, 16-bit and real single-channel images).
+short.ascii=改变图像尺寸（最近邻重采样），对应 cv::resize。输出宽为 Rows 参数（历史命名），高度按比例缩放。
 keywords=UserExtensionsReshapeMatrixOpenCV
 module=0 Foundation
 parameter=image
+description.ascii=单通道 byte / uint2 / real
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageOut
+description.ascii=与输入同类型，新尺寸
 parameter_class=output_object
 sem_type=image
 multivalue=optional
 parameter=rows
+description.ascii=输出图像新高度；0 表示保持原高度
 parameter_class=input_control
 type_list=integer
 default_value=0
@@ -1005,122 +2516,174 @@ default_type=integer
 sem_type=number
 multivalue=false
 cv_median_blur(image,imageOut,ksize)
-short.ascii=Median blur filter (supports 8-bit, 16-bit and real images).
+short.ascii=中值滤波，对应 cv::medianBlur。支持 byte/uint2/real 单通道；16 位与浮点图仅支持 Ksize=3 或 5。Ksize 为 ≥1 的奇数核尺寸。
 keywords=UserExtensionsMedianBlurFilterOpenCV
 module=0 Foundation
 parameter=image
+description.ascii=单通道 byte / uint2 / real
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageOut
+description.ascii=与输入同类型同尺寸
 parameter_class=output_object
 sem_type=image
 multivalue=optional
 parameter=ksize
+description.ascii=滤波核尺寸，≥3 的奇数，默认 3
 parameter_class=input_control
 type_list=integer
 default_value=3
 default_type=integer
 sem_type=number
 multivalue=false
-cv_mat_mul(imageA,imageB,outimage)
-short.ascii=Matrix multiplication of two 16-bit single-channel images (C = A * B).
+cv_mat_mul(imageA,imageB,outimage,alpha,beta,flags)
+short.ascii=两个 16 位单通道图像做矩阵乘法，对应 cv::gemm：C = alpha*A*B (+ beta)。A 为 m×k、B 为 k×n，结果 C 为 m×n；内部转 double 计算后饱和截断回 16 位。Flags 支持字符串枚举（none/transpose_a/transpose_b/transpose_c）或整数 0/1/2/4。
 keywords=UserExtensionsMatrixMultiplyOpenCV
 module=0 Foundation
 parameter=imageA
+description.ascii=16 位单通道（m×k）
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageB
+description.ascii=16 位单通道（k×n）
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=outimage
+description.ascii=16 位单通道（m×n）
 parameter_class=output_object
 sem_type=image
 multivalue=optional
+parameter=alpha
+description.ascii=乘积系数，默认 1.0
+parameter_class=input_control
+type_list=realinteger
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=beta
+description.ascii=叠加项系数，默认 0.0
+parameter_class=input_control
+type_list=realinteger
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=flags
+description.ascii=转置标志（'none'/'transpose_a'/'transpose_b'/'transpose_c' 或 0/1/2/4）
+parameter_class=input_control
+value_list=0124
+type_list=stringinteger
+default_value=0
+default_type=integer
+sem_type=number
+multivalue=false
 cv_write_image(inimage,filename,compression)
-short.ascii=Save image as PNG file (supports 8/16-bit, 1/3-channel).
+short.ascii=写图像文件，对应 cv::imwrite。支持 byte/uint2 单通道按扩展名编码（png/jpg/bmp 等）；写失败返回错误码。
 keywords=UserExtensionsPNGWriteOpenCV
 module=0 Foundation
 parameter=inimage
+description.ascii=8/16 位，单/三通道
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=filename
+description.ascii=输出文件路径
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=compression
+description.ascii=PNG 压缩级别，默认 3
 parameter_class=input_control
 type_list=integer
 default_value=3
 default_type=integer
 sem_type=number
 multivalue=false
+cv_estimate_rigid_2d(DictHandle)
+short.ascii=刚体变换估计（平移+旋转，无缩放），自实现 RANSAC：每轮采样 2 点对闭式解 cos/sin+平移，统计内点取最优。点集经 dict 传入，MaxIter/Seed 可调；结果 HomMat2D/角度/平移写回 dict，Scale 恒为 1.0。
+keywords=UserExtensionsRigidRotationTranslationRANSACOpenCV
+module=0 Foundation
+parameter=DictHandle
+description.ascii=dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
 cv_estimate_affine_partial2d(DictHandle)
-short.ascii=Estimate partial affine transformation using RANSAC (OpenCV).
+short.ascii=部分仿射变换估计（4 自由度：平移+旋转+各向同性缩放），对应 cv::estimateAffinePartial2D。源/目标点集经 dict 元组传入（各 ≥3 点），结果 HomMat2D（2×3 展开）/Success/InlierCount 及平移/角度/缩放写回 dict；Method/MaxIters/Confidence/RefineIters 经 dict 键可调。
 keywords=UserExtensionsAffineRANSACOpenCV
 module=0 Foundation
 parameter=DictHandle
+description.ascii=dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 cv_bf_knn_match(DictHandle)
-short.ascii=BF KNN feature matching with Lowe's ratio test using OpenCV.
+short.ascii=BF 暴力匹配，对应 cv::BFMatcher。参考/目标描述子以 dict 图像传入，输出匹配索引与良好匹配数写回 dict。CrossCheck=1 时走 bf.match()（互为最佳匹配），=0 时走 knnMatch+Lowe ratio test（K≥2）。NormType 默认 NORM_HAMMING，适配 ORB/AKAZE 二进制描述子。
 keywords=UserExtensionsBFKNNMatchOpenCV
 module=0 Foundation
 parameter=DictHandle
+description.ascii=dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 cv_sift_detect(DictHandle)
-short.ascii=SIFT feature detection and descriptor computation using OpenCV.
+short.ascii=SIFT 特征检测与描述子计算，对应 cv::SIFT。输入 8 位单通道图像，输出 128 维浮点描述子。参数经 dict 键全开放（NFeatures/NOctaveLayers/ContrastThreshold/EdgeThreshold/Sigma）。
 keywords=UserExtensionsSIFTFeatureDetectionOpenCV
 module=0 Foundation
 parameter=DictHandle
+description.ascii=dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 cv_akaze_detect(DictHandle)
-short.ascii=AKAZE feature detection and descriptor computation using OpenCV.
+short.ascii=AKAZE 特征检测与描述子计算，对应 cv::AKAZE。输入 8 位单通道图像，输出关键点与描述子写回 dict。参数经 dict 键全开放（DescriptorType/Threshold/NOctaves/NOctaveLayers/Diffusivity 等），未设取默认。
 keywords=UserExtensionsAKAZEFeatureDetectionOpenCV
 module=0 Foundation
 parameter=DictHandle
+description.ascii=dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 cv_orb_detect(DictHandle)
-short.ascii=ORB feature detection and descriptor computation using OpenCV.
+short.ascii=ORB 特征检测与描述子计算，对应 cv::ORB。输入为 8 位单通道图像（以 dict 对象 InputImage 传入）；输出关键点坐标/数量与描述子（byte，32×N）写回同一 dict。检测参数经 dict 键全开放（NFeatures/ScaleFactor/NLevels/EdgeThreshold/FirstLevel/WTA_K/ScoreType/PatchSize/FastThreshold），未设键取 OpenCV 默认。
 keywords=UserExtensionsORBFeatureDetectionOpenCV
 module=0 Foundation
 parameter=DictHandle
+description.ascii=dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 write_image_exif(image_path,latitude,longitude,altitude,aperture,shutter_speed,iso_number,focal_length,date_time,camera_make,camera_model)
-short.ascii=Write EXIF metadata to image file.
+short.ascii=给已有图像文件写入 EXIF 元数据（GPS 经纬度/海拔、光圈、快门、ISO、焦距、时间、厂商/型号），基于 exiv2。文件须先存在；字段以多值控制参数传入。
 keywords=UserExtensionsEXIFMetadataGPS
 module=0 Foundation
 parameter=image_path
+description.ascii=图像文件路径（须已存在）。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=filename
 multivalue=false
 parameter=latitude
+description.ascii=纬度
 parameter_class=input_control
 type_list=realinteger
 default_value=0.0
@@ -1128,6 +2691,7 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=longitude
+description.ascii=经度
 parameter_class=input_control
 type_list=realinteger
 default_value=0.0
@@ -1135,6 +2699,7 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=altitude
+description.ascii=海拔（米）
 parameter_class=input_control
 type_list=realinteger
 default_value=0.0
@@ -1142,6 +2707,7 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=aperture
+description.ascii=光圈值
 parameter_class=input_control
 type_list=realinteger
 default_value=0.0
@@ -1149,6 +2715,7 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=shutter_speed
+description.ascii=快门速度（秒）。
 parameter_class=input_control
 type_list=realinteger
 default_value=0.0
@@ -1156,6 +2723,7 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=iso_number
+description.ascii=ISO 感光度。
 parameter_class=input_control
 type_list=integer
 default_value=100
@@ -1163,6 +2731,7 @@ default_type=integer
 sem_type=number
 multivalue=false
 parameter=focal_length
+description.ascii=焦距（mm）。
 parameter_class=input_control
 type_list=realinteger
 default_value=0.0
@@ -1170,6 +2739,7 @@ default_type=real
 sem_type=number
 multivalue=false
 parameter=date_time
+description.ascii=拍摄时间（格式 YYYY:MM:DD HH:MM:SS）。
 parameter_class=input_control
 type_list=string
 default_value=""
@@ -1177,6 +2747,7 @@ default_type=string
 sem_type=string
 multivalue=false
 parameter=camera_make
+description.ascii=相机厂商字符串。
 parameter_class=input_control
 type_list=string
 default_value="Camera"
@@ -1184,6 +2755,7 @@ default_type=string
 sem_type=string
 multivalue=false
 parameter=camera_model
+description.ascii=相机型号字符串。
 parameter_class=input_control
 type_list=string
 default_value="Model"
@@ -1191,286 +2763,333 @@ default_type=string
 sem_type=string
 multivalue=false
 CLAHE_image(inimage,outimage,k_width,k_height,clipLimit)
-short.ascii=CLAHE image enhancement.
+short.ascii=对比度受限自适应直方图均衡，对应 cv::CLAHE。支持 byte/uint2 单通道；TileGridSize 为网格行列数，ClipLimit 为对比度限制阈值。
 keywords=UserExtensions
 module=0 Foundation
 parameter=inimage
+description.ascii=单通道 byte / uint2
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=outimage
+description.ascii=与输入同类型同尺寸
 parameter_class=output_object
 sem_type=image
 multivalue=optional
 parameter=k_width
+description.ascii=分块宽度
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=k_height
+description.ascii=分块高度
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=clipLimit
+description.ascii=对比度裁剪阈值
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 sub_A_roi(smallimage,bigimage,sy,sx,ew,eh)
-short.ascii=Subtract big image from ROI (small - B).
+short.ascii=ROI 减法（A 系）：大图 ROI 减小图（(A∩Roi) − B），结果写回大图。仅支持 uint2。
 keywords=UserExtensions
 module=0 Foundation
 parameter=smallimage
+description.ascii=小图（uint2，尺寸必须等于 ROI 的 ew×eh）。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=bigimage
+description.ascii=大图（uint2，结果原地写回）。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=sy
+description.ascii=ROI 左上角行坐标。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=sx
+description.ascii=ROI 左上角列坐标。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=ew
+description.ascii=ROI 宽度（= 小图宽度）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=eh
+description.ascii=ROI 高度（= 小图高度）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 div_A_roi(smallimage,bigimage,sy,sx,ew,eh)
-short.ascii=Divide big image by ROI (small / B).
+short.ascii=ROI 除法（A 系）：大图 ROI 除以小图（整除），结果写回大图。仅支持 uint2。
 keywords=UserExtensions
 module=0 Foundation
 parameter=smallimage
+description.ascii=小图（uint2，尺寸必须等于 ROI 的 ew×eh）。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=bigimage
+description.ascii=大图（uint2，结果原地写回）。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=sy
+description.ascii=ROI 左上角行坐标。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=sx
+description.ascii=ROI 左上角列坐标。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=ew
+description.ascii=ROI 宽度（= 小图宽度）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=eh
+description.ascii=ROI 高度（= 小图高度）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 div_B_roi(smallimage,bigimage,sy,sx,ew,eh)
-short.ascii=Divide ROI from big image (B / small).
+short.ascii=ROI 除法（B 系）：小图除以大图 ROI（整除），结果写回大图。仅支持 uint2。
 keywords=UserExtensions
 module=0 Foundation
 parameter=smallimage
+description.ascii=小图（uint2，尺寸必须等于 ROI 的 ew×eh）。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=bigimage
+description.ascii=大图（uint2，结果原地写回）。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=sy
+description.ascii=ROI 左上角行坐标。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=sx
+description.ascii=ROI 左上角列坐标。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=ew
+description.ascii=ROI 宽度（= 小图宽度）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=eh
+description.ascii=ROI 高度（= 小图高度）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 sub_B_roi(smallimage,bigimage,sy,sx,ew,eh)
-short.ascii=Subtract ROI from big image (B - small).
+short.ascii=ROI 减法（B 系）：小图减大图 ROI（B − A∩Roi），结果写回大图。仅支持 uint2。
 keywords=UserExtensions
 module=0 Foundation
 parameter=smallimage
+description.ascii=小图（uint2，尺寸必须等于 ROI 的 ew×eh）。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=bigimage
+description.ascii=大图（uint2，结果原地写回）。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=sy
+description.ascii=ROI 左上角行坐标。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=sx
+description.ascii=ROI 左上角列坐标。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=ew
+description.ascii=ROI 宽度（= 小图宽度）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=eh
+description.ascii=ROI 高度（= 小图高度）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 mul_roi(smallimage,bigimage,sy,sx,ew,eh)
-short.ascii=Multiply ROI to big image.
+short.ascii=ROI 乘法：大图 ROI 与小图逐像素相乘，结果写回大图（原地修改）。仅支持 uint2。
 keywords=UserExtensions
 module=0 Foundation
 parameter=smallimage
+description.ascii=小图（uint2，尺寸必须等于 ROI 的 ew×eh）。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=bigimage
+description.ascii=大图（uint2，结果原地写回）。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=sy
+description.ascii=ROI 左上角行坐标。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=sx
+description.ascii=ROI 左上角列坐标。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=ew
+description.ascii=ROI 宽度（= 小图宽度）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=eh
+description.ascii=ROI 高度（= 小图高度）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 add_roi(smallimage,bigimage,sy,sx,ew,eh)
-short.ascii=Add ROI to big image.
+short.ascii=ROI 加法：大图指定矩形区域与同样大小的小图逐像素相加（A + B∩Roi），结果写回大图（原地修改）。仅支持 uint2；小图尺寸必须等于 ROI（ew×eh）。
 keywords=UserExtensions
 module=0 Foundation
 parameter=smallimage
+description.ascii=小图（uint2，尺寸必须等于 ROI 的 ew×eh）。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=bigimage
+description.ascii=大图（uint2，结果原地写回）。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=sy
+description.ascii=ROI 左上角行坐标。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=sx
+description.ascii=ROI 左上角列坐标。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=ew
+description.ascii=ROI 宽度（= 小图宽度）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=eh
+description.ascii=ROI 高度（= 小图高度）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 PNGIn(inimage,outimage,acceleration)
-short.ascii=Laplace Filter.
+short.ascii=PNG 图像解码输入。
 keywords=UserExtensions
 module=0 Foundation
 parameter=inimage
+description.ascii=8/16 位，单/三通道
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=outimage
+description.ascii=byte「乱码图」
 parameter_class=output_object
 sem_type=image
 multivalue=optional
 parameter=acceleration
+description.ascii=PNG 压缩级别
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 PNGOut(inimage,outimage)
-short.ascii=Laplace Filter.
+short.ascii=PNG 图像编码输出。
 keywords=UserExtensions
 module=0 Foundation
 parameter=inimage
+description.ascii=byte「乱码图」
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=outimage
+description.ascii=还原后的图像（8/16 位，1/3 通道）
 parameter_class=output_object
 sem_type=image
 multivalue=optional
 remap(hv_DictHandle)
-short.ascii=Laplace Filter.
+short.ascii=几何变换重映射，对应 cv::remap。输入图/输出图/MapX/MapY 以 dict 对象传入（uint2 输入，real 映射图）；每个像素按映射表取源坐标，支持桶形/枕形畸变校正等。
 keywords=UserExtensions
 module=0 Foundation
 parameter=hv_DictHandle
+description.ascii=dict 句柄（输入图/输出图/MapX/MapY 以 dict 对象传入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
@@ -1481,12 +3100,14 @@ short.ascii=读取上一条 mysql_query 的结果集，按行优先顺序展开�
 keywords=mysqlresult
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=result
+description.ascii=查询结果集输出。
 parameter_class=output_control
 type_list=string
 default_type=string
@@ -1497,18 +3118,21 @@ short.ascii=在指定 MySQL 连接上执行 SQL 语句，成功返回 OK，否�
 keywords=mysqlquery
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=sql
+description.ascii=SQL 语句。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=errmsg
+description.ascii=错误消息输出。
 parameter_class=output_control
 type_list=string
 default_type=string
@@ -1519,54 +3143,63 @@ short.ascii=连接到 MySQL 服务器，成功时返回连接句柄；失败时 
 keywords=mysqlconnect
 module=0 Foundation
 parameter=host
+description.ascii=主机地址。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=user
+description.ascii=用户名。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=passwd
+description.ascii=密码。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=db
+description.ascii=数据库名。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=port
+description.ascii=端口号。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=unix_socket
+description.ascii=Unix socket 路径（可空）。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=client_flag
+description.ascii=连接选项标志。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=output_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=errmsg
+description.ascii=错误消息输出。
 parameter_class=output_control
 type_list=string
 default_type=string
@@ -1585,6 +3218,7 @@ short.ascii=从全局注册表中移除指定名称的日志记录器。移除�
 keywords=spdlogdropremove
 module=0 Foundation
 parameter=logger_name
+description.ascii=日志器名称。
 parameter_class=input_control
 type_list=string
 default_type=string
@@ -1595,12 +3229,14 @@ short.ascii=设置自动刷新的触发级别。当记录的日志消息级别�
 keywords=spdlogflushlevel
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=level
+description.ascii=日志级别（0=trace..5=critical）。
 parameter_class=input_control
 value_list=0123456
 type_list=integer
@@ -1613,6 +3249,7 @@ short.ascii=立即将缓冲区中的日志消息刷新写入目标(文件或控�
 keywords=spdlogflush
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
@@ -1623,12 +3260,14 @@ short.ascii=设置日志记录器的输出格式。使用spdlog格式占位符�
 keywords=spdlogpatternformat
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=pattern
+description.ascii=输出格式模式串（spdlog 语法）。
 parameter_class=input_control
 type_list=string
 default_type=string
@@ -1639,12 +3278,14 @@ short.ascii=设置日志记录器的最低输出级别。只有级别大于等�
 keywords=spdloglevelset
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=level
+description.ascii=日志级别（0=trace..5=critical）。
 parameter_class=input_control
 value_list=0123456
 type_list=integer
@@ -1657,12 +3298,14 @@ short.ascii=记录一条critical(严重)级别的日志。critical级别(5)是�
 keywords=spdloglogcritical
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=msg
+description.ascii=消息文本（日志内容或错误信息）。
 parameter_class=input_control
 type_list=string
 default_type=string
@@ -1673,12 +3316,14 @@ short.ascii=记录一条err(错误)级别的日志。err级别(4)用于记录运
 keywords=spdloglogerror
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=msg
+description.ascii=消息文本（日志内容或错误信息）。
 parameter_class=input_control
 type_list=string
 default_type=string
@@ -1689,12 +3334,14 @@ short.ascii=记录一条warn(警告)级别的日志。warn级别(3)用于记录�
 keywords=spdloglogwarnwarning
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=msg
+description.ascii=消息文本（日志内容或错误信息）。
 parameter_class=input_control
 type_list=string
 default_type=string
@@ -1705,12 +3352,14 @@ short.ascii=记录一条info(信息)级别的日志。info级别(2)是默认级�
 keywords=spdlogloginfo
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=msg
+description.ascii=消息文本（日志内容或错误信息）。
 parameter_class=input_control
 type_list=string
 default_type=string
@@ -1721,12 +3370,14 @@ short.ascii=记录一条debug(调试)级别的日志。debug级别(1)用于记�
 keywords=spdloglogdebug
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=msg
+description.ascii=消息文本（日志内容或错误信息）。
 parameter_class=input_control
 type_list=string
 default_type=string
@@ -1737,12 +3388,14 @@ short.ascii=记录一条trace(跟踪)级别的日志。trace是最低级别(0)�
 keywords=spdloglogtrace
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=msg
+description.ascii=消息文本（日志内容或错误信息）。
 parameter_class=input_control
 type_list=string
 default_type=string
@@ -1753,12 +3406,14 @@ short.ascii=使用指定级别记录一条日志消息。level参数指定日志
 keywords=spdlogloglevel
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=level
+description.ascii=日志级别（0=trace..5=critical）。
 parameter_class=input_control
 value_list=012345
 type_list=integer
@@ -1767,6 +3422,7 @@ default_type=integer
 sem_type=number
 multivalue=false
 parameter=msg
+description.ascii=消息文本（日志内容或错误信息）。
 parameter_class=input_control
 type_list=string
 default_type=string
@@ -1777,12 +3433,14 @@ short.ascii=根据名称获取已创建的日志记录器。通过logger_name查
 keywords=spdlogloggerget
 module=0 Foundation
 parameter=logger_name
+description.ascii=日志器名称。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=output_control
 type_list=handle
 default_type=handle
@@ -1793,12 +3451,14 @@ short.ascii=创建彩色控制台日志记录器(多线程安全)。日志消息
 keywords=spdlogloggerconsolecolorstdout
 module=0 Foundation
 parameter=logger_name
+description.ascii=日志器名称。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=output_control
 type_list=handle
 default_type=handle
@@ -1809,18 +3469,21 @@ short.ascii=创建每日轮转文件日志记录器(多线程安全)。每天在
 keywords=spdlogloggerfiledaily
 module=0 Foundation
 parameter=logger_name
+description.ascii=日志器名称。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=filename
+description.ascii=日志文件路径。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=hour
+description.ascii=每日滚动时刻（时）。
 parameter_class=input_control
 type_list=integer
 default_value=0
@@ -1828,6 +3491,7 @@ default_type=integer
 sem_type=number
 multivalue=false
 parameter=minute
+description.ascii=每日滚动时刻（分）。
 parameter_class=input_control
 type_list=integer
 default_value=0
@@ -1835,6 +3499,7 @@ default_type=integer
 sem_type=number
 multivalue=false
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=output_control
 type_list=handle
 default_type=handle
@@ -1845,30 +3510,35 @@ short.ascii=创建滚动文件日志记录器(多线程安全)。当日志文件
 keywords=spdlogloggerfilerotating
 module=0 Foundation
 parameter=logger_name
+description.ascii=日志器名称。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=filename
+description.ascii=日志文件路径。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=max_file_size
+description.ascii=单文件大小上限（字节），超出轮转。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=max_files
+description.ascii=保留的轮转文件个数。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=output_control
 type_list=handle
 default_type=handle
@@ -1879,18 +3549,21 @@ short.ascii=创建基本文件日志记录器(多线程安全)。将日志消息
 keywords=spdlogloggerfilebasic
 module=0 Foundation
 parameter=logger_name
+description.ascii=日志器名称。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=filename
+description.ascii=日志文件路径。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=truncate
+description.ascii=覆盖既有日志文件标志（0=追加，1=截断）。
 parameter_class=input_control
 value_list=01
 type_list=integer
@@ -1899,6 +3572,7 @@ default_type=integer
 sem_type=number
 multivalue=false
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=output_control
 type_list=handle
 default_type=handle
@@ -1909,6 +3583,7 @@ short.ascii=初始化spdlog异步线程池。在使用任何日志记录器之�
 keywords=spdloginitthread_poolasync
 module=0 Foundation
 parameter=queue_size
+description.ascii=异步队列长度。
 parameter_class=input_control
 type_list=integer
 default_value=8192
@@ -1916,6 +3591,7 @@ default_type=integer
 sem_type=number
 multivalue=false
 parameter=thread_count
+description.ascii=异步线程数。
 parameter_class=input_control
 type_list=integer
 default_value=1
@@ -1927,6 +3603,7 @@ short.ascii=Laplace Filter.
 keywords=UserExtensions
 module=0 Foundation
 parameter=msg
+description.ascii=消息文本（日志内容或错误信息）。
 parameter_class=output_control
 type_list=string
 default_type=string
@@ -1937,24 +3614,28 @@ short.ascii=Read Modbus bits.
 keywords=modbusreadbits
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=address
+description.ascii=寄存器/线圈起始地址。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=num
+description.ascii=读取数量。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=bits
+description.ascii=读取到的位值数组（0/1）。
 parameter_class=output_control
 type_list=integer
 default_type=integer
@@ -1965,18 +3646,21 @@ short.ascii=Read single int register (32/64 bit) from multiple modbus registers.
 keywords=modbusreadregisterintbit_depth
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=address
+description.ascii=寄存器/线圈起始地址。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=bit_depth
+description.ascii=位宽（16/32/64）。
 parameter_class=input_control
 value_list=3264
 type_list=integer
@@ -1985,6 +3669,7 @@ default_type=integer
 sem_type=number
 multivalue=false
 parameter=value
+description.ascii=写入/读取的数值。
 parameter_class=output_control
 type_list=integer
 default_type=integer
@@ -1995,24 +3680,28 @@ short.ascii=Write single int register (32/64 bit) as multiple modbus registers.
 keywords=modbuswriteregisterintbit_depth
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=address
+description.ascii=寄存器/线圈起始地址。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=value
+description.ascii=写入/读取的数值。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=bit_depth
+description.ascii=位宽（16/32/64）。
 parameter_class=input_control
 value_list=3264
 type_list=integer
@@ -2025,24 +3714,28 @@ short.ascii=Read single float register (2 modbus registers) with byte-order enco
 keywords=modbusreadregisterfloatencodingType
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=address
+description.ascii=寄存器/线圈起始地址。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=encodingType
+description.ascii=浮点编码字节序（如 'abcd'/'dcba'/'badc'/'cdab'）。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=value
+description.ascii=写入/读取的数值。
 parameter_class=output_control
 type_list=real
 default_type=real
@@ -2053,24 +3746,28 @@ short.ascii=Write single float register (2 modbus registers) with byte-order enc
 keywords=modbuswriteregisterfloatencodingType
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=address
+description.ascii=寄存器/线圈起始地址。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=value
+description.ascii=写入/读取的数值。
 parameter_class=input_control
 type_list=real
 default_type=real
 sem_type=real
 multivalue=false
 parameter=encodingType
+description.ascii=浮点编码字节序（如 'abcd'/'dcba'/'badc'/'cdab'）。
 parameter_class=input_control
 type_list=string
 default_type=string
@@ -2081,24 +3778,28 @@ short.ascii=Read Modbus registers.
 keywords=modbusreadregisters
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=address
+description.ascii=寄存器/线圈起始地址。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=num
+description.ascii=读取数量。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=registers
+description.ascii=读取到的寄存器值数组。
 parameter_class=output_control
 type_list=integer
 default_type=integer
@@ -2109,18 +3810,21 @@ short.ascii=Write Modbus multiple registers.
 keywords=modbuswriteregisters
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=address
+description.ascii=寄存器/线圈起始地址。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=registersvalues
+description.ascii=待写入的寄存器值元组。
 parameter_class=input_control
 type_list=integer
 default_type=integer
@@ -2131,18 +3835,21 @@ short.ascii=Write Modbus single register.
 keywords=modbuswriteregister
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=address
+description.ascii=寄存器/线圈起始地址。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=Bitvalues
+description.ascii=待写入的位值元组（0/1）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
@@ -2153,18 +3860,21 @@ short.ascii=Write Modbus multiple bits.
 keywords=modbuswritebits
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=address
+description.ascii=寄存器/线圈起始地址。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=Bitvalues
+description.ascii=待写入的位值元组（0/1）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
@@ -2175,18 +3885,21 @@ short.ascii=Write Modbus single bit.
 keywords=modbuswritebit
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=address
+description.ascii=寄存器/线圈起始地址。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=value
+description.ascii=写入/读取的数值。
 parameter_class=input_control
 type_list=integer
 default_type=integer
@@ -2197,24 +3910,28 @@ short.ascii=Read Modbus bits.
 keywords=modbusreadbits
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=address
+description.ascii=寄存器/线圈起始地址。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=num
+description.ascii=读取数量。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=bits
+description.ascii=读取到的位值数组（0/1）。
 parameter_class=output_control
 type_list=integer
 default_type=integer
@@ -2225,12 +3942,14 @@ short.ascii=Set Modbus slave ID.
 keywords=modbusslaveid
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=slave_id
+description.ascii=从站 ID。
 parameter_class=input_control
 type_list=integer
 default_type=integer
@@ -2241,6 +3960,7 @@ short.ascii=Close Modbus connection.
 keywords=modbusclose
 module=0 Foundation
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
@@ -2251,18 +3971,21 @@ short.ascii=Connect to Modbus TCP device.
 keywords=modbustcpethernet
 module=0 Foundation
 parameter=ip
+description.ascii=IP 地址。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=port
+description.ascii=端口号。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=output_control
 type_list=handle
 default_type=handle
@@ -2273,42 +3996,49 @@ short.ascii=Connect to Modbus RTU device.
 keywords=modbusrtuserial
 module=0 Foundation
 parameter=port
+description.ascii=串口号（如 'COM9'）。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=baud
+description.ascii=波特率。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=parity
+description.ascii=校验（N/E/O 等，ASCII 码）。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=data_bits
+description.ascii=数据位（5/6/7/8）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=stop_bits
+description.ascii=停止位（1/2）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=RS233orRS485
+description.ascii=RS232 或 RS485 标志。
 parameter_class=input_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=handle
+description.ascii=连接/日志器句柄（连接类算子的输出，其余算子的输入）。
 parameter_class=output_control
 type_list=handle
 default_type=handle
@@ -2319,10 +4049,12 @@ short.ascii=Laplace Filter.
 keywords=UserExtensions
 module=0 Foundation
 parameter=outimage
+description.ascii=输出图像（编码后的字符串图像）。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=msg
+description.ascii=消息文本（日志内容或错误信息）。
 parameter_class=output_control
 type_list=string
 default_type=string
@@ -2333,10 +4065,12 @@ short.ascii=Laplace Filter.
 keywords=UserExtensions
 module=0 Foundation
 parameter=outimage
+description.ascii=输出图像（编码后的字符串图像）。
 parameter_class=output_object
 sem_type=image
 multivalue=optional
 parameter=msg
+description.ascii=消息文本（日志内容或错误信息）。
 parameter_class=input_control
 type_list=string
 default_type=string
@@ -2347,18 +4081,21 @@ short.ascii=Laplace Filter.
 keywords=UserExtensions
 module=0 Foundation
 parameter=DbNumber
+description.ascii=数据库连接句柄（sqlite3_open 的输出）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=zFilename
+description.ascii=文件路径。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=isSave
+description.ascii=1=保存（库→文件），0=加载（文件→库）。
 parameter_class=input_control
 type_list=integer
 default_type=integer
@@ -2369,18 +4106,21 @@ short.ascii=Laplace Filter.
 keywords=UserExtensions
 module=0 Foundation
 parameter=DbNumber
+description.ascii=数据库连接句柄（sqlite3_open 的输出）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=sql
+description.ascii=SQL 语句。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=errmsg
+description.ascii=错误消息输出。
 parameter_class=output_control
 type_list=string
 default_type=string
@@ -2391,36 +4131,42 @@ short.ascii=Laplace Filter.
 keywords=UserExtensions
 module=0 Foundation
 parameter=DbNumber
+description.ascii=数据库连接句柄（sqlite3_open 的输出）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 parameter=sql
+description.ascii=SQL 语句。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=table_names
+description.ascii=结果表（按行展开的字符串元组）。
 parameter_class=output_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=X
+description.ascii=结果行数。
 parameter_class=output_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=Y
+description.ascii=结果列数。
 parameter_class=output_control
 type_list=integer
 default_type=integer
 sem_type=number
 multivalue=false
 parameter=errmsg
+description.ascii=错误消息输出。
 parameter_class=output_control
 type_list=string
 default_type=string
@@ -2431,6 +4177,7 @@ short.ascii=Laplace Filter.
 keywords=UserExtensions
 module=0 Foundation
 parameter=DbNumber
+description.ascii=数据库连接句柄（sqlite3_open 的输出）。
 parameter_class=input_control
 type_list=handle
 default_type=handle
@@ -2441,12 +4188,14 @@ short.ascii=Laplace Filter.
 keywords=UserExtensions
 module=0 Foundation
 parameter=filename
+description.ascii=数据库文件路径（':memory:' 为内存库）。
 parameter_class=input_control
 type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=DbNumber
+description.ascii=数据库连接句柄（sqlite3_open 的输出）。
 parameter_class=output_control
 type_list=handle
 default_type=handle

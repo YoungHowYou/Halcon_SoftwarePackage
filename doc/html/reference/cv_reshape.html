@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_reshape</span><span data-if="c" style="display:none;">cv_reshape</span><span data-if="cpp" style="display:none;">CvReshape</span><span data-if="dotnet" style="display:none;">CvReshape</span><span data-if="python" style="display:none;">cv_reshape</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_reshape</span><span data-if="c" style="display:none;">cv_reshape</span><span data-if="cpp" style="display:none;">CvReshape</span><span data-if="dotnet" style="display:none;">CvReshape</span><span data-if="python" style="display:none;">cv_reshape</span></code> — Reshape an image matrix (supports 8-bit, 16-bit and real single-channel images).</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_reshape</span><span data-if="c" style="display:none;">cv_reshape</span><span data-if="cpp" style="display:none;">CvReshape</span><span data-if="dotnet" style="display:none;">CvReshape</span><span data-if="python" style="display:none;">cv_reshape</span></code> — 改变图像尺寸（最近邻重采样），对应 cv::resize。输出宽为 Rows 参数（历史命名），高度按比例缩放。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1120,19 +1120,19 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="image" class="parname"><b><code><span data-if="hdevelop" style="display:inline">image</span><span data-if="c" style="display:none">image</span><span data-if="cpp" style="display:none">image</span><span data-if="dotnet" style="display:none">image</span><span data-if="python" style="display:none">image</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">单通道 byte / uint2 / real</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="imageOut" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageOut</span><span data-if="c" style="display:none">imageOut</span><span data-if="cpp" style="display:none">imageOut</span><span data-if="dotnet" style="display:none">imageOut</span><span data-if="python" style="display:none">image_out</span></code></b> (output_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">与输入同类型，新尺寸</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="rows" class="parname"><b><code><span data-if="hdevelop" style="display:inline">rows</span><span data-if="c" style="display:none">rows</span><span data-if="cpp" style="display:none">rows</span><span data-if="dotnet" style="display:none">rows</span><span data-if="python" style="display:none">rows</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">输出图像新高度；0 表示保持原高度</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0</p>

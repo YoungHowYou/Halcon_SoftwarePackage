@@ -1085,27 +1085,27 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_estimate_affine_2d</span><span data-if="c" style="display:none;">T_cv_estimate_affine_2d</span><span data-if="cpp" style="display:none;">CvEstimateAffine2d</span><span data-if="dotnet" style="display:none;">CvEstimateAffine2d</span><span data-if="python" style="display:none;">cv_estimate_affine_2d</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_estimate_affine_2d</span><span data-if="c" style="display:none;">T_cv_estimate_affine_2d</span><span data-if="cpp" style="display:none;">CvEstimateAffine2d</span><span data-if="dotnet" style="display:none;">CvEstimateAffine2d</span><span data-if="python" style="display:none;">cv_estimate_affine_2d</span></code> — Estimate full affine transformation (6 parameters) using OpenCV.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_estimate_affine_2d</span><span data-if="c" style="display:none;">T_cv_estimate_affine_2d</span><span data-if="cpp" style="display:none;">CvEstimateAffine2d</span><span data-if="dotnet" style="display:none;">CvEstimateAffine2d</span><span data-if="python" style="display:none;">cv_estimate_affine_2d</span></code> — 完整仿射变换估计（6 参数），对应 cv::estimateAffine2D。源/目标点集为等长实数元组（≥3 点）；MethodId（RANSAC=8 默认/LMEDS=4）、MaxIters/Confidence/RefineIters 可调；输出 6 元素矩阵 [R00,R10,T0,R01,R11,T1]，顺序同 HALCON hom_mat2d。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
-<code><b>cv_estimate_affine_2d</b>( :  : <a href="#methodId"><i>methodId</i></a>, <a href="#ransacThreshold"><i>ransacThreshold</i></a>, <a href="#srcRow"><i>srcRow</i></a>, <a href="#srcCol"><i>srcCol</i></a>, <a href="#dstRow"><i>dstRow</i></a>, <a href="#dstCol"><i>dstCol</i></a> : <a href="#homMat2D"><i>homMat2D</i></a>, <a href="#success"><i>success</i></a>, <a href="#inlierCount"><i>inlierCount</i></a>)</code></p>
+<code><b>cv_estimate_affine_2d</b>( :  : <a href="#methodId"><i>methodId</i></a>, <a href="#ransacThreshold"><i>ransacThreshold</i></a>, <a href="#srcRow"><i>srcRow</i></a>, <a href="#srcCol"><i>srcCol</i></a>, <a href="#dstRow"><i>dstRow</i></a>, <a href="#dstCol"><i>dstCol</i></a>, <a href="#maxIters"><i>maxIters</i></a>, <a href="#confidence"><i>confidence</i></a>, <a href="#refineIters"><i>refineIters</i></a> : <a href="#homMat2D"><i>homMat2D</i></a>, <a href="#success"><i>success</i></a>, <a href="#inlierCount"><i>inlierCount</i></a>)</code></p>
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>T_cv_estimate_affine_2d</b>(const Htuple <a href="#methodId"><i>methodId</i></a>, const Htuple <a href="#ransacThreshold"><i>ransacThreshold</i></a>, const Htuple <a href="#srcRow"><i>srcRow</i></a>, const Htuple <a href="#srcCol"><i>srcCol</i></a>, const Htuple <a href="#dstRow"><i>dstRow</i></a>, const Htuple <a href="#dstCol"><i>dstCol</i></a>, Htuple* <a href="#homMat2D"><i>homMat2D</i></a>, Htuple* <a href="#success"><i>success</i></a>, Htuple* <a href="#inlierCount"><i>inlierCount</i></a>)</code></p>
+<code>Herror <b>T_cv_estimate_affine_2d</b>(const Htuple <a href="#methodId"><i>methodId</i></a>, const Htuple <a href="#ransacThreshold"><i>ransacThreshold</i></a>, const Htuple <a href="#srcRow"><i>srcRow</i></a>, const Htuple <a href="#srcCol"><i>srcCol</i></a>, const Htuple <a href="#dstRow"><i>dstRow</i></a>, const Htuple <a href="#dstCol"><i>dstCol</i></a>, const Htuple <a href="#maxIters"><i>maxIters</i></a>, const Htuple <a href="#confidence"><i>confidence</i></a>, const Htuple <a href="#refineIters"><i>refineIters</i></a>, Htuple* <a href="#homMat2D"><i>homMat2D</i></a>, Htuple* <a href="#success"><i>success</i></a>, Htuple* <a href="#inlierCount"><i>inlierCount</i></a>)</code></p>
 </div>
 <div data-if="cpp" style="display:none;">
 <p>
-<code>void <b>CvEstimateAffine2d</b>(const HTuple&amp; <a href="#methodId"><i>methodId</i></a>, const HTuple&amp; <a href="#ransacThreshold"><i>ransacThreshold</i></a>, const HTuple&amp; <a href="#srcRow"><i>srcRow</i></a>, const HTuple&amp; <a href="#srcCol"><i>srcCol</i></a>, const HTuple&amp; <a href="#dstRow"><i>dstRow</i></a>, const HTuple&amp; <a href="#dstCol"><i>dstCol</i></a>, HTuple* <a href="#homMat2D"><i>homMat2D</i></a>, HTuple* <a href="#success"><i>success</i></a>, HTuple* <a href="#inlierCount"><i>inlierCount</i></a>)</code></p>
+<code>void <b>CvEstimateAffine2d</b>(const HTuple&amp; <a href="#methodId"><i>methodId</i></a>, const HTuple&amp; <a href="#ransacThreshold"><i>ransacThreshold</i></a>, const HTuple&amp; <a href="#srcRow"><i>srcRow</i></a>, const HTuple&amp; <a href="#srcCol"><i>srcCol</i></a>, const HTuple&amp; <a href="#dstRow"><i>dstRow</i></a>, const HTuple&amp; <a href="#dstCol"><i>dstCol</i></a>, const HTuple&amp; <a href="#maxIters"><i>maxIters</i></a>, const HTuple&amp; <a href="#confidence"><i>confidence</i></a>, const HTuple&amp; <a href="#refineIters"><i>refineIters</i></a>, HTuple* <a href="#homMat2D"><i>homMat2D</i></a>, HTuple* <a href="#success"><i>success</i></a>, HTuple* <a href="#inlierCount"><i>inlierCount</i></a>)</code></p>
 </div>
 <div data-if="dotnet" style="display:none;">
 <p>
-<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvEstimateAffine2d</b>(<a href="HTuple.html">HTuple</a> <a href="#methodId"><i>methodId</i></a>, <a href="HTuple.html">HTuple</a> <a href="#ransacThreshold"><i>ransacThreshold</i></a>, <a href="HTuple.html">HTuple</a> <a href="#srcRow"><i>srcRow</i></a>, <a href="HTuple.html">HTuple</a> <a href="#srcCol"><i>srcCol</i></a>, <a href="HTuple.html">HTuple</a> <a href="#dstRow"><i>dstRow</i></a>, <a href="HTuple.html">HTuple</a> <a href="#dstCol"><i>dstCol</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#homMat2D"><i>homMat2D</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#success"><i>success</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#inlierCount"><i>inlierCount</i></a>)</code></p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvEstimateAffine2d</b>(<a href="HTuple.html">HTuple</a> <a href="#methodId"><i>methodId</i></a>, <a href="HTuple.html">HTuple</a> <a href="#ransacThreshold"><i>ransacThreshold</i></a>, <a href="HTuple.html">HTuple</a> <a href="#srcRow"><i>srcRow</i></a>, <a href="HTuple.html">HTuple</a> <a href="#srcCol"><i>srcCol</i></a>, <a href="HTuple.html">HTuple</a> <a href="#dstRow"><i>dstRow</i></a>, <a href="HTuple.html">HTuple</a> <a href="#dstCol"><i>dstCol</i></a>, <a href="HTuple.html">HTuple</a> <a href="#maxIters"><i>maxIters</i></a>, <a href="HTuple.html">HTuple</a> <a href="#confidence"><i>confidence</i></a>, <a href="HTuple.html">HTuple</a> <a href="#refineIters"><i>refineIters</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#homMat2D"><i>homMat2D</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#success"><i>success</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#inlierCount"><i>inlierCount</i></a>)</code></p>
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>cv_estimate_affine_2d</b>(<a href="#methodId"><i>method_id</i></a>: int, <a href="#ransacThreshold"><i>ransac_threshold</i></a>: float, <a href="#srcRow"><i>src_row</i></a>: Sequence[float], <a href="#srcCol"><i>src_col</i></a>: Sequence[float], <a href="#dstRow"><i>dst_row</i></a>: Sequence[float], <a href="#dstCol"><i>dst_col</i></a>: Sequence[float]) -&gt; Tuple[Sequence[float], int, int]</code></p>
+<code>def <b>cv_estimate_affine_2d</b>(<a href="#methodId"><i>method_id</i></a>: int, <a href="#ransacThreshold"><i>ransac_threshold</i></a>: float, <a href="#srcRow"><i>src_row</i></a>: Sequence[float], <a href="#srcCol"><i>src_col</i></a>: Sequence[float], <a href="#dstRow"><i>dst_row</i></a>: Sequence[float], <a href="#dstCol"><i>dst_col</i></a>: Sequence[float], <a href="#maxIters"><i>max_iters</i></a>: int, <a href="#confidence"><i>confidence</i></a>: float, <a href="#refineIters"><i>refine_iters</i></a>: int) -&gt; Tuple[Sequence[float], int, int]</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1118,7 +1118,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="methodId" class="parname"><b><code><span data-if="hdevelop" style="display:inline">methodId</span><span data-if="c" style="display:none">methodId</span><span data-if="cpp" style="display:none">methodId</span><span data-if="dotnet" style="display:none">methodId</span><span data-if="python" style="display:none">method_id</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">RANSAC=8（默认）/ LMEDS=4</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>8</p>
@@ -1127,7 +1127,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="ransacThreshold" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ransacThreshold</span><span data-if="c" style="display:none">ransacThreshold</span><span data-if="cpp" style="display:none">ransacThreshold</span><span data-if="dotnet" style="display:none">ransacThreshold</span><span data-if="python" style="display:none">ransac_threshold</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">重投影阈值，默认 3.0</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>3.0</p>
@@ -1136,43 +1136,70 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="srcRow" class="parname"><b><code><span data-if="hdevelop" style="display:inline">srcRow</span><span data-if="c" style="display:none">srcRow</span><span data-if="cpp" style="display:none">srcRow</span><span data-if="dotnet" style="display:none">srcRow</span><span data-if="python" style="display:none">src_row</span></code></b> (input_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">源点行 / 列坐标</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="srcCol" class="parname"><b><code><span data-if="hdevelop" style="display:inline">srcCol</span><span data-if="c" style="display:none">srcCol</span><span data-if="cpp" style="display:none">srcCol</span><span data-if="dotnet" style="display:none">srcCol</span><span data-if="python" style="display:none">src_col</span></code></b> (input_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">源点行 / 列坐标</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="dstRow" class="parname"><b><code><span data-if="hdevelop" style="display:inline">dstRow</span><span data-if="c" style="display:none">dstRow</span><span data-if="cpp" style="display:none">dstRow</span><span data-if="dotnet" style="display:none">dstRow</span><span data-if="python" style="display:none">dst_row</span></code></b> (input_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">目标点行 / 列坐标</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="dstCol" class="parname"><b><code><span data-if="hdevelop" style="display:inline">dstCol</span><span data-if="c" style="display:none">dstCol</span><span data-if="cpp" style="display:none">dstCol</span><span data-if="dotnet" style="display:none">dstCol</span><span data-if="python" style="display:none">dst_col</span></code></b> (input_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">目标点行 / 列坐标</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="maxIters" class="parname"><b><code><span data-if="hdevelop" style="display:inline">maxIters</span><span data-if="c" style="display:none">maxIters</span><span data-if="cpp" style="display:none">maxIters</span><span data-if="dotnet" style="display:none">maxIters</span><span data-if="python" style="display:none">max_iters</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
+</div>
+<p class="pardesc">RANSAC 最大迭代次数，默认 2000</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>2000</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="confidence" class="parname"><b><code><span data-if="hdevelop" style="display:inline">confidence</span><span data-if="c" style="display:none">confidence</span><span data-if="cpp" style="display:none">confidence</span><span data-if="dotnet" style="display:none">confidence</span><span data-if="python" style="display:none">confidence</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
+</div>
+<p class="pardesc">置信度，默认 0.99</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>0.99</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="refineIters" class="parname"><b><code><span data-if="hdevelop" style="display:inline">refineIters</span><span data-if="c" style="display:none">refineIters</span><span data-if="cpp" style="display:none">refineIters</span><span data-if="dotnet" style="display:none">refineIters</span><span data-if="python" style="display:none">refine_iters</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
+</div>
+<p class="pardesc">最小二乘精炼迭代次数，默认 10</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>10</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="homMat2D" class="parname"><b><code><span data-if="hdevelop" style="display:inline">homMat2D</span><span data-if="c" style="display:none">homMat2D</span><span data-if="cpp" style="display:none">homMat2D</span><span data-if="dotnet" style="display:none">homMat2D</span><span data-if="python" style="display:none">hom_mat_2d</span></code></b> (output_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">6 元素仿射矩阵 [R00,R10,T0,R01,R11,T1]</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="success" class="parname"><b><code><span data-if="hdevelop" style="display:inline">success</span><span data-if="c" style="display:none">success</span><span data-if="cpp" style="display:none">success</span><span data-if="dotnet" style="display:none">success</span><span data-if="python" style="display:none">success</span></code></b> (output_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">1 = 成功，0 = 失败</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="inlierCount" class="parname"><b><code><span data-if="hdevelop" style="display:inline">inlierCount</span><span data-if="c" style="display:none">inlierCount</span><span data-if="cpp" style="display:none">inlierCount</span><span data-if="dotnet" style="display:none">inlierCount</span><span data-if="python" style="display:none">inlier_count</span></code></b> (output_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">内点数量</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

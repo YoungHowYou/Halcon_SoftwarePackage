@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include "Halcon_SoftwarePackage.h"
 #pragma region StringByImage
 
@@ -55,11 +55,9 @@ Herror HGetStringByImageOut(Hproc_handle proc_handle)
 	memcpy(&Len, insmallimage.pixel.b, 4);
 	char* msg;
 	HAllocTmp(proc_handle, &msg, Len + 1);
-	//memcpy(&msgS, insmallimage.pixel.b+4, Len);
-	//String msg = msgS;
 	strcpy(msg, (char*)insmallimage.pixel.b + 4);
 	HPutElem(proc_handle, 1, &msg, 1, STRING_PAR);
-	//HFreeTmp(proc_handle, &msg);
+	HFreeTmp(proc_handle, msg, Len + 1);
 
 	return H_MSG_TRUE;
 }
@@ -377,7 +375,6 @@ Herror Ccv_mat_mul(Hproc_handle proc_handle)
 {
     return HCcv_mat_mul(proc_handle);
 }
-
 Herror Ccv_median_blur(Hproc_handle proc_handle)
 {
     return HCcv_median_blur(proc_handle);
@@ -426,6 +423,11 @@ Herror Ccv_estimate_affine_2d(Hproc_handle proc_handle)
 Herror Ccv_threshold_triangle(Hproc_handle proc_handle)
 {
     return HCcv_threshold_triangle(proc_handle);
+}
+
+Herror Ccv_threshold(Hproc_handle proc_handle)
+{
+    return HCcv_threshold(proc_handle);
 }
 
 Herror Ccv_calc_hist(Hproc_handle proc_handle)
@@ -513,5 +515,232 @@ Herror Clinear_fit(Hproc_handle proc_handle)
 Herror Clinear_fit_2d(Hproc_handle proc_handle)
 {
     return HLinear_fit_2d(proc_handle);
+}
+#pragma endregion
+
+#pragma region cv_region
+Herror CHcv_union2(Hproc_handle proc_handle)
+{
+    return Hcv_union2(proc_handle);
+}
+
+Herror CHcv_intersection(Hproc_handle proc_handle)
+{
+    return Hcv_intersection(proc_handle);
+}
+
+Herror CHcv_erosion1(Hproc_handle proc_handle)
+{
+    return Hcv_erosion1(proc_handle);
+}
+
+Herror CHcv_connection(Hproc_handle proc_handle)
+{
+    return Hcv_connection(proc_handle);
+}
+
+Herror CHcv_select_shape(Hproc_handle proc_handle)
+{
+    return Hcv_select_shape(proc_handle);
+}
+
+Herror CHcv_union1(Hproc_handle proc_handle)
+{
+    return Hcv_union1(proc_handle);
+}
+
+Herror CHcv_difference(Hproc_handle proc_handle)
+{
+    return Hcv_difference(proc_handle);
+}
+
+Herror CHcv_complement(Hproc_handle proc_handle)
+{
+    return Hcv_complement(proc_handle);
+}
+
+Herror CHcv_symm_difference(Hproc_handle proc_handle)
+{
+    return Hcv_symm_difference(proc_handle);
+}
+
+Herror CHcv_dilation1(Hproc_handle proc_handle)
+{
+    return Hcv_dilation1(proc_handle);
+}
+
+Herror CHcv_opening(Hproc_handle proc_handle)
+{
+    return Hcv_opening(proc_handle);
+}
+
+Herror CHcv_closing(Hproc_handle proc_handle)
+{
+    return Hcv_closing(proc_handle);
+}
+
+Herror CHcv_fill_up(Hproc_handle proc_handle)
+{
+    return Hcv_fill_up(proc_handle);
+}
+
+Herror CHcv_gen_circle(Hproc_handle proc_handle)
+{
+    return Hcv_gen_circle(proc_handle);
+}
+
+Herror CHcv_gen_rectangle1(Hproc_handle proc_handle)
+{
+    return Hcv_gen_rectangle1(proc_handle);
+}
+
+Herror CHcv_area_center(Hproc_handle proc_handle)
+{
+    return Hcv_area_center(proc_handle);
+}
+
+Herror CHcv_smallest_rectangle1(Hproc_handle proc_handle)
+{
+    return Hcv_smallest_rectangle1(proc_handle);
+}
+
+Herror CHcv_smallest_rectangle2(Hproc_handle proc_handle)
+{
+    return Hcv_smallest_rectangle2(proc_handle);
+}
+
+Herror CHcv_smallest_circle(Hproc_handle proc_handle)
+{
+    return Hcv_smallest_circle(proc_handle);
+}
+
+Herror CHcv_elliptic_axis(Hproc_handle proc_handle)
+{
+    return Hcv_elliptic_axis(proc_handle);
+}
+
+Herror CHcv_contlength(Hproc_handle proc_handle)
+{
+    return Hcv_contlength(proc_handle);
+}
+
+Herror CHcv_circularity(Hproc_handle proc_handle)
+{
+    return Hcv_circularity(proc_handle);
+}
+
+Herror CHcv_compactness(Hproc_handle proc_handle)
+{
+    return Hcv_compactness(proc_handle);
+}
+
+Herror CHcv_convexity(Hproc_handle proc_handle)
+{
+    return Hcv_convexity(proc_handle);
+}
+
+Herror CHcv_rectangularity(Hproc_handle proc_handle)
+{
+    return Hcv_rectangularity(proc_handle);
+}
+
+Herror CHcv_anisometry(Hproc_handle proc_handle)
+{
+    return Hcv_anisometry(proc_handle);
+}
+
+Herror CHcv_bulkiness(Hproc_handle proc_handle)
+{
+    return Hcv_bulkiness(proc_handle);
+}
+
+Herror CHcv_structure_factor(Hproc_handle proc_handle)
+{
+    return Hcv_structure_factor(proc_handle);
+}
+
+Herror CHcv_shape_trans(Hproc_handle proc_handle)
+{
+    return Hcv_shape_trans(proc_handle);
+}
+
+Herror CHcv_region_to_bin(Hproc_handle proc_handle)
+{
+    return Hcv_region_to_bin(proc_handle);
+}
+
+Herror CHcv_bin_to_region(Hproc_handle proc_handle)
+{
+    return Hcv_bin_to_region(proc_handle);
+}
+
+Herror CHcv_erosion_circle(Hproc_handle proc_handle)
+{
+    return Hcv_erosion_circle(proc_handle);
+}
+
+Herror CHcv_dilation_circle(Hproc_handle proc_handle)
+{
+    return Hcv_dilation_circle(proc_handle);
+}
+
+Herror CHcv_erosion_rectangle1(Hproc_handle proc_handle)
+{
+    return Hcv_erosion_rectangle1(proc_handle);
+}
+
+Herror CHcv_dilation_rectangle1(Hproc_handle proc_handle)
+{
+    return Hcv_dilation_rectangle1(proc_handle);
+}
+
+Herror Ccv_morphology_ex(Hproc_handle proc_handle)
+{
+    return HCcv_morphology_ex(proc_handle);
+}
+
+Herror Ccv_gray_erosion_rect(Hproc_handle proc_handle)
+{
+    return HCcv_gray_erosion_rect(proc_handle);
+}
+
+Herror Ccv_gray_dilation_rect(Hproc_handle proc_handle)
+{
+    return HCcv_gray_dilation_rect(proc_handle);
+}
+
+Herror Ccv_gray_opening_rect(Hproc_handle proc_handle)
+{
+    return HCcv_gray_opening_rect(proc_handle);
+}
+
+Herror Ccv_gray_closing_rect(Hproc_handle proc_handle)
+{
+    return HCcv_gray_closing_rect(proc_handle);
+}
+
+Herror Ccv_gray_erosion_circle(Hproc_handle proc_handle)
+{
+    return HCcv_gray_erosion_circle(proc_handle);
+}
+
+Herror Ccv_gray_dilation_circle(Hproc_handle proc_handle)
+{
+    return HCcv_gray_dilation_circle(proc_handle);
+}
+
+Herror Ccv_gray_opening_circle(Hproc_handle proc_handle)
+{
+    return HCcv_gray_opening_circle(proc_handle);
+}
+
+Herror Ccv_gray_closing_circle(Hproc_handle proc_handle)
+{
+    return HCcv_gray_closing_circle(proc_handle);
+}
+
+Herror CHcv_ransac_fit(Hproc_handle proc_handle)
+{
+    return Hcv_ransac_fit(proc_handle);
 }
 #pragma endregion

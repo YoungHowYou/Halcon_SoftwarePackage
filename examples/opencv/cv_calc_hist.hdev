@@ -7,16 +7,24 @@
 <c>* cv_calc_hist — 灰度直方图（OpenCV calcHist）</c>
 <c>*   支持 8 位 / 16 位 / 浮点单通道；输出 1×HistSize 的 real 直方图</c>
 <c>* =============================================================</c>
-<c>* 生成 0..255 的水平灰度渐变图（256×256）</c>
-<c>* 每一列灰度值 = 列号，因此每个灰度值恰好出现 256 次</c>
-<l>gen_image_gray_ramp (Image, 'x', 0, 0, 0, 0, 256, 256)</l>
+<l>read_image (Image, 'printer_chip/printer_chip_01')</l>
+<l>get_image_size (Image, W, H)</l>
 <c>* 计算 256 桶直方图，范围为 [0, 256)</c>
 <l>cv_calc_hist (Image, Histogram, 256, 0, 256)</l>
 <l>get_image_size (Histogram, HistWidth, HistHeight)</l>
 <c>* 期望: HistWidth = 256, HistHeight = 1</c>
-<c>* 读取第 100 号桶的计数</c>
-<l>get_grayval (Histogram, 0, 100, BinValue)</l>
-<c>* 期望: BinValue = 256（灰度值 100 在图中出现 256 次）</c>
+<l>if (HistWidth != 256 or HistHeight != 1)</l>
+<l>  throw ('cv_calc_hist: histogram size wrong')</l>
+<l>endif</l>
+<c>* 所有桶计数之和应等于像素总数</c>
+<l>Total := 0</l>
+<l>for i := 0 to 255 by 1</l>
+<l>  get_grayval (Histogram, 0, i, BinValue)</l>
+<l>  Total := Total + BinValue</l>
+<l>endfor</l>
+<l>if (Total != W * H)</l>
+<l>  throw ('cv_calc_hist: bin sum != pixel count: ' + Total)</l>
+<l>endif</l>
 </body>
 <docu id="main">
 <parameters/>

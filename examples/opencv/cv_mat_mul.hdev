@@ -5,9 +5,8 @@
 <body>
 <c>* =============================================================</c>
 <c>* cv_mat_mul — 两个 16 位单通道图像做矩阵乘法</c>
-<c>*   C = A * B   其中 A: m×k, B: k×n → C: m×n</c>
-<c>*   要求 A 的列数 == B 的行数，否则返回错误码 30002</c>
-<c>*   输入必须是 16 位单通道(uint2)，否则返回错误码 30001</c>
+<c>*   C = alpha*A*B (+ beta)   其中 A: m×k, B: k×n → C: m×n</c>
+<c>*   Flags: 'none'/'transpose_a'/'transpose_b'/'transpose_c'（或 0/1/2/4）</c>
 <c>* =============================================================</c>
 <c>* 创建矩阵 A（2 行 × 3 列，16 位单通道）</c>
 <c>* A = [1 2 3</c>
@@ -33,13 +32,15 @@
 <c>* 矩阵乘法：C = A * B  (结果 2 行 × 2 列)</c>
 <c>* C = [ 58  64</c>
 <c>*      139 154]</c>
-<l>cv_mat_mul (ImageA, ImageB, ImageC)</l>
+<l>cv_mat_mul (ImageA, ImageB, ImageC, 1.0, 0.0, 'none')</l>
 <c>* 读取结果核对</c>
 <l>get_grayval (ImageC, 0, 0, C00)</l>
 <l>get_grayval (ImageC, 0, 1, C01)</l>
 <l>get_grayval (ImageC, 1, 0, C10)</l>
 <l>get_grayval (ImageC, 1, 1, C11)</l>
-<c>* 期望: C00=58, C01=64, C10=139, C11=154</c>
+<l>if (C00 != 58 or C01 != 64 or C10 != 139 or C11 != 154)</l>
+<l>  throw ('cv_mat_mul wrong: ' + C00 + ',' + C01 + ',' + C10 + ',' + C11)</l>
+<l>endif</l>
 </body>
 <docu id="main">
 <parameters/>

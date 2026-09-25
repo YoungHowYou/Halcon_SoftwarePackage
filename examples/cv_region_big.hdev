@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>* ============================================================</l>
+<l>* 大 region 实测：printer_chip_01 全局阈值 region</l>
+<l>* 集合代数/补集/fill_up/互转：与 HALCON 原生必须精确一致（对称差=0）</l>
+<l>* 形态学：面积容差 1%；特征：面积精确、其余小容差</l>
+<l>* ============================================================</l>
+<l>read_image (Image, 'printer_chip/printer_chip_01')</l>
+<l>threshold (Image, Regions, 66, 255)</l>
+<l>area_center (Regions, AreaR, RowR, ColR)</l>
+<l>if (AreaR &lt; 10000)</l>
+<l>  throw ('region too small for big test: ' + AreaR)</l>
+<l>endif</l>
+<l>gen_rectangle1 (Clip, 50, 50, 450, 450)</l>
+<l>gen_circle (SE, 0, 0, 3.5)</l>
+<c></c>
+<l>* ---------- 1. 集合代数（精确） ----------</l>
+<l>union2 (Regions, Clip, U_H)</l>
+<l>cv_union2 (Regions, Clip, U_C)</l>
+<l>symm_difference (U_H, U_C, D1)</l>
+<l>area_center (D1, A1, R1, C1)</l>
+<l>if (A1 != 0)</l>
+<l>  throw ('cv_union2 mismatch, symm diff area=' + A1)</l>
+<l>endif</l>
+<c></c>
+<l>intersection (Regions, Clip, I_H)</l>
+<l>cv_intersection (Regions, Clip, I_C)</l>
+<l>symm_difference (I_H, I_C, D2)</l>
+<l>area_center (D2, A2, R2, C2)</l>
+<l>if (A2 != 0)</l>
+<l>  throw ('cv_intersection mismatch, symm diff area=' + A2)</l>
+<l>endif</l>
+<c></c>
+<l>difference (Regions, Clip, F_H)</l>
+<l>cv_difference (Regions, Clip, F_C)</l>
+<l>symm_difference (F_H, F_C, D3)</l>
+<l>area_center (D3, A3, R3, C3)</l>
+<l>if (A3 != 0)</l>
+<l>  throw ('cv_difference mismatch, symm diff area=' + A3)</l>
+<l>endif</l>
+<c></c>
+<l>symm_difference (Regions, Clip, S_H)</l>
+<l>cv_symm_difference (Regions, Clip, S_C)</l>
+<l>symm_difference (S_H, S_C, D4)</l>
+<l>area_center (D4, A4, R4, C4)</l>
+<l>if (A4 != 0)</l>
+<l>  throw ('cv_symm_difference mismatch, symm diff area=' + A4)</l>
+<l>endif</l>
+<c></c>
+<l>* union1：把 connection 结果再并回来，应等于原 region</l>
+<l>connection (Regions, ConnH)</l>
+<l>cv_connection (Regions, ConnC)</l>
+<l>count_obj (ConnH, NH)</l>
+<l>count_obj (ConnC, NC)</l>
+<l>if (NH != NC)</l>
+<l>  throw ('cv_connection count mismatch: ' + NC + ' vs ' + NH)</l>
+<l>endif</l>
+<l>union1 (ConnH, U1_H)</l>
+<l>cv_union1 (ConnC, U1_C)</l>
+<l>symm_difference (U1_H, U1_C, D5)</l>
+<l>area_center (D5, A5, R5, C5)</l>
+<l>if (A5 != 0)</l>
+<l>  throw ('cv_union1 mismatch, symm diff area=' + A5)</l>
+<l>endif</l>
+<c></c>
+<l>* ---------- 2. 补集（精确：再求补后与原 region 对称差=0） ----------</l>
+<l>complement (Regions, CP_H)</l>
+<l>cv_complement (Regions, CP_C)</l>
+<l>complement (CP_H, RH2)</l>
+<l>cv_complement (CP_C, RC2)</l>
+<l>symm_difference (RH2, RC2, D6)</l>
+<l>area_center (D6, A6, R6, C6)</l>
+<l>if (A6 != 0)</l>
+<l>  throw ('cv_complement mismatch, symm diff area=' + A6)</l>
+<l>endif</l>
+<c></c>
+<l>* ---------- 3. fill_up（精确） ----------</l>
+<l>fill_up (Regions, FU_H)</l>
+<l>cv_fill_up (Regions, FU_C)</l>
+<l>symm_difference (FU_H, FU_C, D7)</l>
+<l>area_center (D7, A7, R7, C7)</l>
+<l>if (A7 != 0)</l>
+<l>  throw ('cv_fill_up mismatch, symm diff area=' + A7)</l>
+<l>endif</l>
+<c></c>
+<l>* ---------- 4. 形态学（面积容差 1%） ----------</l>
+<l>erosion1 (Regions, SE, E_H, 1)</l>
+<l>cv_erosion1 (Regions, SE, E_C, 1)</l>
+<l>area_center (E_H, AEH, REH, CEH)</l>
+<l>area_center (E_C, AEC, REC, CEC)</l>
+<l>if (AEH &gt; 0 and fabs(AEC - AEH) / AEH &gt; 0.01)</l>
+<l>  throw ('cv_erosion1 area off by &gt;1%: ' + AEC + ' vs ' + AEH)</l>
+<l>endif</l>
+<c></c>
+<l>dilation1 (Regions, SE, G_H, 1)</l>
+<l>cv_dilation1 (Regions, SE, G_C, 1)</l>
+<l>area_center (G_H, AGH, RGH, CGH)</l>
+<l>area_center (G_C, AGC, RGC, CGC)</l>
+<l>if (AGH &gt; 0 and fabs(AGC - AGH) / AGH &gt; 0.01)</l>
+<l>  throw ('cv_dilation1 area off by &gt;1%: ' + AGC + ' vs ' + AGH)</l>
+<l>endif</l>
+<c></c>
+<l>opening (Regions, SE, O_H)</l>
+<l>cv_opening (Regions, SE, O_C)</l>
+<l>area_center (O_H, AOH, ROH, COH)</l>
+<l>area_center (O_C, AOC, ROC, COC)</l>
+<l>if (AOH &gt; 0 and fabs(AOC - AOH) / AOH &gt; 0.01)</l>
+<l>  throw ('cv_opening area off by &gt;1%: ' + AOC + ' vs ' + AOH)</l>
+<l>endif</l>
+<c></c>
+<l>closing (Regions, SE, K_H)</l>
+<l>cv_closing (Regions, SE, K_C)</l>
+<l>area_center (K_H, AKH, RKH, CKH)</l>
+<l>area_center (K_C, AKC, RKC, CKC)</l>
+<l>if (AKH &gt; 0 and fabs(AKC - AKH) / AKH &gt; 0.01)</l>
+<l>  throw ('cv_closing area off by &gt;1%: ' + AKC + ' vs ' + AKH)</l>
+<l>endif</l>
+<c></c>
+<l>* ---------- 5. 特征（面积精确；其余小容差） ----------</l>
+<l>area_center (Regions, A8H, R8H, C8H)</l>
+<l>cv_area_center (Regions, A8C, R8C, C8C)</l>
+<l>if (A8H != A8C)</l>
+<l>  throw ('cv_area_center area mismatch: ' + A8C + ' vs ' + A8H)</l>
+<l>endif</l>
+<l>if (fabs(R8C - R8H) &gt; 1e-6 or fabs(C8C - C8H) &gt; 1e-6)</l>
+<l>  throw ('cv_area_center center mismatch')</l>
+<l>endif</l>
+<c></c>
+<l>smallest_rectangle1 (Regions, B1H, B2H, B3H, B4H)</l>
+<l>cv_smallest_rectangle1 (Regions, B1C, B2C, B3C, B4C)</l>
+<l>if (B1H != B1C or B2H != B2C or B3H != B3C or B4H != B4C)</l>
+<l>  throw ('cv_smallest_rectangle1 mismatch')</l>
+<l>endif</l>
+<c></c>
+<l>cv_contlength (Regions, CL)</l>
+<l>cv_convexity (Regions, CV)</l>
+<l>cv_circularity (Regions, CI)</l>
+<l>cv_rectangularity (Regions, RE)</l>
+<l>cv_smallest_rectangle2 (Regions, R2R, R2C, R2P, R2L1, R2L2)</l>
+<l>cv_smallest_circle (Regions, SCR, SCC, SRAD)</l>
+<l>cv_elliptic_axis (Regions, ERA, ERB, EPHI)</l>
+<l>cv_anisometry (Regions, EAN)</l>
+<l>cv_bulkiness (Regions, EBU)</l>
+<l>cv_structure_factor (Regions, ESF)</l>
+<c></c>
+<l>* ---------- 6. 形状变换 ----------</l>
+<l>cv_shape_trans (Regions, T1, 'rectangle1')</l>
+<l>cv_shape_trans (Regions, T2, 'rectangle2')</l>
+<l>cv_shape_trans (Regions, T3, 'ellipse')</l>
+<l>cv_shape_trans (Regions, T4, 'outer_circle')</l>
+<l>cv_shape_trans (Regions, T5, 'convex')</l>
+<l>area_center (T5, AT5, RT5, CT5)</l>
+<l>if (AT5 &lt; A8H)</l>
+<l>  throw ('cv_shape_trans convex smaller than input?')</l>
+<l>endif</l>
+<c></c>
+<l>* ---------- 7. select_shape ----------</l>
+<l>select_shape (ConnH, SelH, 'area', 'and', 500, 99999999)</l>
+<l>cv_select_shape (ConnC, SelC, 'area', 'and', 500, 99999999)</l>
+<l>count_obj (SelH, NSH)</l>
+<l>count_obj (SelC, NSC)</l>
+<l>if (NSH != NSC)</l>
+<l>  throw ('cv_select_shape count mismatch: ' + NSC + ' vs ' + NSH)</l>
+<l>endif</l>
+<c></c>
+<l>* ---------- 8. region 与图像互转（往返精确） ----------</l>
+<l>get_image_size (Image, IW, IH)</l>
+<l>cv_region_to_bin (Regions, BinImg, 255, 0, IW, IH)</l>
+<l>cv_bin_to_region (BinImg, RBack, 1)</l>
+<l>symm_difference (Regions, RBack, D9)</l>
+<l>area_center (D9, A9, R9, C9)</l>
+<l>if (A9 != 0)</l>
+<l>  throw ('region/bin roundtrip mismatch, symm diff area=' + A9)</l>
+<l>endif</l>
+<c></c>
+<l>* ---------- 9. 大 region 计时（各 20 次） ----------</l>
+<l>count_seconds (T0)</l>
+<l>for I := 1 to 20 by 1</l>
+<l>  union2 (Regions, Clip, TH1)</l>
+<l>endfor</l>
+<l>count_seconds (T1)</l>
+<l>union2_ms := (T1 - T0) * 1000</l>
+<l>count_seconds (T0)</l>
+<l>for I := 1 to 20 by 1</l>
+<l>  cv_union2 (Regions, Clip, TC1)</l>
+<l>endfor</l>
+<l>count_seconds (T1)</l>
+<l>cv_union2_ms := (T1 - T0) * 1000</l>
+<l>count_seconds (T0)</l>
+<l>for I := 1 to 20 by 1</l>
+<l>  connection (Regions, TH2)</l>
+<l>endfor</l>
+<l>count_seconds (T1)</l>
+<l>connection_ms := (T1 - T0) * 1000</l>
+<l>count_seconds (T0)</l>
+<l>for I := 1 to 20 by 1</l>
+<l>  cv_connection (Regions, TC2)</l>
+<l>endfor</l>
+<l>count_seconds (T1)</l>
+<l>cv_connection_ms := (T1 - T0) * 1000</l>
+<l>count_seconds (T0)</l>
+<l>for I := 1 to 20 by 1</l>
+<l>  erosion1 (Regions, SE, TH3, 1)</l>
+<l>endfor</l>
+<l>count_seconds (T1)</l>
+<l>erosion1_ms := (T1 - T0) * 1000</l>
+<l>count_seconds (T0)</l>
+<l>for I := 1 to 20 by 1</l>
+<l>  cv_erosion1 (Regions, SE, TC3, 1)</l>
+<l>endfor</l>
+<l>count_seconds (T1)</l>
+<l>cv_erosion1_ms := (T1 - T0) * 1000</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

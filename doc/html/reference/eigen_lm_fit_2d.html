@@ -1118,43 +1118,43 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="expressions" class="parname"><b><code><span data-if="hdevelop" style="display:inline">expressions</span><span data-if="c" style="display:none">expressions</span><span data-if="cpp" style="display:none">expressions</span><span data-if="dotnet" style="display:none">expressions</span><span data-if="python" style="display:none">expressions</span></code></b> (input_control)  </span><span>string-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[str]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc">One or more model expressions, e.g. one for dx and one for dy. All of them share ParamNames.</p>
+<p class="pardesc"></p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="paramNames" class="parname"><b><code><span data-if="hdevelop" style="display:inline">paramNames</span><span data-if="c" style="display:none">paramNames</span><span data-if="cpp" style="display:none">paramNames</span><span data-if="dotnet" style="display:none">paramNames</span><span data-if="python" style="display:none">param_names</span></code></b> (input_control)  </span><span>string-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[str]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc">Names of the shared parameters, e.g. k1,k2,k3,p1,p2. Must be unique and differ from XNames.</p>
+<p class="pardesc"></p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="initialValues" class="parname"><b><code><span data-if="hdevelop" style="display:inline">initialValues</span><span data-if="c" style="display:none">initialValues</span><span data-if="cpp" style="display:none">initialValues</span><span data-if="dotnet" style="display:none">initialValues</span><span data-if="python" style="display:none">initial_values</span></code></b> (input_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc">Initial parameter values. Length must equal the number of ParamNames.</p>
+<p class="pardesc"></p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="xNames" class="parname"><b><code><span data-if="hdevelop" style="display:inline">xNames</span><span data-if="c" style="display:none">xNames</span><span data-if="cpp" style="display:none">xNames</span><span data-if="dotnet" style="display:none">xNames</span><span data-if="python" style="display:none">xnames</span></code></b> (input_control)  </span><span>string-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[str]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc">One or more independent variable names, e.g. u,v. Precomputed terms such as r2=u^2+v^2 may be passed as extra variables.</p>
+<p class="pardesc"></p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="xData" class="parname"><b><code><span data-if="hdevelop" style="display:inline">xData</span><span data-if="c" style="display:none">xData</span><span data-if="cpp" style="display:none">xData</span><span data-if="dotnet" style="display:none">xData</span><span data-if="python" style="display:none">xdata</span></code></b> (input_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc">Independent variable samples, length = numPoints * numXNames (M values per point, row major).</p>
+<p class="pardesc"></p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="yData" class="parname"><b><code><span data-if="hdevelop" style="display:inline">yData</span><span data-if="c" style="display:none">yData</span><span data-if="cpp" style="display:none">yData</span><span data-if="dotnet" style="display:none">yData</span><span data-if="python" style="display:none">ydata</span></code></b> (input_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc">Observed values, length = numPoints * numExpressions (K values per point, row major).</p>
+<p class="pardesc"></p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="maxIter" class="parname"><b><code><span data-if="hdevelop" style="display:inline">maxIter</span><span data-if="c" style="display:none">maxIter</span><span data-if="cpp" style="display:none">maxIter</span><span data-if="dotnet" style="display:none">maxIter</span><span data-if="python" style="display:none">max_iter</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc">Maximum number of function evaluations (0 selects 400*(numParams+1)).</p>
+<p class="pardesc"></p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0</p>
@@ -1163,7 +1163,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="eps" class="parname"><b><code><span data-if="hdevelop" style="display:inline">eps</span><span data-if="c" style="display:none">eps</span><span data-if="cpp" style="display:none">eps</span><span data-if="dotnet" style="display:none">eps</span><span data-if="python" style="display:none">eps</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc">Step size for numerical differentiation (0 selects it automatically).</p>
+<p class="pardesc"></p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0.0</p>
@@ -1172,31 +1172,31 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="paramValues" class="parname"><b><code><span data-if="hdevelop" style="display:inline">paramValues</span><span data-if="c" style="display:none">paramValues</span><span data-if="cpp" style="display:none">paramValues</span><span data-if="dotnet" style="display:none">paramValues</span><span data-if="python" style="display:none">param_values</span></code></b> (output_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc">Fitted parameter values, ordered like ParamNames.</p>
+<p class="pardesc"></p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="rss" class="parname"><b><code><span data-if="hdevelop" style="display:inline">rss</span><span data-if="c" style="display:none">rss</span><span data-if="cpp" style="display:none">rss</span><span data-if="dotnet" style="display:none">rss</span><span data-if="python" style="display:none">rss</span></code></b> (output_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc">Residual sum of squares over all outputs (-1 if the expression could not be evaluated).</p>
+<p class="pardesc"></p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="iterations" class="parname"><b><code><span data-if="hdevelop" style="display:inline">iterations</span><span data-if="c" style="display:none">iterations</span><span data-if="cpp" style="display:none">iterations</span><span data-if="dotnet" style="display:none">iterations</span><span data-if="python" style="display:none">iterations</span></code></b> (output_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc">Number of iterations performed.</p>
+<p class="pardesc"></p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="status" class="parname"><b><code><span data-if="hdevelop" style="display:inline">status</span><span data-if="c" style="display:none">status</span><span data-if="cpp" style="display:none">status</span><span data-if="dotnet" style="display:none">status</span><span data-if="python" style="display:none">status</span></code></b> (output_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc">LevenbergMarquardt status code (1-4 converged, 5-8 finished without confirmation, 0 failed).</p>
+<p class="pardesc"></p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="statusMessage" class="parname"><b><code><span data-if="hdevelop" style="display:inline">statusMessage</span><span data-if="c" style="display:none">statusMessage</span><span data-if="cpp" style="display:none">statusMessage</span><span data-if="dotnet" style="display:none">statusMessage</span><span data-if="python" style="display:none">status_message</span></code></b> (output_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc">Status text of the result (contains expression error: ... on failure).</p>
+<p class="pardesc"></p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

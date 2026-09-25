@@ -31,7 +31,7 @@
 <l>set_grayval (TemplateImage, 2, 1, 255)</l>
 <l>set_grayval (TemplateImage, 2, 2, 255)</l>
 <c>* 模板匹配</c>
-<l>cv_match_template (Image, TemplateImage, Result)</l>
+<l>cv_match_template (Image, TemplateImage, Result, 'ccoeff_normed')</l>
 <l>get_image_size (Result, RW, RH)</l>
 <c>* 期望: RW = 18, RH = 18   (20-3+1)</c>
 <c>* 找最佳匹配位置（归一化互相关得分为 1 处）</c>

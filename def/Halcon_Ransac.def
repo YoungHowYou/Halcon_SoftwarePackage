@@ -1,0 +1,202 @@
+
+cv_ransac_fit<- CHcv_ransac_fit[::ModelExpression,ParamNames,InitialValues,XData,YData,XName,Threshold,MaxIter,OutlierRatio,ModelType,YName,MinSampleSize,Confidence,Seed:ParamValues,InlierMask,ResidualSum,Iterations,Status,StatusMessage,InlierRatio]
+short.german
+  RANSAC generische geometrische Anpassung (cv_region).;
+
+short.english
+  RANSAC generic geometric fitting (cv_region).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, RANSAC, Fitting, Muparser;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  ModelExpression:   input_control;
+  description.english: 模型表达式（muparser 语法）：显式 y=f(x) 或隐式 F(x,y)=0。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+  default_value:      "a*x+b";
+
+parameter
+  ParamNames:        input_control;
+  description.english: 参数名元组（与 InitialValues/ParamValues 一一对应）。;
+  default_type:       string;
+  multivalue:         true;
+  sem_type:           string;
+  type_list:          string;
+
+parameter
+  InitialValues:     input_control;
+  description.english: 参数初值元组（可为空，默认全 0）。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real,integer;
+
+parameter
+  XData:             input_control;
+  description.english: 自变量数据元组。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real,integer;
+
+parameter
+  YData:             input_control;
+  description.english: 因变量数据元组（与 XData 等长）。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real,integer;
+
+parameter
+  XName:             input_control;
+  description.english: 表达式中自变量名（默认 x）。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+  default_value:      "x";
+
+parameter
+  Threshold:         input_control;
+  description.english: 内点残差阈值（几何距离，像素）。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      1.0;
+
+parameter
+  MaxIter:           input_control;
+  description.english: RANSAC 最大迭代次数。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      1000;
+
+parameter
+  OutlierRatio:      input_control;
+  description.english: 预估外点比例 [0,1)。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      0.2;
+
+parameter
+  ModelType:         input_control;
+  description.english: 0=显式 y=f(x)，1=隐式 F(x,y)=0。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      0;
+  value_list:         0,1;
+
+parameter
+  YName:             input_control;
+  description.english: 表达式中因变量名（隐式模型必填）。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+  default_value:      "y";
+
+parameter
+  MinSampleSize:     input_control;
+  description.english: 每轮采样点数（0=自动取参数个数）。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      0;
+
+parameter
+  Confidence:        input_control;
+  description.english: 置信度（0,1），默认 0.99。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      0.99;
+
+parameter
+  Seed:              input_control;
+  description.english: 随机种子（0=非确定）。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      0;
+parameter
+  ParamValues:       output_control;
+  description.english: 拟合参数输出元组。;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real;
+
+parameter
+  InlierMask:        output_control;
+  description.english: 内点掩码（1=内点）。;
+  default_type:       integer;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  ResidualSum:       output_control;
+  description.english: 内点残差平方和。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real;
+
+parameter
+  Iterations:        output_control;
+  description.english: 迭代次数（≥1）。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  Status:            output_control;
+  description.english: 状态码（0=成功，负值见状态说明）。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+
+parameter
+  StatusMessage:     output_control;
+  description.english: 状态描述文本。;
+  default_type:       string;
+  multivalue:         false;
+  sem_type:           string;
+  type_list:          string;
+parameter
+  InlierRatio:       output_control;
+  description.english: 内点比例输出。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real;

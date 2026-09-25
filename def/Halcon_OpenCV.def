@@ -4,7 +4,7 @@ short.german
   Laplace Filter.;
   
 short.english
-  Laplace Filter.;
+  几何变换重映射，对应 cv::remap。输入图/输出图/MapX/MapY 以 dict 对象传入（uint2 输入，real 映射图）；每个像素按映射表取源坐标，支持桶形/枕形畸变校正等。;
 
 module
   foundation;
@@ -26,6 +26,7 @@ parallelization
 
 parameter
   hv_DictHandle:      input_control;
+  description.english: dict 句柄（输入图/输出图/MapX/MapY 以 dict 对象传入）。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -37,7 +38,7 @@ short.german
   Laplace Filter.;
   
 short.english
-  Laplace Filter.;
+  PNG 图像编码输出。;
 
 module
   foundation;
@@ -59,11 +60,13 @@ parallelization
 
 parameter
   inimage:           input_object;
+  description.english: byte「乱码图」;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   outimage:           output_object;
+  description.english: 还原后的图像（8/16 位，1/3 通道）;
   sem_type:           image;
   multivalue:         optional;
 
@@ -72,7 +75,7 @@ short.german
   Laplace Filter.;
   
 short.english
-  Laplace Filter.;
+  PNG 图像解码输入。;
 
 module
   foundation;
@@ -94,16 +97,19 @@ parallelization
 
 parameter
   inimage:           input_object;
+  description.english: 8/16 位，单/三通道;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   outimage:           output_object;
+  description.english: byte「乱码图」;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   acceleration:       input_control;
+  description.english: PNG 压缩级别;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -115,7 +121,7 @@ short.german
   Add ROI to big image.;
   
 short.english
-  Add ROI to big image.;
+  ROI 加法：大图指定矩形区域与同样大小的小图逐像素相加（A + B∩Roi），结果写回大图（原地修改）。仅支持 uint2；小图尺寸必须等于 ROI（ew×eh）。;
 
 module
   foundation;
@@ -137,16 +143,19 @@ parallelization
 
 parameter
   smallimage:         input_object;
+  description.english: 小图（uint2，尺寸必须等于 ROI 的 ew×eh）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   bigimage:           input_object;
+  description.english: 大图（uint2，结果原地写回）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   sy:                 input_control;
+  description.english: ROI 左上角行坐标。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -154,6 +163,7 @@ parameter
 
 parameter
   sx:                 input_control;
+  description.english: ROI 左上角列坐标。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -161,6 +171,7 @@ parameter
 
 parameter
   ew:                 input_control;
+  description.english: ROI 宽度（= 小图宽度）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -168,6 +179,7 @@ parameter
 
 parameter
   eh:                 input_control;
+  description.english: ROI 高度（= 小图高度）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -179,7 +191,7 @@ short.german
   Multiply ROI to big image.;
   
 short.english
-  Multiply ROI to big image.;
+  ROI 乘法：大图 ROI 与小图逐像素相乘，结果写回大图（原地修改）。仅支持 uint2。;
 
 module
   foundation;
@@ -201,16 +213,19 @@ parallelization
 
 parameter
   smallimage:         input_object;
+  description.english: 小图（uint2，尺寸必须等于 ROI 的 ew×eh）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   bigimage:           input_object;
+  description.english: 大图（uint2，结果原地写回）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   sy:                 input_control;
+  description.english: ROI 左上角行坐标。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -218,6 +233,7 @@ parameter
 
 parameter
   sx:                 input_control;
+  description.english: ROI 左上角列坐标。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -225,6 +241,7 @@ parameter
 
 parameter
   ew:                 input_control;
+  description.english: ROI 宽度（= 小图宽度）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -232,6 +249,7 @@ parameter
 
 parameter
   eh:                 input_control;
+  description.english: ROI 高度（= 小图高度）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -243,7 +261,7 @@ short.german
   Subtract ROI from big image (B - small).;
   
 short.english
-  Subtract ROI from big image (B - small).;
+  ROI 减法（B 系）：小图减大图 ROI（B − A∩Roi），结果写回大图。仅支持 uint2。;
 
 module
   foundation;
@@ -265,16 +283,19 @@ parallelization
 
 parameter
   smallimage:         input_object;
+  description.english: 小图（uint2，尺寸必须等于 ROI 的 ew×eh）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   bigimage:           input_object;
+  description.english: 大图（uint2，结果原地写回）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   sy:                 input_control;
+  description.english: ROI 左上角行坐标。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -282,6 +303,7 @@ parameter
 
 parameter
   sx:                 input_control;
+  description.english: ROI 左上角列坐标。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -289,6 +311,7 @@ parameter
 
 parameter
   ew:                 input_control;
+  description.english: ROI 宽度（= 小图宽度）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -296,6 +319,7 @@ parameter
 
 parameter
   eh:                 input_control;
+  description.english: ROI 高度（= 小图高度）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -307,7 +331,7 @@ short.german
   Divide ROI from big image (B / small).;
   
 short.english
-  Divide ROI from big image (B / small).;
+  ROI 除法（B 系）：小图除以大图 ROI（整除），结果写回大图。仅支持 uint2。;
 
 module
   foundation;
@@ -329,16 +353,19 @@ parallelization
 
 parameter
   smallimage:         input_object;
+  description.english: 小图（uint2，尺寸必须等于 ROI 的 ew×eh）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   bigimage:           input_object;
+  description.english: 大图（uint2，结果原地写回）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   sy:                 input_control;
+  description.english: ROI 左上角行坐标。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -346,6 +373,7 @@ parameter
 
 parameter
   sx:                 input_control;
+  description.english: ROI 左上角列坐标。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -353,6 +381,7 @@ parameter
 
 parameter
   ew:                 input_control;
+  description.english: ROI 宽度（= 小图宽度）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -360,6 +389,7 @@ parameter
 
 parameter
   eh:                 input_control;
+  description.english: ROI 高度（= 小图高度）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -371,7 +401,7 @@ short.german
   Divide big image by ROI (small / B).;
   
 short.english
-  Divide big image by ROI (small / B).;
+  ROI 除法（A 系）：大图 ROI 除以小图（整除），结果写回大图。仅支持 uint2。;
 
 module
   foundation;
@@ -393,16 +423,19 @@ parallelization
 
 parameter
   smallimage:         input_object;
+  description.english: 小图（uint2，尺寸必须等于 ROI 的 ew×eh）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   bigimage:           input_object;
+  description.english: 大图（uint2，结果原地写回）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   sy:                 input_control;
+  description.english: ROI 左上角行坐标。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -410,6 +443,7 @@ parameter
 
 parameter
   sx:                 input_control;
+  description.english: ROI 左上角列坐标。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -417,6 +451,7 @@ parameter
 
 parameter
   ew:                 input_control;
+  description.english: ROI 宽度（= 小图宽度）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -424,6 +459,7 @@ parameter
 
 parameter
   eh:                 input_control;
+  description.english: ROI 高度（= 小图高度）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -435,7 +471,7 @@ short.german
   Subtract big image from ROI (small - B).;
   
 short.english
-  Subtract big image from ROI (small - B).;
+  ROI 减法（A 系）：大图 ROI 减小图（(A∩Roi) − B），结果写回大图。仅支持 uint2。;
 
 module
   foundation;
@@ -457,16 +493,19 @@ parallelization
 
 parameter
   smallimage:         input_object;
+  description.english: 小图（uint2，尺寸必须等于 ROI 的 ew×eh）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   bigimage:           input_object;
+  description.english: 大图（uint2，结果原地写回）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   sy:                 input_control;
+  description.english: ROI 左上角行坐标。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -474,6 +513,7 @@ parameter
 
 parameter
   sx:                 input_control;
+  description.english: ROI 左上角列坐标。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -481,6 +521,7 @@ parameter
 
 parameter
   ew:                 input_control;
+  description.english: ROI 宽度（= 小图宽度）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -488,6 +529,7 @@ parameter
 
 parameter
   eh:                 input_control;
+  description.english: ROI 高度（= 小图高度）。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -499,7 +541,7 @@ short.german
   CLAHE image enhancement.;
   
 short.english
-  CLAHE image enhancement.;
+  对比度受限自适应直方图均衡，对应 cv::CLAHE。支持 byte/uint2 单通道；TileGridSize 为网格行列数，ClipLimit 为对比度限制阈值。;
 
 module
   foundation;
@@ -520,17 +562,20 @@ parallelization
   method:              none;
 
 parameter
-  inimage:            input_object;
+  inimage:           input_object;
+  description.english: 单通道 byte / uint2;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   outimage:           output_object;
+  description.english: 与输入同类型同尺寸;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   k_width:            input_control;
+  description.english: 分块宽度;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -538,6 +583,7 @@ parameter
 
 parameter
   k_height:           input_control;
+  description.english: 分块高度;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -545,6 +591,7 @@ parameter
 
 parameter
   clipLimit:          input_control;
+  description.english: 对比度裁剪阈值;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -555,7 +602,7 @@ short.german
   Write EXIF metadata to image file.;
   
 short.english
-  Write EXIF metadata to image file.;
+  给已有图像文件写入 EXIF 元数据（GPS 经纬度/海拔、光圈、快门、ISO、焦距、时间、厂商/型号），基于 exiv2。文件须先存在；字段以多值控制参数传入。;
 
 module
   foundation;
@@ -577,6 +624,7 @@ parallelization
 
 parameter
   image_path:         input_control;
+  description.english: 图像文件路径（须已存在）。;
   default_type:       string;
   multivalue:         false;
   sem_type:           filename;
@@ -584,6 +632,7 @@ parameter
 
 parameter
   latitude:           input_control;
+  description.english: 纬度;
   default_type:       real;
   multivalue:         false;
   sem_type:           number;
@@ -592,6 +641,7 @@ parameter
 
 parameter
   longitude:          input_control;
+  description.english: 经度;
   default_type:       real;
   multivalue:         false;
   sem_type:           number;
@@ -600,6 +650,7 @@ parameter
 
 parameter
   altitude:           input_control;
+  description.english: 海拔（米）;
   default_type:       real;
   multivalue:         false;
   sem_type:           number;
@@ -608,6 +659,7 @@ parameter
 
 parameter
   aperture:           input_control;
+  description.english: 光圈值;
   default_type:       real;
   multivalue:         false;
   sem_type:           number;
@@ -616,6 +668,7 @@ parameter
 
 parameter
   shutter_speed:      input_control;
+  description.english: 快门速度（秒）。;
   default_type:       real;
   multivalue:         false;
   sem_type:           number;
@@ -624,6 +677,7 @@ parameter
 
 parameter
   iso_number:         input_control;
+  description.english: ISO 感光度。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -632,6 +686,7 @@ parameter
 
 parameter
   focal_length:       input_control;
+  description.english: 焦距（mm）。;
   default_type:       real;
   multivalue:         false;
   sem_type:           number;
@@ -640,6 +695,7 @@ parameter
 
 parameter
   date_time:          input_control;
+  description.english: 拍摄时间（格式 YYYY:MM:DD HH:MM:SS）。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -648,6 +704,7 @@ parameter
 
 parameter
   camera_make:        input_control;
+  description.english: 相机厂商字符串。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -656,6 +713,7 @@ parameter
 
 parameter
   camera_model:       input_control;
+  description.english: 相机型号字符串。;
   default_type:       string;
   multivalue:         false;
   sem_type:           string;
@@ -667,7 +725,7 @@ short.german
   ORB feature detection and descriptor computation using OpenCV.;
 
 short.english
-  ORB feature detection and descriptor computation using OpenCV.;
+  ORB 特征检测与描述子计算，对应 cv::ORB。输入为 8 位单通道图像（以 dict 对象 InputImage 传入）；输出关键点坐标/数量与描述子（byte，32×N）写回同一 dict。检测参数经 dict 键全开放（NFeatures/ScaleFactor/NLevels/EdgeThreshold/FirstLevel/WTA_K/ScoreType/PatchSize/FastThreshold），未设键取 OpenCV 默认。;
 
 module
   foundation;
@@ -689,6 +747,7 @@ parallelization
 
 parameter
   DictHandle:         input_control;
+  description.english: dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -700,7 +759,7 @@ short.german
   AKAZE feature detection and descriptor computation using OpenCV.;
 
 short.english
-  AKAZE feature detection and descriptor computation using OpenCV.;
+  AKAZE 特征检测与描述子计算，对应 cv::AKAZE。输入 8 位单通道图像，输出关键点与描述子写回 dict。参数经 dict 键全开放（DescriptorType/Threshold/NOctaves/NOctaveLayers/Diffusivity 等），未设取默认。;
 
 module
   foundation;
@@ -722,6 +781,7 @@ parallelization
 
 parameter
   DictHandle:         input_control;
+  description.english: dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -733,7 +793,7 @@ short.german
   SIFT feature detection and descriptor computation using OpenCV.;
 
 short.english
-  SIFT feature detection and descriptor computation using OpenCV.;
+  SIFT 特征检测与描述子计算，对应 cv::SIFT。输入 8 位单通道图像，输出 128 维浮点描述子。参数经 dict 键全开放（NFeatures/NOctaveLayers/ContrastThreshold/EdgeThreshold/Sigma）。;
 
 module
   foundation;
@@ -755,6 +815,7 @@ parallelization
 
 parameter
   DictHandle:         input_control;
+  description.english: dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -766,7 +827,7 @@ short.german
   BF KNN feature matching with Lowe's ratio test using OpenCV.;
 
 short.english
-  BF KNN feature matching with Lowe's ratio test using OpenCV.;
+  BF 暴力匹配，对应 cv::BFMatcher。参考/目标描述子以 dict 图像传入，输出匹配索引与良好匹配数写回 dict。CrossCheck=1 时走 bf.match()（互为最佳匹配），=0 时走 knnMatch+Lowe ratio test（K≥2）。NormType 默认 NORM_HAMMING，适配 ORB/AKAZE 二进制描述子。;
 
 module
   foundation;
@@ -788,6 +849,7 @@ parallelization
 
 parameter
   DictHandle:         input_control;
+  description.english: dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -799,7 +861,7 @@ short.german
   Estimate partial affine transformation using RANSAC (OpenCV).;
 
 short.english
-  Estimate partial affine transformation using RANSAC (OpenCV).;
+  部分仿射变换估计（4 自由度：平移+旋转+各向同性缩放），对应 cv::estimateAffinePartial2D。源/目标点集经 dict 元组传入（各 ≥3 点），结果 HomMat2D（2×3 展开）/Success/InlierCount 及平移/角度/缩放写回 dict；Method/MaxIters/Confidence/RefineIters 经 dict 键可调。;
 
 module
   foundation;
@@ -821,6 +883,7 @@ parallelization
 
 parameter
   DictHandle:         input_control;
+  description.english: dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -831,7 +894,7 @@ short.german
   Estimate rigid transformation (rotation + translation) using RANSAC (OpenCV).;
 
 short.english
-  Estimate rigid transformation (rotation + translation) using RANSAC (OpenCV).;
+  刚体变换估计（平移+旋转，无缩放），自实现 RANSAC：每轮采样 2 点对闭式解 cos/sin+平移，统计内点取最优。点集经 dict 传入，MaxIter/Seed 可调；结果 HomMat2D/角度/平移写回 dict，Scale 恒为 1.0。;
 
 module
   foundation;
@@ -853,6 +916,7 @@ parallelization
 
 parameter
   DictHandle:         input_control;
+  description.english: dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。;
   default_type:       handle;
   multivalue:         false;
   sem_type:           handle;
@@ -863,7 +927,7 @@ short.german
   Save image as PNG file.;
   
 short.english
-  Save image as PNG file (supports 8/16-bit, 1/3-channel).;
+  写图像文件，对应 cv::imwrite。支持 byte/uint2 单通道按扩展名编码（png/jpg/bmp 等）；写失败返回错误码。;
 
 module
   foundation;
@@ -885,11 +949,13 @@ parallelization
 
 parameter
   inimage:           input_object;
+  description.english: 8/16 位，单/三通道;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   filename:          input_control;
+  description.english: 输出文件路径;
   default_type:      string;
   multivalue:        false;
   sem_type:          string;
@@ -897,18 +963,20 @@ parameter
 
 parameter
   compression:       input_control;
+  description.english: PNG 压缩级别，默认 3;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
   type_list:         integer;
   default_value:     3;
 
-cv_mat_mul<- Ccv_mat_mul[imageA,imageB:outimage::]
+cv_mat_mul<- Ccv_mat_mul[imageA,imageB:outimage:alpha,beta,flags:]
+
 short.german
   Matrix multiplication of two 16-bit single-channel images.;
 
 short.english
-  Matrix multiplication of two 16-bit single-channel images (C = A * B).;
+  两个 16 位单通道图像做矩阵乘法，对应 cv::gemm：C = alpha*A*B (+ beta)。A 为 m×k、B 为 k×n，结果 C 为 m×n；内部转 double 计算后饱和截断回 16 位。Flags 支持字符串枚举（none/transpose_a/transpose_b/transpose_c）或整数 0/1/2/4。;
 
 module
   foundation;
@@ -930,25 +998,56 @@ parallelization
 
 parameter
   imageA:            input_object;
+  description.english: 16 位单通道（m×k）;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageB:            input_object;
+  description.english: 16 位单通道（k×n）;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   outimage:           output_object;
+  description.english: 16 位单通道（m×n）;
   sem_type:           image;
   multivalue:         optional;
+
+parameter
+  alpha:             input_control;
+  description.english: 乘积系数，默认 1.0;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real,integer;
+  default_value:     1.0;
+
+parameter
+  beta:              input_control;
+  description.english: 叠加项系数，默认 0.0;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real,integer;
+  default_value:     0.0;
+
+parameter
+  flags:             input_control;
+  description.english: 转置标志（'none'/'transpose_a'/'transpose_b'/'transpose_c' 或 0/1/2/4）;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         string,integer;
+  default_value:     0;
+  value_list:        0,1,2,4;
 
 cv_median_blur<- Ccv_median_blur[image:imageOut:ksize:]
 short.german
   Median blur filter for images using OpenCV.;
 
 short.english
-  Median blur filter (supports 8-bit, 16-bit and real images).;
+  中值滤波，对应 cv::medianBlur。支持 byte/uint2/real 单通道；16 位与浮点图仅支持 Ksize=3 或 5。Ksize 为 ≥1 的奇数核尺寸。;
 
 module
   foundation;
@@ -970,16 +1069,19 @@ parallelization
 
 parameter
   image:             input_object;
+  description.english: 单通道 byte / uint2 / real;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageOut:           output_object;
+  description.english: 与输入同类型同尺寸;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   ksize:             input_control;
+  description.english: 滤波核尺寸，≥3 的奇数，默认 3;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -991,7 +1093,7 @@ short.german
   Reshape an image matrix using OpenCV (single channel).;
 
 short.english
-  Reshape an image matrix (supports 8-bit, 16-bit and real single-channel images).;
+  改变图像尺寸（最近邻重采样），对应 cv::resize。输出宽为 Rows 参数（历史命名），高度按比例缩放。;
 
 module
   foundation;
@@ -1013,28 +1115,31 @@ parallelization
 
 parameter
   image:             input_object;
+  description.english: 单通道 byte / uint2 / real;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageOut:           output_object;
+  description.english: 与输入同类型，新尺寸;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   rows:              input_control;
+  description.english: 输出图像新高度；0 表示保持原高度;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
   type_list:         integer;
   default_value:     0;
 
-cv_filter2d<- Ccv_filter2d[image,kernel:imageOut::]
+cv_filter2d<- Ccv_filter2d[image,kernel:imageOut:ddepth,anchorX,anchorY,delta,borderType:]
 short.german
   Convolve an image with a kernel using OpenCV.;
 
 short.english
-  Convolve an image with a kernel (supports 8-bit, 16-bit and real single-channel images).;
+  图像卷积，对应 cv::filter2D。卷积核经 real 单通道图像传入；Ddepth 支持字符串枚举（same/s16/f32/f64）或整数（-1=保持原深度）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数。;
 
 module
   foundation;
@@ -1056,25 +1161,73 @@ parallelization
 
 parameter
   image:             input_object;
+  description.english: 单通道 byte / uint2 / real;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   kernel:            input_object;
+  description.english: 卷积核，必须为 real 单通道，任意宽高;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageOut:           output_object;
+  description.english: 与输入同类型同尺寸;
   sem_type:           image;
   multivalue:         optional;
+
+parameter
+  ddepth:            input_control;
+  description.english: 输出深度（'same'=-1 / 's16' / 'f32' / 'f64' 或整数）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:         string,integer;
+  default_value:      -1;
+
+parameter
+  anchorX:           input_control;
+  description.english: 锚点 X（-1=核中心）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      -1;
+
+parameter
+  anchorY:           input_control;
+  description.english: 锚点 Y（-1=核中心）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          integer;
+  default_value:      -1;
+
+parameter
+  delta:             input_control;
+  description.english: 结果叠加偏移量;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      0.0;
+
+parameter
+  borderType:        input_control;
+  description.english: 边界模式（字符串枚举或整数）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:         string,integer;
+  default_value:      4;
 
 cv_measure_pos<- Ccv_measure_pos[image::Column,Row,Phi,Length1,Length2,Sigma,Threshold,Transition:RowEdge,ColumnEdge,Amplitude]
 short.german
   Misst gerade Kanten mit einem eindimensionalen Gaußfilter (OpenCV).;
 
 short.english
-  Measure straight edges perpendicular to a rectangle using OpenCV.;
+  一维边缘测量，复刻 HALCON measure_pos（算法本体在 cvr 库 cvr_measure_pos，7 步管线：剖面提取→高斯一阶导核→卷积→局部极大值+阈值→抛物线亚像素→排序→去重/方向过滤/映射）。沿测量矩形主轴扫描，输出边缘行/列坐标与振幅。注意：暗→亮边缘振幅为负（transition=-1 选中），亮→暗为正。;
 
 module
   foundation;
@@ -1096,11 +1249,13 @@ parallelization
 
 parameter
   image:             input_object;
+  description.english: 单通道 byte / uint2 / real（内部转 byte）;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   Column:            input_control;
+  description.english: 测量矩形中心列坐标 x;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1109,6 +1264,7 @@ parameter
 
 parameter
   Row:               input_control;
+  description.english: 测量矩形中心行坐标 y;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1117,6 +1273,7 @@ parameter
 
 parameter
   Phi:               input_control;
+  description.english: 主轴角度（弧度，逆时针为正）;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1125,6 +1282,7 @@ parameter
 
 parameter
   Length1:           input_control;
+  description.english: 沿主轴半长;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1133,6 +1291,7 @@ parameter
 
 parameter
   Length2:           input_control;
+  description.english: 垂直主轴半宽;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1141,6 +1300,7 @@ parameter
 
 parameter
   Sigma:             input_control;
+  description.english: 高斯平滑标准差;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1149,6 +1309,7 @@ parameter
 
 parameter
   Threshold:         input_control;
+  description.english: 振幅阈值;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1157,6 +1318,7 @@ parameter
 
 parameter
   Transition:        input_control;
+  description.english: 0=全部，1=暗→亮，-1=亮→暗;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -1165,6 +1327,7 @@ parameter
 
 parameter
   RowEdge:           output_control;
+  description.english: 边缘行坐标;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
@@ -1172,6 +1335,7 @@ parameter
 
 parameter
   ColumnEdge:        output_control;
+  description.english: 边缘列坐标;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
@@ -1179,23 +1343,23 @@ parameter
 
 parameter
   Amplitude:         output_control;
+  description.english: 边缘振幅;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
   type_list:         real;
 
-cv_blur<- Ccv_blur[image:imageOut:kwidth,kheight:]
+cv_blur<- Ccv_blur[image:imageOut:kwidth,kheight,anchorX,anchorY,borderType:]
 short.german
   Smooth an image using a normalized box filter (OpenCV).;
 
 short.english
-  Smooth an image using a normalized box filter (supports 8-bit, 16-bit and real single-channel images).;
+  对图像做归一化盒式滤波（均值滤波），对应 cv::blur；输出与输入同类型同尺寸的单通道图像，支持 byte / uint2 / real。AnchorX/AnchorY 指定核锚点（-1=核中心）；BorderType 为边界模式，支持字符串枚举（如 'border_default'，大小写不敏感）或整数；核宽/高须为 ≥1 的奇数。;
+
+
 
 module
   foundation;
-
-chapter.german
-  BenutzerErweiterungen;
 
 chapter.english
   UserExtensions;
@@ -1209,18 +1373,22 @@ parallelization
   process_mutual:      false;
   method:              none;
 
+
 parameter
   image:             input_object;
+  description.english: 输入单通道图像（byte/uint2/real）。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageOut:           output_object;
+  description.english: 输出图像，类型尺寸与输入一致。;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   kwidth:            input_control;
+  description.english: 滤波核宽度，≥1 的奇数，默认 3。;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -1229,18 +1397,46 @@ parameter
 
 parameter
   kheight:           input_control;
+  description.english: 滤波核高度，≥1 的奇数，默认 3。;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
   type_list:         integer;
   default_value:     3;
 
+parameter
+  anchorX:           input_control;
+  description.english: 锚点 X（-1=核中心），默认 -1。;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     -1;
+
+parameter
+  anchorY:           input_control;
+  description.english: 锚点 Y（-1=核中心），默认 -1。;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     -1;
+
+parameter
+  borderType:        input_control;
+  description.english: 边界模式，支持字符串枚举（如 border_default）或整数，默认 4。;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         string,integer;
+  default_value:     4;
+
 cv_subtract<- Ccv_subtract[imageA,imageB:imageOut::]
 short.german
   Compute the per-element difference of two images (OpenCV).;
 
 short.english
-  Compute the per-element saturated difference of two images (supports 8-bit, 16-bit and real single-channel images).;
+  两图相减（饱和截断），对应 cv::subtract。支持 byte/uint2/real 单通道，两图类型尺寸须一致。;
 
 module
   foundation;
@@ -1262,16 +1458,19 @@ parallelization
 
 parameter
   imageA:            input_object;
+  description.english: 单通道 byte / uint2 / real;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageB:            input_object;
+  description.english: 与 ImageA 同类型同尺寸;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageOut:           output_object;
+  description.english: 与输入同类型同尺寸;
   sem_type:           image;
   multivalue:         optional;
 
@@ -1280,7 +1479,7 @@ short.german
   Computes the weighted sum of two images (OpenCV).;
 
 short.english
-  Computes the weighted sum of two images (supports 8-bit, 16-bit and real single-channel images).;
+  两图加权相加：Out = alpha*Src1 + beta*Src2 + gamma，对应 cv::addWeighted。支持 byte/uint2/real 单通道。;
 
 module
   foundation;
@@ -1302,21 +1501,25 @@ parallelization
 
 parameter
   imageA:            input_object;
+  description.english: 单通道 byte / uint2 / real;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageB:            input_object;
+  description.english: 与 ImageA 同类型同尺寸;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageOut:           output_object;
+  description.english: 与输入同类型同尺寸;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   alpha:             input_control;
+  description.english: 权重，默认 1.0;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1325,6 +1528,7 @@ parameter
 
 parameter
   beta:              input_control;
+  description.english: 权重，默认 1.0;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1333,6 +1537,7 @@ parameter
 
 parameter
   gamma:             input_control;
+  description.english: 偏置，默认 0.0;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1344,7 +1549,7 @@ short.german
   Solve linear equations using OpenCV.;
 
 short.english
-  Solve linear equations A*x=b using OpenCV (real single-channel matrices).;
+  线性方程组求解 Ax=b，对应 cv::solve。A、B 为 real 单通道图像（A 为 n×n 方阵，B 为 n×m 右端），输出 X（n×m real）；flags 对应 DECOMP_* 方法。;
 
 module
   foundation;
@@ -1366,33 +1571,37 @@ parallelization
 
 parameter
   imageA:            input_object;
+  description.english: real 单通道矩阵 A（m×n）;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageB:            input_object;
+  description.english: real 单通道矩阵 b（m×1 或 m×k）;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageX:            output_object;
+  description.english: 解 x（n×1 或 n×k，real）;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   methodId:          input_control;
+  description.english: 求解方法，默认 0;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
   type_list:         integer;
   default_value:     0;
 
-cv_estimate_affine_2d<- Ccv_estimate_affine_2d[::methodId,ransacThreshold,srcRow,srcCol,dstRow,dstCol:homMat2D,success,inlierCount]
+cv_estimate_affine_2d<- Ccv_estimate_affine_2d[::methodId,ransacThreshold,srcRow,srcCol,dstRow,dstCol,maxIters,confidence,refineIters:homMat2D,success,inlierCount]
 short.german
   Estimate full affine transformation using OpenCV.;
 
 short.english
-  Estimate full affine transformation (6 parameters) using OpenCV.;
+  完整仿射变换估计（6 参数），对应 cv::estimateAffine2D。源/目标点集为等长实数元组（≥3 点）；MethodId（RANSAC=8 默认/LMEDS=4）、MaxIters/Confidence/RefineIters 可调；输出 6 元素矩阵 [R00,R10,T0,R01,R11,T1]，顺序同 HALCON hom_mat2d。;
 
 module
   foundation;
@@ -1414,6 +1623,7 @@ parallelization
 
 parameter
   methodId:          input_control;
+  description.english: RANSAC=8（默认）/ LMEDS=4;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -1422,6 +1632,7 @@ parameter
 
 parameter
   ransacThreshold:   input_control;
+  description.english: 重投影阈值，默认 3.0;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1430,6 +1641,7 @@ parameter
 
 parameter
   srcRow:            input_control;
+  description.english: 源点行 / 列坐标;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
@@ -1437,6 +1649,7 @@ parameter
 
 parameter
   srcCol:            input_control;
+  description.english: 源点行 / 列坐标;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
@@ -1444,6 +1657,7 @@ parameter
 
 parameter
   dstRow:            input_control;
+  description.english: 目标点行 / 列坐标;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
@@ -1451,13 +1665,42 @@ parameter
 
 parameter
   dstCol:            input_control;
+  description.english: 目标点行 / 列坐标;
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
   type_list:         real;
 
 parameter
+  maxIters:          input_control;
+  description.english: RANSAC 最大迭代次数，默认 2000;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     2000;
+
+parameter
+  confidence:        input_control;
+  description.english: 置信度，默认 0.99;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real;
+  default_value:     0.99;
+
+parameter
+  refineIters:       input_control;
+  description.english: 最小二乘精炼迭代次数，默认 10;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     10;
+
+parameter
   homMat2D:          output_control;
+  description.english: 6 元素仿射矩阵 [R00,R10,T0,R01,R11,T1];
   default_type:      real;
   multivalue:        true;
   sem_type:          number;
@@ -1465,6 +1708,7 @@ parameter
 
 parameter
   success:           output_control;
+  description.english: 1 = 成功，0 = 失败;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -1472,6 +1716,7 @@ parameter
 
 parameter
   inlierCount:       output_control;
+  description.english: 内点数量;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -1482,7 +1727,7 @@ short.german
   Triangle automatic thresholding using OpenCV.;
 
 short.english
-  Triangle automatic thresholding (THRESH_TRIANGLE, 8-bit single-channel only).;
+  三角法自动阈值分割（THRESH_TRIANGLE），仅支持 8 位单通道。输出二值图与自动阈值。;
 
 module
   foundation;
@@ -1504,27 +1749,105 @@ parallelization
 
 parameter
   image:             input_object;
+  description.english: **仅 8 位单通道**（OpenCV 限制）;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageOut:           output_object;
+  description.english: 二值图（byte，0 / 255）;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   threshValue:       output_control;
+  description.english: 自动计算出的阈值;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
   type_list:         real;
+
+
+cv_threshold<- Ccv_threshold[image:imageOut:thresh,maxval,type:threshUsed]
+short.german
+  Schwellenwertbildung mit OpenCV.;
+
+short.english
+  固定/自动阈值分割，对应 cv::threshold。Type 支持字符串枚举或整数：基础类型 binary/binary_inv/trunc/tozero/tozero_inv，可与 otsu/triangle 用 | 组合（如 binary|otsu）。支持 byte/uint2/real；OTSU/TRIANGLE 仅 byte。输出实际使用阈值 ThreshUsed。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Threshold, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  description.english: 输入单通道图像。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像，类型尺寸与输入一致。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  thresh:            input_control;
+  description.english: 阈值（OTSU/TRIANGLE 时作初值，实际值见 ThreshUsed）。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      128.0;
+
+parameter
+  maxval:            input_control;
+  description.english: 最大值（二值化输出值）。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      255.0;
+
+parameter
+  type:              input_control;
+  description.english: 阈值类型：字符串（binary/binary_inv/trunc/tozero/tozero_inv，可与 otsu/triangle 用 | 组合）或整数。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:         string,integer;
+  default_value:      0;
+  value_list:         0,1,2,3,4,7,8,16;
+
+parameter
+  threshUsed:        output_control;
+  description.english: 实际使用的阈值（OTSU/TRIANGLE 时为自动值）。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real;
+
 
 cv_calc_hist<- Ccv_calc_hist[image:histogram:histSize,rangeMin,rangeMax:]
 short.german
   Compute gray-level histogram using OpenCV.;
 
 short.english
-  Compute gray-level histogram (8/16-bit or real single-channel).;
+  灰度直方图，对应 cv::calcHist。支持 byte/uint2/real 单通道；输出 1×HistSize 的 real 直方图，范围 [RangeMin, RangeMax)。;
 
 module
   foundation;
@@ -1546,16 +1869,19 @@ parallelization
 
 parameter
   image:             input_object;
+  description.english: 单通道 byte / uint2 / real;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   histogram:         output_object;
+  description.english: real，1×HistSize（各桶计数）;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   histSize:          input_control;
+  description.english: 直方图桶数，默认 256;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -1564,6 +1890,7 @@ parameter
 
 parameter
   rangeMin:          input_control;
+  description.english: 像素值范围，默认 0.0 / 256.0;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1572,18 +1899,19 @@ parameter
 
 parameter
   rangeMax:          input_control;
+  description.english: 像素值范围，默认 0.0 / 256.0;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
   type_list:         real;
   default_value:     256.0;
 
-cv_match_template<- Ccv_match_template[image,templateImage:result::]
+cv_match_template<- Ccv_match_template[image,templateImage:result:methodId:]
 short.german
   Template matching using OpenCV (TM_CCOEFF_NORMED).;
 
 short.english
-  Template matching (TM_CCOEFF_NORMED, 8-bit or real single-channel).;
+  模板匹配，对应 cv::matchTemplate。支持 byte/real（OpenCV 限制不支持 16 位）；MethodId 支持字符串枚举（sqdiff/sqdiff_normed/ccorr/ccorr_normed/ccoeff/ccoeff_normed）或 0-5，默认 ccoeff_normed。输出 real 得分图，尺寸 (W−w+1)×(H−h+1)。;
 
 module
   foundation;
@@ -1605,25 +1933,38 @@ parallelization
 
 parameter
   image:             input_object;
+  description.english: 单通道 byte / real（OpenCV 限制，不支持 16 位）;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   templateImage:     input_object;
+  description.english: 与 Image 同类型，尺寸 ≤ Image;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   result:            output_object;
+  description.english: real 得分图，尺寸 (W−w+1)×(H−h+1);
   sem_type:           image;
   multivalue:         optional;
 
-cv_kmeans<- Ccv_kmeans[samples:labels,centers:K,attempts,termEps,termMaxIter:]
+parameter
+  methodId:          input_control;
+  description.english: 匹配方法（'sqdiff'/'sqdiff_normed'/'ccorr'/'ccorr_normed'/'ccoeff'/'ccoeff_normed' 或 0-5，默认 5）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:         string,integer;
+  default_value:      5;
+  value_list:         0,1,2,3,4,5;
+
+cv_kmeans<- Ccv_kmeans[samples:labels,centers:K,attempts,termEps,termMaxIter,flags:]
 short.german
   K-means clustering using OpenCV.;
 
 short.english
-  K-means clustering (real NxD samples matrix).;
+  K 均值聚类，对应 cv::kmeans。样本为 real N×D 图像（N 样本每行 D 维）；输出 Labels（N×1）与 Centers（K×D）。Flags 支持字符串枚举（random/pp/use_initial_labels）或整数，默认 pp。;
 
 module
   foundation;
@@ -1645,21 +1986,25 @@ parallelization
 
 parameter
   samples:           input_object;
+  description.english: real N×D（N 个样本，每行 D 维特征）;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   labels:            output_object;
+  description.english: real N×1（整数标签，以浮点承载）;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   centers:           output_object;
+  description.english: real K×D 聚类中心;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   K:                 input_control;
+  description.english: 聚类数，默认 2;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -1668,6 +2013,7 @@ parameter
 
 parameter
   attempts:          input_control;
+  description.english: 重复尝试次数，默认 10;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -1676,6 +2022,7 @@ parameter
 
 parameter
   termEps:           input_control;
+  description.english: 终止精度，默认 1.0e-4;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1684,18 +2031,29 @@ parameter
 
 parameter
   termMaxIter:       input_control;
+  description.english: 最大迭代次数，默认 100;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
   type_list:         integer;
   default_value:     100;
 
+parameter
+  flags:             input_control;
+  description.english: 中心初始化（'random'/'pp'/'use_initial_labels' 或 0/1/2，默认 1）;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         string,integer;
+  default_value:     1;
+  value_list:        0,1,2;
+
 cv_multi_frame_median<- Ccv_multi_frame_median[images:imageMedian::]
 short.german
   Berechnet den pixelweisen Median über mehrere Real-Bilder (OpenCV).;
 
 short.english
-  Compute the pixel-wise median over multiple real images using OpenCV.;
+  多帧中值滤波：对 N 张同尺寸 real 图像逐像素取中值，输出单张 real 中值图（N=3 有特化快路径）。;
 
 module
   foundation;
@@ -1717,11 +2075,13 @@ parallelization
 
 parameter
   images:            input_object;
+  description.english: N 张 real 单通道图，尺寸一致，N ≥ 2;
   sem_type:           image;
   multivalue:         true;
 
 parameter
   imageMedian:       output_object;
+  description.english: real 单通道中值图;
   sem_type:           image;
   multivalue:         optional;
 
@@ -1730,7 +2090,7 @@ short.german
   Kantendetektion mit dem Sobel-Operator (OpenCV).;
 
 short.english
-  Edge detection using the Sobel operator (OpenCV).;
+  Sobel 一阶导数边缘检测，对应 cv::Sobel。输入 byte/uint2/real，输出 real 梯度；Dx/Dy 为求导阶数（0/1，和≥1），Ksize 为核尺寸（1/3/5/7），Ddepth 支持字符串枚举（same/s16/f32/f64），BorderType 支持字符串枚举或整数。;
 
 module
   foundation;
@@ -1752,16 +2112,19 @@ parallelization
 
 parameter
   image:             input_object;
+  description.english: 单通道 byte / uint2 / real;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   imageOut:          output_object;
+  description.english: 统一输出 real（CV_32F，梯度含符号）;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   Dx:                input_control;
+  description.english: x 方向导数阶数（0~2），默认 1;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -1770,6 +2133,7 @@ parameter
 
 parameter
   Dy:                input_control;
+  description.english: y 方向导数阶数（0~2），默认 0;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -1778,6 +2142,7 @@ parameter
 
 parameter
   Ksize:             input_control;
+  description.english: 核尺寸（1 / 3 / 5 / 7），默认 3;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -1786,14 +2151,16 @@ parameter
 
 parameter
   Ddepth:            input_control;
+  description.english: 输出深度（-1 / 3=CV_16S / 5=CV_32F / 6=CV_64F），默认 6;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
-  type_list:         integer;
+  type_list:         string,integer;
   default_value:     6;
 
 parameter
   Scale:             input_control;
+  description.english: 缩放系数，默认 1.0;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1802,6 +2169,7 @@ parameter
 
 parameter
   Delta:             input_control;
+  description.english: 偏置，默认 0.0;
   default_type:      real;
   multivalue:        false;
   sem_type:          number;
@@ -1810,10 +2178,11 @@ parameter
 
 parameter
   BorderType:        input_control;
+  description.english: OpenCV 边界模式（1=REPLICATE 等），默认 1;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
-  type_list:         integer;
+  type_list:         string,integer;
   default_value:     1;
 
 cv_magnitude<- Ccv_magnitude[X,Y:Magnitude::]
@@ -1821,7 +2190,7 @@ short.german
   Berechnet die Gradienten-Magnitude sqrt(X^2+Y^2) (OpenCV).;
 
 short.english
-  Compute the gradient magnitude sqrt(X^2+Y^2) using OpenCV.;
+  二维向量模长 sqrt(x²+y²)，对应 cv::magnitude。输入两图同类型同尺寸（byte/uint2/real），内部转 32F 计算，输出 real。;
 
 module
   foundation;
@@ -1843,15 +2212,459 @@ parallelization
 
 parameter
   X:                 input_object;
+  description.english: 单通道 byte / uint2 / real;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   Y:                 input_object;
+  description.english: 与 X 同类型同尺寸;
   sem_type:           image;
   multivalue:         optional;
 
 parameter
   Magnitude:         output_object;
+  description.english: 统一输出 real（CV_32F）;
   sem_type:           image;
   multivalue:         optional;
+
+cv_morphology_ex<- Ccv_morphology_ex[image:imageOut:op,shape,kwidth,kheight,iterations:]
+
+short.english
+  通用灰度形态学，对应 cv::morphologyEx。Op/Shape 支持字符串枚举（erode/dilate/open/close/gradient/tophat/blackhat × rect/cross/ellipse）或整数；Iterations≥1 循环实现。支持 byte/uint2/real。;
+
+module
+  foundation;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Morphology, Grayscale, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  description.english: 输入单通道图像。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像，类型尺寸与输入一致。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  op:                input_control;
+  description.english: 形态学操作（erode/dilate/open/close/gradient/tophat/blackhat，也可整数 0-6）;
+  default_type:      string;
+  multivalue:        false;
+  sem_type:          string;
+  type_list:         string,integer;
+  default_value:     "open";
+
+parameter
+  shape:             input_control;
+  description.english: 结构元形状（rect/cross/ellipse，也可整数 0-2）;
+  default_type:      string;
+  multivalue:        false;
+  sem_type:          string;
+  type_list:         string,integer;
+  default_value:     "rect";
+
+parameter
+  kwidth:            input_control;
+  description.english: 核宽度，≥1;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;
+
+parameter
+  kheight:           input_control;
+  description.english: 核高度，≥1;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;
+
+parameter
+  iterations:        input_control;
+  description.english: 迭代次数 ≥1（morphologyEx 循环实现）;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     1;
+
+cv_gray_erosion_rect<- Ccv_gray_erosion_rect[image:imageOut:width,height:]
+
+short.english
+  灰度腐蚀（矩形核），对应 cv::morphologyEx MORPH_ERODE。核尺寸 Width×Height；支持 byte/uint2/real，输出同类型。;
+
+module
+  foundation;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Morphology, Grayscale, Erosion, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  description.english: 输入单通道图像。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像，类型尺寸与输入一致。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  width:             input_control;
+  description.english: 矩形核宽度（MaskWidth）;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;
+
+parameter
+  height:            input_control;
+  description.english: 矩形核高度（MaskHeight）;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;
+
+cv_gray_dilation_rect<- Ccv_gray_dilation_rect[image:imageOut:width,height:]
+
+short.english
+  灰度膨胀（矩形核），对应 cv::morphologyEx MORPH_DILATE。核尺寸 Width×Height；支持 byte/uint2/real。;
+
+module
+  foundation;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Morphology, Grayscale, Dilation, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  description.english: 输入单通道图像。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像，类型尺寸与输入一致。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  width:             input_control;
+  description.english: 矩形核宽度（MaskWidth）;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;
+
+parameter
+  height:            input_control;
+  description.english: 矩形核高度（MaskHeight）;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;
+
+cv_gray_opening_rect<- Ccv_gray_opening_rect[image:imageOut:width,height:]
+
+short.english
+  灰度开运算（矩形核）：先腐蚀后膨胀，去亮噪点。对应 cv::morphologyEx MORPH_OPEN。;
+
+module
+  foundation;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Morphology, Grayscale, Opening, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  description.english: 输入单通道图像。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像，类型尺寸与输入一致。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  width:             input_control;
+  description.english: 矩形核宽度（MaskWidth）;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;
+
+parameter
+  height:            input_control;
+  description.english: 矩形核高度（MaskHeight）;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;
+
+cv_gray_closing_rect<- Ccv_gray_closing_rect[image:imageOut:width,height:]
+
+short.english
+  灰度闭运算（矩形核）：先膨胀后腐蚀，填暗孔洞。对应 cv::morphologyEx MORPH_CLOSE。;
+
+module
+  foundation;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Morphology, Grayscale, Closing, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  description.english: 输入单通道图像。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像，类型尺寸与输入一致。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  width:             input_control;
+  description.english: 矩形核宽度（MaskWidth）;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;
+
+parameter
+  height:            input_control;
+  description.english: 矩形核高度（MaskHeight）;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     3;
+
+cv_gray_erosion_circle<- Ccv_gray_erosion_circle[image:imageOut:radius:]
+
+short.english
+  灰度腐蚀（圆核）：核为 2R+1 椭圆核。对应 cv::morphologyEx MORPH_ERODE。;
+
+module
+  foundation;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Morphology, Grayscale, Erosion, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  description.english: 输入单通道图像。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像，类型尺寸与输入一致。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  radius:            input_control;
+  description.english: 圆半径（核尺寸 = 2R+1 椭圆核）;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real,integer;
+  default_value:     3.0;
+
+cv_gray_dilation_circle<- Ccv_gray_dilation_circle[image:imageOut:radius:]
+
+short.english
+  灰度膨胀（圆核）：核为 2R+1 椭圆核。对应 cv::morphologyEx MORPH_DILATE。;
+
+module
+  foundation;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Morphology, Grayscale, Dilation, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  description.english: 输入单通道图像。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像，类型尺寸与输入一致。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  radius:            input_control;
+  description.english: 圆半径（核尺寸 = 2R+1 椭圆核）;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real,integer;
+  default_value:     3.0;
+
+cv_gray_opening_circle<- Ccv_gray_opening_circle[image:imageOut:radius:]
+
+short.english
+  灰度开运算（圆核）。对应 cv::morphologyEx MORPH_OPEN，核尺寸 2R+1。;
+
+module
+  foundation;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Morphology, Grayscale, Opening, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  description.english: 输入单通道图像。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像，类型尺寸与输入一致。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  radius:            input_control;
+  description.english: 圆半径（核尺寸 = 2R+1 椭圆核）;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real,integer;
+  default_value:     3.0;
+
+cv_gray_closing_circle<- Ccv_gray_closing_circle[image:imageOut:radius:]
+
+short.english
+  灰度闭运算（圆核）。对应 cv::morphologyEx MORPH_CLOSE，核尺寸 2R+1。;
+
+module
+  foundation;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Morphology, Grayscale, Closing, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  description.english: 输入单通道图像。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像，类型尺寸与输入一致。;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  radius:            input_control;
+  description.english: 圆半径（核尺寸 = 2R+1 椭圆核）;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real,integer;
+  default_value:     3.0;

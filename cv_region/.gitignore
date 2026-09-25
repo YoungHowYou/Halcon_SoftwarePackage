@@ -1,0 +1,10 @@
+# cv_region build artifacts
+build/
+build_*/
+*.exe
+*.pdb
+*.ilk
+*.obj
+*.lib
+*.dll
+Testing/

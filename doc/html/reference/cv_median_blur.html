@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_median_blur</span><span data-if="c" style="display:none;">cv_median_blur</span><span data-if="cpp" style="display:none;">CvMedianBlur</span><span data-if="dotnet" style="display:none;">CvMedianBlur</span><span data-if="python" style="display:none;">cv_median_blur</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_median_blur</span><span data-if="c" style="display:none;">cv_median_blur</span><span data-if="cpp" style="display:none;">CvMedianBlur</span><span data-if="dotnet" style="display:none;">CvMedianBlur</span><span data-if="python" style="display:none;">cv_median_blur</span></code> — Median blur filter (supports 8-bit, 16-bit and real images).</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_median_blur</span><span data-if="c" style="display:none;">cv_median_blur</span><span data-if="cpp" style="display:none;">CvMedianBlur</span><span data-if="dotnet" style="display:none;">CvMedianBlur</span><span data-if="python" style="display:none;">cv_median_blur</span></code> — 中值滤波，对应 cv::medianBlur。支持 byte/uint2/real 单通道；16 位与浮点图仅支持 Ksize=3 或 5。Ksize 为 ≥1 的奇数核尺寸。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1120,19 +1120,19 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="image" class="parname"><b><code><span data-if="hdevelop" style="display:inline">image</span><span data-if="c" style="display:none">image</span><span data-if="cpp" style="display:none">image</span><span data-if="dotnet" style="display:none">image</span><span data-if="python" style="display:none">image</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">单通道 byte / uint2 / real</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="imageOut" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageOut</span><span data-if="c" style="display:none">imageOut</span><span data-if="cpp" style="display:none">imageOut</span><span data-if="dotnet" style="display:none">imageOut</span><span data-if="python" style="display:none">image_out</span></code></b> (output_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">与输入同类型同尺寸</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="ksize" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ksize</span><span data-if="c" style="display:none">ksize</span><span data-if="cpp" style="display:none">ksize</span><span data-if="dotnet" style="display:none">ksize</span><span data-if="python" style="display:none">ksize</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">滤波核尺寸，≥3 的奇数，默认 3</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>3</p>

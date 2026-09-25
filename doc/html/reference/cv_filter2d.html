@@ -1085,29 +1085,29 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_filter2d</span><span data-if="c" style="display:none;">cv_filter2d</span><span data-if="cpp" style="display:none;">CvFilter2d</span><span data-if="dotnet" style="display:none;">CvFilter2d</span><span data-if="python" style="display:none;">cv_filter2d</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_filter2d</span><span data-if="c" style="display:none;">cv_filter2d</span><span data-if="cpp" style="display:none;">CvFilter2d</span><span data-if="dotnet" style="display:none;">CvFilter2d</span><span data-if="python" style="display:none;">cv_filter2d</span></code> — Convolve an image with a kernel (supports 8-bit, 16-bit and real single-channel images).</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_filter2d</span><span data-if="c" style="display:none;">cv_filter2d</span><span data-if="cpp" style="display:none;">CvFilter2d</span><span data-if="dotnet" style="display:none;">CvFilter2d</span><span data-if="python" style="display:none;">cv_filter2d</span></code> — 图像卷积，对应 cv::filter2D。卷积核经 real 单通道图像传入；Ddepth 支持字符串枚举（same/s16/f32/f64）或整数（-1=保持原深度）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
-<code><b>cv_filter2d</b>(<a href="#image"><i>image</i></a>, <a href="#kernel"><i>kernel</i></a> : <a href="#imageOut"><i>imageOut</i></a> :  : )</code></p>
+<code><b>cv_filter2d</b>(<a href="#image"><i>image</i></a>, <a href="#kernel"><i>kernel</i></a> : <a href="#imageOut"><i>imageOut</i></a> : <a href="#ddepth"><i>ddepth</i></a>, <a href="#anchorX"><i>anchorX</i></a>, <a href="#anchorY"><i>anchorY</i></a>, <a href="#delta"><i>delta</i></a>, <a href="#borderType"><i>borderType</i></a> : )</code></p>
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>cv_filter2d</b>(const Hobject <a href="#image"><i>image</i></a>, const Hobject <a href="#kernel"><i>kernel</i></a>, Hobject* <a href="#imageOut"><i>imageOut</i></a>)</code></p>
+<code>Herror <b>cv_filter2d</b>(const Hobject <a href="#image"><i>image</i></a>, const Hobject <a href="#kernel"><i>kernel</i></a>, Hobject* <a href="#imageOut"><i>imageOut</i></a>, const Hlong <a href="#ddepth"><i>ddepth</i></a>, const Hlong <a href="#anchorX"><i>anchorX</i></a>, const Hlong <a href="#anchorY"><i>anchorY</i></a>, double <a href="#delta"><i>delta</i></a>, const Hlong <a href="#borderType"><i>borderType</i></a>)</code></p>
 <p>
-<code>Herror <b>T_cv_filter2d</b>(const Hobject <a href="#image"><i>image</i></a>, const Hobject <a href="#kernel"><i>kernel</i></a>, Hobject* <a href="#imageOut"><i>imageOut</i></a>)</code></p>
+<code>Herror <b>T_cv_filter2d</b>(const Hobject <a href="#image"><i>image</i></a>, const Hobject <a href="#kernel"><i>kernel</i></a>, Hobject* <a href="#imageOut"><i>imageOut</i></a>, const Htuple <a href="#ddepth"><i>ddepth</i></a>, const Htuple <a href="#anchorX"><i>anchorX</i></a>, const Htuple <a href="#anchorY"><i>anchorY</i></a>, const Htuple <a href="#delta"><i>delta</i></a>, const Htuple <a href="#borderType"><i>borderType</i></a>)</code></p>
 </div>
 <div data-if="cpp" style="display:none;">
 <p>
-<code>void <b>CvFilter2d</b>(const HObject&amp; <a href="#image"><i>image</i></a>, const HObject&amp; <a href="#kernel"><i>kernel</i></a>, HObject* <a href="#imageOut"><i>imageOut</i></a>)</code></p>
+<code>void <b>CvFilter2d</b>(const HObject&amp; <a href="#image"><i>image</i></a>, const HObject&amp; <a href="#kernel"><i>kernel</i></a>, HObject* <a href="#imageOut"><i>imageOut</i></a>, const HTuple&amp; <a href="#ddepth"><i>ddepth</i></a>, const HTuple&amp; <a href="#anchorX"><i>anchorX</i></a>, const HTuple&amp; <a href="#anchorY"><i>anchorY</i></a>, const HTuple&amp; <a href="#delta"><i>delta</i></a>, const HTuple&amp; <a href="#borderType"><i>borderType</i></a>)</code></p>
 </div>
 <div data-if="dotnet" style="display:none;">
 <p>
-<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvFilter2d</b>(<a href="HObject.html">HObject</a> <a href="#image"><i>image</i></a>, <a href="HObject.html">HObject</a> <a href="#kernel"><i>kernel</i></a>, out <a href="HObject.html">HObject</a> <a href="#imageOut"><i>imageOut</i></a>)</code></p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvFilter2d</b>(<a href="HObject.html">HObject</a> <a href="#image"><i>image</i></a>, <a href="HObject.html">HObject</a> <a href="#kernel"><i>kernel</i></a>, out <a href="HObject.html">HObject</a> <a href="#imageOut"><i>imageOut</i></a>, <a href="HTuple.html">HTuple</a> <a href="#ddepth"><i>ddepth</i></a>, <a href="HTuple.html">HTuple</a> <a href="#anchorX"><i>anchorX</i></a>, <a href="HTuple.html">HTuple</a> <a href="#anchorY"><i>anchorY</i></a>, <a href="HTuple.html">HTuple</a> <a href="#delta"><i>delta</i></a>, <a href="HTuple.html">HTuple</a> <a href="#borderType"><i>borderType</i></a>)</code></p>
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>cv_filter2d</b>(<a href="#image"><i>image</i></a>: HObject, <a href="#kernel"><i>kernel</i></a>: HObject) -&gt; HObject</code></p>
+<code>def <b>cv_filter2d</b>(<a href="#image"><i>image</i></a>: HObject, <a href="#kernel"><i>kernel</i></a>: HObject, <a href="#ddepth"><i>ddepth</i></a>: Union[str, int], <a href="#anchorX"><i>anchor_x</i></a>: int, <a href="#anchorY"><i>anchor_y</i></a>: int, <a href="#delta"><i>delta</i></a>: Union[float, int], <a href="#borderType"><i>border_type</i></a>: Union[str, int]) -&gt; HObject</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1120,19 +1120,64 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="image" class="parname"><b><code><span data-if="hdevelop" style="display:inline">image</span><span data-if="c" style="display:none">image</span><span data-if="cpp" style="display:none">image</span><span data-if="dotnet" style="display:none">image</span><span data-if="python" style="display:none">image</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">单通道 byte / uint2 / real</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="kernel" class="parname"><b><code><span data-if="hdevelop" style="display:inline">kernel</span><span data-if="c" style="display:none">kernel</span><span data-if="cpp" style="display:none">kernel</span><span data-if="dotnet" style="display:none">kernel</span><span data-if="python" style="display:none">kernel</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">卷积核，必须为 real 单通道，任意宽高</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="imageOut" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageOut</span><span data-if="c" style="display:none">imageOut</span><span data-if="cpp" style="display:none">imageOut</span><span data-if="dotnet" style="display:none">imageOut</span><span data-if="python" style="display:none">image_out</span></code></b> (output_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">与输入同类型同尺寸</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="ddepth" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ddepth</span><span data-if="c" style="display:none">ddepth</span><span data-if="cpp" style="display:none">ddepth</span><span data-if="dotnet" style="display:none">ddepth</span><span data-if="python" style="display:none">ddepth</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[str, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer / </span><span data-if="hdevelop" style="display:inline">string)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long / </span><span data-if="dotnet" style="display:none">string)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i> / </span><span data-if="cpp" style="display:none">HString)</span><span data-if="c" style="display:none"> (<i>Hlong</i> / </span><span data-if="c" style="display:none">char*)</span></span>
+</div>
+<p class="pardesc">输出深度（'same'=-1 / 's16' / 'f32' / 'f64' 或整数）</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>-1</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="anchorX" class="parname"><b><code><span data-if="hdevelop" style="display:inline">anchorX</span><span data-if="c" style="display:none">anchorX</span><span data-if="cpp" style="display:none">anchorX</span><span data-if="dotnet" style="display:none">anchorX</span><span data-if="python" style="display:none">anchor_x</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
+</div>
+<p class="pardesc">锚点 X（-1=核中心）</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>-1</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="anchorY" class="parname"><b><code><span data-if="hdevelop" style="display:inline">anchorY</span><span data-if="c" style="display:none">anchorY</span><span data-if="cpp" style="display:none">anchorY</span><span data-if="dotnet" style="display:none">anchorY</span><span data-if="python" style="display:none">anchor_y</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
+</div>
+<p class="pardesc">锚点 Y（-1=核中心）</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>-1</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="delta" class="parname"><b><code><span data-if="hdevelop" style="display:inline">delta</span><span data-if="c" style="display:none">delta</span><span data-if="cpp" style="display:none">delta</span><span data-if="dotnet" style="display:none">delta</span><span data-if="python" style="display:none">delta</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
+</div>
+<p class="pardesc">结果叠加偏移量</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>0.0</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="borderType" class="parname"><b><code><span data-if="hdevelop" style="display:inline">borderType</span><span data-if="c" style="display:none">borderType</span><span data-if="cpp" style="display:none">borderType</span><span data-if="dotnet" style="display:none">borderType</span><span data-if="python" style="display:none">border_type</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[str, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer / </span><span data-if="hdevelop" style="display:inline">string)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long / </span><span data-if="dotnet" style="display:none">string)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i> / </span><span data-if="cpp" style="display:none">HString)</span><span data-if="c" style="display:none"> (<i>Hlong</i> / </span><span data-if="c" style="display:none">char*)</span></span>
+</div>
+<p class="pardesc">边界模式（字符串枚举或整数）</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>4</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

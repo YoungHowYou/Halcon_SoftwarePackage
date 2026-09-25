@@ -6,19 +6,26 @@
 <c>* =============================================================</c>
 <c>* cv_blur — OpenCV 均值滤波（归一化盒式滤波）</c>
 <c>*   支持 8 位(byte) / 16 位(uint2) / 浮点(real) 单通道图像</c>
-<c>*   kwidth/kheight 必须为 ≥1 的奇数</c>
+<c>*   kwidth/kheight 必须为 ≥1 的奇数；anchor=-1,-1 表核中心</c>
+<c>*   BorderType 支持字符串枚举（'border_default'）或整数（4）</c>
 <c>* =============================================================</c>
-<c>* ---- 1) 8 位图像，kwidth=3,kheight=3 ----</c>
+<c>* ---- 1) 8 位图像，3×3 核，字符串 BorderType ----</c>
 <l>gen_image_const (ImageByte, 'byte', 5, 5)</l>
 <l>set_grayval (ImageByte, 2, 2, 255)</l>
-<l>cv_blur (ImageByte, ImageByteOut, 3, 3)</l>
-<c>* ---- 2) 16 位图像，kwidth=5,kheight=3 ----</c>
+<l>cv_blur (ImageByte, ImageByteOut, 3, 3, -1, -1, 'border_default')</l>
+<c>* ---- 2) 16 位图像，5×3 核，整数 BorderType（向后兼容） ----</c>
 <l>gen_image_const (ImageUint2, 'uint2', 5, 5)</l>
 <l>set_grayval (ImageUint2, 2, 2, 65535)</l>
-<l>cv_blur (ImageUint2, ImageUint2Out, 5, 3)</l>
-<c>* 读取中心像素结果核对</c>
+<l>cv_blur (ImageUint2, ImageUint2Out, 5, 3, -1, -1, 4)</l>
+<c>* 中心像素核对：255/9=28.33→28；65535/15=4369</c>
 <l>get_grayval (ImageByteOut, 2, 2, VByte)</l>
 <l>get_grayval (ImageUint2Out, 2, 2, VUint2)</l>
+<l>if (VByte != 28)</l>
+<l>  throw ('cv_blur byte wrong: ' + VByte)</l>
+<l>endif</l>
+<l>if (VUint2 != 4369)</l>
+<l>  throw ('cv_blur uint2 wrong: ' + VUint2)</l>
+<l>endif</l>
 </body>
 <docu id="main">
 <parameters/>

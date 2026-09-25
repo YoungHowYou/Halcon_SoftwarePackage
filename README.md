@@ -113,6 +113,12 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 - HALCON 版本：24.11
 - 依赖：OpenCV 4.x、exiv2
 
+### 参数全开放约定
+
+- **图像/滤波/矩阵类**：以**控制参数**直接传递（如 `cv_blur` 的 `AnchorX, AnchorY, BorderType`，`cv_mat_mul` 的 `Alpha, Beta, Flags`），按位置传满全部参数。
+- **特征检测/匹配/变换估计类**（`cv_orb_detect`、`cv_sift_detect`、`cv_akaze_detect`、`cv_bf_knn_match`、`cv_estimate_affine_partial2d`、`cv_estimate_rigid_2d`）：设置项通过 **dict 键**传入（`set_dict_tuple` 写入后传 `DictHandle`），未设键取默认；输入图像/描述子/点集也以 dict 对象传，结果写回同一 dict。
+- **枚举/宏参数**：均可**字符串或整数**两种写法——如 `cv_blur` 的 `BorderType` 传 'border_default' 或 `4`、`cv_threshold` 的 `Type` 传 'binary|otsu'（"|" 组合）、`cv_morphology_ex` 的 `Op/Shape` 传 'open'/'ellipse'。字符串不区分大小写，内部映射为 OpenCV 常量；旧脚本的整数写法完全兼容。
+
 ### 图像类型说明
 
 | HALCON 类型 | 值 | OpenCV 类型 | 说明 |
@@ -130,7 +136,7 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 归一化盒式滤波（均值滤波），对应 `cv::blur`。
 
 ```
-cv_blur(Image : ImageOut : Kwidth, Kheight)
+cv_blur(Image : ImageOut : Kwidth, Kheight, AnchorX, AnchorY, BorderType)
 ```
 
 | 参数 | 类型 | 方向 | 说明 |
@@ -139,6 +145,9 @@ cv_blur(Image : ImageOut : Kwidth, Kheight)
 | ImageOut | 图像 | 输出 | 与输入同类型同尺寸 |
 | Kwidth | 整数 | 输入 | 滤波核宽度，≥1 的奇数，默认 3 |
 | Kheight | 整数 | 输入 | 滤波核高度，≥1 的奇数，默认 3 |
+| AnchorX | 整数 | 输入 | 锚点 X（-1=核中心），默认 -1 |
+| AnchorY | 整数 | 输入 | 锚点 Y（-1=核中心），默认 -1 |
+| BorderType | 字符串/整数 | 输入 | 边界模式（如 'border_default'，大小写不敏感，或整数） |
 
 错误码：
 
@@ -180,10 +189,10 @@ cv_median_blur(Image : ImageOut : Ksize)
 
 #### cv_filter2d
 
-图像卷积，对应 `cv::filter2D`，卷积核通过 `real` 单通道图像传入（锚点默认为核中心，`ddepth=-1`，边界 `BORDER_DEFAULT`）。
+图像卷积，对应 `cv::filter2D`。Ddepth/BorderType 支持字符串枚举（'same'/'s16'、'border_default' 等）或整数。
 
 ```
-cv_filter2d(Image, Kernel : ImageOut : :)
+cv_filter2d(Image, Kernel : ImageOut : Ddepth, AnchorX, AnchorY, Delta, BorderType)
 ```
 
 | 参数 | 类型 | 方向 | 说明 |
@@ -191,6 +200,11 @@ cv_filter2d(Image, Kernel : ImageOut : :)
 | Image | 图像 | 输入 | 单通道 `byte` / `uint2` / `real` |
 | Kernel | 图像 | 输入 | 卷积核，必须为 `real` 单通道，任意宽高 |
 | ImageOut | 图像 | 输出 | 与输入同类型同尺寸 |
+| Ddepth | 字符串/整数 | 输入 | 输出深度（'same'=-1 / 's16' / 'f32' / 'f64' 或整数） |
+| AnchorX | 整数 | 输入 | 锚点 X（-1=核中心） |
+| AnchorY | 整数 | 输入 | 锚点 Y（-1=核中心） |
+| Delta | 实数 | 输入 | 结果叠加偏移量 |
+| BorderType | 字符串/整数 | 输入 | 边界模式（字符串枚举或整数） |
 
 错误码：
 
@@ -259,6 +273,7 @@ cv_magnitude(X, Y : Magnitude : :)
 | 错误码 | 含义 |
 |---|---|
 | 30001 | 输入图像类型不支持 |
+
 | 30002 | 两图类型不一致 |
 | 30003 | 两图尺寸不一致 |
 | 30004 | OpenCV 执行异常 |
@@ -355,16 +370,19 @@ cv_subtract(ImageA, ImageB : ImageOut : :)
 两个 16 位单通道图像做矩阵乘法，对应 `cv::gemm`。
 
 ```
-cv_mat_mul(ImageA, ImageB : Outimage : :)
+cv_mat_mul(ImageA, ImageB : Outimage : Alpha, Beta, Flags)
 ```
 
-`C = A * B`，其中 `A: m×k`，`B: k×n`，结果 `C: m×n`。
+`C = alpha * A * B (+ beta)`，其中 `A: m×k`，`B: k×n`，结果 `C: m×n`。
 
 | 参数 | 类型 | 方向 | 说明 |
 |---|---|---|---|
 | ImageA | 图像 | 输入 | 16 位单通道（m×k） |
 | ImageB | 图像 | 输入 | 16 位单通道（k×n） |
 | Outimage | 图像 | 输出 | 16 位单通道（m×n） |
+| Alpha | 实数 | 输入 | 乘积系数，默认 1.0 |
+| Beta | 实数 | 输入 | 叠加项系数，默认 0.0 |
+| Flags | 字符串/整数 | 输入 | 转置标志（'none'/'transpose_a'/'transpose_b'/'transpose_c' 或 0/1/2/4） |
 
 > 要求 A 的列数 == B 的行数；内部转 double 计算后饱和截断回 16 位。
 
@@ -457,7 +475,7 @@ remap(:: hv_DictHandle)
 
 #### cv_measure_pos
 
-复刻 HALCON `measure_pos`（一维边缘测量，OpenCV 实现）。
+复刻 HALCON `measure_pos`（一维边缘测量；算法本体在 cvr 库 `cvr/cvr_measure.hpp`，7 步管线：剖面提取→高斯一阶导核→卷积→局部极大值+阈值→抛物线亚像素→排序→去重/方向/映射）。
 
 ```
 cv_measure_pos(Image : : Column, Row, Phi, Length1, Length2, Sigma, Threshold, Transition : RowEdge, ColumnEdge, Amplitude)
@@ -483,6 +501,8 @@ cv_measure_pos(Image : : Column, Row, Phi, Length1, Length2, Sigma, Threshold, T
 | 错误码 | 含义 |
 |---|---|
 | 30001 | 输入图像类型不支持 |
+
+> **注意**：本实现对暗→亮（上升沿）边缘输出**负振幅**，亮→暗输出正振幅——即 `Transition=1` 实际选中亮→暗边缘，`-1` 选中暗→亮（保持与原实现兼容，暂未更改）。
 
 ---
 
@@ -529,6 +549,14 @@ cv_orb_detect(:: DictHandle)
 |---|---|---|---|
 | InputImage | 图像 | 输入 | 8 位单通道 |
 | NFeatures | 元组 | 输入 | 特征点数量上限，默认 3000 |
+| ScaleFactor | 元组 | 输入 | 金字塔缩放因子，默认 1.2 |
+| NLevels | 元组 | 输入 | 金字塔层数，默认 8 |
+| EdgeThreshold | 元组 | 输入 | 边界阈值，默认 31 |
+| FirstLevel | 元组 | 输入 | 首层金字塔层，默认 0 |
+| WTA_K | 元组 | 输入 | WTA_K 点数，默认 2 |
+| ScoreType | 元组 | 输入 | 评分类型（0=HARRIS / 1=FAST，默认 0） |
+| PatchSize | 元组 | 输入 | 描述子邻域大小，默认 31 |
+| FastThreshold | 元组 | 输入 | FAST 角点阈值，默认 20 |
 | KeypointsRow | 元组 | 输出 | 特征点行坐标 |
 | KeypointsCol | 元组 | 输出 | 特征点列坐标 |
 | NumKeypoints | 元组 | 输出 | 特征点数量 |
@@ -547,6 +575,11 @@ cv_akaze_detect(:: DictHandle)
 | 键 | 类型 | 方向 | 说明 |
 |---|---|---|---|
 | InputImage | 图像 | 输入 | 8 位单通道 |
+| DescriptorType | 元组 | 输入 | 描述子类型（0=KAZE/1=KAZE_UPRIGHT/2=MLDB_UPRIGHT/4=MLDB，默认 4） |
+| Threshold | 元组 | 输入 | 检测阈值，默认 0.001 |
+| NOctaves | 元组 | 输入 | 八度组数，默认 4 |
+| NOctaveLayers | 元组 | 输入 | 每组层数，默认 4 |
+| Diffusivity | 元组 | 输入 | 扩散方式（0=PM_G1/1=PM_G2/2=WEICKERT/3=CHARBONNIER，默认 1） |
 | KeypointsRow | 元组 | 输出 | 特征点行坐标 |
 | KeypointsCol | 元组 | 输出 | 特征点列坐标 |
 | NumKeypoints | 元组 | 输出 | 特征点数量 |
@@ -567,6 +600,10 @@ cv_sift_detect(:: DictHandle)
 |---|---|---|---|
 | InputImage | 图像 | 输入 | 8 位单通道 |
 | NFeatures | 元组 | 输入 | 特征点数量上限，默认 0（不限制） |
+| NOctaveLayers | 元组 | 输入 | 每八度层数，默认 3 |
+| ContrastThreshold | 元组 | 输入 | 对比度阈值，默认 0.04 |
+| EdgeThreshold | 元组 | 输入 | 边缘阈值，默认 10.0 |
+| Sigma | 元组 | 输入 | 高斯 sigma，默认 1.6 |
 | KeypointsRow | 元组 | 输出 | 特征点行坐标 |
 | KeypointsCol | 元组 | 输出 | 特征点列坐标 |
 | NumKeypoints | 元组 | 输出 | 特征点数量 |
@@ -589,6 +626,9 @@ cv_bf_knn_match(:: DictHandle)
 | DescriptorsTarget | 图像 | 输入 | 目标描述子（byte） |
 | DescWidth | 元组 | 输入 | 描述子宽度，默认 32 |
 | RatioThresh | 元组 | 输入 | 比值阈值，默认 0.75 |
+| NormType | 元组 | 输入 | 距离范数（1=L1/2=L2/4=NORM_HAMMING，默认 4） |
+| CrossCheck | 元组 | 输入 | 交叉验证（0=否走 Ratio Test / 1=是走 match，默认 0） |
+| K | 元组 | 输入 | knnMatch 的 k（Ratio Test 需 >=2，默认 2） |
 | MatchIdxRef | 元组 | 输出 | 匹配上的参考索引 |
 | MatchIdxTarget | 元组 | 输出 | 匹配上的目标索引 |
 | NumGoodMatches | 元组 | 输出 | 良好匹配数量 |
@@ -608,6 +648,10 @@ cv_estimate_affine_partial2d(:: DictHandle)
 | SrcRow / SrcCol | 元组 | 输入 | 源点行/列坐标 |
 | DstRow / DstCol | 元组 | 输入 | 目标点行/列坐标 |
 | RansacThreshold | 元组 | 输入 | RANSAC 阈值，默认 3.0 |
+| Method | 元组 | 输入 | 估计方法（8=RANSAC / 4=LMEDS，默认 8） |
+| MaxIters | 元组 | 输入 | RANSAC 最大迭代，默认 2000 |
+| Confidence | 元组 | 输入 | 置信度，默认 0.99 |
+| RefineIters | 元组 | 输入 | 精炼迭代次数，默认 10 |
 | HomMat2D | 元组 | 输出 | 仿射矩阵（2×3 展开） |
 | Success | 元组 | 输出 | 是否成功 |
 | InlierCount | 元组 | 输出 | 内点数量 |
@@ -630,6 +674,8 @@ cv_estimate_rigid_2d(:: DictHandle)
 | SrcRow / SrcCol | 元组 | 输入 | 源点行/列坐标 |
 | DstRow / DstCol | 元组 | 输入 | 目标点行/列坐标 |
 | RansacThreshold | 元组 | 输入 | RANSAC 阈值，默认 3.0 |
+| MaxIter | 元组 | 输入 | RANSAC 最大迭代，默认 500 |
+| Seed | 元组 | 输入 | 随机种子，默认 12345 |
 | HomMat2D | 元组 | 输出 | 刚体矩阵（2×3 展开） |
 | Success | 元组 | 输出 | 是否成功 |
 | InlierCount | 元组 | 输出 | 内点数量 |
@@ -757,7 +803,7 @@ cv_solve(ImageA, ImageB : ImageX : MethodId)
 完整仿射变换估计（6 参数），对应 `cv::estimateAffine2D`。点坐标用 tuple 输入输出。
 
 ```
-cv_estimate_affine_2d(:: MethodId, RansacThreshold, SrcRow, SrcCol, DstRow, DstCol : HomMat2D, Success, InlierCount)
+cv_estimate_affine_2d(:: MethodId, RansacThreshold, SrcRow, SrcCol, DstRow, DstCol, MaxIters, Confidence, RefineIters : HomMat2D, Success, InlierCount)
 ```
 
 | 参数 | 类型 | 方向 | 说明 |
@@ -766,6 +812,9 @@ cv_estimate_affine_2d(:: MethodId, RansacThreshold, SrcRow, SrcCol, DstRow, DstC
 | RansacThreshold | 实数 | 输入 | 重投影阈值，默认 3.0 |
 | SrcRow / SrcCol | 实数元组 | 输入 | 源点行 / 列坐标 |
 | DstRow / DstCol | 实数元组 | 输入 | 目标点行 / 列坐标 |
+| MaxIters | 整数 | 输入 | RANSAC 最大迭代次数，默认 2000 |
+| Confidence | 实数 | 输入 | 置信度，默认 0.99 |
+| RefineIters | 整数 | 输入 | 最小二乘精炼迭代次数，默认 10 |
 | HomMat2D | 实数元组 | 输出 | 6 元素仿射矩阵 `[R00,R10,T0,R01,R11,T1]` |
 | Success | 整数 | 输出 | 1 = 成功，0 = 失败 |
 | InlierCount | 整数 | 输出 | 内点数量 |
@@ -831,7 +880,7 @@ cv_calc_hist(Image : Histogram : HistSize, RangeMin, RangeMax)
 模板匹配，对应 `cv::matchTemplate` + `TM_CCOEFF_NORMED`。
 
 ```
-cv_match_template(Image, TemplateImage : Result : :)
+cv_match_template(Image, TemplateImage : Result : MethodId)
 ```
 
 | 参数 | 类型 | 方向 | 说明 |
@@ -839,6 +888,7 @@ cv_match_template(Image, TemplateImage : Result : :)
 | Image | 图像 | 输入 | 单通道 `byte` / `real`（OpenCV 限制，不支持 16 位） |
 | TemplateImage | 图像 | 输入 | 与 Image 同类型，尺寸 ≤ Image |
 | Result | 图像 | 输出 | real 得分图，尺寸 (W−w+1)×(H−h+1) |
+| MethodId | 字符串/整数 | 输入 | 匹配方法（'sqdiff'/'sqdiff_normed'/'ccorr'/'ccorr_normed'/'ccoeff'/'ccoeff_normed' 或 0-5，默认 5） |
 
 > 得分范围为 [−1, 1]，最佳匹配位置得分为 1。
 
@@ -858,7 +908,7 @@ cv_match_template(Image, TemplateImage : Result : :)
 K 均值聚类，对应 `cv::kmeans`。
 
 ```
-cv_kmeans(Samples : Labels, Centers : K, Attempts, TermEps, TermMaxIter)
+cv_kmeans(Samples : Labels, Centers : K, Attempts, TermEps, TermMaxIter, Flags)
 ```
 
 | 参数 | 类型 | 方向 | 说明 |
@@ -870,6 +920,7 @@ cv_kmeans(Samples : Labels, Centers : K, Attempts, TermEps, TermMaxIter)
 | Attempts | 整数 | 输入 | 重复尝试次数，默认 10 |
 | TermEps | 实数 | 输入 | 终止精度，默认 1.0e-4 |
 | TermMaxIter | 整数 | 输入 | 最大迭代次数，默认 100 |
+| Flags | 字符串/整数 | 输入 | 中心初始化（'random'/'pp'/'use_initial_labels' 或 0/1/2，默认 1） |
 
 错误码：
 
@@ -878,6 +929,34 @@ cv_kmeans(Samples : Labels, Centers : K, Attempts, TermEps, TermMaxIter)
 | 30001 | 样本矩阵非 real |
 | 30002 | K 非法（≤0 或 ＞ 样本数） |
 | 30003 | OpenCV 执行异常 |
+
+---
+
+### 灰度形态学
+
+灰度（及二值）图像形态学运算，对应 `cv::morphologyEx`，支持 `byte` / `uint2` / `real` 单通道。预设算子与 region 侧命名一致（矩形 Width/Height，圆 Radius→2R+1 椭圆核）：
+
+| 算子 | 结构元 |
+|---|---|
+| `cv_gray_erosion_rect` / `cv_gray_dilation_rect` | 矩形 |
+| `cv_gray_opening_rect` / `cv_gray_closing_rect` | 矩形 |
+| `cv_gray_erosion_circle` / `cv_gray_dilation_circle` | 圆 |
+| `cv_gray_opening_circle` / `cv_gray_closing_circle` | 圆 |
+
+通用算子（字符串枚举 Op/Shape，覆盖 gradient/tophat/blackhat 与 cross 结构元）：
+
+```
+cv_morphology_ex(Image : ImageOut : Op, Shape, Kwidth, Kheight, Iterations :)
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| Op | 字符串 | 输入 | erode/dilate/open/close/gradient/tophat/blackhat（也可整数 0-6） |
+| Shape | 字符串 | 输入 | rect/cross/ellipse（也可整数 0-2） |
+| Kwidth / Kheight | 整数 | 输入 | 核尺寸，≥1 |
+| Iterations | 整数 | 输入 | 迭代次数 ≥1 |
+
+错误码：30001 图像类型不支持；30002 OpenCV 异常；30003 参数非法。
 
 ---
 
@@ -912,6 +991,32 @@ cv_kmeans(Samples : Labels, Centers : K, Attempts, TermEps, TermMaxIter)
 | cv_multi_frame_median | ❌ | ❌ | ✅ | ❌ |
 | cv_sobel | ✅ | ✅ | ✅ | ❌ |
 | cv_magnitude | ✅ | ✅ | ✅ | ❌ |
+
+---
+
+## Region 扩展算子（cv_region）
+
+本扩展包的 region 运算算子（定义于 `def/Halcon_CVRegion.def`，实现于 `source/Halcon_CVRegion.cpp`），算法本体在独立开源库 **cv_region**（`cv_region/` 子目录，**静态链接**为 `cvr_core`，直接编入扩展包，免跨 DLL 拷贝，可脱离 HALCON 单独调用）。HALCON 语义兼容：RLE chord 编码 `{row, col_begin, col_end}`、形态学 SE 参考点 = 质心四舍五入。
+
+- 集合运算：cv_union1 / cv_union2 / cv_intersection / cv_difference / cv_complement / cv_symm_difference
+- 形态学：cv_erosion1 / cv_dilation1 / cv_opening / cv_closing（自定义 SE）+ cv_erosion_circle / cv_dilation_circle / cv_erosion_rectangle1 / cv_dilation_rectangle1（预设）
+- 连通域：cv_connection；生成：cv_gen_circle / cv_gen_rectangle1；填充：cv_fill_up；形状变换：cv_shape_trans；筛选：cv_select_shape
+- 特征：cv_area_center / cv_smallest_rectangle1 / cv_smallest_rectangle2 / cv_smallest_circle / cv_elliptic_axis / cv_contlength / cv_circularity / cv_compactness / cv_convexity / cv_rectangularity / cv_anisometry / cv_bulkiness / cv_structure_factor
+- 互转：cv_region_to_bin / cv_bin_to_region
+
+性能：与 HALCON 原生算子同量级（erosion 约 1.8×、connection 约 3×，见 `examples/cv_region_bench.hdev`）。
+
+---
+
+## RANSAC 扩展算子
+
+RANSAC 通用几何拟合算子 `cv_ransac_fit`（定义于 `def/Halcon_Ransac.def`），算法本体为 **cv_region 静态库内置的 ransac 核心**（`ransac::ransac_run`，muparser 表达式模型 + Eigen LM 求解），supply 直调 C++ API。
+
+```
+cv_ransac_fit(:: ModelExpression, ParamNames, InitialValues, XData, YData, XName, Threshold, MaxIter, OutlierRatio, ModelType, YName, MinSampleSize, Confidence, Seed : ParamValues, InlierMask, ResidualSum, Iterations, Status, StatusMessage, InlierRatio)
+```
+
+模型用 muparser 表达式描述，支持显式 `y=f(x)` 与隐式 `F(x,y)=0`（圆/椭圆/圆锥），几何残差 `|F|/||grad F||`；函数白名单含 sin/cos/tan/asin/acos/atan/atan2/sqrt/abs/exp/log/log10/log2/min/max/floor/ceil/sinh/cosh/tanh/sign/rint/pow。异常统一映射为 Status 状态码，不穿越 supply。
 
 ---
 
@@ -1418,6 +1523,8 @@ Halcon_SoftwarePackage/
 │   ├── Image2String.hdev
 │   ├── opencv/           # OpenCV 算子例程
 │   └── math/             # 数学 / 矩阵算子例程
+├── cv_region/            # 独立 region 库 + ransac 拟合核心（C++17；静态库 cvr_core 直接链入扩展包，可脱离 HALCON 调用）
+├── help/                 # 算子签名数据库（构建时同步，HALCON 调用校验依赖）
 ├── include/              # 头文件
 ├── source/               # 源代码
 ├── CMakeLists.txt        # CMake 构建配置（纯 vcpkg，跨平台）
@@ -1526,29 +1633,42 @@ mysql_store_result (Handle, Result)
 
 ### 示例：OpenCV
 
-```
-* ORB 特征检测与匹配
-cv_orb_detect (Image1, KeyPoints1, Descriptors1)
-cv_orb_detect (Image2, KeyPoints2, Descriptors2)
-cv_bf_knn_match (Descriptors1, Descriptors2, Matches, GoodMatches)
-cv_estimate_affine_partial2d (KeyPoints1, KeyPoints2, GoodMatches, AffineMatrix)
+```hdev
+* 均值滤波（字符串枚举边界模式）
+cv_blur (Image, ImageBlurred, 5, 5, -1, -1, 'border_default')
 
-* CLAHE 图像增强
-CLAHE_image (InputImage, EnhancedImage, 2.0, 8)
+* 灰度形态学
+cv_gray_opening_circle (Image, ImageOpened, 3.5)
+cv_morphology_ex (Image, Grad, 'gradient', 'ellipse', 5, 5, 1)
 
-* 矩阵乘法（两个 16 位单通道图像）
-cv_mat_mul (ImageA, ImageB, ResultImage)
+* 阈值分割（字符串枚举，"|" 组合自动阈值）
+cv_threshold (Image, Region, 128, 255, 'binary|otsu', ThreshUsed)
 
-* ROI 叠加小图到大图
+* 矩阵乘法
+convert_image_type (Image, Image16, 'uint2')
+cv_mat_mul (ImageA16, ImageB16, ImageC, 1.0, 0.0, 'none')
+
+* ORB 特征检测与匹配（dict 设置）
+create_dict (D1)
+set_dict_object (Image1, D1, 'InputImage')
+set_dict_tuple (D1, 'NFeatures', 1000)
+cv_orb_detect (D1)
+get_dict_object (Desc1, D1, 'Descriptors')
+* ... 对 Image2 同样处理得到 D2/Desc2 ...
+create_dict (D4)
+set_dict_object (Desc1, D4, 'DescriptorsRef')
+set_dict_object (Desc2, D4, 'DescriptorsTarget')
+cv_bf_knn_match (D4)
+
+* ROI 加法（小图 300×400 加到 (100,200) 处）
 add_roi (SmallImage, BigImage, 100, 200, 300, 400)
 
-* PNG 编解码（保留透明通道）
-PNGIn (InputImage, PNGImage, 1)
-PNGOut (PNGImage, OutputImage)
-
-* 写入 EXIF 元数据
-write_image_exif (Image, DictHandle)
+* 一维边缘测量
+cv_measure_pos (Image, 100, 50, 0, 60, 8, 1.0, 50, 0, RowEdge, ColEdge, Amplitude)
 ```
+
+完整例程见 `examples/` 与 `examples/opencv/`（48 个 .hdev）。
+
 
 ## 第三方依赖
 

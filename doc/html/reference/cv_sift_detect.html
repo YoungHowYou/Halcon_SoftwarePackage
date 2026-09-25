@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_sift_detect</span><span data-if="c" style="display:none;">T_cv_sift_detect</span><span data-if="cpp" style="display:none;">CvSiftDetect</span><span data-if="dotnet" style="display:none;">CvSiftDetect</span><span data-if="python" style="display:none;">cv_sift_detect</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_sift_detect</span><span data-if="c" style="display:none;">T_cv_sift_detect</span><span data-if="cpp" style="display:none;">CvSiftDetect</span><span data-if="dotnet" style="display:none;">CvSiftDetect</span><span data-if="python" style="display:none;">cv_sift_detect</span></code> — SIFT feature detection and descriptor computation using OpenCV.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_sift_detect</span><span data-if="c" style="display:none;">T_cv_sift_detect</span><span data-if="cpp" style="display:none;">CvSiftDetect</span><span data-if="dotnet" style="display:none;">CvSiftDetect</span><span data-if="python" style="display:none;">cv_sift_detect</span></code> — SIFT 特征检测与描述子计算，对应 cv::SIFT。输入 8 位单通道图像，输出 128 维浮点描述子。参数经 dict 键全开放（NFeatures/NOctaveLayers/ContrastThreshold/EdgeThreshold/Sigma）。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1118,7 +1118,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="DictHandle" class="parname"><b><code><span data-if="hdevelop" style="display:inline">DictHandle</span><span data-if="c" style="display:none">DictHandle</span><span data-if="cpp" style="display:none">DictHandle</span><span data-if="dotnet" style="display:none">dictHandle</span><span data-if="python" style="display:none">dict_handle</span></code></b> (input_control)  </span><span>handle <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">HHandle</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (handle)</span><span data-if="dotnet" style="display:none"> (<i>IntPtr</i>)</span><span data-if="cpp" style="display:none"> (<i>HHandle</i>)</span><span data-if="c" style="display:none"> (<i>handle</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

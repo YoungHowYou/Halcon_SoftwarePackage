@@ -1,4 +1,4 @@
-#=============================================================================
+﻿#=============================================================================
 #  CMakeLists.txt — HALCON Extension Package "Halcon_SoftwarePackage"
 #=============================================================================
 #  Copyright (c) 2019-2023 by MVTec Software GmbH
@@ -136,7 +136,15 @@ set(EXT_SOURCES
   source/Halcon_mysql.cpp
   source/Halcon_OpenCV.cpp
   source/Halcon_Math.cpp
+  source/Halcon_CVRegion.cpp
+  source/Halcon_Ransac.cpp
 )
+
+#----------------------------------------------------------------------
+#  cv_region：region 运算 + ransac 拟合静态库（原独立 ransac 项目已并入），
+#  supply 层直接调 C++ API
+#----------------------------------------------------------------------
+add_subdirectory(cv_region)
 
 #----------------------------------------------------------------------
 #  核心：创建 HALCON 扩展包目标
@@ -149,6 +157,8 @@ HALCON_AddExtensionPackage(${ProjectName}
     def/Halcon_Mysql.def
     def/Halcon_OpenCV.def
     def/Halcon_Math.def
+    def/Halcon_CVRegion.def
+    def/Halcon_Ransac.def
   SOURCES
     ${EXT_SOURCES}
   CHAPTERS
@@ -232,7 +242,11 @@ target_include_directories(${ProjectName}
   PUBLIC
     $<BUILD_INTERFACE:${HALCON_INCLUDE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/cv_region/include>
     $<BUILD_INTERFACE:${OpenCV_INCLUDE_DIRS}>
+  PRIVATE
+    # ransac 内部头（ransac_core.h/optimizer.h/model_expression.h 在 cv_region/src）
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/cv_region/src>
 )
 
 #=============================================================================
@@ -253,6 +267,7 @@ if(WIN32)
   target_link_libraries(${ProjectName}
     ${HALCON_LIB_DIR}/halconcpp.lib
     ws2_32.lib
+    cvr_core
     ${OpenCV_LIBS}
     exiv2lib
     ${SPDLOG_LIBS}
@@ -267,6 +282,7 @@ else()
   find_package(Threads REQUIRED)
   target_link_libraries(${ProjectName}
     ${HALCON_LIB_DIR}/libhalconcpp${HALCON_SHARED_SUFFIX}
+    cvr_core
     ${OpenCV_LIBS}
     exiv2lib
     ${SPDLOG_LIBS}
@@ -297,6 +313,15 @@ if(WIN32)
       "$<TARGET_FILE:muparser::muparser>"
       "$<TARGET_FILE_DIR:${ProjectName}>/muparser.dll"
     COMMENT "Copying muparser.dll → output"
+  )
+  # 同步生成的算子签名数据库 → 包 help/。
+  # HALCON 从 help/operators_en_US.num 读取各算子签名做调用校验；
+  # 若不同步，改了参数个数的算子会按旧签名校验失败而被静默跳过（不派发）。
+  add_custom_command(TARGET ${ProjectName} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+      "${CMAKE_BINARY_DIR}/help"
+      "${CMAKE_CURRENT_SOURCE_DIR}/help"
+    COMMENT "Syncing operator signature database → help/"
   )
 else()
   # Linux / macOS：从 vcpkg installed 目录复制 .so/.dylib（含符号链接）到输出目录

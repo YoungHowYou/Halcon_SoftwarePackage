@@ -1085,29 +1085,29 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_kmeans</span><span data-if="c" style="display:none;">cv_kmeans</span><span data-if="cpp" style="display:none;">CvKmeans</span><span data-if="dotnet" style="display:none;">CvKmeans</span><span data-if="python" style="display:none;">cv_kmeans</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_kmeans</span><span data-if="c" style="display:none;">cv_kmeans</span><span data-if="cpp" style="display:none;">CvKmeans</span><span data-if="dotnet" style="display:none;">CvKmeans</span><span data-if="python" style="display:none;">cv_kmeans</span></code> — K-means clustering (real NxD samples matrix).</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_kmeans</span><span data-if="c" style="display:none;">cv_kmeans</span><span data-if="cpp" style="display:none;">CvKmeans</span><span data-if="dotnet" style="display:none;">CvKmeans</span><span data-if="python" style="display:none;">cv_kmeans</span></code> — K 均值聚类，对应 cv::kmeans。样本为 real N×D 图像（N 样本每行 D 维）；输出 Labels（N×1）与 Centers（K×D）。Flags 支持字符串枚举（random/pp/use_initial_labels）或整数，默认 pp。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
-<code><b>cv_kmeans</b>(<a href="#samples"><i>samples</i></a> : <a href="#labels"><i>labels</i></a>, <a href="#centers"><i>centers</i></a> : <a href="#K"><i>K</i></a>, <a href="#attempts"><i>attempts</i></a>, <a href="#termEps"><i>termEps</i></a>, <a href="#termMaxIter"><i>termMaxIter</i></a> : )</code></p>
+<code><b>cv_kmeans</b>(<a href="#samples"><i>samples</i></a> : <a href="#labels"><i>labels</i></a>, <a href="#centers"><i>centers</i></a> : <a href="#K"><i>K</i></a>, <a href="#attempts"><i>attempts</i></a>, <a href="#termEps"><i>termEps</i></a>, <a href="#termMaxIter"><i>termMaxIter</i></a>, <a href="#flags"><i>flags</i></a> : )</code></p>
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>cv_kmeans</b>(const Hobject <a href="#samples"><i>samples</i></a>, Hobject* <a href="#labels"><i>labels</i></a>, Hobject* <a href="#centers"><i>centers</i></a>, const Hlong <a href="#K"><i>K</i></a>, const Hlong <a href="#attempts"><i>attempts</i></a>, double <a href="#termEps"><i>termEps</i></a>, const Hlong <a href="#termMaxIter"><i>termMaxIter</i></a>)</code></p>
+<code>Herror <b>cv_kmeans</b>(const Hobject <a href="#samples"><i>samples</i></a>, Hobject* <a href="#labels"><i>labels</i></a>, Hobject* <a href="#centers"><i>centers</i></a>, const Hlong <a href="#K"><i>K</i></a>, const Hlong <a href="#attempts"><i>attempts</i></a>, double <a href="#termEps"><i>termEps</i></a>, const Hlong <a href="#termMaxIter"><i>termMaxIter</i></a>, const Hlong <a href="#flags"><i>flags</i></a>)</code></p>
 <p>
-<code>Herror <b>T_cv_kmeans</b>(const Hobject <a href="#samples"><i>samples</i></a>, Hobject* <a href="#labels"><i>labels</i></a>, Hobject* <a href="#centers"><i>centers</i></a>, const Htuple <a href="#K"><i>K</i></a>, const Htuple <a href="#attempts"><i>attempts</i></a>, const Htuple <a href="#termEps"><i>termEps</i></a>, const Htuple <a href="#termMaxIter"><i>termMaxIter</i></a>)</code></p>
+<code>Herror <b>T_cv_kmeans</b>(const Hobject <a href="#samples"><i>samples</i></a>, Hobject* <a href="#labels"><i>labels</i></a>, Hobject* <a href="#centers"><i>centers</i></a>, const Htuple <a href="#K"><i>K</i></a>, const Htuple <a href="#attempts"><i>attempts</i></a>, const Htuple <a href="#termEps"><i>termEps</i></a>, const Htuple <a href="#termMaxIter"><i>termMaxIter</i></a>, const Htuple <a href="#flags"><i>flags</i></a>)</code></p>
 </div>
 <div data-if="cpp" style="display:none;">
 <p>
-<code>void <b>CvKmeans</b>(const HObject&amp; <a href="#samples"><i>samples</i></a>, HObject* <a href="#labels"><i>labels</i></a>, HObject* <a href="#centers"><i>centers</i></a>, const HTuple&amp; <a href="#K"><i>K</i></a>, const HTuple&amp; <a href="#attempts"><i>attempts</i></a>, const HTuple&amp; <a href="#termEps"><i>termEps</i></a>, const HTuple&amp; <a href="#termMaxIter"><i>termMaxIter</i></a>)</code></p>
+<code>void <b>CvKmeans</b>(const HObject&amp; <a href="#samples"><i>samples</i></a>, HObject* <a href="#labels"><i>labels</i></a>, HObject* <a href="#centers"><i>centers</i></a>, const HTuple&amp; <a href="#K"><i>K</i></a>, const HTuple&amp; <a href="#attempts"><i>attempts</i></a>, const HTuple&amp; <a href="#termEps"><i>termEps</i></a>, const HTuple&amp; <a href="#termMaxIter"><i>termMaxIter</i></a>, const HTuple&amp; <a href="#flags"><i>flags</i></a>)</code></p>
 </div>
 <div data-if="dotnet" style="display:none;">
 <p>
-<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvKmeans</b>(<a href="HObject.html">HObject</a> <a href="#samples"><i>samples</i></a>, out <a href="HObject.html">HObject</a> <a href="#labels"><i>labels</i></a>, out <a href="HObject.html">HObject</a> <a href="#centers"><i>centers</i></a>, <a href="HTuple.html">HTuple</a> <a href="#K"><i>k</i></a>, <a href="HTuple.html">HTuple</a> <a href="#attempts"><i>attempts</i></a>, <a href="HTuple.html">HTuple</a> <a href="#termEps"><i>termEps</i></a>, <a href="HTuple.html">HTuple</a> <a href="#termMaxIter"><i>termMaxIter</i></a>)</code></p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvKmeans</b>(<a href="HObject.html">HObject</a> <a href="#samples"><i>samples</i></a>, out <a href="HObject.html">HObject</a> <a href="#labels"><i>labels</i></a>, out <a href="HObject.html">HObject</a> <a href="#centers"><i>centers</i></a>, <a href="HTuple.html">HTuple</a> <a href="#K"><i>k</i></a>, <a href="HTuple.html">HTuple</a> <a href="#attempts"><i>attempts</i></a>, <a href="HTuple.html">HTuple</a> <a href="#termEps"><i>termEps</i></a>, <a href="HTuple.html">HTuple</a> <a href="#termMaxIter"><i>termMaxIter</i></a>, <a href="HTuple.html">HTuple</a> <a href="#flags"><i>flags</i></a>)</code></p>
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>cv_kmeans</b>(<a href="#samples"><i>samples</i></a>: HObject, <a href="#K"><i>k</i></a>: int, <a href="#attempts"><i>attempts</i></a>: int, <a href="#termEps"><i>term_eps</i></a>: float, <a href="#termMaxIter"><i>term_max_iter</i></a>: int) -&gt; Tuple[HObject, HObject]</code></p>
+<code>def <b>cv_kmeans</b>(<a href="#samples"><i>samples</i></a>: HObject, <a href="#K"><i>k</i></a>: int, <a href="#attempts"><i>attempts</i></a>: int, <a href="#termEps"><i>term_eps</i></a>: float, <a href="#termMaxIter"><i>term_max_iter</i></a>: int, <a href="#flags"><i>flags</i></a>: Union[str, int]) -&gt; Tuple[HObject, HObject]</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1120,25 +1120,25 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="samples" class="parname"><b><code><span data-if="hdevelop" style="display:inline">samples</span><span data-if="c" style="display:none">samples</span><span data-if="cpp" style="display:none">samples</span><span data-if="dotnet" style="display:none">samples</span><span data-if="python" style="display:none">samples</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">real N×D（N 个样本，每行 D 维特征）</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="labels" class="parname"><b><code><span data-if="hdevelop" style="display:inline">labels</span><span data-if="c" style="display:none">labels</span><span data-if="cpp" style="display:none">labels</span><span data-if="dotnet" style="display:none">labels</span><span data-if="python" style="display:none">labels</span></code></b> (output_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">real N×1（整数标签，以浮点承载）</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="centers" class="parname"><b><code><span data-if="hdevelop" style="display:inline">centers</span><span data-if="c" style="display:none">centers</span><span data-if="cpp" style="display:none">centers</span><span data-if="dotnet" style="display:none">centers</span><span data-if="python" style="display:none">centers</span></code></b> (output_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">real K×D 聚类中心</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="K" class="parname"><b><code><span data-if="hdevelop" style="display:inline">K</span><span data-if="c" style="display:none">K</span><span data-if="cpp" style="display:none">K</span><span data-if="dotnet" style="display:none">k</span><span data-if="python" style="display:none">k</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">聚类数，默认 2</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>2</p>
@@ -1147,7 +1147,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="attempts" class="parname"><b><code><span data-if="hdevelop" style="display:inline">attempts</span><span data-if="c" style="display:none">attempts</span><span data-if="cpp" style="display:none">attempts</span><span data-if="dotnet" style="display:none">attempts</span><span data-if="python" style="display:none">attempts</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">重复尝试次数，默认 10</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>10</p>
@@ -1156,7 +1156,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="termEps" class="parname"><b><code><span data-if="hdevelop" style="display:inline">termEps</span><span data-if="c" style="display:none">termEps</span><span data-if="cpp" style="display:none">termEps</span><span data-if="dotnet" style="display:none">termEps</span><span data-if="python" style="display:none">term_eps</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">终止精度，默认 1.0e-4</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>1.0e-4</p>
@@ -1165,10 +1165,22 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="termMaxIter" class="parname"><b><code><span data-if="hdevelop" style="display:inline">termMaxIter</span><span data-if="c" style="display:none">termMaxIter</span><span data-if="cpp" style="display:none">termMaxIter</span><span data-if="dotnet" style="display:none">termMaxIter</span><span data-if="python" style="display:none">term_max_iter</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">最大迭代次数，默认 100</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>100</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="flags" class="parname"><b><code><span data-if="hdevelop" style="display:inline">flags</span><span data-if="c" style="display:none">flags</span><span data-if="cpp" style="display:none">flags</span><span data-if="dotnet" style="display:none">flags</span><span data-if="python" style="display:none">flags</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[str, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer / </span><span data-if="hdevelop" style="display:inline">string)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long / </span><span data-if="dotnet" style="display:none">string)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i> / </span><span data-if="cpp" style="display:none">HString)</span><span data-if="c" style="display:none"> (<i>Hlong</i> / </span><span data-if="c" style="display:none">char*)</span></span>
+</div>
+<p class="pardesc">中心初始化（'random'/'pp'/'use_initial_labels' 或 0/1/2，默认 1）</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>1</p>
+<p class="pardesc"><span class="parcat">List of values:
+
+      </span>0, 1, 2</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">write_image_exif</span><span data-if="c" style="display:none;">write_image_exif</span><span data-if="cpp" style="display:none;">WriteImageExif</span><span data-if="dotnet" style="display:none;">WriteImageExif</span><span data-if="python" style="display:none;">write_image_exif</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">write_image_exif</span><span data-if="c" style="display:none;">write_image_exif</span><span data-if="cpp" style="display:none;">WriteImageExif</span><span data-if="dotnet" style="display:none;">WriteImageExif</span><span data-if="python" style="display:none;">write_image_exif</span></code> — Write EXIF metadata to image file.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">write_image_exif</span><span data-if="c" style="display:none;">write_image_exif</span><span data-if="cpp" style="display:none;">WriteImageExif</span><span data-if="dotnet" style="display:none;">WriteImageExif</span><span data-if="python" style="display:none;">write_image_exif</span></code> — 给已有图像文件写入 EXIF 元数据（GPS 经纬度/海拔、光圈、快门、ISO、焦距、时间、厂商/型号），基于 exiv2。文件须先存在；字段以多值控制参数传入。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1120,13 +1120,13 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="image_path" class="parname"><b><code><span data-if="hdevelop" style="display:inline">image_path</span><span data-if="c" style="display:none">image_path</span><span data-if="cpp" style="display:none">image_path</span><span data-if="dotnet" style="display:none">imagePath</span><span data-if="python" style="display:none">image_path</span></code></b> (input_control)  </span><span>filename <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">图像文件路径（须已存在）。</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="latitude" class="parname"><b><code><span data-if="hdevelop" style="display:inline">latitude</span><span data-if="c" style="display:none">latitude</span><span data-if="cpp" style="display:none">latitude</span><span data-if="dotnet" style="display:none">latitude</span><span data-if="python" style="display:none">latitude</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">纬度</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0.0</p>
@@ -1135,7 +1135,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="longitude" class="parname"><b><code><span data-if="hdevelop" style="display:inline">longitude</span><span data-if="c" style="display:none">longitude</span><span data-if="cpp" style="display:none">longitude</span><span data-if="dotnet" style="display:none">longitude</span><span data-if="python" style="display:none">longitude</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">经度</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0.0</p>
@@ -1144,7 +1144,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="altitude" class="parname"><b><code><span data-if="hdevelop" style="display:inline">altitude</span><span data-if="c" style="display:none">altitude</span><span data-if="cpp" style="display:none">altitude</span><span data-if="dotnet" style="display:none">altitude</span><span data-if="python" style="display:none">altitude</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">海拔（米）</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0.0</p>
@@ -1153,7 +1153,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="aperture" class="parname"><b><code><span data-if="hdevelop" style="display:inline">aperture</span><span data-if="c" style="display:none">aperture</span><span data-if="cpp" style="display:none">aperture</span><span data-if="dotnet" style="display:none">aperture</span><span data-if="python" style="display:none">aperture</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">光圈值</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0.0</p>
@@ -1162,7 +1162,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="shutter_speed" class="parname"><b><code><span data-if="hdevelop" style="display:inline">shutter_speed</span><span data-if="c" style="display:none">shutter_speed</span><span data-if="cpp" style="display:none">shutter_speed</span><span data-if="dotnet" style="display:none">shutterSpeed</span><span data-if="python" style="display:none">shutter_speed</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">快门速度（秒）。</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0.0</p>
@@ -1171,7 +1171,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="iso_number" class="parname"><b><code><span data-if="hdevelop" style="display:inline">iso_number</span><span data-if="c" style="display:none">iso_number</span><span data-if="cpp" style="display:none">iso_number</span><span data-if="dotnet" style="display:none">isoNumber</span><span data-if="python" style="display:none">iso_number</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">ISO 感光度。</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>100</p>
@@ -1180,7 +1180,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="focal_length" class="parname"><b><code><span data-if="hdevelop" style="display:inline">focal_length</span><span data-if="c" style="display:none">focal_length</span><span data-if="cpp" style="display:none">focal_length</span><span data-if="dotnet" style="display:none">focalLength</span><span data-if="python" style="display:none">focal_length</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">焦距（mm）。</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0.0</p>
@@ -1189,7 +1189,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="date_time" class="parname"><b><code><span data-if="hdevelop" style="display:inline">date_time</span><span data-if="c" style="display:none">date_time</span><span data-if="cpp" style="display:none">date_time</span><span data-if="dotnet" style="display:none">dateTime</span><span data-if="python" style="display:none">date_time</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">拍摄时间（格式 YYYY:MM:DD HH:MM:SS）。</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>
@@ -1204,7 +1204,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="camera_make" class="parname"><b><code><span data-if="hdevelop" style="display:inline">camera_make</span><span data-if="c" style="display:none">camera_make</span><span data-if="cpp" style="display:none">camera_make</span><span data-if="dotnet" style="display:none">cameraMake</span><span data-if="python" style="display:none">camera_make</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">相机厂商字符串。</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>
@@ -1219,7 +1219,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="camera_model" class="parname"><b><code><span data-if="hdevelop" style="display:inline">camera_model</span><span data-if="c" style="display:none">camera_model</span><span data-if="cpp" style="display:none">camera_model</span><span data-if="dotnet" style="display:none">cameraModel</span><span data-if="python" style="display:none">camera_model</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">相机型号字符串。</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>

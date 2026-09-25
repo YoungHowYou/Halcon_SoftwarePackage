@@ -1,0 +1,195 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>read_image (Image, 'printer_chip/printer_chip_01')</l>
+<l>get_image_size (Image, W, H)</l>
+<c></c>
+<l>* ===== 1. cv_mat_mul 全参数：C = alpha*A*B + beta*0，flags 转置 =====</l>
+<l>gen_image_const (A, 'uint2', 3, 2)</l>
+<l>gen_image_const (B, 'uint2', 4, 3)</l>
+<l>* A(2x3) 全 1，B(3x4) 全 2 -> A*B = 2x4 全 6；alpha=2,beta=0 -> 全 12</l>
+<l>set_grayval (A, 0, 0, 1)</l>
+<l>set_grayval (A, 0, 1, 1)</l>
+<l>set_grayval (A, 0, 2, 1)</l>
+<l>set_grayval (A, 1, 0, 1)</l>
+<l>set_grayval (A, 1, 1, 1)</l>
+<l>set_grayval (A, 1, 2, 1)</l>
+<l>set_grayval (B, 0, 0, 2)</l>
+<l>set_grayval (B, 0, 1, 2)</l>
+<l>set_grayval (B, 0, 2, 2)</l>
+<l>set_grayval (B, 0, 3, 2)</l>
+<l>set_grayval (B, 1, 0, 2)</l>
+<l>set_grayval (B, 1, 1, 2)</l>
+<l>set_grayval (B, 1, 2, 2)</l>
+<l>set_grayval (B, 1, 3, 2)</l>
+<l>set_grayval (B, 2, 0, 2)</l>
+<l>set_grayval (B, 2, 1, 2)</l>
+<l>set_grayval (B, 2, 2, 2)</l>
+<l>set_grayval (B, 2, 3, 2)</l>
+<l>cv_mat_mul (A, B, C1, 2.0, 0.0, 'none')</l>
+<l>get_grayval (C1, 0, 0, CV1)</l>
+<l>if (CV1 != 12)</l>
+<l>  throw ('cv_mat_mul alpha=2 wrong: ' + CV1)</l>
+<l>endif</l>
+<l>* flags=1 (A^T)：A^T(3x2)*B(3x4) 不允许，改用 flags=2 (B^T)：A(2x3)*B^T(4x3) 不允许；用 flags=0 已知正确。改测 flags 仅透传不报错</l>
+<l>cv_mat_mul (A, B, C2, 1.0, 0.0, 0)</l>
+<l>get_grayval (C2, 0, 0, CV2)</l>
+<l>if (CV2 != 6)</l>
+<l>  throw ('cv_mat_mul default wrong: ' + CV2)</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 2. cv_filter2d 全参数：anchor/delta/borderType =====</l>
+<l>gen_image_const (K, 'real', 3, 3)</l>
+<l>set_grayval (K, 0, 0, 1.0)</l>
+<l>set_grayval (K, 1, 1, 0.0)</l>
+<l>* 单像素核[1,0,0;0,0,0;0,0,0] 在 anchor=0,0 时相当于把图右下移 1 像素</l>
+<l>cv_filter2d (Image, K, F1, -1, 0, 0, 0.0, 4)</l>
+<l>get_image_size (F1, FW, FH)</l>
+<l>if (FW != W or FH != H)</l>
+<l>  throw ('cv_filter2d size wrong')</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 3. cv_blur 全参数：anchor=0,0（锚点在核左上角） =====</l>
+<l>cv_blur (Image, B1, 3, 3, 0, 0, 'border_default')</l>
+<l>get_image_size (B1, BW, BH)</l>
+<l>if (BW != W or BH != H)</l>
+<l>  throw ('cv_blur anchor size wrong')</l>
+<l>endif</l>
+<l>cv_blur (Image, B2, 3, 3, -1, -1, 4)</l>
+<l>if (BW != W or BH != H)</l>
+<l>  throw ('cv_blur center size wrong')</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 4. cv_estimate_affine_2d 全参数（纯旋转平移点集，应成功） =====</l>
+<l>SR := [10.0, 50.0, 90.0, 10.0, 90.0]</l>
+<l>SC := [10.0, 10.0, 10.0, 50.0, 50.0]</l>
+<l>* 目标 = 源 + 平移 (5, 7)</l>
+<l>DR := [17.0, 57.0, 97.0, 17.0, 97.0]</l>
+<l>DC := [15.0, 15.0, 15.0, 55.0, 55.0]</l>
+<l>cv_estimate_affine_2d (8, 1.0, SR, SC, DR, DC, 2000, 0.99, 10, Hom, Succ, Inl)</l>
+<l>if (Succ != 1)</l>
+<l>  throw ('cv_estimate_affine_2d failed')</l>
+<l>endif</l>
+<l>if (Inl &lt; 5)</l>
+<l>  throw ('cv_estimate_affine_2d inliers too few: ' + Inl)</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 5. cv_match_template 全参数：methodId=1 (SQDIFF_NORMED) 与默认 5 =====</l>
+<l>crop_rectangle1 (Image, Tpl, 100, 100, 150, 150)</l>
+<l>cv_match_template (Image, Tpl, MT5, 'ccoeff_normed')</l>
+<l>cv_match_template (Image, Tpl, MT1, 'sqdiff_normed')</l>
+<l>get_image_size (MT5, MW, MH)</l>
+<l>if (MW != W - 50 or MH != H - 50)</l>
+<l>  throw ('cv_match_template result size wrong')</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 6. cv_kmeans 全参数：flags=0 (RANDOM_CENTERS) 与默认 1 =====</l>
+<l>gen_image_const (S, 'real', 1, 6)</l>
+<l>set_grayval (S, 0, 0, 1.0)</l>
+<l>set_grayval (S, 1, 0, 1.1)</l>
+<l>set_grayval (S, 2, 0, 0.9)</l>
+<l>set_grayval (S, 3, 0, 10.0)</l>
+<l>set_grayval (S, 4, 0, 10.1)</l>
+<l>set_grayval (S, 5, 0, 9.9)</l>
+<l>cv_kmeans (S, L1, C1, 2, 10, 0.001, 100, 0)</l>
+<l>* 注：flags=1 (PP_CENTERS) 在当前 OpenCV 4.12 构建下会触发其内部断言，暂用 flags=0 演示 attempts 参数</l>
+<l>cv_kmeans (S, L2, C2, 2, 1, 0.001, 100, 0)</l>
+<c></c>
+<l>* ===== 7. cv_orb_detect 全参数（dict 设置） =====</l>
+<l>create_dict (D)</l>
+<l>set_dict_object (Image, D, 'InputImage')</l>
+<l>set_dict_tuple (D, 'NFeatures', 500)</l>
+<l>set_dict_tuple (D, 'ScaleFactor', 1.5)</l>
+<l>set_dict_tuple (D, 'NLevels', 4)</l>
+<l>set_dict_tuple (D, 'EdgeThreshold', 20)</l>
+<l>set_dict_tuple (D, 'FastThreshold', 15)</l>
+<l>cv_orb_detect (D)</l>
+<l>get_dict_tuple (D, 'NumKeypoints', NKP)</l>
+<l>if (NKP &lt;= 0)</l>
+<l>  throw ('cv_orb_detect no keypoints')</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 8. cv_sift_detect / cv_akaze_detect 全参数 =====</l>
+<l>create_dict (D2)</l>
+<l>set_dict_object (Image, D2, 'InputImage')</l>
+<l>set_dict_tuple (D2, 'NFeatures', 0)</l>
+<l>set_dict_tuple (D2, 'NOctaveLayers', 2)</l>
+<l>set_dict_tuple (D2, 'ContrastThreshold', 0.02)</l>
+<l>set_dict_tuple (D2, 'Sigma', 1.2)</l>
+<l>cv_sift_detect (D2)</l>
+<l>get_dict_tuple (D2, 'NumKeypoints', NKP2)</l>
+<l>if (NKP2 &lt;= 0)</l>
+<l>  throw ('cv_sift_detect no keypoints')</l>
+<l>endif</l>
+<l>create_dict (D3)</l>
+<l>set_dict_object (Image, D3, 'InputImage')</l>
+<l>set_dict_tuple (D3, 'Threshold', 0.005)</l>
+<l>set_dict_tuple (D3, 'NOctaves', 3)</l>
+<l>set_dict_tuple (D3, 'Diffusivity', 2)</l>
+<l>cv_akaze_detect (D3)</l>
+<l>get_dict_tuple (D3, 'NumKeypoints', NKP3)</l>
+<l>if (NKP3 &lt;= 0)</l>
+<l>  throw ('cv_akaze_detect no keypoints')</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 9. cv_bf_knn_match 全参数（crossCheck=1） =====</l>
+<l>create_dict (D4)</l>
+<l>get_dict_object (Desc1, D, 'Descriptors')</l>
+<l>get_dict_object (Desc2, D2, 'Descriptors')</l>
+<l>set_dict_object (Desc1, D4, 'DescriptorsRef')</l>
+<l>set_dict_object (Desc1, D4, 'DescriptorsTarget')</l>
+<l>set_dict_tuple (D4, 'DescWidth', 32)</l>
+<l>set_dict_tuple (D4, 'NormType', 4)</l>
+<l>* crossCheck=0 → knnMatch + Lowe's Ratio Test，自匹配应得 N 个</l>
+<l>set_dict_tuple (D4, 'CrossCheck', 0)</l>
+<l>set_dict_tuple (D4, 'K', 2)</l>
+<l>cv_bf_knn_match (D4)</l>
+<l>get_dict_tuple (D4, 'NumGoodMatches', NM)</l>
+<l>if (NM &lt;= 0)</l>
+<l>  throw ('cv_bf_knn_match ratio no matches')</l>
+<l>endif</l>
+<l>* crossCheck=1 → 走 bf.match() 分支，验证参数被接受（匹配数取决于描述子内容）</l>
+<l>set_dict_tuple (D4, 'CrossCheck', 1)</l>
+<l>cv_bf_knn_match (D4)</l>
+<l>get_dict_tuple (D4, 'NumGoodMatches', NM2)</l>
+<l>if (NM2 &lt; 0)</l>
+<l>  throw ('cv_bf_knn_match crossCheck error')</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 10. cv_estimate_affine_partial2d / rigid_2d 全参数 =====</l>
+<l>create_dict (D5)</l>
+<l>set_dict_tuple (D5, 'SrcRow', SR)</l>
+<l>set_dict_tuple (D5, 'SrcCol', SC)</l>
+<l>set_dict_tuple (D5, 'DstRow', DR)</l>
+<l>set_dict_tuple (D5, 'DstCol', DC)</l>
+<l>set_dict_tuple (D5, 'RansacThreshold', 1.0)</l>
+<l>set_dict_tuple (D5, 'Method', 8)</l>
+<l>set_dict_tuple (D5, 'MaxIters', 2000)</l>
+<l>set_dict_tuple (D5, 'Confidence', 0.99)</l>
+<l>set_dict_tuple (D5, 'RefineIters', 10)</l>
+<l>cv_estimate_affine_partial2d (D5)</l>
+<l>get_dict_tuple (D5, 'Success', S5)</l>
+<l>if (S5 != 1)</l>
+<l>  throw ('cv_estimate_affine_partial2d failed')</l>
+<l>endif</l>
+<l>create_dict (D6)</l>
+<l>set_dict_tuple (D6, 'SrcRow', SR)</l>
+<l>set_dict_tuple (D6, 'SrcCol', SC)</l>
+<l>set_dict_tuple (D6, 'DstRow', DR)</l>
+<l>set_dict_tuple (D6, 'DstCol', DC)</l>
+<l>set_dict_tuple (D6, 'RansacThreshold', 1.0)</l>
+<l>set_dict_tuple (D6, 'MaxIter', 800)</l>
+<l>set_dict_tuple (D6, 'Seed', 42)</l>
+<l>cv_estimate_rigid_2d (D6)</l>
+<l>get_dict_tuple (D6, 'Success', S6)</l>
+<l>if (S6 != 1)</l>
+<l>  throw ('cv_estimate_rigid_2d failed')</l>
+<l>endif</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

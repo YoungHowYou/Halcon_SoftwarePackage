@@ -23,6 +23,17 @@
 <l>sqls:= 'SELECT * from COMPANY'</l>
 <l>sqlite3_get_table (sqlH, sqls, table_names, X, Y, errmsg)</l>
 <l>* sqlite3_close (sqlH)</l>
+<c>* ===== sqlite3_loadOrSaveDb：内存库 → 文件 → 新连接加载回读 =====</c>
+<l>sqlite3_loadOrSaveDb (sqlH, 'cv_backup.db', 1)</l>
+<l>sqlite3_open (':memory:', sqlH2)</l>
+<l>sqlite3_loadOrSaveDb (sqlH2, 'cv_backup.db', 0)</l>
+<l>sqlite3_get_table (sqlH2, 'SELECT COUNT(*) from COMPANY', table2, X2, Y2, errmsg2)</l>
+<l>* 期望: X2=1 行 Y2=1 列（COUNT(*) 结果）</l>
+<l>if (X2 != 1 or Y2 != 1)</l>
+<l>  throw ('sqlite3_loadOrSaveDb: reload query failed')</l>
+<l>endif</l>
+<l>sqlite3_close (sqlH2)</l>
+<l>delete_file ('cv_backup.db')</l>
 </body>
 <docu id="main">
 <parameters/>

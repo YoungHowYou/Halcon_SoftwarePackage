@@ -8,17 +8,26 @@
 <c>*   仅支持 8 位单通道（OpenCV 的 THRESH_TRIANGLE 限制）</c>
 <c>*   输出二值图 + 自动计算出的阈值</c>
 <c>* =============================================================</c>
-<c>* 生成 0..255 的水平灰度渐变图（256×256）</c>
-<l>gen_image_gray_ramp (Image, 'x', 0, 0, 0, 0, 256, 256)</l>
+<l>read_image (Image, 'printer_chip/printer_chip_01')</l>
 <c>* 三角法自动阈值</c>
 <l>cv_threshold_triangle (Image, ImageOut, ThreshValue)</l>
-<c>* 期望: ThreshValue ≈ 128（渐变图的三角法阈值在中间）</c>
+<c>* 期望: ThreshValue 落在 (0, 255) 区间内</c>
+<l>if (ThreshValue &lt;= 0 or ThreshValue &gt;= 255)</l>
+<l>  throw ('cv_threshold_triangle: ThreshValue out of range: ' + ThreshValue)</l>
+<l>endif</l>
 <l>get_image_size (ImageOut, Width, Height)</l>
-<c>* 期望: Width = 256, Height = 256</c>
-<c>* 检查左半部分被置为 0（暗），右半部分被置为 255（亮）</c>
-<l>get_grayval (ImageOut, 100, 10, DarkVal)</l>
-<l>get_grayval (ImageOut, 100, 245, BrightVal)</l>
-<c>* 期望: DarkVal = 0, BrightVal = 255</c>
+<c>* 期望: 输出尺寸 == 输入尺寸</c>
+<l>get_image_size (Image, IW, IH)</l>
+<l>if (Width != IW or Height != IH)</l>
+<l>  throw ('cv_threshold_triangle: output size mismatch')</l>
+<l>endif</l>
+<c>* 输出必须严格二值（只有 0 和 255）</c>
+<c>* 统计前景像素数：阈值 1..255 的像素个数应 &gt; 0</c>
+<l>threshold (ImageOut, Foreground, 1, 255)</l>
+<l>area_center (Foreground, FgArea, _, _)</l>
+<l>if (FgArea &lt;= 0)</l>
+<l>  throw ('cv_threshold_triangle: no foreground pixels')</l>
+<l>endif</l>
 </body>
 <docu id="main">
 <parameters/>

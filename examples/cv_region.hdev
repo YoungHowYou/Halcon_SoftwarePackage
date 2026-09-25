@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>read_image (Image, 'printer_chip/printer_chip_01')</l>
+<c></c>
+<l>threshold (Image, Regions, 66, 255)</l>
+<l>connection (Regions, ConnectedRegions1)</l>
+<l>cv_connection (Regions, ConnectedRegions)</l>
+<c></c>
+<l>* 集合代数对照</l>
+<l>gen_rectangle1 (R1, 10, 10, 50, 50)</l>
+<l>gen_rectangle1 (R2, 30, 30, 70, 70)</l>
+<l>cv_union2 (R1, R2, RUnion)</l>
+<l>area_center (RUnion, AreaUnion, Row, Col)</l>
+<l>if (AreaUnion &lt; 2500)</l>
+<l>  throw ('cv_union2 area too small: ' + AreaUnion)</l>
+<l>endif</l>
+<c></c>
+<l>cv_intersection (R1, R2, RInter)</l>
+<l>area_center (RInter, AreaInter, Row, Col)</l>
+<l>if (AreaInter &lt; 400 or AreaInter &gt; 900)</l>
+<l>  throw ('cv_intersection area unexpected: ' + AreaInter)</l>
+<l>endif</l>
+<c></c>
+<l>* 形态学 + 形状筛选</l>
+<l>gen_circle (SE, 0, 0, 3.5)</l>
+<l>cv_erosion1 (RUnion, SE, REroded, 1)</l>
+<l>area_center (REroded, AreaEroded, Row, Col)</l>
+<l>if (AreaEroded &gt; AreaUnion)</l>
+<l>  throw ('cv_erosion1 area increased')</l>
+<l>endif</l>
+<c></c>
+<l>cv_select_shape (ConnectedRegions, Selected, 'area', 'and', 500, 99999999)</l>
+<l>count_obj (Selected, NSel)</l>
+<l>if (NSel &lt; 1)</l>
+<l>  throw ('cv_select_shape returned empty')</l>
+<l>endif</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

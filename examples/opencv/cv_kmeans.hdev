@@ -7,6 +7,7 @@
 <c>* cv_kmeans — K 均值聚类（OpenCV）</c>
 <c>*   样本矩阵样本: real N×D（N 个样本，每行 D 维特征）</c>
 <c>*   输出 Labels: real N×1（整数标签），Centers: real K×D</c>
+<c>*   Flags: 'random' / 'pp' / 'use_initial_labels'（或整数 0/1/2）</c>
 <c>* =============================================================</c>
 <c>* 构造 6 个二维样本，分两簇：</c>
 <c>*   簇A: (1.0,1.0), (1.2,0.8), (0.8,1.2)</c>
@@ -24,19 +25,25 @@
 <l>set_grayval (Samples, 4, 1, 9.8)</l>
 <l>set_grayval (Samples, 5, 0, 9.8)</l>
 <l>set_grayval (Samples, 5, 1, 10.2)</l>
-<c>* K=2, attempts=10, 终止精度 1e-4, 最大迭代 100</c>
-<l>cv_kmeans (Samples, Labels, Centers, 2, 10, 1.0e-4, 100)</l>
-<c>* 检查标签：前 3 个样本应同类，后 3 个同类（标签值具体是 0 或 1 由聚类决定）</c>
+<c>* K=2, attempts=10, 终止精度 1e-4, 最大迭代 100, 字符串 Flags</c>
+<l>cv_kmeans (Samples, Labels, Centers, 2, 10, 1.0e-4, 100, 'random')</l>
+<c>* 检查标签：前 3 个样本应同类，后 3 个同类（0/1 由聚类决定）</c>
 <l>get_grayval (Labels, 0, 0, L0)</l>
 <l>get_grayval (Labels, 1, 0, L1)</l>
 <l>get_grayval (Labels, 3, 0, L3)</l>
-<c>* 期望: L0 = L1 且 L0 ≠ L3</c>
-<c>* 检查聚类中心</c>
+<l>if (L0 != L1 or L0 == L3)</l>
+<l>  throw ('cv_kmeans labels wrong: ' + L0 + ',' + L1 + ',' + L3)</l>
+<l>endif</l>
+<c>* 检查聚类中心：尺寸 2×2，且两个中心分别在 (1,1) 和 (10,10) 附近</c>
 <l>get_image_size (Centers, CW, CH)</l>
-<c>* 期望: CW = 2, CH = 2（2 个中心 × 2 维）</c>
+<l>if (CW != 2 or CH != 2)</l>
+<l>  throw ('cv_kmeans centers size wrong')</l>
+<l>endif</l>
 <l>get_grayval (Centers, 0, 0, C00)</l>
 <l>get_grayval (Centers, 1, 0, C10)</l>
-<c>* 期望: 两个中心一个在 (1,1) 附近，另一个在 (10,10) 附近</c>
+<l>if (not ((C00 &lt; 2 and C10 &gt; 9) or (C00 &gt; 9 and C10 &lt; 2)))</l>
+<l>  throw ('cv_kmeans centers wrong: ' + C00 + ',' + C10)</l>
+<l>endif</l>
 </body>
 <docu id="main">
 <parameters/>

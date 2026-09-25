@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">CLAHE_image</span><span data-if="c" style="display:none;">CLAHE_image</span><span data-if="cpp" style="display:none;">CLAHEImage</span><span data-if="dotnet" style="display:none;">CLAHEImage</span><span data-if="python" style="display:none;">CLAHE_image</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">CLAHE_image</span><span data-if="c" style="display:none;">CLAHE_image</span><span data-if="cpp" style="display:none;">CLAHEImage</span><span data-if="dotnet" style="display:none;">CLAHEImage</span><span data-if="python" style="display:none;">CLAHE_image</span></code> — CLAHE image enhancement.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">CLAHE_image</span><span data-if="c" style="display:none;">CLAHE_image</span><span data-if="cpp" style="display:none;">CLAHEImage</span><span data-if="dotnet" style="display:none;">CLAHEImage</span><span data-if="python" style="display:none;">CLAHE_image</span></code> — 对比度受限自适应直方图均衡，对应 cv::CLAHE。支持 byte/uint2 单通道；TileGridSize 为网格行列数，ClipLimit 为对比度限制阈值。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1120,31 +1120,31 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="inimage" class="parname"><b><code><span data-if="hdevelop" style="display:inline">inimage</span><span data-if="c" style="display:none">inimage</span><span data-if="cpp" style="display:none">inimage</span><span data-if="dotnet" style="display:none">inimage</span><span data-if="python" style="display:none">inimage</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">单通道 byte / uint2</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="outimage" class="parname"><b><code><span data-if="hdevelop" style="display:inline">outimage</span><span data-if="c" style="display:none">outimage</span><span data-if="cpp" style="display:none">outimage</span><span data-if="dotnet" style="display:none">outimage</span><span data-if="python" style="display:none">outimage</span></code></b> (output_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">与输入同类型同尺寸</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="k_width" class="parname"><b><code><span data-if="hdevelop" style="display:inline">k_width</span><span data-if="c" style="display:none">k_width</span><span data-if="cpp" style="display:none">k_width</span><span data-if="dotnet" style="display:none">kWidth</span><span data-if="python" style="display:none">k_width</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">分块宽度</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="k_height" class="parname"><b><code><span data-if="hdevelop" style="display:inline">k_height</span><span data-if="c" style="display:none">k_height</span><span data-if="cpp" style="display:none">k_height</span><span data-if="dotnet" style="display:none">kHeight</span><span data-if="python" style="display:none">k_height</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">分块高度</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="clipLimit" class="parname"><b><code><span data-if="hdevelop" style="display:inline">clipLimit</span><span data-if="c" style="display:none">clipLimit</span><span data-if="cpp" style="display:none">clipLimit</span><span data-if="dotnet" style="display:none">clipLimit</span><span data-if="python" style="display:none">clip_limit</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">对比度裁剪阈值</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

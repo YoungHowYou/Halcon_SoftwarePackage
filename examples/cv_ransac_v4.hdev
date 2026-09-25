@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>* ===== 1. 显式二次多项式（显式给出全部参数，ModelType=0） =====</l>
+<l>XData := [0,1,2,3,4]</l>
+<l>YData := [1,3,7,13,21]</l>
+<l>cv_ransac_fit ('a*pow(x,2)+b*x+c', ['a','b','c'], [0.5,0.5,0.5], XData, YData, 'x', 1.0, 1000, 0.2, 0, 'x', 3, 0.99, 0, PV, Mask, RSS, Iter, Status, SM, Ratio)</l>
+<l>if (Status != 0)</l>
+<l>  throw ('explicit quadratic failed: ' + SM)</l>
+<l>endif</l>
+<l>if (fabs(PV[0]-1.0) &gt; 1e-3 or fabs(PV[1]-1.0) &gt; 1e-3 or fabs(PV[2]-1.0) &gt; 1e-3)</l>
+<l>  throw ('explicit quadratic params wrong: ' + PV)</l>
+<l>endif</l>
+<l>if (Ratio &lt; 0.99)</l>
+<l>  throw ('explicit quadratic ratio too low: ' + Ratio)</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 2. 隐式圆拟合：圆心 (2,3) 半径 5，含离群点，ModelType=1 =====</l>
+<l>X2 := []</l>
+<l>Y2 := []</l>
+<l>for I := 0 to 23 by 1</l>
+<l>  T := 6.28318530718 * I / 24</l>
+<l>  X2 := [X2, 2.0 + 5.0*cos(T)]</l>
+<l>  Y2 := [Y2, 3.0 + 5.0*sin(T)]</l>
+<l>endfor</l>
+<l>* 注入 6 个离群点</l>
+<l>for I := 0 to 5 by 1</l>
+<l>  X2 := [X2, 2.0 + 12.0*cos(I)]</l>
+<l>  Y2 := [Y2, 3.0 + 12.0*sin(I)]</l>
+<l>endfor</l>
+<l>cv_ransac_fit ('pow(x-cx,2)+pow(y-cy,2)-r*r', ['cx','cy','r'], [0,0,1], X2, Y2, 'x', 0.5, 3000, 0.35, 1, 'y', 3, 0.99, 42, PV2, Mask2, RSS2, Iter2, Status2, SM2, Ratio2)</l>
+<l>if (Status2 != 0)</l>
+<l>  throw ('implicit circle failed: ' + SM2)</l>
+<l>endif</l>
+<l>if (fabs(PV2[0]-2.0) &gt; 0.05 or fabs(PV2[1]-3.0) &gt; 0.05 or fabs(PV2[2]-5.0) &gt; 0.05)</l>
+<l>  throw ('implicit circle params wrong: ' + PV2)</l>
+<l>endif</l>
+<l>* 最后 6 个离群点应被掩掉</l>
+<l>for I := 24 to 29 by 1</l>
+<l>  if (Mask2[I] != 0)</l>
+<l>    throw ('implicit circle: outlier not masked at ' + I)</l>
+<l>  endif</l>
+<l>endfor</l>
+<c></c>
+<l>* ===== 3. 隐式直线（圆锥特例，应自动识别线性求解）：2x - y + 1 = 0 =====</l>
+<l>X3 := [0,1,2,3,4,5,6,7,8,9,10,11]</l>
+<l>Y3 := [1,3,5,7,9,11,13,15,17,19,21,23]</l>
+<l>cv_ransac_fit ('A*x+B*y+C', ['A','B','C'], [0,0,0], X3, Y3, 'x', 0.001, 500, 0.0, 1, 'y', 2, 0.99, 7, PV3, Mask3, RSS3, Iter3, Status3, SM3, Ratio3)</l>
+<l>if (Status3 != 0)</l>
+<l>  throw ('implicit line failed: ' + SM3)</l>
+<l>endif</l>
+<l>* A/B 应 ≈ -2（整体缩放无关）</l>
+<l>if (fabs(PV3[0]/PV3[1] + 2.0) &gt; 1e-2)</l>
+<l>  throw ('implicit line A/B wrong: ' + (PV3[0]/PV3[1]))</l>
+<l>endif</l>
+<c></c>
+<l>* ===== 4. 种子可复现：相同 Seed 两次调用结果一致 =====</l>
+<l>X4 := [0,1,2,3,4,5,6,7,8,9]</l>
+<l>Y4 := [1,3,5,7,9,11,13,15,17,19]</l>
+<l>Y4[3] := Y4[3] + 50</l>
+<l>Y4[7] := Y4[7] + 50</l>
+<l>cv_ransac_fit ('a*x+b', ['a','b'], [0,0], X4, Y4, 'x', 1.0, 500, 0.3, 0, 'x', 2, 0.99, 99, PA, MA, RA, IA, SA, SMA, RTA)</l>
+<l>cv_ransac_fit ('a*x+b', ['a','b'], [0,0], X4, Y4, 'x', 1.0, 500, 0.3, 0, 'x', 2, 0.99, 99, PB, MB, RB, IB, SB, SMB, RTB)</l>
+<l>if (SA != SB)</l>
+<l>  throw ('seed reproducibility: status differs')</l>
+<l>endif</l>
+<l>if (fabs(PA[0]-PB[0]) &gt; 1e-9 or fabs(PA[1]-PB[1]) &gt; 1e-9)</l>
+<l>  throw ('seed reproducibility: params differ')</l>
+<l>endif</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

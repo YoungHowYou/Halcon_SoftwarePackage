@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_add_weighted</span><span data-if="c" style="display:none;">cv_add_weighted</span><span data-if="cpp" style="display:none;">CvAddWeighted</span><span data-if="dotnet" style="display:none;">CvAddWeighted</span><span data-if="python" style="display:none;">cv_add_weighted</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_add_weighted</span><span data-if="c" style="display:none;">cv_add_weighted</span><span data-if="cpp" style="display:none;">CvAddWeighted</span><span data-if="dotnet" style="display:none;">CvAddWeighted</span><span data-if="python" style="display:none;">cv_add_weighted</span></code> — Computes the weighted sum of two images (supports 8-bit, 16-bit and real single-channel images).</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_add_weighted</span><span data-if="c" style="display:none;">cv_add_weighted</span><span data-if="cpp" style="display:none;">CvAddWeighted</span><span data-if="dotnet" style="display:none;">CvAddWeighted</span><span data-if="python" style="display:none;">cv_add_weighted</span></code> — 两图加权相加：Out = alpha*Src1 + beta*Src2 + gamma，对应 cv::addWeighted。支持 byte/uint2/real 单通道。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1120,25 +1120,25 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="imageA" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageA</span><span data-if="c" style="display:none">imageA</span><span data-if="cpp" style="display:none">imageA</span><span data-if="dotnet" style="display:none">imageA</span><span data-if="python" style="display:none">image_a</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">单通道 byte / uint2 / real</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="imageB" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageB</span><span data-if="c" style="display:none">imageB</span><span data-if="cpp" style="display:none">imageB</span><span data-if="dotnet" style="display:none">imageB</span><span data-if="python" style="display:none">image_b</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">与 ImageA 同类型同尺寸</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="imageOut" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageOut</span><span data-if="c" style="display:none">imageOut</span><span data-if="cpp" style="display:none">imageOut</span><span data-if="dotnet" style="display:none">imageOut</span><span data-if="python" style="display:none">image_out</span></code></b> (output_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">与输入同类型同尺寸</p>
 </div>
   <div class="par">
 <div class="parhead">
 <span id="alpha" class="parname"><b><code><span data-if="hdevelop" style="display:inline">alpha</span><span data-if="c" style="display:none">alpha</span><span data-if="cpp" style="display:none">alpha</span><span data-if="dotnet" style="display:none">alpha</span><span data-if="python" style="display:none">alpha</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">权重，默认 1.0</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>1.0</p>
@@ -1147,7 +1147,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="beta" class="parname"><b><code><span data-if="hdevelop" style="display:inline">beta</span><span data-if="c" style="display:none">beta</span><span data-if="cpp" style="display:none">beta</span><span data-if="dotnet" style="display:none">beta</span><span data-if="python" style="display:none">beta</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">权重，默认 1.0</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>1.0</p>
@@ -1156,7 +1156,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="gamma" class="parname"><b><code><span data-if="hdevelop" style="display:inline">gamma</span><span data-if="c" style="display:none">gamma</span><span data-if="cpp" style="display:none">gamma</span><span data-if="dotnet" style="display:none">gamma</span><span data-if="python" style="display:none">gamma</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">偏置，默认 0.0</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0.0</p>

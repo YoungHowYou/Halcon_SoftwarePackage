@@ -7,34 +7,40 @@
 <c>* cv_filter2d — OpenCV 图像卷积（单通道）</c>
 <c>*   支持 8 位(byte) / 16 位(uint2) / 浮点(real) 单通道图像</c>
 <c>*   kernel 必须为 real 单通道图像（卷积核）</c>
+<c>*   Ddepth/Anchor/Delta/BorderType 全开放；Ddepth='same' 或 -1 保持原深度</c>
 <c>* =============================================================</c>
 <c>* 创建一个 3×3 均值卷积核（real 单通道）</c>
 <l>gen_image_const (Kernel, 'real', 3, 3)</l>
-<l>set_grayval (Kernel, 0, 0, 0.111)</l>
-<l>set_grayval (Kernel, 0, 1, 0.111)</l>
-<l>set_grayval (Kernel, 0, 2, 0.111)</l>
-<l>set_grayval (Kernel, 1, 0, 0.111)</l>
-<l>set_grayval (Kernel, 1, 1, 0.111)</l>
-<l>set_grayval (Kernel, 1, 2, 0.111)</l>
-<l>set_grayval (Kernel, 2, 0, 0.111)</l>
-<l>set_grayval (Kernel, 2, 1, 0.111)</l>
-<l>set_grayval (Kernel, 2, 2, 0.111)</l>
+<l>for R := 0 to 2 by 1</l>
+<l>  for C := 0 to 2 by 1</l>
+<l>    set_grayval (Kernel, R, C, 0.111)</l>
+<l>  endfor</l>
+<l>endfor</l>
 <c>* ---- 1) 16 位图像 ----</c>
 <l>gen_image_const (ImageUint2, 'uint2', 5, 5)</l>
 <l>set_grayval (ImageUint2, 2, 2, 65535)</l>
-<l>cv_filter2d (ImageUint2, Kernel, ImageUint2Out)</l>
+<l>cv_filter2d (ImageUint2, Kernel, ImageUint2Out, 'same', -1, -1, 0.0, 'border_default')</l>
 <c>* ---- 2) 浮点(real)图像 ----</c>
 <l>gen_image_const (ImageReal, 'real', 5, 5)</l>
 <l>set_grayval (ImageReal, 2, 2, 100.0)</l>
-<l>cv_filter2d (ImageReal, Kernel, ImageRealOut)</l>
+<l>cv_filter2d (ImageReal, Kernel, ImageRealOut, -1, -1, -1, 0.0, 'default')</l>
 <c>* ---- 3) 8 位图像 ----</c>
 <l>gen_image_const (ImageByte, 'byte', 5, 5)</l>
 <l>set_grayval (ImageByte, 2, 2, 255)</l>
-<l>cv_filter2d (ImageByte, Kernel, ImageByteOut)</l>
-<c>* 读取中心像素结果核对</c>
+<l>cv_filter2d (ImageByte, Kernel, ImageByteOut, -1, -1, -1, 0.0, 4)</l>
+<c>* 中心像素核对：单亮点被 0.111 加权（≈1/9）</c>
 <l>get_grayval (ImageUint2Out, 2, 2, VUint2)</l>
 <l>get_grayval (ImageRealOut, 2, 2, VReal)</l>
 <l>get_grayval (ImageByteOut, 2, 2, VByte)</l>
+<l>if (abs(VUint2 - 7274) &gt; 2)</l>
+<l>  throw ('cv_filter2d uint2 wrong: ' + VUint2)</l>
+<l>endif</l>
+<l>if (abs(VReal - 11.1) &gt; 0.2)</l>
+<l>  throw ('cv_filter2d real wrong: ' + VReal)</l>
+<l>endif</l>
+<l>if (VByte != 28)</l>
+<l>  throw ('cv_filter2d byte wrong: ' + VByte)</l>
+<l>endif</l>
 </body>
 <docu id="main">
 <parameters/>

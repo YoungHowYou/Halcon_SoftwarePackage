@@ -107,6 +107,7 @@ Herror Hmysql_store_result(Hproc_handle proc_handle)
 	}
 
 	HPutElem(proc_handle, 1, Buffer, (INT4_8)n, STRING_PAR);
+	HFreeTmp(proc_handle, Buffer, (INT4_8)(sizeof(char *) * total));
 	mysql_free_result(result);
 	return H_MSG_TRUE;
 }

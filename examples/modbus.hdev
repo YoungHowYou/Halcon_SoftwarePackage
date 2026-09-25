@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <hdevelop file_version="1.2" halcon_version="24.11.1.0">
 <procedure name="main">
 <interface/>
@@ -30,6 +30,12 @@
 <l>modbus_read_register_float (handle, 0, 'abcd', value)</l>
 <l>modbus_write_register_int (handle, 0, 5555555300000000, 64)</l>
 <l>modbus_read_register_int (handle, 0, 64, VV)</l>
+<l>* 批量写位 / 写寄存器</l>
+<l>modbus_write_bits (handle, 0, [1, 0, 1, 1])</l>
+<l>modbus_write_registers (handle, 0, [100, 200, 300])</l>
+<l>* 读取库错误信息 / 关闭连接</l>
+<l>modbus_strerror (ErrMsg)</l>
+<l>modbus_close (handle)</l>
 </body>
 <docu id="main">
 <parameters/>

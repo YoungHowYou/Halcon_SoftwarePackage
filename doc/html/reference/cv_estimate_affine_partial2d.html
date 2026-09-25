@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_estimate_affine_partial2d</span><span data-if="c" style="display:none;">T_cv_estimate_affine_partial2d</span><span data-if="cpp" style="display:none;">CvEstimateAffinePartial2d</span><span data-if="dotnet" style="display:none;">CvEstimateAffinePartial2d</span><span data-if="python" style="display:none;">cv_estimate_affine_partial2d</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_estimate_affine_partial2d</span><span data-if="c" style="display:none;">T_cv_estimate_affine_partial2d</span><span data-if="cpp" style="display:none;">CvEstimateAffinePartial2d</span><span data-if="dotnet" style="display:none;">CvEstimateAffinePartial2d</span><span data-if="python" style="display:none;">cv_estimate_affine_partial2d</span></code> — Estimate partial affine transformation using RANSAC (OpenCV).</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_estimate_affine_partial2d</span><span data-if="c" style="display:none;">T_cv_estimate_affine_partial2d</span><span data-if="cpp" style="display:none;">CvEstimateAffinePartial2d</span><span data-if="dotnet" style="display:none;">CvEstimateAffinePartial2d</span><span data-if="python" style="display:none;">cv_estimate_affine_partial2d</span></code> — 部分仿射变换估计（4 自由度：平移+旋转+各向同性缩放），对应 cv::estimateAffinePartial2D。源/目标点集经 dict 元组传入（各 ≥3 点），结果 HomMat2D（2×3 展开）/Success/InlierCount 及平移/角度/缩放写回 dict；Method/MaxIters/Confidence/RefineIters 经 dict 键可调。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1118,7 +1118,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="DictHandle" class="parname"><b><code><span data-if="hdevelop" style="display:inline">DictHandle</span><span data-if="c" style="display:none">DictHandle</span><span data-if="cpp" style="display:none">DictHandle</span><span data-if="dotnet" style="display:none">dictHandle</span><span data-if="python" style="display:none">dict_handle</span></code></b> (input_control)  </span><span>handle <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">HHandle</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (handle)</span><span data-if="dotnet" style="display:none"> (<i>IntPtr</i>)</span><span data-if="cpp" style="display:none"> (<i>HHandle</i>)</span><span data-if="c" style="display:none"> (<i>handle</i>)</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>
