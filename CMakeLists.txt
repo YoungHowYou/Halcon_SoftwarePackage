@@ -244,9 +244,6 @@ target_include_directories(${ProjectName}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/cv_region/include>
     $<BUILD_INTERFACE:${OpenCV_INCLUDE_DIRS}>
-  PRIVATE
-    # ransac 内部头（ransac_core.h/optimizer.h/model_expression.h 在 cv_region/src）
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/cv_region/src>
 )
 
 #=============================================================================

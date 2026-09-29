@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>cv_subtract [HALCON Operator Reference / Version 24.11.1.0]</title>
+<title>cv_divide [HALCON Operator Reference / Version 24.11.1.0]</title>
 <style type="text/css">
 
       body {
@@ -1083,31 +1083,31 @@ toggleLanguage(new_lang,1);return;}
 </div>
 <!--OP_REF_HEADER_END-->
 <h1 id="sec_name">
-<span data-if="hdevelop" style="display:inline;">cv_subtract</span><span data-if="c" style="display:none;">cv_subtract</span><span data-if="cpp" style="display:none;">CvSubtract</span><span data-if="dotnet" style="display:none;">CvSubtract</span><span data-if="python" style="display:none;">cv_subtract</span> (Operator)</h1>
+<span data-if="hdevelop" style="display:inline;">cv_divide</span><span data-if="c" style="display:none;">cv_divide</span><span data-if="cpp" style="display:none;">CvDivide</span><span data-if="dotnet" style="display:none;">CvDivide</span><span data-if="python" style="display:none;">cv_divide</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_subtract</span><span data-if="c" style="display:none;">cv_subtract</span><span data-if="cpp" style="display:none;">CvSubtract</span><span data-if="dotnet" style="display:none;">CvSubtract</span><span data-if="python" style="display:none;">cv_subtract</span></code> — 两图逐元素相减（饱和截断），对应 cv::subtract。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 指定输出类型：-1 或 'same' 保持输入类型，'u8'/'u16'/'s32'/'f32' 分别输出 byte/uint2/int4/real（'s8'/'s16'/'f64' 无 HALCON 对应类型，会报错）。</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_divide</span><span data-if="c" style="display:none;">cv_divide</span><span data-if="cpp" style="display:none;">CvDivide</span><span data-if="dotnet" style="display:none;">CvDivide</span><span data-if="python" style="display:none;">cv_divide</span></code> — 两图逐元素相除（整除，向零取整），对应 cv::divide：Out = saturate(Scale * A / B)，除零结果为 0。Scale 为乘性系数，默认 1.0。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 语义同 cv_add。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
-<code><b>cv_subtract</b>(<a href="#imageA"><i>imageA</i></a>, <a href="#imageB"><i>imageB</i></a> : <a href="#imageOut"><i>imageOut</i></a> : <a href="#dtype"><i>dtype</i></a> : )</code></p>
+<code><b>cv_divide</b>(<a href="#imageA"><i>imageA</i></a>, <a href="#imageB"><i>imageB</i></a> : <a href="#imageOut"><i>imageOut</i></a> : <a href="#scale"><i>scale</i></a>, <a href="#dtype"><i>dtype</i></a> : )</code></p>
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>cv_subtract</b>(const Hobject <a href="#imageA"><i>imageA</i></a>, const Hobject <a href="#imageB"><i>imageB</i></a>, Hobject* <a href="#imageOut"><i>imageOut</i></a>, const Hlong <a href="#dtype"><i>dtype</i></a>)</code></p>
+<code>Herror <b>cv_divide</b>(const Hobject <a href="#imageA"><i>imageA</i></a>, const Hobject <a href="#imageB"><i>imageB</i></a>, Hobject* <a href="#imageOut"><i>imageOut</i></a>, double <a href="#scale"><i>scale</i></a>, const Hlong <a href="#dtype"><i>dtype</i></a>)</code></p>
 <p>
-<code>Herror <b>T_cv_subtract</b>(const Hobject <a href="#imageA"><i>imageA</i></a>, const Hobject <a href="#imageB"><i>imageB</i></a>, Hobject* <a href="#imageOut"><i>imageOut</i></a>, const Htuple <a href="#dtype"><i>dtype</i></a>)</code></p>
+<code>Herror <b>T_cv_divide</b>(const Hobject <a href="#imageA"><i>imageA</i></a>, const Hobject <a href="#imageB"><i>imageB</i></a>, Hobject* <a href="#imageOut"><i>imageOut</i></a>, const Htuple <a href="#scale"><i>scale</i></a>, const Htuple <a href="#dtype"><i>dtype</i></a>)</code></p>
 </div>
 <div data-if="cpp" style="display:none;">
 <p>
-<code>void <b>CvSubtract</b>(const HObject&amp; <a href="#imageA"><i>imageA</i></a>, const HObject&amp; <a href="#imageB"><i>imageB</i></a>, HObject* <a href="#imageOut"><i>imageOut</i></a>, const HTuple&amp; <a href="#dtype"><i>dtype</i></a>)</code></p>
+<code>void <b>CvDivide</b>(const HObject&amp; <a href="#imageA"><i>imageA</i></a>, const HObject&amp; <a href="#imageB"><i>imageB</i></a>, HObject* <a href="#imageOut"><i>imageOut</i></a>, const HTuple&amp; <a href="#scale"><i>scale</i></a>, const HTuple&amp; <a href="#dtype"><i>dtype</i></a>)</code></p>
 </div>
 <div data-if="dotnet" style="display:none;">
 <p>
-<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvSubtract</b>(<a href="HObject.html">HObject</a> <a href="#imageA"><i>imageA</i></a>, <a href="HObject.html">HObject</a> <a href="#imageB"><i>imageB</i></a>, out <a href="HObject.html">HObject</a> <a href="#imageOut"><i>imageOut</i></a>, <a href="HTuple.html">HTuple</a> <a href="#dtype"><i>dtype</i></a>)</code></p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvDivide</b>(<a href="HObject.html">HObject</a> <a href="#imageA"><i>imageA</i></a>, <a href="HObject.html">HObject</a> <a href="#imageB"><i>imageB</i></a>, out <a href="HObject.html">HObject</a> <a href="#imageOut"><i>imageOut</i></a>, <a href="HTuple.html">HTuple</a> <a href="#scale"><i>scale</i></a>, <a href="HTuple.html">HTuple</a> <a href="#dtype"><i>dtype</i></a>)</code></p>
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>cv_subtract</b>(<a href="#imageA"><i>image_a</i></a>: HObject, <a href="#imageB"><i>image_b</i></a>: HObject, <a href="#dtype"><i>dtype</i></a>: Union[str, int]) -&gt; HObject</code></p>
+<code>def <b>cv_divide</b>(<a href="#imageA"><i>image_a</i></a>: HObject, <a href="#imageB"><i>image_b</i></a>: HObject, <a href="#scale"><i>scale</i></a>: Union[float, int], <a href="#dtype"><i>dtype</i></a>: Union[str, int]) -&gt; HObject</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1133,6 +1133,15 @@ toggleLanguage(new_lang,1);return;}
 <span id="imageOut" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageOut</span><span data-if="c" style="display:none">imageOut</span><span data-if="cpp" style="display:none">imageOut</span><span data-if="dotnet" style="display:none">imageOut</span><span data-if="python" style="display:none">image_out</span></code></b> (output_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
 </div>
 <p class="pardesc">输出图像（类型由 Dtype 决定，尺寸同输入）</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="scale" class="parname"><b><code><span data-if="hdevelop" style="display:inline">scale</span><span data-if="c" style="display:none">scale</span><span data-if="cpp" style="display:none">scale</span><span data-if="dotnet" style="display:none">scale</span><span data-if="python" style="display:none">scale</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
+</div>
+<p class="pardesc">乘性系数，默认 1.0</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>1.0</p>
 </div>
   <div class="par">
 <div class="parhead">

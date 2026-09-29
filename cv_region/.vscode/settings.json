@@ -1,0 +1,21 @@
+{
+  // 与父工程 Halcon_SoftwarePackage 保持一致：锁定 CMake 3.30.5（PATH 上的 4.4.3 不用）
+  "cmake.cmakePath": "C:/cmake-3.30.5-windows-x86_64/bin/cmake.exe",
+  "cmake.generator": "Visual Studio 16 2019",
+  "cmake.platform": "x64",
+
+  "cmake.configureSettings": {
+    // 必须使用 vcpkg 工具链，否则找不到 Eigen3 / muparser / OpenCV
+    "CMAKE_TOOLCHAIN_FILE": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
+
+    // cv_region 目录下没有 vcpkg.json，走 classic 模式；
+    // 依赖复用父工程 manifest 模式已安装好的那棵树（全局 C:/vcpkg/installed 里没有这些包）
+    "VCPKG_MANIFEST_MODE": "OFF",
+    "VCPKG_INSTALLED_DIR": "D:/desk/source/Halcon_Extension/Halcon_SoftwarePackage/build/vcpkg_installed",
+    "CMAKE_PREFIX_PATH": "D:/desk/source/Halcon_Extension/Halcon_SoftwarePackage/build/vcpkg_installed/x64-windows",
+
+    // 顶层独立构建：测试与 OpenCV 桥都打开
+    "CVR_BUILD_TESTS": "ON",
+    "CVR_BUILD_OPENCV": "ON"
+  }
+}

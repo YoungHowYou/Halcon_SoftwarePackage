@@ -1125,6 +1125,16 @@ toggleLanguage(new_lang,1);return;}
 <td>One-dimensional interpolation using Armadillo interp1.</td>
 </tr>
         <tr>
+<td><code><a href="cv_add.html">CvAdd</a></code></td>
+<td>  </td>
+<td>两图逐元素相加（饱和截断），对应 cv::add。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 指定输出类型：-1 或 'same' 保持输入类型，'u8'/'u16'/'s32'/'f32' 分别输出 byte/uint2/int4/real（'s8'/'s16'/'f64' 无 HALCON 对应类型，会报错）。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_add_masked.html">CvAddMasked</a></code></td>
+<td>  </td>
+<td>带掩膜的逐元素相加，对应 cv::add 的 mask 参数。Mask 为 byte 单通道图像（非零处参与运算，尺寸须与输入一致），掩膜外像素保持 imageA 原值。其余同 cv_add。</td>
+</tr>
+        <tr>
 <td><code><a href="cv_add_weighted.html">CvAddWeighted</a></code></td>
 <td>  </td>
 <td>两图加权相加：Out = alpha*Src1 + beta*Src2 + gamma，对应 cv::addWeighted。支持 byte/uint2/real 单通道。</td>
@@ -1152,7 +1162,7 @@ toggleLanguage(new_lang,1);return;}
         <tr>
 <td><code><a href="cv_bin_to_region.html">CvBinToRegion</a></code></td>
 <td>  </td>
-<td>byte 二值图转 region（gray ≥ Threshold 的像素），对应 HALCON bin_threshold 的逆过程。</td>
+<td>数值类型图像转 region（gray ≥ Threshold 的像素），对应 HALCON threshold 的逆过程。支持 byte/int1/int2/uint2/int4/int8/real 单通道图像，比较以 double 进行、不受 num_bits 影响；Threshold 可为实数，real 图像可用小数阈值（如 0.5）。</td>
 </tr>
         <tr>
 <td><code><a href="cv_blur.html">CvBlur</a></code></td>
@@ -1225,6 +1235,16 @@ toggleLanguage(new_lang,1);return;}
 <td>矩形结构元膨胀，对应 HALCON dilation_rectangle1。</td>
 </tr>
         <tr>
+<td><code><a href="cv_divide.html">CvDivide</a></code></td>
+<td>  </td>
+<td>两图逐元素相除（整除，向零取整），对应 cv::divide：Out = saturate(Scale * A / B)，除零结果为 0。Scale 为乘性系数，默认 1.0。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 语义同 cv_add。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_divide_masked.html">CvDivideMasked</a></code></td>
+<td>  </td>
+<td>带掩膜的逐元素相除：掩膜外像素保持 imageA 原值，掩膜内 Out = saturate(Scale * A / B)，除零结果为 0。Mask 为 byte 单通道图像（尺寸须与输入一致）。其余同 cv_divide。</td>
+</tr>
+        <tr>
 <td><code><a href="cv_elliptic_axis.html">CvEllipticAxis</a></code></td>
 <td>  </td>
 <td>等效椭圆轴（长半轴 Ra、短半轴 Rb、主轴角 Phi），对应 HALCON elliptic_axis。</td>
@@ -1278,6 +1298,11 @@ toggleLanguage(new_lang,1);return;}
 <td><code><a href="cv_gen_rectangle1.html">CvGenRectangle1</a></code></td>
 <td>  </td>
 <td>生成轴对齐矩形 region，对应 HALCON gen_rectangle1。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_gen_rectangle2.html">CvGenRectangle2</a></code></td>
+<td>  </td>
+<td>生成旋转矩形 region，对应 HALCON gen_rectangle2。Row/Column 为中心坐标，Phi 为主轴与列轴夹角（弧度，HALCON 约定），Length1/Length2 为两个方向的半边长（Length1 沿主轴，均 ≥0）。栅格化口径为「像素方格与矩形相交即取」（像素 (r,c) 覆盖 [r-0.5,r+0.5]×[c-0.5,c+0.5]）：实测轴对齐、Phi=π/2、负中心裁剪三档与 HALCON gen_rectangle2 逐像素一致，倾斜档面积差约 2%。注意 Phi 与 cv_smallest_rectangle2 / cv_elliptic_axis 返回的 phi 反号（既有约定偏差）；口径也与 shape_trans 'rectangle2' 不同（后者面积可差约 5%）。参数为标量，不支持原生那样的元组批量。</td>
 </tr>
         <tr>
 <td><code><a href="cv_gray_closing_circle.html">CvGrayClosingCircle</a></code></td>
@@ -1365,6 +1390,16 @@ toggleLanguage(new_lang,1);return;}
 <td>多帧中值滤波：对 N 张同尺寸 real 图像逐像素取中值，输出单张 real 中值图（N=3 有特化快路径）。</td>
 </tr>
         <tr>
+<td><code><a href="cv_multiply.html">CvMultiply</a></code></td>
+<td>  </td>
+<td>两图逐元素相乘（饱和截断），对应 cv::multiply：Out = saturate(Scale * A * B)。Scale 为乘性系数，默认 1.0。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 语义同 cv_add。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_multiply_masked.html">CvMultiplyMasked</a></code></td>
+<td>  </td>
+<td>带掩膜的逐元素相乘：掩膜外像素保持 imageA 原值，掩膜内 Out = saturate(Scale * A * B)。Mask 为 byte 单通道图像（尺寸须与输入一致）。其余同 cv_multiply。</td>
+</tr>
+        <tr>
 <td><code><a href="cv_opening.html">CvOpening</a></code></td>
 <td>  </td>
 <td>region 开运算：先腐蚀后膨胀，去除细小亮结构。对应 HALCON opening。</td>
@@ -1385,6 +1420,11 @@ toggleLanguage(new_lang,1);return;}
 <td>矩形度，对应 HALCON rectangularity。</td>
 </tr>
         <tr>
+<td><code><a href="cv_region_features.html">CvRegionFeatures</a></code></td>
+<td>  </td>
+<td>按名称计算 region 的形状特征，对应 HALCON region_features。Features 为特征名元组，口径与 cv_select_shape 完全一致；支持 54 个名称：area/row/column/width/height/ratio/row1/column1/row2/column2/circularity/compactness/convexity/rectangularity/contlength/phi/ra/rb/anisometry/bulkiness/struct_factor（别名 structure_factor）/outer_radius/max_diameter/dist_mean/dist_deviation/roundness/num_sides/orientation/connect_num/holes_num/area_holes/euler_number/rect2_phi/rect2_len1/rect2_len2/moments_m11/moments_m20/moments_m02/moments_ia/moments_ib/moments_m11_invar/moments_m20_invar/moments_m02_invar/moments_phi1/moments_phi2/moments_m21/moments_m12/moments_m03/moments_m30/moments_m21_invar/moments_m12_invar/moments_m03_invar/moments_m30_invar。与 HALCON region_features 实测：27 个特征（ratio、outer_radius、rect2_len1/2、max_diameter、connect_num、holes_num、area_holes、euler_number 与 18 个 moments_*）数值一致（≤1e-13）；其余为已知偏差（phi 系符号相反、roundness 系轮廓口径不同，见 README）。Regions 可为元组，输出 Values 平铺为「区域数 × 特征数」，区域优先，同一区域的各特征值相邻。</td>
+</tr>
+        <tr>
 <td><code><a href="cv_region_to_bin.html">CvRegionToBin</a></code></td>
 <td>  </td>
 <td>region 转 byte 二值图，对应 HALCON region_to_bin。可指定前景/背景灰度与图像尺寸（0 表示自动推导）。</td>
@@ -1397,12 +1437,12 @@ toggleLanguage(new_lang,1);return;}
         <tr>
 <td><code><a href="cv_select_shape.html">CvSelectShape</a></code></td>
 <td>  </td>
-<td>按形状特征筛选 region 子集，对应 HALCON select_shape。Features 为多特征名元组，Operation 为 and/or，Min/Max 为阈值范围；输出保持引用语义。</td>
+<td>按形状特征筛选 region 子集，对应 HALCON select_shape。Features 为多特征名元组（可用名称与 cv_region_features 完全一致，含 ratio/outer_radius/dist_mean/max_diameter/connect_num/holes_num/area_holes/euler_number/rect2_phi/rect2_len1/rect2_len2 与 moments_* 系列），Operation 为 and/or，Min/Max 为阈值范围；输出保持引用语义。</td>
 </tr>
         <tr>
 <td><code><a href="cv_shape_trans.html">CvShapeTrans</a></code></td>
 <td>  </td>
-<td>region 形状变换，对应 HALCON shape_trans。Type 支持 convex（凸包）/outer_circle（外接圆）/inner_circle（内切圆）/rectangle1/rectangle2 等。</td>
+<td>region 形状变换，对应 HALCON shape_trans。Type 支持 rectangle1 / rectangle2 / ellipse / outer_circle / convex，未实现 inner_circle 与 inner_rectangle1。生成的 region 以像素方格 [r,r+1)x[c,c+1) 为口径（行取 floor(min_row)..floor(max_row)）。rectangle2 为最小外接旋转矩形：轴对齐档与 HALCON 逐像素一致，倾斜档面积差 ≤5%（HALCON 边界栅格化略宽松）。注意 ellipse / outer_circle / convex 与 HALCON 的原生输出存在明显面积偏差（见 README 的 cv_shape_trans 说明）。</td>
 </tr>
         <tr>
 <td><code><a href="cv_sift_detect.html">CvSiftDetect</a></code></td>
@@ -1442,7 +1482,12 @@ toggleLanguage(new_lang,1);return;}
         <tr>
 <td><code><a href="cv_subtract.html">CvSubtract</a></code></td>
 <td>  </td>
-<td>两图相减（饱和截断），对应 cv::subtract。支持 byte/uint2/real 单通道，两图类型尺寸须一致。</td>
+<td>两图逐元素相减（饱和截断），对应 cv::subtract。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 指定输出类型：-1 或 'same' 保持输入类型，'u8'/'u16'/'s32'/'f32' 分别输出 byte/uint2/int4/real（'s8'/'s16'/'f64' 无 HALCON 对应类型，会报错）。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_subtract_masked.html">CvSubtractMasked</a></code></td>
+<td>  </td>
+<td>带掩膜的逐元素相减，对应 cv::subtract 的 mask 参数。Mask 为 byte 单通道图像（非零处参与运算，尺寸须与输入一致），掩膜外像素保持 imageA 原值。其余同 cv_subtract。</td>
 </tr>
         <tr>
 <td><code><a href="cv_symm_difference.html">CvSymmDifference</a></code></td>

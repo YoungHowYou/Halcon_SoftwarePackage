@@ -9,6 +9,36 @@
 <l>cv_gen_circle (C1, 100, 100, 20.0)</l>
 <l>cv_gen_rectangle1 (Rect1, 5, 5, 20, 20)</l>
 <c></c>
+<l>* ===== cv_gen_rectangle2：与 HALCON 原生 gen_rectangle2 对照 =====</l>
+<l>* 口径 = 像素方格相交（轴对齐/90 度档逐像素一致）；Phi 为 cv/OpenCV 口径，与 HALCON gen_rectangle2 反号 ⇒ 倾斜档用 HALCON 的 -phi 对照</l>
+<l>gen_rectangle2 (GR2H0, 100, 100, 0, 20, 10)</l>
+<l>cv_gen_rectangle2 (GR2F0, 100, 100, 0, 20, 10)</l>
+<l>symm_difference (GR2H0, GR2F0, GSd0)</l>
+<l>area_center (GSd0, ASd0, G0r, G0c)</l>
+<l>area_center (GR2H0, AG2H0, G1r, G1c)</l>
+<l>gen_rectangle2 (GR2HV, 120, 160, 1.5707963, 70, 15)</l>
+<l>cv_gen_rectangle2 (GR2FV, 120, 160, 1.5707963, 70, 15)</l>
+<l>symm_difference (GR2HV, GR2FV, GSdV)</l>
+<l>area_center (GSdV, ASdV2, G2r, G2c)</l>
+<l>gen_rectangle2 (GR2HT, 120, 160, 0.6, 70, 15)</l>
+<l>cv_gen_rectangle2 (GR2FT, 120, 160, 0.6, 70, 15)</l>
+<l>area_center (GR2HT, AG2HT, G3r, G3c)</l>
+<l>area_center (GR2FT, AG2FT, G4r, G4c)</l>
+<l>symm_difference (GR2HT, GR2FT, GSdT)</l>
+<l>area_center (GSdT, ASdT, G5r, G5c)</l>
+<l>gen_rectangle2 (GR2HTM, 120, 160, -0.6, 70, 15)</l>
+<l>symm_difference (GR2HTM, GR2FT, GSdTM)</l>
+<l>area_center (GSdTM, ASdTM, G6r, G6c)</l>
+<l>if (ASd0 != 0 or ASdV2 != 0)</l>
+<l>  throw ('cv_gen_rectangle2 axis-aligned/90deg mismatch: ' + ASd0 + '/' + ASdV2)</l>
+<l>endif</l>
+<l>if (AG2H0 &lt; 100 or AG2HT &lt; 100)</l>
+<l>  throw ('cv_gen_rectangle2 output empty')</l>
+<l>endif</l>
+<l>if (abs(AG2FT - AG2HT) &gt; 0.05*AG2HT or ASdTM &gt; 0.05*AG2HT)</l>
+<l>  throw ('cv_gen_rectangle2 tilted mismatch: AF=' + AG2FT + ' AH=' + AG2HT + ' symm=' + ASdT)</l>
+<l>endif</l>
+<c></c>
 <l>* ===== 集合代数 =====</l>
 <l>cv_union2 (R1, R2, RUnion)</l>
 <l>concat_obj (R1, R2, Two0)</l>
@@ -40,18 +70,18 @@
 <c></c>
 <l>* ===== 形态学 =====</l>
 <l>gen_circle (SE, 0, 0, 3.5)</l>
-<l>cv_dilation1 (R1, SE, RDil, 1)</l>
+<l>cv_dilation_circle (R1, RDil, 3.5)</l>
 <l>area_center (RDil, ADil, RDilR, CDilR)</l>
 <l>if (ADil &lt;= A1)</l>
-<l>  throw ('cv_dilation1 did not grow region')</l>
+<l>  throw ('cv_dilation_circle did not grow region')</l>
 <l>endif</l>
-<l>cv_erosion1 (R1, SE, REro, 1)</l>
+<l>cv_erosion_circle (R1, REro, 3.5)</l>
 <l>area_center (REro, AEro, REroR, CEroR)</l>
 <l>if (AEro &gt;= A1)</l>
-<l>  throw ('cv_erosion1 did not shrink region')</l>
+<l>  throw ('cv_erosion_circle did not shrink region')</l>
 <l>endif</l>
-<l>cv_opening (R1, SE, ROpen)</l>
-<l>cv_closing (R1, SE, RClose)</l>
+<l>cv_opening_circle (R1, ROpen, 3.5)</l>
+<l>cv_closing_circle (R1, RClose, 3.5)</l>
 <l>area_center (ROpen, AOpen, ROR, COR)</l>
 <l>area_center (RClose, AClose, RCR, CCR)</l>
 <l>if (AOpen &gt; A1 or AClose &lt; A1)</l>
@@ -109,6 +139,33 @@
 <l>  throw ('cv_shape_trans rectangle1 area too small')</l>
 <l>endif</l>
 <c></c>
+<l>* ===== cv_shape_trans 'rectangle2'（旋转矩形）与 HALCON 原生对照 =====</l>
+<l>* 旧实现用 cos/sin 沿半宽半高采样一圈 = 内切椭圆，输出成了椭圆/圆</l>
+<l>gen_rectangle2 (STRt2, 120, 160, 0.6, 70, 15)</l>
+<l>shape_trans (STRt2, STRt2H, 'rectangle2')</l>
+<l>cv_shape_trans (STRt2, STRt2C, 'rectangle2')</l>
+<l>area_center (STRt2H, ASt2H, SR1, SC1)</l>
+<l>area_center (STRt2C, ASt2C, SR2, SC2)</l>
+<l>symm_difference (STRt2H, STRt2C, SSd2)</l>
+<l>area_center (SSd2, ASd2, SR3, SC3)</l>
+<l>* 轴对齐档（phi 恰为 90°：旧实现选错主轴，会生成旋转 90° 的矩形）</l>
+<l>gen_rectangle2 (STRt2V, 120, 160, 1.5707963, 70, 15)</l>
+<l>shape_trans (STRt2V, STRt2VH, 'rectangle2')</l>
+<l>cv_shape_trans (STRt2V, STRt2VC, 'rectangle2')</l>
+<l>area_center (STRt2VH, AVH, SR4, SC4)</l>
+<l>area_center (STRt2VC, AVC, SR5, SC5)</l>
+<l>symm_difference (STRt2VH, STRt2VC, SSdV)</l>
+<l>area_center (SSdV, ASdV, SR6, SC6)</l>
+<l>if (abs(ASt2C - ASt2H) &gt; 0.05*ASt2H)</l>
+<l>  throw ('cv_shape_trans rectangle2 area off: ' + ASt2C + ' vs ' + ASt2H)</l>
+<l>endif</l>
+<l>if (ASd2 &gt; 0.08*ASt2H)</l>
+<l>  throw ('cv_shape_trans rectangle2 vs HALCON symm_diff too large: ' + ASd2)</l>
+<l>endif</l>
+<l>if (ASdV &gt; 0.02*AVH)</l>
+<l>  throw ('cv_shape_trans rectangle2 axis-aligned (90 deg) mismatch: ' + ASdV)</l>
+<l>endif</l>
+<c></c>
 <l>* ===== 筛选 =====</l>
 <l>cv_select_shape (Conn, Sel, 'area', 'and', 500, 99999999)</l>
 <l>count_obj (Sel, NSel)</l>
@@ -128,6 +185,44 @@
 <l>  throw ('cv_bin_to_region roundtrip area mismatch: ' + ABack + ' vs ' + AH)</l>
 <l>endif</l>
 <c></c>
+<l>* ===== cv_bin_to_region 多图像类型（int1/int2/uint2/int4/int8/real） =====</l>
+<l>* 与 HALCON 原生 threshold 在同一张图上对照，阈值取前景值本身（边界：0 &lt; TVal &lt;= TVal）</l>
+<l>Types := ['int1','int2','uint2','int4','int8','real']</l>
+<l>Vals := [100,12000,60000,100000000,5000000000.0,0.75]</l>
+<l>for Ti := 0 to |Types|-1 by 1</l>
+<l>  TName := Types[Ti]</l>
+<l>  TVal := Vals[Ti]</l>
+<l>  gen_image_const (ImgMT, TName, 200, 200)</l>
+<l>  paint_region (RUnion, ImgMT, ImgMTP, TVal, 'fill')</l>
+<l>  threshold (ImgMTP, RRefMT, TVal, TVal)</l>
+<l>  cv_bin_to_region (ImgMTP, RCvtMT, TVal)</l>
+<l>  area_center (RRefMT, ARefMT, DR1, DC1)</l>
+<l>  cv_area_center (RCvtMT, ACvtMT, DR2, DC2)</l>
+<l>  if (abs(ARefMT - ACvtMT) &gt; 0.5)</l>
+<l>    throw ('cv_bin_to_region ' + TName + ' mismatch: ' + ACvtMT + ' vs ' + ARefMT)</l>
+<l>  endif</l>
+<l>  if (ARefMT &lt; 100)</l>
+<l>    throw ('cv_bin_to_region ' + TName + ' reference region empty')</l>
+<l>  endif</l>
+<l>  symm_difference (RRefMT, RCvtMT, RSymMT)</l>
+<l>  area_center (RSymMT, ASymMT, DR3, DC3)</l>
+<l>  if (ASymMT != 0)</l>
+<l>    throw ('cv_bin_to_region ' + TName + ' not identical, symm_diff area = ' + ASymMT)</l>
+<l>  endif</l>
+<l>endfor</l>
+<c></c>
+<l>* ===== cv_bin_to_region 类型守卫：非数值类型图像必须报错 =====</l>
+<l>gen_image_const (ImgDirT, 'direction', 200, 200)</l>
+<l>GuardHit := false</l>
+<l>try</l>
+<l>  cv_bin_to_region (ImgDirT, RUnsup, 1)</l>
+<l>catch (Exception)</l>
+<l>  GuardHit := true</l>
+<l>endtry</l>
+<l>if (not GuardHit)</l>
+<l>  throw ('cv_bin_to_region accepted direction image')</l>
+<l>endif</l>
+<c></c>
 <l>* ===== 与 HALCON 原生对照（printer_chip 真实图像） =====</l>
 <l>read_image (Image, 'printer_chip/printer_chip_01')</l>
 <l>threshold (Image, Regions, 66, 255)</l>
@@ -137,6 +232,151 @@
 <l>count_obj (ConnC, NC)</l>
 <l>if (NH != NC)</l>
 <l>  throw ('cv_connection count mismatch: ' + NC + ' vs ' + NH)</l>
+<l>endif</l>
+<c></c>
+<l>* ===== cv_region_features：输出布局 + 与 HALCON 原生 region_features 对齐 =====</l>
+<l>FNames := ['area','row','column','width','height','row1','column1','row2','column2','circularity','compactness','convexity','rectangularity','contlength','phi','ra','rb','anisometry','bulkiness','structure_factor']</l>
+<l>tuple_length (FNames, MF)</l>
+<l>count_obj (ConnH, NReg)</l>
+<l>cv_region_features (ConnH, FNames, FVals)</l>
+<l>tuple_length (FVals, LVal)</l>
+<l>if (LVal != NReg*MF)</l>
+<l>  throw ('cv_region_features tuple length wrong: ' + LVal + ' vs ' + (NReg*MF))</l>
+<l>endif</l>
+<l>if (NReg &lt; 10)</l>
+<l>  throw ('cv_region_features needs a multi-region input, got ' + NReg)</l>
+<l>endif</l>
+<l>* 几何类特征（area/row/column/bbox/ra/rb）需与 HALCON 原生 region_features 1e-9 一致；</l>
+<l>* 同时校验 N_regions × N_features 的行优先布局与顺序</l>
+<l>HNames := ['area','row','column','width','height','row1','column1','row2','column2','ra','rb']</l>
+<l>* 新增 HALCON 对齐特征（已实测与 HALCON region_features ≤1e-13）：</l>
+<l>*   ratio / outer_radius / max_diameter / connect_num / holes_num / area_holes /</l>
+<l>*   euler_number / 18 个 moments_*（rect2_len1/2 在极小区域有算法固有差异，</l>
+<l>*   roundness 族与 phi 系见下方单独说明）</l>
+<l>HNames2 := ['ratio','outer_radius','max_diameter','connect_num','holes_num','area_holes','euler_number','moments_m11','moments_m20','moments_m02','moments_ia','moments_ib','moments_m11_invar','moments_m20_invar','moments_m02_invar','moments_phi1','moments_phi2','moments_m21','moments_m12','moments_m03','moments_m30','moments_m21_invar','moments_m12_invar','moments_m03_invar','moments_m30_invar']</l>
+<l>region_features (ConnH, HNames2, HRef2)</l>
+<l>cv_region_features (ConnH, HNames2, FRef2)</l>
+<l>tuple_length (FRef2, LFRef2)</l>
+<l>tuple_length (HRef2, LHRef2)</l>
+<l>if (LFRef2 != LHRef2)</l>
+<l>  throw ('cv_region_features new-feature length mismatch: ' + LFRef2 + ' vs ' + LHRef2)</l>
+<l>endif</l>
+<l>MaxD2 := 0.0</l>
+<l>* moments_* 量级可达 1e10，故用相对误差判据</l>
+<l>for j := 0 to LHRef2-1 by 1</l>
+<l>  rel := abs(HRef2[j]-FRef2[j]) / max([abs(HRef2[j]),1.0])</l>
+<l>  if (rel &gt; MaxD2)</l>
+<l>    MaxD2 := rel</l>
+<l>  endif</l>
+<l>endfor</l>
+<l>if (MaxD2 &gt; 1e-9)</l>
+<l>  throw ('cv_region_features new features vs HALCON max rel diff: ' + MaxD2)</l>
+<l>endif</l>
+<l>region_features (ConnH, HNames, HRef)</l>
+<l>cv_region_features (ConnH, HNames, FRef)</l>
+<l>tuple_length (HRef, LHRef)</l>
+<l>tuple_length (FRef, LFRef)</l>
+<l>if (LHRef != LFRef)</l>
+<l>  throw ('cv_region_features length mismatch vs region_features: ' + LFRef + ' vs ' + LHRef)</l>
+<l>endif</l>
+<l>MaxD := 0</l>
+<l>for j := 0 to LHRef-1 by 1</l>
+<l>  dj := abs(HRef[j]-FRef[j])</l>
+<l>  if (dj &gt; MaxD)</l>
+<l>    MaxD := dj</l>
+<l>  endif</l>
+<l>endfor</l>
+<l>if (MaxD &gt; 1e-9)</l>
+<l>  throw ('cv_region_features vs HALCON region_features max diff: ' + MaxD)</l>
+<l>endif</l>
+<c></c>
+<l>* 其余特征与包内专用算子逐位一致（同走 cvr_get_feature，保证封装本身无偏差）</l>
+<l>* 注：contlength/circularity/compactness/convexity/rectangularity/phi/structure_factor 目前与 HALCON 原生有偏差，属核心库既有问题，不在本算子范围</l>
+<l>cv_region_features (ConnH, 'contlength', FCvnCL)</l>
+<l>cv_contlength (ConnH, FOpCL)</l>
+<l>cv_region_features (ConnH, 'circularity', FCvnCi)</l>
+<l>cv_circularity (ConnH, FOpCi)</l>
+<l>cv_region_features (ConnH, 'compactness', FCvnCp)</l>
+<l>cv_compactness (ConnH, FOpCp)</l>
+<l>cv_region_features (ConnH, 'convexity', FCvnCv)</l>
+<l>cv_convexity (ConnH, FOpCv)</l>
+<l>cv_region_features (ConnH, 'rectangularity', FCvnRc)</l>
+<l>cv_rectangularity (ConnH, FOpRc)</l>
+<l>cv_region_features (ConnH, 'anisometry', FCvnAn)</l>
+<l>cv_anisometry (ConnH, FOpAn)</l>
+<l>cv_region_features (ConnH, 'bulkiness', FCvnBk)</l>
+<l>cv_bulkiness (ConnH, FOpBk)</l>
+<l>cv_region_features (ConnH, 'structure_factor', FCvnSf)</l>
+<l>cv_structure_factor (ConnH, FOpSf)</l>
+<l>if (max(abs(FCvnCL-FOpCL)) &gt; 1e-12 or max(abs(FCvnCi-FOpCi)) &gt; 1e-12)</l>
+<l>  throw ('cv_region_features contlength/circularity differs from dedicated ops')</l>
+<l>endif</l>
+<l>if (max(abs(FCvnCp-FOpCp)) &gt; 1e-12 or max(abs(FCvnCv-FOpCv)) &gt; 1e-12)</l>
+<l>  throw ('cv_region_features compactness/convexity differs from dedicated ops')</l>
+<l>endif</l>
+<l>if (max(abs(FCvnRc-FOpRc)) &gt; 1e-12 or max(abs(FCvnAn-FOpAn)) &gt; 1e-12)</l>
+<l>  throw ('cv_region_features rectangularity/anisometry differs from dedicated ops')</l>
+<l>endif</l>
+<l>if (max(abs(FCvnBk-FOpBk)) &gt; 1e-12 or max(abs(FCvnSf-FOpSf)) &gt; 1e-12)</l>
+<l>  throw ('cv_region_features bulkiness/structure_factor differs from dedicated ops')</l>
+<l>endif</l>
+<c></c>
+<l>* ---- 命名兼容：HALCON 正式名为 struct_factor，structure_factor 作为别名保留 ----</l>
+<l>cv_region_features (ConnH, 'struct_factor', FSf1)</l>
+<l>cv_region_features (ConnH, 'structure_factor', FSf2)</l>
+<l>if (max(abs(FSf1-FSf2)) &gt; 1e-15)</l>
+<l>  throw ('struct_factor / structure_factor alias mismatch')</l>
+<l>endif</l>
+<c></c>
+<l>* ---- phi 系符号：rect2_phi / orientation / phi 与 HALCON 反号（核心库既有约定，见 README）----</l>
+<l>* 用构造的旋转矩形做确定性检查（真实退化小区域两侧算法可能选到等价的另一组方位）</l>
+<l>gen_rectangle2 (RPhi, 100, 100, 0.4, 40, 12)</l>
+<l>region_features (RPhi, ['phi','rect2_phi','orientation'], HPhi)</l>
+<l>cv_region_features (RPhi, ['phi','rect2_phi','orientation'], FPhi)</l>
+<l>if (max(abs(HPhi + FPhi)) &gt; 1e-9)</l>
+<l>  throw ('phi/rect2_phi/orientation 与 HALCON 反号关系不成立: ' + HPhi + ' vs ' + FPhi)</l>
+<l>endif</l>
+<c></c>
+<l>* ---- roundness 族（dist_mean/dist_deviation/roundness/num_sides）：</l>
+<l>*     口径 = 内边界像素（等价 boundary 'inner'）+ HALCON 文档公式；与 HALCON roundness</l>
+<l>*     算子口径不同（HALCON 用其内部轮廓链），实测大区域偏差 ≤8.5%，故这里只做自洽性</l>
+<l>*     检查，偏差值仅作信息输出（RndDevMax，用 hrun -d 查看）----</l>
+<l>region_features (ConnH, ['dist_mean','dist_deviation','roundness','num_sides'], HRnd)</l>
+<l>cv_region_features (ConnH, ['dist_mean','dist_deviation','roundness','num_sides'], FRnd)</l>
+<l>ND := |HRnd|/4</l>
+<l>RndDevMax := 0.0</l>
+<l>for j := 0 to ND-1 by 1</l>
+<l>  for k := 0 to 3 by 1</l>
+<l>    rel := abs(HRnd[j*4+k]-FRnd[j*4+k]) / max([abs(HRnd[j*4+k]),1.0])</l>
+<l>    if (rel &gt; RndDevMax)</l>
+<l>      RndDevMax := rel</l>
+<l>    endif</l>
+<l>  endfor</l>
+<l>  if (FRnd[j*4+1] &lt; 0)</l>
+<l>    throw ('roundness 族自洽性检查失败（sigma &lt; 0，第 ' + j + ' 个区域）')</l>
+<l>  endif</l>
+<l>* dist_mean = 0（单像素区域）时 roundness/sides 恒为 0，不做比值检查</l>
+<l>  if (FRnd[j*4] &gt; 0)</l>
+<l>    if (abs(FRnd[j*4+2] - (1.0 - FRnd[j*4+1]/FRnd[j*4])) &gt; 1e-12)</l>
+<l>      throw ('roundness = 1 - sigma/dist 关系不成立（第 ' + j + ' 个区域）')</l>
+<l>    endif</l>
+<l>  endif</l>
+<l>endfor</l>
+<c></c>
+<l>* 单区域（Regions 为单对象）：输出长度 = 特征数；未知名必须报错</l>
+<l>cv_region_features (Regions, FNames, FOne)</l>
+<l>tuple_length (FOne, LOne)</l>
+<l>if (LOne != MF)</l>
+<l>  throw ('cv_region_features single-region length wrong: ' + LOne + ' vs ' + MF)</l>
+<l>endif</l>
+<l>NameErr := false</l>
+<l>try</l>
+<l>  cv_region_features (Regions, 'no_such_feature', FBad)</l>
+<l>catch (Exception)</l>
+<l>  NameErr := true</l>
+<l>endtry</l>
+<l>if (not NameErr)</l>
+<l>  throw ('cv_region_features accepted unknown feature name')</l>
 <l>endif</l>
 </body>
 <docu id="main">

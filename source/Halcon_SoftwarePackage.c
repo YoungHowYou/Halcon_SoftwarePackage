@@ -405,6 +405,41 @@ Herror Ccv_subtract(Hproc_handle proc_handle)
     return HCcv_subtract(proc_handle);
 }
 
+Herror Ccv_add(Hproc_handle proc_handle)
+{
+    return HCcv_add(proc_handle);
+}
+
+Herror Ccv_add_masked(Hproc_handle proc_handle)
+{
+    return HCcv_add_masked(proc_handle);
+}
+
+Herror Ccv_subtract_masked(Hproc_handle proc_handle)
+{
+    return HCcv_subtract_masked(proc_handle);
+}
+
+Herror Ccv_multiply(Hproc_handle proc_handle)
+{
+    return HCcv_multiply(proc_handle);
+}
+
+Herror Ccv_multiply_masked(Hproc_handle proc_handle)
+{
+    return HCcv_multiply_masked(proc_handle);
+}
+
+Herror Ccv_divide(Hproc_handle proc_handle)
+{
+    return HCcv_divide(proc_handle);
+}
+
+Herror Ccv_divide_masked(Hproc_handle proc_handle)
+{
+    return HCcv_divide_masked(proc_handle);
+}
+
 Herror Ccv_add_weighted(Hproc_handle proc_handle)
 {
     return HCcv_add_weighted(proc_handle);
@@ -529,11 +564,6 @@ Herror CHcv_intersection(Hproc_handle proc_handle)
     return Hcv_intersection(proc_handle);
 }
 
-Herror CHcv_erosion1(Hproc_handle proc_handle)
-{
-    return Hcv_erosion1(proc_handle);
-}
-
 Herror CHcv_connection(Hproc_handle proc_handle)
 {
     return Hcv_connection(proc_handle);
@@ -542,6 +572,16 @@ Herror CHcv_connection(Hproc_handle proc_handle)
 Herror CHcv_select_shape(Hproc_handle proc_handle)
 {
     return Hcv_select_shape(proc_handle);
+}
+
+Herror CHcv_region_features(Hproc_handle proc_handle)
+{
+    return Hcv_region_features(proc_handle);
+}
+
+Herror CHcv_gray_features(Hproc_handle proc_handle)
+{
+    return Hcv_gray_features(proc_handle);
 }
 
 Herror CHcv_union1(Hproc_handle proc_handle)
@@ -564,21 +604,6 @@ Herror CHcv_symm_difference(Hproc_handle proc_handle)
     return Hcv_symm_difference(proc_handle);
 }
 
-Herror CHcv_dilation1(Hproc_handle proc_handle)
-{
-    return Hcv_dilation1(proc_handle);
-}
-
-Herror CHcv_opening(Hproc_handle proc_handle)
-{
-    return Hcv_opening(proc_handle);
-}
-
-Herror CHcv_closing(Hproc_handle proc_handle)
-{
-    return Hcv_closing(proc_handle);
-}
-
 Herror CHcv_fill_up(Hproc_handle proc_handle)
 {
     return Hcv_fill_up(proc_handle);
@@ -592,6 +617,11 @@ Herror CHcv_gen_circle(Hproc_handle proc_handle)
 Herror CHcv_gen_rectangle1(Hproc_handle proc_handle)
 {
     return Hcv_gen_rectangle1(proc_handle);
+}
+
+Herror CHcv_gen_rectangle2(Hproc_handle proc_handle)
+{
+    return Hcv_gen_rectangle2(proc_handle);
 }
 
 Herror CHcv_area_center(Hproc_handle proc_handle)
@@ -689,6 +719,25 @@ Herror CHcv_erosion_rectangle1(Hproc_handle proc_handle)
     return Hcv_erosion_rectangle1(proc_handle);
 }
 
+Herror CHcv_opening_rectangle1(Hproc_handle proc_handle)
+{
+    return Hcv_opening_rectangle1(proc_handle);
+}
+
+Herror CHcv_closing_rectangle1(Hproc_handle proc_handle)
+{
+    return Hcv_closing_rectangle1(proc_handle);
+}
+
+Herror CHcv_opening_circle(Hproc_handle proc_handle)
+{
+    return Hcv_opening_circle(proc_handle);
+}
+
+Herror CHcv_closing_circle(Hproc_handle proc_handle)
+{
+    return Hcv_closing_circle(proc_handle);
+}
 Herror CHcv_dilation_rectangle1(Hproc_handle proc_handle)
 {
     return Hcv_dilation_rectangle1(proc_handle);

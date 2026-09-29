@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "cvr/cvr_measure.hpp"
+#include "cvr/cvr.hpp"
 #include "HalconCpp.h"
 #include "HDevThread.h"
 #include <string>
@@ -2053,65 +2053,154 @@ Herror HCcv_blur(Hproc_handle proc_handle)
 }
 
 /*=============================================================================
- * cv_subtract — 图像相减（cv::subtract，饱和截断）
- *   支持 8 位 / 16 位 / 浮点(real) 单通道图像，两图类型与尺寸须一致
- *   imageOut = saturate(imageA - imageB)
+ * 四则运算族（OpenCV 原生 cv::add / cv::subtract / cv::multiply / cv::divide）
+ *   cv_add / cv_subtract / cv_multiply / cv_divide
+ *   cv_add_masked / cv_subtract_masked / cv_multiply_masked / cv_divide_masked
+ *
+ *   - 输入：byte / uint2 / int4 / real 单通道，两图类型与尺寸须一致
+ *   - dtype：-1 或 'same' 保持输入类型；'u8'/'u16'/'s32'/'f32' 输出
+ *            byte / uint2 / int4 / real（'s8'/'s16'/'f64' 无 HALCON 对应
+ *            图像类型，报 30006）；也接受 CV 深度整数
+ *   - scale：仅 multiply / divide 有（默认 1.0）
+ *   - 掩膜版：mask 为 byte 单通道、尺寸须与输入一致；掩膜外像素保持
+ *            imageA 原值（OpenCV 语义 = 只写掩膜内像素）。multiply/divide
+ *            的 OpenCV 原型没有 mask 参数，故统一"先算全图再按掩膜拷回"。
+ *
+ *   错误码：30001 输入类型不支持 / 30002 两图类型不一致 / 30003 两图尺寸不一致
+ *           30004 OpenCV 抛异常 / 30005 mask 类型或尺寸不符 / 30006 dtype 非法
  *===========================================================================*/
-Herror HCcv_subtract(Hproc_handle proc_handle)
+
+// HALCON 图像类型 -> OpenCV 单通道完整类型；不支持的返回 -1
+static int arith_cv_type_of_kind(int kind)
 {
-    Hkey   inA_obj_key, inB_obj_key, out_obj_key, out_image_key;
-    Himage inA, inB, outimage;
+    switch (kind)
+    {
+    case BYTE_IMAGE:  return CV_8UC1;
+    case UINT2_IMAGE: return CV_16UC1;
+    case INT4_IMAGE:  return CV_32SC1;
+    case FLOAT_IMAGE: return CV_32FC1;
+    default:          return -1;
+    }
+}
+
+// HALCON 图像类型 -> 像素首地址；不支持的返回 NULL
+static void* arith_pixels_of_kind(int kind, Himage img)
+{
+    switch (kind)
+    {
+    case BYTE_IMAGE:  return (void*)img.pixel.b;
+    case UINT2_IMAGE: return (void*)img.pixel.u.p;
+    case INT4_IMAGE:  return (void*)img.pixel.l;
+    case FLOAT_IMAGE: return (void*)img.pixel.f;
+    default:          return NULL;
+    }
+}
+
+// OpenCV 深度 -> HALCON 图像类型；无对应返回 -1
+static int arith_kind_of_depth(int depth)
+{
+    switch (depth)
+    {
+    case CV_8U:  return BYTE_IMAGE;
+    case CV_16U: return UINT2_IMAGE;
+    case CV_32S: return INT4_IMAGE;
+    case CV_32F: return FLOAT_IMAGE;
+    default:     return -1;
+    }
+}
+
+enum CvArithOp { CvArithAdd = 0, CvArithSub, CvArithMul, CvArithDiv };
+
+/* 四个算子的公共实现。scale_par 传 0 表示该算子没有 scale 参数。
+ * 注意：字符串枚举参数的 temp memory 由调用方（各 HC 入口）HAllocStringMem 分配。 */
+static Herror cv_arith_impl(Hproc_handle proc_handle, int op, bool with_mask,
+                            INT4_8 dtype_par, INT4_8 scale_par)
+{
+    Hkey   inA_obj_key, inB_obj_key, mask_obj_key, out_obj_key, out_image_key;
+    Himage inA, inB, inMask, outimage;
 
     HGetObj(proc_handle, 1, 1, &inA_obj_key);
     HGetDImage(proc_handle, inA_obj_key, 1, &inA);
     HGetObj(proc_handle, 2, 1, &inB_obj_key);
     HGetDImage(proc_handle, inB_obj_key, 1, &inB);
 
-    if (inA.kind != BYTE_IMAGE && inA.kind != UINT2_IMAGE && inA.kind != FLOAT_IMAGE)
-        return 30001;   // 仅支持 byte / uint2 / real 单通道图像
+    const int inType = arith_cv_type_of_kind(inA.kind);
+    if (inType < 0)
+        return 30001;   // 仅支持 byte / uint2 / int4 / real 单通道图像
     if (inB.kind != inA.kind)
         return 30002;   // 两图类型不一致
     if (inA.width != inB.width || inA.height != inB.height)
         return 30003;   // 两图尺寸不一致
 
-    int  cvType;
-    void* pixelsA;
-    void* pixelsB;
-    switch (inA.kind)
+    if (with_mask)
     {
-    case BYTE_IMAGE:
-        cvType  = CV_8UC1;
-        pixelsA = (void*)inA.pixel.b;
-        pixelsB = (void*)inB.pixel.b;
-        break;
-    case UINT2_IMAGE:
-        cvType  = CV_16UC1;
-        pixelsA = (void*)inA.pixel.u.p;
-        pixelsB = (void*)inB.pixel.u.p;
-        break;
-    default:   // FLOAT_IMAGE
-        cvType  = CV_32FC1;
-        pixelsA = (void*)inA.pixel.f;
-        pixelsB = (void*)inB.pixel.f;
-        break;
+        HGetObj(proc_handle, 3, 1, &mask_obj_key);
+        HGetDImage(proc_handle, mask_obj_key, 1, &inMask);
+        if (inMask.kind != BYTE_IMAGE)
+            return 30005;   // mask 必须为 byte 单通道
+        if (inMask.width != inA.width || inMask.height != inA.height)
+            return 30005;   // mask 尺寸须与输入一致
     }
 
-    cv::Mat imageA(inA.height, inA.width, cvType, pixelsA);
-    cv::Mat imageB(inB.height, inB.width, cvType, pixelsB);
-
-    HCkP(HNewImage(proc_handle, &outimage, inA.kind, inA.width, inA.height));
-    void* outPixels;
-    switch (inA.kind)
+    // dtype：-1/'same' 保持输入类型，其余须能映射到 HALCON 图像类型
+    int dtype = -1;
+    if (!read_enum_param(proc_handle, dtype_par, kDdepthTable, kDdepthN, &dtype))
     {
-    case BYTE_IMAGE:  outPixels = (void*)outimage.pixel.b;   break;
-    case UINT2_IMAGE: outPixels = (void*)outimage.pixel.u.p; break;
-    default:          outPixels = (void*)outimage.pixel.f;   break;
+        HSetErrText(const_cast<char*>("cv_arith: invalid dtype parameter"));
+        return 30006;
     }
-    cv::Mat imageOut(outimage.height, outimage.width, cvType, outPixels);
+    if (dtype != -1 && arith_kind_of_depth(dtype) < 0)
+    {
+        HSetErrText(const_cast<char*>(
+            "cv_arith: dtype has no HALCON image type (use -1/same/u8/u16/s32/f32)"));
+        return 30006;
+    }
+    const int outKind = (dtype == -1) ? inA.kind : arith_kind_of_depth(dtype);
+    const int outType = arith_cv_type_of_kind(outKind);
+
+    double scale = 1.0;
+    if (scale_par > 0)
+    {
+        Hcpar sp;
+        HGetSPar(proc_handle, scale_par, DOUBLE_PAR, &sp, 1);
+        scale = sp.par.d;
+    }
+
+    cv::Mat imageA(inA.height, inA.width, inType, arith_pixels_of_kind(inA.kind, inA));
+    cv::Mat imageB(inB.height, inB.width, inType, arith_pixels_of_kind(inB.kind, inB));
+
+    HCkP(HNewImage(proc_handle, &outimage, outKind, inA.width, inA.height));
+    cv::Mat imageOut(outimage.height, outimage.width, outType,
+                     arith_pixels_of_kind(outKind, outimage));
 
     try
     {
-        cv::subtract(imageA, imageB, imageOut);
+        if (!with_mask)
+        {
+            switch (op)
+            {
+            case CvArithAdd: cv::add(imageA, imageB, imageOut, cv::noArray(), dtype); break;
+            case CvArithSub: cv::subtract(imageA, imageB, imageOut, cv::noArray(), dtype); break;
+            case CvArithMul: cv::multiply(imageA, imageB, imageOut, scale, dtype); break;
+            default:         cv::divide(imageA, imageB, imageOut, scale, dtype); break;
+            }
+        }
+        else
+        {
+            // 掩膜外保持 imageA 原值：先算到临时缓冲，再按掩膜拷回
+            cv::Mat tmp(outimage.height, outimage.width, outType);
+            switch (op)
+            {
+            case CvArithAdd: cv::add(imageA, imageB, tmp, cv::noArray(), dtype); break;
+            case CvArithSub: cv::subtract(imageA, imageB, tmp, cv::noArray(), dtype); break;
+            case CvArithMul: cv::multiply(imageA, imageB, tmp, scale, dtype); break;
+            default:         cv::divide(imageA, imageB, tmp, scale, dtype); break;
+            }
+            if (outType == inType) imageA.copyTo(imageOut);
+            else                   imageA.convertTo(imageOut, outType);
+            cv::Mat imageMask(inMask.height, inMask.width, CV_8UC1, (void*)inMask.pixel.b);
+            tmp.copyTo(imageOut, imageMask);
+        }
     }
     catch (const cv::Exception&)
     {
@@ -2123,6 +2212,54 @@ Herror HCcv_subtract(Hproc_handle proc_handle)
     HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
 
     return H_MSG_TRUE;
+}
+
+Herror HCcv_add(Hproc_handle proc_handle)
+{
+    HAllocStringMem(proc_handle, 1024);   // 枚举字符串读取统一在此分配一次
+    return cv_arith_impl(proc_handle, CvArithAdd, false, 1, 0);
+}
+
+Herror HCcv_add_masked(Hproc_handle proc_handle)
+{
+    HAllocStringMem(proc_handle, 1024);
+    return cv_arith_impl(proc_handle, CvArithAdd, true, 1, 0);
+}
+
+Herror HCcv_subtract(Hproc_handle proc_handle)
+{
+    HAllocStringMem(proc_handle, 1024);
+    return cv_arith_impl(proc_handle, CvArithSub, false, 1, 0);
+}
+
+Herror HCcv_subtract_masked(Hproc_handle proc_handle)
+{
+    HAllocStringMem(proc_handle, 1024);
+    return cv_arith_impl(proc_handle, CvArithSub, true, 1, 0);
+}
+
+Herror HCcv_multiply(Hproc_handle proc_handle)
+{
+    HAllocStringMem(proc_handle, 1024);
+    return cv_arith_impl(proc_handle, CvArithMul, false, 2, 1);
+}
+
+Herror HCcv_multiply_masked(Hproc_handle proc_handle)
+{
+    HAllocStringMem(proc_handle, 1024);
+    return cv_arith_impl(proc_handle, CvArithMul, true, 2, 1);
+}
+
+Herror HCcv_divide(Hproc_handle proc_handle)
+{
+    HAllocStringMem(proc_handle, 1024);
+    return cv_arith_impl(proc_handle, CvArithDiv, false, 2, 1);
+}
+
+Herror HCcv_divide_masked(Hproc_handle proc_handle)
+{
+    HAllocStringMem(proc_handle, 1024);
+    return cv_arith_impl(proc_handle, CvArithDiv, true, 2, 1);
 }
 
 /*=============================================================================

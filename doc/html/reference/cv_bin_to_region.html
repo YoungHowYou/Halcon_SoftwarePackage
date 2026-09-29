@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_bin_to_region</span><span data-if="c" style="display:none;">cv_bin_to_region</span><span data-if="cpp" style="display:none;">CvBinToRegion</span><span data-if="dotnet" style="display:none;">CvBinToRegion</span><span data-if="python" style="display:none;">cv_bin_to_region</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_bin_to_region</span><span data-if="c" style="display:none;">cv_bin_to_region</span><span data-if="cpp" style="display:none;">CvBinToRegion</span><span data-if="dotnet" style="display:none;">CvBinToRegion</span><span data-if="python" style="display:none;">cv_bin_to_region</span></code> — byte 二值图转 region（gray ≥ Threshold 的像素），对应 HALCON bin_threshold 的逆过程。</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_bin_to_region</span><span data-if="c" style="display:none;">cv_bin_to_region</span><span data-if="cpp" style="display:none;">CvBinToRegion</span><span data-if="dotnet" style="display:none;">CvBinToRegion</span><span data-if="python" style="display:none;">cv_bin_to_region</span></code> — 数值类型图像转 region（gray ≥ Threshold 的像素），对应 HALCON threshold 的逆过程。支持 byte/int1/int2/uint2/int4/int8/real 单通道图像，比较以 double 进行、不受 num_bits 影响；Threshold 可为实数，real 图像可用小数阈值（如 0.5）。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1093,7 +1093,7 @@ toggleLanguage(new_lang,1);return;}
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>cv_bin_to_region</b>(const Hobject <a href="#BinImage"><i>BinImage</i></a>, Hobject* <a href="#Region"><i>Region</i></a>, const Hlong <a href="#Threshold"><i>Threshold</i></a>)</code></p>
+<code>Herror <b>cv_bin_to_region</b>(const Hobject <a href="#BinImage"><i>BinImage</i></a>, Hobject* <a href="#Region"><i>Region</i></a>, double <a href="#Threshold"><i>Threshold</i></a>)</code></p>
 <p>
 <code>Herror <b>T_cv_bin_to_region</b>(const Hobject <a href="#BinImage"><i>BinImage</i></a>, Hobject* <a href="#Region"><i>Region</i></a>, const Htuple <a href="#Threshold"><i>Threshold</i></a>)</code></p>
 </div>
@@ -1107,7 +1107,7 @@ toggleLanguage(new_lang,1);return;}
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>cv_bin_to_region</b>(<a href="#BinImage"><i>bin_image</i></a>: HObject, <a href="#Threshold"><i>threshold</i></a>: int) -&gt; HObject</code></p>
+<code>def <b>cv_bin_to_region</b>(<a href="#BinImage"><i>bin_image</i></a>: HObject, <a href="#Threshold"><i>threshold</i></a>: Union[float, int]) -&gt; HObject</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1120,7 +1120,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="BinImage" class="parname"><b><code><span data-if="hdevelop" style="display:inline">BinImage</span><span data-if="c" style="display:none">BinImage</span><span data-if="cpp" style="display:none">BinImage</span><span data-if="dotnet" style="display:none">binImage</span><span data-if="python" style="display:none">bin_image</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc">byte 二值图。</p>
+<p class="pardesc">输入数值类型图像（byte/int1/int2/uint2/int4/int8/real 单通道）。</p>
 </div>
   <div class="par">
 <div class="parhead">
@@ -1130,15 +1130,15 @@ toggleLanguage(new_lang,1);return;}
 </div>
   <div class="par">
 <div class="parhead">
-<span id="Threshold" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Threshold</span><span data-if="c" style="display:none">Threshold</span><span data-if="cpp" style="display:none">Threshold</span><span data-if="dotnet" style="display:none">threshold</span><span data-if="python" style="display:none">threshold</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
+<span id="Threshold" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Threshold</span><span data-if="c" style="display:none">Threshold</span><span data-if="cpp" style="display:none">Threshold</span><span data-if="dotnet" style="display:none">threshold</span><span data-if="python" style="display:none">threshold</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
 </div>
-<p class="pardesc">前景阈值（gray ≥ Threshold 为前景，0..255）。</p>
+<p class="pardesc">前景阈值（gray ≥ Threshold 为前景），实数或整数。</p>
 <p class="pardesc"><span class="parcat">Number of elements:
 
       </span>Region == BinImage</p>
 <p class="pardesc"><span class="parcat">Default:
 
-      </span>1</p>
+      </span>1.0</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

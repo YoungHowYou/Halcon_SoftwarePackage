@@ -24,14 +24,10 @@
 #include "HDevThread.h"
 #include "Halcon_SoftwarePackage.h"
 
-#include "cvr/cvr_region.hpp"
-#include "cvr/cvr_ops.hpp"
-#include "cvr/cvr_conn.hpp"
-#include "cvr/cvr_morph.hpp"
-#include "cvr/cvr_feat.hpp"
-#include "cvr/cvr_shape.hpp"
+#include "cvr/cvr.hpp"
 
 #include <cstdio>
+#include <cstddef>
 #include <cstring>
 #include <cmath>
 #include <string>
@@ -49,7 +45,9 @@ using cvr::CvrChords;
 
 namespace {
 
-/* 读取对象 key 的 region 组件到 CvrRegion（失败返回 false） */
+/* 读取对象 key 的 region 组件到 CvrRegion（失败返回 false）。
+   注意 Hrun 的坐标是 int16（HC_LARGE_IMAGES 未定义时）而 CvrRun 是 int32，
+   必须逐字段扩宽；用 resize + 下标直写替代 push_back（免每次容量/大小检查）。 */
 inline bool read_region(Hproc_handle proc_handle, Hkey obj_key, CvrRegion& out) {
     Hkey region_key;
     if (HPGetComp(proc_handle, obj_key, REGION, &region_key) != H_MSG_OK)
@@ -57,15 +55,16 @@ inline bool read_region(Hproc_handle proc_handle, Hkey obj_key, CvrRegion& out) 
     Hrlregion* hrl = nullptr;
     if (HPGetFRL(proc_handle, region_key, &hrl) != H_MSG_OK || !hrl)
         return false;
-    out.runs.clear();
-    out.is_compl = (hrl->is_compl != 0);
-    out.runs.reserve(static_cast<size_t>(hrl->num));
-    for (HITEMCNT i = 0; i < hrl->num; ++i) {
-        const Hrun& hr = hrl->rl[i];
-        out.runs.push_back(CvrRun{ static_cast<CvrCoord>(hr.l),
-                                   static_cast<CvrCoord>(hr.cb),
-                                   static_cast<CvrCoord>(hr.ce) });
+    const size_t n = static_cast<size_t>(hrl->num);
+    out.runs.resize(n);
+    const Hrun* src = hrl->rl;
+    cvr::CvrRun* dst = out.runs.data();
+    for (size_t i = 0; i < n; ++i) {
+        dst[i].r  = static_cast<cvr::CvrCoord>(src[i].l);
+        dst[i].cb = static_cast<cvr::CvrCoord>(src[i].cb);
+        dst[i].ce = static_cast<cvr::CvrCoord>(src[i].ce);
     }
+    out.is_compl = (hrl->is_compl != 0);
     cvr::cvr_region_invalidate(out);
     return true;
 }
@@ -143,23 +142,68 @@ inline bool region_to_buf(const CvrRegion& r, int32_t w, int32_t h,
     return true;
 }
 
-/* byte 掩码图 -> region（gray >= Threshold 为前景） */
-inline bool buf_to_region(const uint8_t* buf, int32_t w, int32_t h,
-                          int32_t threshold, CvrRegion& out) {
+/* 掩码图 -> region（gray >= Threshold 为前景）；T 为像素类型 */
+template <typename T>
+inline bool buf_to_region_impl(const T* buf, int32_t w, int32_t h,
+                               double threshold, CvrRegion& out) {
     out.runs.clear();
     out.is_compl = false;
     for (int32_t r = 0; r < h; ++r) {
-        const uint8_t* line = buf + static_cast<size_t>(r) * static_cast<size_t>(w);
+        const T* line = buf + static_cast<size_t>(r) * static_cast<size_t>(w);
         int32_t c = 0;
         while (c < w) {
-            while (c < w && line[c] < threshold) ++c;
+            while (c < w && static_cast<double>(line[c]) < threshold) ++c;
             if (c >= w) break;
             const int32_t cb = c;
-            while (c < w && line[c] >= threshold) ++c;
+            while (c < w && static_cast<double>(line[c]) >= threshold) ++c;
             out.runs.push_back(CvrRun{ r, cb, c - 1 });
         }
     }
     return cvr::cvr_region_normalize(out);
+}
+
+/* image_to_region 的分派结果 */
+enum CvrImgToRegion
+{
+    CVR_I2R_OK = 0,          /* 成功 */
+    CVR_I2R_UNSUPPORTED = 1, /* 非数值类型图像 */
+    CVR_I2R_FAIL = 2         /* 核心库失败 */
+};
+
+/* 任意数值类型单通道图像 -> region（直接比较灰度与阈值，语义同 HALCON threshold 的下界包含） */
+inline int image_to_region(const Himage& img, double threshold, CvrRegion& out) {
+    const int32_t w = static_cast<int32_t>(img.width);
+    const int32_t h = static_cast<int32_t>(img.height);
+    if (w <= 0 || h <= 0) return CVR_I2R_FAIL;
+
+    switch (img.kind) {
+    case BYTE_IMAGE:
+        return buf_to_region_impl(img.pixel.b, w, h, threshold, out)
+                   ? CVR_I2R_OK : CVR_I2R_FAIL;
+    case INT1_IMAGE:
+        return buf_to_region_impl(img.pixel.i, w, h, threshold, out)
+                   ? CVR_I2R_OK : CVR_I2R_FAIL;
+    case INT2_IMAGE:
+        if (!img.pixel.s.p) return CVR_I2R_FAIL;
+        return buf_to_region_impl(img.pixel.s.p, w, h, threshold, out)
+                   ? CVR_I2R_OK : CVR_I2R_FAIL;
+    case UINT2_IMAGE:
+        if (!img.pixel.u.p) return CVR_I2R_FAIL;
+        return buf_to_region_impl(img.pixel.u.p, w, h, threshold, out)
+                   ? CVR_I2R_OK : CVR_I2R_FAIL;
+    case INT4_IMAGE:
+        return buf_to_region_impl(img.pixel.l, w, h, threshold, out)
+                   ? CVR_I2R_OK : CVR_I2R_FAIL;
+    case INT8_IMAGE:
+        return buf_to_region_impl(img.pixel.i8, w, h, threshold, out)
+                   ? CVR_I2R_OK : CVR_I2R_FAIL;
+    case FLOAT_IMAGE:
+        return buf_to_region_impl(img.pixel.f, w, h, threshold, out)
+                   ? CVR_I2R_OK : CVR_I2R_FAIL;
+    default:
+        /* direction / cyclic / complex / vector_field 等非数值灰度类型 */
+        return CVR_I2R_UNSUPPORTED;
+    }
 }
 
 } // namespace
@@ -175,10 +219,12 @@ static Herror output_region(Hproc_handle proc_handle, const CvrRegion& r) {
     hrl->is_compl = r.is_compl ? 1 : 0;
     hrl->num      = static_cast<HITEMCNT>(n);
     hrl->num_max  = static_cast<HITEMCNT>(n);
+    Hrun* dst = hrl->rl;
+    const cvr::CvrRun* src = r.runs.data();
     for (size_t i = 0; i < n; ++i) {
-        hrl->rl[i].l  = static_cast<HIMGCOOR>(r.runs[i].r);
-        hrl->rl[i].cb = static_cast<HIMGCOOR>(r.runs[i].cb);
-        hrl->rl[i].ce = static_cast<HIMGCOOR>(r.runs[i].ce);
+        dst[i].l  = static_cast<HIMGCOOR>(src[i].r);
+        dst[i].cb = static_cast<HIMGCOOR>(src[i].cb);
+        dst[i].ce = static_cast<HIMGCOOR>(src[i].ce);
     }
 
     err = HPNewRegion(proc_handle, hrl);
@@ -232,56 +278,6 @@ static Herror cvr_binary_op_impl(Hproc_handle proc_handle, CvrBinaryOp op,
 typedef bool (*CvrMorphOp)(const CvrRegion&, const CvrRegion&, int, CvrCoord,
                            CvrCoord, CvrRegion&);
 
-static Herror cvr_morph_se_impl(Hproc_handle proc_handle, CvrMorphOp op,
-                                int32_t with_iterations) {
-    HCkNoObj(proc_handle);
-
-    int32_t iterations = 1;
-    if (with_iterations) {
-        Hcpar it_par;
-        HGetSPar(proc_handle, 1, LONG_PAR, &it_par, 1);
-        iterations = static_cast<int32_t>(it_par.par.l);
-        if (iterations < 1) iterations = 1;
-    }
-
-    int32_t w = 0, h = 0;
-    bool has_domain = false;
-    get_domain(proc_handle, &w, &h, &has_domain);
-
-    INT4_8 n1 = 0, n2 = 0;
-    HGetObjNum(proc_handle, 1, &n1);
-    HGetObjNum(proc_handle, 2, &n2);
-
-    for (INT4_8 i = 1; i <= n1; ++i) {
-        Hkey k1, k2;
-        HGetObj(proc_handle, 1, i, &k1);
-        HGetObj(proc_handle, 2, (n2 == 1) ? 1 : i, &k2);
-
-        CvrRegion r, se;
-        if (!read_region(proc_handle, k1, r) ||
-            !read_region(proc_handle, k2, se)) {
-            HSetErrText(const_cast<char*>("cv morph: failed to read region"));
-            return CVR_ERR_PARAM;
-        }
-
-        int32_t dw = w, dh = h;
-        if (!has_domain) {
-            fallback_domain(r.runs.data(), r.runs.size(),
-                            se.runs.data(), se.runs.size(),
-                            &dw, &dh);
-        }
-
-        CvrRegion out;
-        if (!op(r, se, iterations, dw, dh, out)) {
-            HSetErrText(const_cast<char*>(cvr::cvr_last_error()));
-            return CVR_ERR_OP;
-        }
-        Herror err = output_region(proc_handle, out);
-        if (err != H_MSG_OK) return err;
-    }
-    return H_MSG_TRUE;
-}
-
 /*=============================================================================
  * 通用 helper：单值特征 tuple 输出（contlength/circularity/...）
  *===========================================================================*/
@@ -327,16 +323,6 @@ CVR_FEAT_ADAPTER(feat_rectangularity,   "rectangularity")
 CVR_FEAT_ADAPTER(feat_anisometry,       "anisometry")
 CVR_FEAT_ADAPTER(feat_bulkiness,        "bulkiness")
 CVR_FEAT_ADAPTER(feat_structure_factor, "structure_factor")
-
-/* opening/closing 无 iterations 参数，适配到统一签名 */
-static bool morph_opening(const CvrRegion& r, const CvrRegion& se, int,
-                          CvrCoord w, CvrCoord h, CvrRegion& out) {
-    return cvr::cvr_opening(r, se, w, h, out);
-}
-static bool morph_closing(const CvrRegion& r, const CvrRegion& se, int,
-                          CvrCoord w, CvrCoord h, CvrRegion& out) {
-    return cvr::cvr_closing(r, se, w, h, out);
-}
 
 /*=============================================================================
  * cv_union2
@@ -402,14 +388,6 @@ Herror Hcv_intersection(Hproc_handle proc_handle)
         if (err != H_MSG_OK) return err;
     }
     return H_MSG_TRUE;
-}
-
-/*=============================================================================
- * cv_erosion1
- *===========================================================================*/
-Herror Hcv_erosion1(Hproc_handle proc_handle)
-{
-    return cvr_morph_se_impl(proc_handle, &cvr::cvr_erosion1, 1);
 }
 
 /*=============================================================================
@@ -544,6 +522,158 @@ Herror Hcv_select_shape(Hproc_handle proc_handle)
 }
 
 /*=============================================================================
+ * cv_region_features —— 按名称计算 region 形状特征，输出平铺 tuple
+ *   输入 Regions 可为元组；输出 Values 布局 [N_regions x N_features]（区域优先，
+ *   同一区域的 N 个特征值相邻），与 HALCON 原生 region_features 一致。
+ *   特征名口径与 cv_select_shape / cvr_get_feature 完全一致。
+ *===========================================================================*/
+Herror Hcv_region_features(Hproc_handle proc_handle)
+{
+    HCkNoObj(proc_handle);
+
+    /* 读取字符串参数前必须分配字符串内存（手册 5.5.10），每算子只调一次 */
+    HAllocStringMem(proc_handle, 1024);
+
+    /* 控制参数 1 = Features（字符串元组） */
+    char const* const* feat_ptr = nullptr;
+    INT4_8 n_feat = 0;
+    HGetPElemS(proc_handle, 1, CONV_NONE, &feat_ptr, &n_feat);
+    if (n_feat <= 0) {
+        HSetErrText(const_cast<char*>("cv_region_features: Features is empty"));
+        return CVR_ERR_PARAM;
+    }
+
+    std::vector<std::string> names;
+    names.reserve(static_cast<size_t>(n_feat));
+    for (INT4_8 j = 0; j < n_feat; ++j) {
+        names.emplace_back(feat_ptr[j] ? feat_ptr[j] : "");
+    }
+
+    INT4_8 n = 0;
+    HGetObjNum(proc_handle, 1, &n);
+
+    std::vector<CvrRegion> regs(static_cast<size_t>(n));
+    for (INT4_8 i = 1; i <= n; ++i) {
+        Hkey k;
+        HGetObj(proc_handle, 1, i, &k);
+        if (!read_region(proc_handle, k, regs[static_cast<size_t>(i - 1)])) {
+            HSetErrText(const_cast<char*>(
+                "cv_region_features: failed to read region"));
+            return CVR_ERR_PARAM;
+        }
+    }
+
+    std::vector<double> values;
+    if (!cvr::cvr_region_features(regs, names, values)) {
+        /* 未知名 / 计算失败，cvr_last_error 带具体原因 */
+        HSetErrText(const_cast<char*>(cvr::cvr_last_error()));
+        return CVR_ERR_OP;
+    }
+
+    if (!values.empty()) {
+        HPutElem(proc_handle, 1, values.data(),
+                 static_cast<INT4_8>(values.size()), DOUBLE_PAR);
+    }
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_gray_features —— 灰度特征（Halcon gray_features 的最小可用子集）
+ *   area / row / column / mean / deviation / min / max / median
+ * 输入对象 1 = Regions（元组），输入对象 2 = Image（单张），
+ * 输入控制 1 = Features（字符串元组，缺省 mean），输出控制 1 = Value
+ *===========================================================================*/
+Herror Hcv_gray_features(Hproc_handle proc_handle)
+{
+    HCkNoObj(proc_handle);
+
+    /* 读取字符串参数前必须分配字符串内存（手册 5.5.10），每算子只调一次 */
+    HAllocStringMem(proc_handle, 1024);
+
+    /* 输入控制 1 = Features（字符串元组）；DEF multivalue=optional，缺省 mean */
+    char const* const* feat_ptr = nullptr;
+    INT4_8 n_feat = 0;
+    HGetPElemS(proc_handle, 1, CONV_NONE, &feat_ptr, &n_feat);
+
+    std::vector<std::string> names;
+    if (n_feat <= 0) {
+        names.emplace_back("mean");
+    } else {
+        names.reserve(static_cast<size_t>(n_feat));
+        for (INT4_8 j = 0; j < n_feat; ++j) {
+            names.emplace_back(feat_ptr[j] ? feat_ptr[j] : "");
+        }
+    }
+
+    /* 输入对象 1 = Regions（元组） */
+    INT4_8 n = 0;
+    HGetObjNum(proc_handle, 1, &n);
+    if (n <= 0) return H_MSG_TRUE;
+
+    std::vector<CvrRegion> regs(static_cast<size_t>(n));
+    for (INT4_8 i = 1; i <= n; ++i) {
+        Hkey k;
+        HGetObj(proc_handle, 1, i, &k);
+        if (!read_region(proc_handle, k, regs[static_cast<size_t>(i - 1)])) {
+            HSetErrText(const_cast<char*>(
+                "cv_gray_features: failed to read region"));
+            return CVR_ERR_PARAM;
+        }
+    }
+
+    /* 输入对象 2 = Image（单张灰度图；忽略其已设 domain，与 HALCON 语义一致） */
+    INT4_8 n_img = 0;
+    HGetObjNum(proc_handle, 2, &n_img);
+    if (n_img < 1) {
+        HSetErrText(const_cast<char*>("cv_gray_features: no input image"));
+        return CVR_ERR_PARAM;
+    }
+    Hkey ik;
+    HGetObj(proc_handle, 2, 1, &ik);
+    Himage img;
+    HGetDImage(proc_handle, ik, 1, &img);
+
+    const int32_t w = static_cast<int32_t>(img.width);
+    const int32_t h = static_cast<int32_t>(img.height);
+    if (w <= 0 || h <= 0) {
+        HSetErrText(const_cast<char*>("cv_gray_features: empty image"));
+        return CVR_ERR_PARAM;
+    }
+
+    const void* px = nullptr;
+    cvr::CvrGrayDepth depth = cvr::CVR_GRAY_U8;
+    switch (img.kind) {
+    case BYTE_IMAGE:  px = img.pixel.b;    depth = cvr::CVR_GRAY_U8;  break;
+    case INT1_IMAGE:  px = img.pixel.i;    depth = cvr::CVR_GRAY_S8;  break;
+    case INT2_IMAGE:  px = img.pixel.s.p;  depth = cvr::CVR_GRAY_S16; break;
+    case UINT2_IMAGE: px = img.pixel.u.p;  depth = cvr::CVR_GRAY_U16; break;
+    case INT4_IMAGE:  px = img.pixel.l;    depth = cvr::CVR_GRAY_S32; break;
+    case INT8_IMAGE:  px = img.pixel.i8;   depth = cvr::CVR_GRAY_S64; break;
+    case FLOAT_IMAGE: px = img.pixel.f;    depth = cvr::CVR_GRAY_F32; break;
+    default:
+        HSetErrText(const_cast<char*>(
+            "cv_gray_features: unsupported image type "
+            "(byte/int1/int2/uint2/int4/int8/real only)"));
+        return CVR_ERR_PARAM;
+    }
+    if (!px) {
+        HSetErrText(const_cast<char*>("cv_gray_features: null image pointer"));
+        return CVR_ERR_PARAM;
+    }
+
+    std::vector<double> values;
+    if (!cvr::cvr_gray_features(regs, px, w, h, depth, names, values)) {
+        HSetErrText(const_cast<char*>(cvr::cvr_last_error()));
+        return CVR_ERR_OP;
+    }
+    if (!values.empty()) {
+        HPutElem(proc_handle, 1, values.data(),
+                 static_cast<INT4_8>(values.size()), DOUBLE_PAR);
+    }
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
  * cv_union1 —— 所有输入区域求并
  *===========================================================================*/
 Herror Hcv_union1(Hproc_handle proc_handle)
@@ -611,24 +741,6 @@ Herror Hcv_complement(Hproc_handle proc_handle)
         if (err != H_MSG_OK) return err;
     }
     return H_MSG_TRUE;
-}
-
-/*=============================================================================
- * cv_dilation1 / cv_opening / cv_closing
- *===========================================================================*/
-Herror Hcv_dilation1(Hproc_handle proc_handle)
-{
-    return cvr_morph_se_impl(proc_handle, &cvr::cvr_dilation1, 1);
-}
-
-Herror Hcv_opening(Hproc_handle proc_handle)
-{
-    return cvr_morph_se_impl(proc_handle, &morph_opening, 0);
-}
-
-Herror Hcv_closing(Hproc_handle proc_handle)
-{
-    return cvr_morph_se_impl(proc_handle, &morph_closing, 0);
 }
 
 /*=============================================================================
@@ -714,6 +826,39 @@ Herror Hcv_gen_rectangle1(Hproc_handle proc_handle)
     CvrRegion out = cvr::cvr_gen_rectangle1(
         static_cast<CvrCoord>(r1.par.l), static_cast<CvrCoord>(c1.par.l),
         static_cast<CvrCoord>(r2.par.l), static_cast<CvrCoord>(c2.par.l));
+    clip_negative(out);
+    if (!cvr::cvr_region_normalize(out)) {
+        HSetErrText(const_cast<char*>(cvr::cvr_last_error()));
+        return CVR_ERR_OP;
+    }
+    return output_region(proc_handle, out);
+}
+
+/*---------------------------------------------------------------------------
+ * cv_gen_rectangle2 —— 生成旋转矩形（无输入对象，不调 HCkNoObj）
+ *   参数 1..5 = Row, Column, Phi, Length1, Length2（real/integer 标量）
+ *-------------------------------------------------------------------------*/
+Herror Hcv_gen_rectangle2(Hproc_handle proc_handle)
+{
+    Hcpar row_par, col_par, phi_par, l1_par, l2_par;
+    HGetSPar(proc_handle, 1, DOUBLE_PAR, &row_par, 1);
+    HGetSPar(proc_handle, 2, DOUBLE_PAR, &col_par, 1);
+    HGetSPar(proc_handle, 3, DOUBLE_PAR, &phi_par, 1);
+    HGetSPar(proc_handle, 4, DOUBLE_PAR, &l1_par, 1);
+    HGetSPar(proc_handle, 5, DOUBLE_PAR, &l2_par, 1);
+
+    if (l1_par.par.d < 0.0 || l2_par.par.d < 0.0) {
+        HSetErrText(const_cast<char*>(
+            "cv_gen_rectangle2: Length1/Length2 must be >= 0"));
+        return CVR_ERR_PARAM;
+    }
+
+      /* Phi 口径：本包 cv_* 层一律用 cvr/OpenCV 口径（不取反）。
+         注意与 HALCON gen_rectangle2 的 phi 反号：同参数生成的是绕列轴镜像的矩形
+         （phi=0 与 +-pi/2 因矩形自身对称不受影响）。*/
+      CvrRegion out = cvr::cvr_gen_rectangle2(
+        row_par.par.d, col_par.par.d, phi_par.par.d,
+        l1_par.par.d, l2_par.par.d);
     clip_negative(out);
     if (!cvr::cvr_region_normalize(out)) {
         HSetErrText(const_cast<char*>(cvr::cvr_last_error()));
@@ -1012,17 +1157,25 @@ Herror Hcv_region_to_bin(Hproc_handle proc_handle)
 }
 
 /*=============================================================================
- * cv_bin_to_region —— byte 二值图 -> region（gray >= Threshold）
+ * cv_bin_to_region —— 数值类型图像 -> region（gray >= Threshold）
+ *   支持 byte / int1 / int2 / uint2 / int4 / int8 / real 单通道图像；
+ *   Threshold 为 real 或 integer（小数阈值可用于 real 图像）。
  *===========================================================================*/
 Herror Hcv_bin_to_region(Hproc_handle proc_handle)
 {
     HCkNoObj(proc_handle);
 
-    Hcpar th_par;
-    HGetSPar(proc_handle, 1, LONG_PAR, &th_par, 1);
-    const int32_t threshold = static_cast<int32_t>(th_par.par.l);
-    if (threshold < 0 || threshold > 255) {
-        HSetErrText(const_cast<char*>("cv_bin_to_region: Threshold out of range"));
+    /* Threshold：DEF type_list = real,integer，CONV_CAST 兼容整数字面量 */
+    double const* th_ptr = nullptr;
+    INT4_8 th_num = 0;
+    HGetPElemD(proc_handle, 1, CONV_CAST, &th_ptr, &th_num);
+    if (!th_ptr || th_num < 1) {
+        HSetErrText(const_cast<char*>("cv_bin_to_region: Threshold missing"));
+        return CVR_ERR_PARAM;
+    }
+    const double threshold = th_ptr[0];
+    if (!(threshold == threshold)) { /* NaN 检查 */
+        HSetErrText(const_cast<char*>("cv_bin_to_region: Threshold is NaN"));
         return CVR_ERR_PARAM;
     }
 
@@ -1035,15 +1188,16 @@ Herror Hcv_bin_to_region(Hproc_handle proc_handle)
 
         Himage img;
         HGetDImage(proc_handle, obj_key, 1, &img);
-        if (img.kind != BYTE_IMAGE) {
-            HSetErrText(const_cast<char*>(
-                "cv_bin_to_region: only byte images supported"));
-            return CVR_ERR_PARAM;
-        }
 
         CvrRegion out;
-        if (!buf_to_region(img.pixel.b, static_cast<int32_t>(img.width),
-                           static_cast<int32_t>(img.height), threshold, out)) {
+        const int st = image_to_region(img, threshold, out);
+        if (st == CVR_I2R_UNSUPPORTED) {
+            HSetErrText(const_cast<char*>(
+                "cv_bin_to_region: unsupported image type "
+                "(byte/int1/int2/uint2/int4/int8/real only)"));
+            return CVR_ERR_PARAM;
+        }
+        if (st != CVR_I2R_OK) {
             HSetErrText(const_cast<char*>(cvr::cvr_last_error()));
             return CVR_ERR_OP;
         }
@@ -1088,6 +1242,31 @@ static bool preset_dilation_rect(const CvrRegion& r, double p1, int32_t p2,
     return cvr::cvr_dilation1(r, se, 1, w, h, out);
 }
 
+static bool preset_opening_circle(const CvrRegion& r, double p1, int32_t,
+                                  CvrCoord w, CvrCoord h, CvrRegion& out) {
+    if (p1 < 0.0) return false;
+    CvrRegion se = cvr::cvr_gen_circle(0, 0, p1);
+    return cvr::cvr_opening(r, se, w, h, out);
+}
+
+static bool preset_closing_circle(const CvrRegion& r, double p1, int32_t,
+                                  CvrCoord w, CvrCoord h, CvrRegion& out) {
+    if (p1 < 0.0) return false;
+    CvrRegion se = cvr::cvr_gen_circle(0, 0, p1);
+    return cvr::cvr_closing(r, se, w, h, out);
+}
+
+static bool preset_opening_rect(const CvrRegion& r, double p1, int32_t p2,
+                                CvrCoord w, CvrCoord h, CvrRegion& out) {
+    CvrRegion se = cvr::cvr_se_rect(static_cast<int32_t>(p1), p2);
+    return cvr::cvr_opening(r, se, w, h, out);
+}
+
+static bool preset_closing_rect(const CvrRegion& r, double p1, int32_t p2,
+                                CvrCoord w, CvrCoord h, CvrRegion& out) {
+    CvrRegion se = cvr::cvr_se_rect(static_cast<int32_t>(p1), p2);
+    return cvr::cvr_closing(r, se, w, h, out);
+}
 static Herror cvr_preset_morph_impl(Hproc_handle proc_handle,
                                     CvrPresetMorphOp op, bool two_int_params) {
     HCkNoObj(proc_handle);
@@ -1158,6 +1337,17 @@ static Herror cvr_preset_morph_impl(Hproc_handle proc_handle,
     return H_MSG_TRUE;
 }
 
+Herror Hcv_opening_rectangle1(Hproc_handle proc_handle)
+{ return cvr_preset_morph_impl(proc_handle, &preset_opening_rect, true); }
+
+Herror Hcv_closing_rectangle1(Hproc_handle proc_handle)
+{ return cvr_preset_morph_impl(proc_handle, &preset_closing_rect, true); }
+
+Herror Hcv_opening_circle(Hproc_handle proc_handle)
+{ return cvr_preset_morph_impl(proc_handle, &preset_opening_circle, false); }
+
+Herror Hcv_closing_circle(Hproc_handle proc_handle)
+{ return cvr_preset_morph_impl(proc_handle, &preset_closing_circle, false); }
 Herror Hcv_erosion_circle(Hproc_handle proc_handle)
 { return cvr_preset_morph_impl(proc_handle, &preset_erosion_circle, false); }
 

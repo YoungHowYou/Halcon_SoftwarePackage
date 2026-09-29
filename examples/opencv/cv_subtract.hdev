@@ -5,15 +5,17 @@
 <body>
 <c>* =============================================================</c>
 <c>* cv_subtract — OpenCV 图像逐元素相减（饱和截断）</c>
-<c>*   支持 8 位(byte) / 16 位(uint2) 单通道图像</c>
+<c>*   支持 byte / uint2 / int4 / real 单通道图像</c>
 <c>*   两图类型与尺寸须一致；结果为 saturate(A - B)</c>
+<c>*   dtype: -1/'same' 保持输入类型；'u8'/'u16'/'s32'/'f32' 改变输出类型</c>
+<c>*   （带掩膜的版本见 cv_subtract_masked，例程 examples/opencv/cv_arith.hdev）</c>
 <c>* =============================================================</c>
 <c>* ---- 1) 8 位图像 ----</c>
 <l>gen_image_const (ImageA, 'byte', 3, 3)</l>
 <l>gen_image_const (ImageB, 'byte', 3, 3)</l>
 <l>set_grayval (ImageA, 1, 1, 200)</l>
 <l>set_grayval (ImageB, 1, 1, 50)</l>
-<l>cv_subtract (ImageA, ImageB, ImageOut)</l>
+<l>cv_subtract (ImageA, ImageB, ImageOut, -1)</l>
 <l>get_grayval (ImageOut, 1, 1, VOut)</l>
 <c>* 期望: VOut = 150</c>
 <c>* ---- 2) 16 位图像 ----</c>
@@ -21,9 +23,17 @@
 <l>gen_image_const (ImageB2, 'uint2', 3, 3)</l>
 <l>set_grayval (ImageA2, 1, 1, 1000)</l>
 <l>set_grayval (ImageB2, 1, 1, 2000)</l>
-<l>cv_subtract (ImageA2, ImageB2, ImageOut2)</l>
+<l>cv_subtract (ImageA2, ImageB2, ImageOut2, -1)</l>
 <l>get_grayval (ImageOut2, 1, 1, VOut2)</l>
 <c>* 期望: VOut2 = 0（饱和截断，不允许负值）</c>
+<c>* ---- 3) dtype 改变输出类型：uint2 输入 -> real 输出 ----</c>
+<l>cv_subtract (ImageA2, ImageB2, ImageOut3, 'f32')</l>
+<l>get_image_type (ImageOut3, TypeOut3)</l>
+<l>get_grayval (ImageOut3, 1, 1, VOut3)</l>
+<c>* 期望: TypeOut3 = 'real'，VOut3 = -1000（实数输出不做饱和截断）</c>
+<l>if (VOut != 150 or VOut2 != 0 or TypeOut3 != 'real' or VOut3 != -1000.0)</l>
+<l>  throw ('cv_subtract failed: ' + VOut + '/' + VOut2 + ' ' + TypeOut3 + ' ' + VOut3)</l>
+<l>endif</l>
 </body>
 <docu id="main">
 <parameters/>

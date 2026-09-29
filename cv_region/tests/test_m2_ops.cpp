@@ -1,10 +1,8 @@
-﻿#include "cvr/cvr_ops.hpp"
-#include "cvr/cvr_region.hpp"
+﻿#include "cvr/cvr.hpp"
 #include <cassert>
 #include <iostream>
 
 #ifdef CVR_WITH_OPENCV
-#include "cvr/cvr_io.hpp"
 #include <opencv2/imgproc.hpp>
 #endif
 

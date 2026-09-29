@@ -87,32 +87,32 @@
 <l>endif</l>
 <c></c>
 <l>* ---------- 4. 形态学（面积容差 1%） ----------</l>
-<l>erosion1 (Regions, SE, E_H, 1)</l>
-<l>cv_erosion1 (Regions, SE, E_C, 1)</l>
+<l>erosion_circle (Regions, E_H, 3.5)</l>
+<l>cv_erosion_circle (Regions, E_C, 3.5)</l>
 <l>area_center (E_H, AEH, REH, CEH)</l>
 <l>area_center (E_C, AEC, REC, CEC)</l>
 <l>if (AEH &gt; 0 and fabs(AEC - AEH) / AEH &gt; 0.01)</l>
-<l>  throw ('cv_erosion1 area off by &gt;1%: ' + AEC + ' vs ' + AEH)</l>
+<l>  throw ('cv_erosion_circle area off by &gt;1%: ' + AEC + ' vs ' + AEH)</l>
 <l>endif</l>
 <c></c>
-<l>dilation1 (Regions, SE, G_H, 1)</l>
-<l>cv_dilation1 (Regions, SE, G_C, 1)</l>
+<l>dilation_circle (Regions, G_H, 3.5)</l>
+<l>cv_dilation_circle (Regions, G_C, 3.5)</l>
 <l>area_center (G_H, AGH, RGH, CGH)</l>
 <l>area_center (G_C, AGC, RGC, CGC)</l>
 <l>if (AGH &gt; 0 and fabs(AGC - AGH) / AGH &gt; 0.01)</l>
 <l>  throw ('cv_dilation1 area off by &gt;1%: ' + AGC + ' vs ' + AGH)</l>
 <l>endif</l>
 <c></c>
-<l>opening (Regions, SE, O_H)</l>
-<l>cv_opening (Regions, SE, O_C)</l>
+<l>opening_circle (Regions, O_H, 3.5)</l>
+<l>cv_opening_circle (Regions, O_C, 3.5)</l>
 <l>area_center (O_H, AOH, ROH, COH)</l>
 <l>area_center (O_C, AOC, ROC, COC)</l>
 <l>if (AOH &gt; 0 and fabs(AOC - AOH) / AOH &gt; 0.01)</l>
 <l>  throw ('cv_opening area off by &gt;1%: ' + AOC + ' vs ' + AOH)</l>
 <l>endif</l>
 <c></c>
-<l>closing (Regions, SE, K_H)</l>
-<l>cv_closing (Regions, SE, K_C)</l>
+<l>closing_circle (Regions, K_H, 3.5)</l>
+<l>cv_closing_circle (Regions, K_C, 3.5)</l>
 <l>area_center (K_H, AKH, RKH, CKH)</l>
 <l>area_center (K_C, AKC, RKC, CKC)</l>
 <l>if (AKH &gt; 0 and fabs(AKC - AKH) / AKH &gt; 0.01)</l>
@@ -203,13 +203,13 @@
 <l>cv_connection_ms := (T1 - T0) * 1000</l>
 <l>count_seconds (T0)</l>
 <l>for I := 1 to 20 by 1</l>
-<l>  erosion1 (Regions, SE, TH3, 1)</l>
+<l>  erosion_circle (Regions, TH3, 3.5)</l>
 <l>endfor</l>
 <l>count_seconds (T1)</l>
 <l>erosion1_ms := (T1 - T0) * 1000</l>
 <l>count_seconds (T0)</l>
 <l>for I := 1 to 20 by 1</l>
-<l>  cv_erosion1 (Regions, SE, TC3, 1)</l>
+<l>  cv_erosion_circle (Regions, TC3, 3.5)</l>
 <l>endfor</l>
 <l>count_seconds (T1)</l>
 <l>cv_erosion1_ms := (T1 - T0) * 1000</l>

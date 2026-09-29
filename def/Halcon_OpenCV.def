@@ -1,3 +1,433 @@
+cv_add<- Ccv_add[imageA,imageB:imageOut:dtype:]
+short.german
+  Compute the per-element sum of two images (OpenCV).;
+
+short.english
+  两图逐元素相加（饱和截断），对应 cv::add。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 指定输出类型：-1 或 'same' 保持输入类型，'u8'/'u16'/'s32'/'f32' 分别输出 byte/uint2/int4/real（'s8'/'s16'/'f64' 无 HALCON 对应类型，会报错）。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Add, Arithmetic, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  imageA:            input_object;
+  description.english: 单通道 byte / uint2 / int4 / real;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageB:            input_object;
+  description.english: 与 ImageA 同类型同尺寸;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像（类型由 Dtype 决定，尺寸同输入）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  dtype:             input_control;
+  description.english: 输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:         string,integer;
+  default_value:     -1;
+
+
+cv_add_masked<- Ccv_add_masked[imageA,imageB,mask:imageOut:dtype:]
+short.german
+  Compute the per-element sum of two images with mask (OpenCV).;
+
+short.english
+  带掩膜的逐元素相加，对应 cv::add 的 mask 参数。Mask 为 byte 单通道图像（非零处参与运算，尺寸须与输入一致），掩膜外像素保持 imageA 原值。其余同 cv_add。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Add, Arithmetic, Mask, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  imageA:            input_object;
+  description.english: 单通道 byte / uint2 / int4 / real;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageB:            input_object;
+  description.english: 与 ImageA 同类型同尺寸;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  mask:              input_object;
+  description.english: byte 单通道掩膜，非零处参与运算（尺寸须与输入一致）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像（类型由 Dtype 决定，尺寸同输入）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  dtype:             input_control;
+  description.english: 输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:         string,integer;
+  default_value:     -1;
+
+
+cv_subtract_masked<- Ccv_subtract_masked[imageA,imageB,mask:imageOut:dtype:]
+short.german
+  Compute the per-element difference of two images with mask (OpenCV).;
+
+short.english
+  带掩膜的逐元素相减，对应 cv::subtract 的 mask 参数。Mask 为 byte 单通道图像（非零处参与运算，尺寸须与输入一致），掩膜外像素保持 imageA 原值。其余同 cv_subtract。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Subtract, Arithmetic, Mask, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  imageA:            input_object;
+  description.english: 单通道 byte / uint2 / int4 / real;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageB:            input_object;
+  description.english: 与 ImageA 同类型同尺寸;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  mask:              input_object;
+  description.english: byte 单通道掩膜，非零处参与运算（尺寸须与输入一致）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像（类型由 Dtype 决定，尺寸同输入）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  dtype:             input_control;
+  description.english: 输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:         string,integer;
+  default_value:     -1;
+
+
+cv_multiply<- Ccv_multiply[imageA,imageB:imageOut:scale,dtype:]
+short.german
+  Compute the per-element product of two images (OpenCV).;
+
+short.english
+  两图逐元素相乘（饱和截断），对应 cv::multiply：Out = saturate(Scale * A * B)。Scale 为乘性系数，默认 1.0。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 语义同 cv_add。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Multiply, Arithmetic, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  imageA:            input_object;
+  description.english: 单通道 byte / uint2 / int4 / real;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageB:            input_object;
+  description.english: 与 ImageA 同类型同尺寸;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像（类型由 Dtype 决定，尺寸同输入）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  scale:             input_control;
+  description.english: 乘性系数，默认 1.0;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:         real,integer;
+  default_value:     1.0;
+
+parameter
+  dtype:             input_control;
+  description.english: 输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:         string,integer;
+  default_value:     -1;
+
+
+cv_multiply_masked<- Ccv_multiply_masked[imageA,imageB,mask:imageOut:scale,dtype:]
+short.german
+  Compute the per-element product of two images with mask (OpenCV).;
+
+short.english
+  带掩膜的逐元素相乘：掩膜外像素保持 imageA 原值，掩膜内 Out = saturate(Scale * A * B)。Mask 为 byte 单通道图像（尺寸须与输入一致）。其余同 cv_multiply。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Multiply, Arithmetic, Mask, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  imageA:            input_object;
+  description.english: 单通道 byte / uint2 / int4 / real;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageB:            input_object;
+  description.english: 与 ImageA 同类型同尺寸;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  mask:              input_object;
+  description.english: byte 单通道掩膜，非零处参与运算（尺寸须与输入一致）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像（类型由 Dtype 决定，尺寸同输入）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  scale:             input_control;
+  description.english: 乘性系数，默认 1.0;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:         real,integer;
+  default_value:     1.0;
+
+parameter
+  dtype:             input_control;
+  description.english: 输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:         string,integer;
+  default_value:     -1;
+
+
+cv_divide<- Ccv_divide[imageA,imageB:imageOut:scale,dtype:]
+short.german
+  Compute the per-element quotient of two images (OpenCV).;
+
+short.english
+  两图逐元素相除（整除，向零取整），对应 cv::divide：Out = saturate(Scale * A / B)，除零结果为 0。Scale 为乘性系数，默认 1.0。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 语义同 cv_add。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Divide, Arithmetic, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  imageA:            input_object;
+  description.english: 单通道 byte / uint2 / int4 / real;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageB:            input_object;
+  description.english: 与 ImageA 同类型同尺寸;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像（类型由 Dtype 决定，尺寸同输入）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  scale:             input_control;
+  description.english: 乘性系数，默认 1.0;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:         real,integer;
+  default_value:     1.0;
+
+parameter
+  dtype:             input_control;
+  description.english: 输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:         string,integer;
+  default_value:     -1;
+
+
+cv_divide_masked<- Ccv_divide_masked[imageA,imageB,mask:imageOut:scale,dtype:]
+short.german
+  Compute the per-element quotient of two images with mask (OpenCV).;
+
+short.english
+  带掩膜的逐元素相除：掩膜外像素保持 imageA 原值，掩膜内 Out = saturate(Scale * A / B)，除零结果为 0。Mask 为 byte 单通道图像（尺寸须与输入一致）。其余同 cv_divide。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Divide, Arithmetic, Mask, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  imageA:            input_object;
+  description.english: 单通道 byte / uint2 / int4 / real;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageB:            input_object;
+  description.english: 与 ImageA 同类型同尺寸;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  mask:              input_object;
+  description.english: byte 单通道掩膜，非零处参与运算（尺寸须与输入一致）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 输出图像（类型由 Dtype 决定，尺寸同输入）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  scale:             input_control;
+  description.english: 乘性系数，默认 1.0;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:         real,integer;
+  default_value:     1.0;
+
+parameter
+  dtype:             input_control;
+  description.english: 输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:         string,integer;
+  default_value:     -1;
+
 
 remap<- CHCremap[::hv_DictHandle:]
 short.german
@@ -1431,12 +1861,12 @@ parameter
   type_list:         string,integer;
   default_value:     4;
 
-cv_subtract<- Ccv_subtract[imageA,imageB:imageOut::]
+cv_subtract<- Ccv_subtract[imageA,imageB:imageOut:dtype:]
 short.german
   Compute the per-element difference of two images (OpenCV).;
 
 short.english
-  两图相减（饱和截断），对应 cv::subtract。支持 byte/uint2/real 单通道，两图类型尺寸须一致。;
+  两图逐元素相减（饱和截断），对应 cv::subtract。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 指定输出类型：-1 或 'same' 保持输入类型，'u8'/'u16'/'s32'/'f32' 分别输出 byte/uint2/int4/real（'s8'/'s16'/'f64' 无 HALCON 对应类型，会报错）。;
 
 module
   foundation;
@@ -1458,7 +1888,7 @@ parallelization
 
 parameter
   imageA:            input_object;
-  description.english: 单通道 byte / uint2 / real;
+  description.english: 单通道 byte / uint2 / int4 / real;
   sem_type:           image;
   multivalue:         optional;
 
@@ -1470,9 +1900,19 @@ parameter
 
 parameter
   imageOut:           output_object;
-  description.english: 与输入同类型同尺寸;
+  description.english: 输出图像（类型由 Dtype 决定，尺寸同输入）;
   sem_type:           image;
   multivalue:         optional;
+
+parameter
+  dtype:             input_control;
+  description.english: 输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:         string,integer;
+  default_value:     -1;
+
 
 cv_add_weighted<- Ccv_add_weighted[imageA,imageB:imageOut:alpha,beta,gamma:]
 short.german

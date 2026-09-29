@@ -1,6 +1,4 @@
-﻿#include "cvr/cvr_select.hpp"
-#include "cvr/cvr_feat.hpp"
-#include "cvr/cvr_region.hpp"
+﻿#include "cvr/cvr.hpp"
 #include <cassert>
 #include <iostream>
 

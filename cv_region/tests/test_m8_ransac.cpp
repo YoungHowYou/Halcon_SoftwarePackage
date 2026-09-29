@@ -1,4 +1,4 @@
-﻿#include "cvr/ransac_interface.h"
+﻿#include "cvr/cvr.hpp"
 
 #include <cmath>
 #include <cstdio>

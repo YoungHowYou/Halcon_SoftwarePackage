@@ -338,21 +338,33 @@ cv_add_weighted(ImageA, ImageB : ImageOut : Alpha, Beta, Gamma)
 
 ---
 
-#### cv_subtract
+#### 四则运算族：cv_add / cv_subtract / cv_multiply / cv_divide（含 `_masked` 变体）
 
-图像逐元素相减（饱和截断），对应 `cv::subtract`。
+对应 OpenCV `cv::add` / `cv::subtract` / `cv::multiply` / `cv::divide`，把原生签名里的 `mask`、`scale`、`dtype` 全部开放。
 
 ```
-cv_subtract(ImageA, ImageB : ImageOut : :)
+cv_add              (ImageA, ImageB : ImageOut : Dtype)
+cv_subtract         (ImageA, ImageB : ImageOut : Dtype)
+cv_multiply         (ImageA, ImageB : ImageOut : Scale, Dtype)
+cv_divide           (ImageA, ImageB : ImageOut : Scale, Dtype)
+cv_add_masked       (ImageA, ImageB, Mask : ImageOut : Dtype)
+cv_subtract_masked  (ImageA, ImageB, Mask : ImageOut : Dtype)
+cv_multiply_masked  (ImageA, ImageB, Mask : ImageOut : Scale, Dtype)
+cv_divide_masked    (ImageA, ImageB, Mask : ImageOut : Scale, Dtype)
 ```
 
-`ImageOut = saturate(ImageA - ImageB)`（整数类型负值截断为 0）。
+| 参数 | 类型 | 说明 |
+|---|---|---|
+| ImageA / ImageB | 图像 | 单通道 `byte` / `uint2` / `int4` / `real`，两图类型尺寸须一致 |
+| Mask | 图像 | 仅 `_masked` 版本：`byte` 单通道、尺寸须与输入一致；**非零处参与运算，掩膜外像素保持 ImageA 原值** |
+| ImageOut | 图像 | 类型由 `Dtype` 决定，尺寸同输入 |
+| Scale | 实数/整数 | 仅 `multiply` / `divide`：运算前置系数，默认 1.0。`saturate(Scale·A·B)` / `saturate(Scale·A/B)`，整除向零取整、除零得 0 |
+| Dtype | 整数/字符串 | `-1` 或 `'same'` 保持输入类型；`'u8'` / `'u16'` / `'s32'` / `'f32'` 输出 `byte` / `uint2` / `int4` / `real`；也接受 CV 深度整数 |
 
-| 参数 | 类型 | 方向 | 说明 |
-|---|---|---|---|
-| ImageA | 图像 | 输入 | 单通道 `byte` / `uint2` / `real` |
-| ImageB | 图像 | 输入 | 与 ImageA 同类型同尺寸 |
-| ImageOut | 图像 | 输出 | 与输入同类型同尺寸 |
+- `Dtype` 只支持有 HALCON 对应图像类型的深度：`'s8'` / `'s16'` / `'f64'` 报 30006。
+- 整数输出**饱和截断**，实数输出**不截断**：`uint2` 1000−2000 → `0`，`'f32'` 下 → `-1000.0`。
+- `multiply` / `divide` 的 OpenCV 原型没有 `mask` 参数，`_masked` 版本统一按"先算全图、再按掩膜拷回"实现，掩膜语义与 `cv::add` 一致。
+- 例程：`examples/opencv/cv_arith.hdev`（8 个算子 + dtype/scale/掩膜 + 负例）、`examples/opencv/cv_subtract.hdev`。
 
 错误码：
 
@@ -362,6 +374,8 @@ cv_subtract(ImageA, ImageB : ImageOut : :)
 | 30002 | 两图类型不一致 |
 | 30003 | 两图尺寸不一致 |
 | 30004 | OpenCV 执行异常 |
+| 30005 | `Mask` 非 byte 单通道，或尺寸与输入不一致 |
+| 30006 | `Dtype` 非法，或无 HALCON 对应图像类型 |
 
 ---
 
@@ -969,7 +983,7 @@ cv_morphology_ex(Image : ImageOut : Op, Shape, Kwidth, Kheight, Iterations :)
 | cv_filter2d | ✅ | ✅ | ✅ | ❌ |
 | CLAHE_image | ✅ | ✅ | ❌ | ❌ |
 | cv_add_weighted | ✅ | ✅ | ✅ | ❌ |
-| cv_subtract | ✅ | ✅ | ✅ | ❌ |
+| cv_add / cv_subtract / cv_multiply / cv_divide（含 `_masked`） | ✅ | ✅ | ✅ | ❌（另支持 `int4`） |
 | cv_mat_mul | ❌ | ✅ | ❌ | ❌ |
 | ROI 算术 | ❌ | ✅ | ❌ | ❌ |
 | cv_reshape | ✅ | ✅ | ✅ | ❌ |
@@ -999,10 +1013,116 @@ cv_morphology_ex(Image : ImageOut : Op, Shape, Kwidth, Kheight, Iterations :)
 本扩展包的 region 运算算子（定义于 `def/Halcon_CVRegion.def`，实现于 `source/Halcon_CVRegion.cpp`），算法本体在独立开源库 **cv_region**（`cv_region/` 子目录，**静态链接**为 `cvr_core`，直接编入扩展包，免跨 DLL 拷贝，可脱离 HALCON 单独调用）。HALCON 语义兼容：RLE chord 编码 `{row, col_begin, col_end}`、形态学 SE 参考点 = 质心四舍五入。
 
 - 集合运算：cv_union1 / cv_union2 / cv_intersection / cv_difference / cv_complement / cv_symm_difference
-- 形态学：cv_erosion1 / cv_dilation1 / cv_opening / cv_closing（自定义 SE）+ cv_erosion_circle / cv_dilation_circle / cv_erosion_rectangle1 / cv_dilation_rectangle1（预设）
+- 形态学（8 个，仅矩形/圆结构元）：cv_erosion_circle / cv_dilation_circle / cv_opening_circle / cv_closing_circle（半径）+ cv_erosion_rectangle1 / cv_dilation_rectangle1 / cv_opening_rectangle1 / cv_closing_rectangle1（宽高）
 - 连通域：cv_connection；生成：cv_gen_circle / cv_gen_rectangle1；填充：cv_fill_up；形状变换：cv_shape_trans；筛选：cv_select_shape
 - 特征：cv_area_center / cv_smallest_rectangle1 / cv_smallest_rectangle2 / cv_smallest_circle / cv_elliptic_axis / cv_contlength / cv_circularity / cv_compactness / cv_convexity / cv_rectangularity / cv_anisometry / cv_bulkiness / cv_structure_factor
-- 互转：cv_region_to_bin / cv_bin_to_region
+- 互转：cv_region_to_bin / cv_bin_to_region（cv_bin_to_region 支持 byte/int1/int2/uint2/int4/int8/real 单通道，Threshold 为 real/integer）
+
+#### cv_bin_to_region
+
+数值类型图像转 region（`gray >= Threshold` 的像素），对应 HALCON `threshold` 的逆过程。
+
+```
+cv_bin_to_region(BinImage : Region : Threshold :)
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| BinImage | 图像 | 输入 | 单通道数值类型图像：`byte` / `int1` / `int2` / `uint2` / `int4` / `int8` / `real` |
+| Region | region | 输出 | 前景区域 |
+| Threshold | 实数/整数 | 输入 | 前景阈值，`gray >= Threshold` 为前景；`real` 图像可用小数阈值（如 `0.75`） |
+
+- 支持 16 位（`int2` / `uint2`）与浮点（`real`）图像；比较在 `double` 下进行，与像素位深（`num_bits`）无关，语义与 HALCON 原生 `threshold`（下界包含）一致。
+- `direction` / `cyclic` / `complex` / `vector_field` 等非数值灰度类型报错 10103（参数非法）。
+- 例程：`examples/cv_region_all.hdev`（6 种类型逐个与 HALCON 原生 `threshold` 对照 + 非数值类型守卫）。
+
+#### cv_region_features
+
+按名称一次算出多个形状特征，对应 HALCON `region_features`；实现直接封装核心库 `cvr::cvr_region_features`（内部即 `cvr_get_feature` 查表），与 `cv_select_shape` 共用同一套特征名口径。
+
+```
+cv_region_features(Regions : : Features : Values)
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| Regions | region | 输入 | 输入 region 元组，逐元素计算 |
+| Features | 字符串元组 | 输入 | 特征名元组，取值与 `cv_select_shape` 完全一致 |
+| Values | 实数元组 | 输出 | 特征值，平铺为「区域数 × 特征数」，**区域优先**（同一区域的各特征值相邻） |
+
+- `Features` 支持 **54 个名称**，取值表与 HALCON `region_features` / `select_shape` 对齐：
+  - 基础：`area` / `row` / `column` / `width` / `height` / `ratio` / `row1` / `column1` / `row2` / `column2`
+  - 形状：`circularity` / `compactness` / `convexity` / `rectangularity` / `contlength` / `phi` / `ra` / `rb` / `anisometry` / `bulkiness` / `struct_factor`（别名 `structure_factor`，HALCON 正式名为 `struct_factor`）
+  - 外接/直径：`outer_radius` / `max_diameter` / `rect2_phi` / `rect2_len1` / `rect2_len2`
+  - 轮廓距离：`dist_mean` / `dist_deviation` / `roundness` / `num_sides`
+  - 连通性/孔洞：`connect_num` / `holes_num` / `area_holes` / `euler_number`
+  - 矩（18 个）：`moments_m11` / `m20` / `m02` / `ia` / `ib` / `m11_invar` / `m20_invar` / `m02_invar` / `phi1` / `phi2` / `m21` / `m12` / `m03` / `m30` / `m21_invar` / `m12_invar` / `m03_invar` / `m30_invar`
+  - 核心库另有 `row_rect` / `column_rect` / `phi_rect` / `length1` / `length2` / `row_circle` / `column_circle` / `radius` 等内部别名，未列入 DEF 的 `value_list`
+- 未知名 / 计算失败报错 10102，`Features` 为空报错 10103。
+- 例程：`examples/cv_region_all.hdev`（408 区域 × 20 特征 = 8160 值，校验长度与行优先布局；几何类 + 25 个新特征与 HALCON 原生 `region_features` 对照——新特征实测 max rel ≤ 1.5e-12）。
+
+**本次补齐的 32 个 HALCON 对齐特征**（`Features` 取值表已同步到两个算子的 DEF `value_list`）：
+
+| 分组 | 特征 | 与 HALCON 实测 |
+|---|---|---|
+| 基础/几何 | `ratio`、`outer_radius`、`max_diameter`、`rect2_phi`、`rect2_len1`、`rect2_len2` | `ratio` / `outer_radius` / `max_diameter` / `rect2_len1` / `rect2_len2` ≤1e-12；`rect2_phi` 符号相反 |
+| 连通性/孔洞 | `connect_num`、`holes_num`、`area_holes`、`euler_number` | 全 408 区域**完全一致**（前景 8 邻域、背景 4 邻域的连通性对偶） |
+| 矩（18 个） | `moments_m11` / `m20` / `m02` / `ia` / `ib` / `m11_invar` / `m20_invar` / `m02_invar` / `phi1` / `phi2` / `m21` / `m12` / `m03` / `m30` / `m21_invar` / `m12_invar` / `m03_invar` / `m30_invar` | ≤1.5e-12（多数为 0）；口径 = HALCON `moments_region_2nd(_invar/_rel_invar/_3rd/_3rd_invar)` 文档公式 |
+| 朝向 | `orientation` | 符号相反（基于 `elliptic_axis` + 最远轮廓点，同 HALCON 语义） |
+| 轮廓距离 | `dist_mean`、`dist_deviation`、`roundness`、`num_sides` | **口径不同**：用内边界像素（等价 HALCON `boundary 'inner'`）+ HALCON `roundness` 文档公式；HALCON 内部用其轮廓链口径，实测大区域（面积 ≥ 200）偏差 ≤8.5%，小区域更大 |
+
+> **phi 系符号**：`phi` / `rect2_phi` / `orientation` 的绝对值与 HALCON 一致但**符号相反**（核心库既有 phi 约定：我们的 phi = −HALCON phi），例程用构造旋转矩形做了确定性验证。
+
+> **已知偏差（核心库既有，非本算子引入）**：`contlength` / `circularity` / `compactness` / `convexity` / `rectangularity` / `phi` / `struct_factor` 与 HALCON 原生数值不一致（如 51×81 实心矩形：`contlength` 260 → 183，因核心库漏计最后一行下边界）。`cv_contlength` / `cv_circularity` / `cv_compactness` / `cv_structure_factor` 等专用算子同样受影响，`cv_region_features` 只是原样继承。`area` / `row` / `column` / `width` / `height` / `row1`–`column2` / `ra` / `rb` / `anisometry` / `bulkiness` 已与 HALCON 1e-9 一致。
+> `rect2_len1` / `rect2_len2` 在**极小区域**（面积 ≤ 10 px 的退化形状）与 HALCON 有算法固有差异（HALCON 取到更小的等价解）。
+> 顺带修掉核心库两处既有缺陷：① `smallest_circle` 的启发式迭代会发散（非凸区域半径偏大，实测 area=1490 的 blob 67.66 → 修后与 HALCON 一致 47.07；已换成精确的增量式最小外接圆算法），② 孔洞统计漏了**连通性对偶**（背景必须用 4 邻域，否则对角夹缝被误判成孔洞）。两者都影响 `cv_smallest_circle` / `cv_region_features` 等既有算子。
+
+> **待办（下一轮）**：`inner_radius` / `inner_width` / `inner_height`（需最大内接圆 / 内接轴对齐矩形算法）、`moments_i1`–`i4` / `moments_psi1`–`psi4`（三阶矩旋转不变量，HALCON 未公开公式）、`num_sides` 与 HALCON 的精确对齐。
+
+#### cv_shape_trans
+
+region 形状变换，对应 HALCON `shape_trans`。
+
+```
+cv_shape_trans(Region : RegionTrans : Type :)
+```
+
+| Type | 含义 | 与 HALCON 的一致性 |
+|---|---|---|
+| `rectangle1` | 最小轴对齐外接矩形 | ✅ 逐像素一致（对称差面积 = 0） |
+| `rectangle2` | 最小外接旋转矩形 | ✅ 轴对齐档逐像素一致；倾斜档面积差 ≤5%、对称差 ≈3%（HALCON 边界栅格化略宽松） |
+| `ellipse` | 等效椭圆 | ⚠️ 面积约为 HALCON 的 1/4.5 |
+| `outer_circle` | 最小外接圆 | ⚠️ 面积明显偏小 |
+| `convex` | 凸包 | ⚠️ 面积略大于 HALCON（对称差 ≈3%） |
+
+- 未实现 `inner_circle` / `inner_rectangle1`。
+- 生成 region 的栅格化口径：像素 `(r,c)` 视为方格 `[r,r+1)×[c,c+1)`，行取 `floor(min_row)..floor(max_row)`，每行在 `y = row` 处求多边形列跨度后取 `floor`。实测该口径在轴对齐图形上可逐像素复现 HALCON。
+- 例程：`examples/cv_region_all.hdev`（`rectangle2` 倾斜档 + 90° 轴对齐档与 HALCON 原生对照）。
+
+> **已知偏差（核心库既有）**：`ellipse` / `outer_circle` 共用 `cvr_shape::add_ellipse_runs`——它只**采样边界点**再逐行取 min/max，采样稀疏的行会退化成 1 像素宽甚至整行丢失，故圆/椭圆都填不满；`ellipse` 还在 `elliptic_axis` 的 `Ra/Rb` 上又乘了 0.5，面积再小 4 倍。`convex` 用 `floor/ceil` 填充，比 HALCON 略大。
+> `rectangle2` 已于本次修复：原实现用 `u = 0.5*w*cos(t); v = 0.5*h*sin(t)` 沿半宽/半高采样一圈——那是**内切椭圆**，所以输出成椭圆/圆。同时修掉 `cvr_feature_smallest_rectangle2` 的一处主轴错误（`length1` 取长边却恒用 `u` 轴角作 `phi`，当 `h > w` 时 `phi` 差 90°，轴对齐矩形两种候选面积打平时会命中，表现为 `rectangle2` 生成旋转 90° 的矩形）。该修正同时影响 `cv_smallest_rectangle2` 在同等情形下的 `Phi` 输出（原先错误，现与 HALCON 的 `±π/2` 语义一致）。
+
+#### cv_gen_rectangle2
+
+生成旋转矩形 region，对应 HALCON `gen_rectangle2`。核心库 `cvr::cvr_gen_rectangle2`。
+
+```
+cv_gen_rectangle2(Rectangle2 : : Row, Column, Phi, Length1, Length2 :)
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| Rectangle2 | region | 输出 | 生成的旋转矩形 |
+| Row / Column | 实数/整数 | 输入 | 矩形中心坐标 |
+| Phi | 实数/整数 | 输入 | 主轴与列轴夹角（弧度，**HALCON 约定**） |
+| Length1 / Length2 | 实数/整数 | 输入 | 两个方向的半边长（`Length1` 沿主轴，均 ≥ 0） |
+
+- 栅格化口径 = **像素方格相交**（像素 `(r,c)` 覆盖 `[r-0.5,r+0.5]×[c-0.5,c+0.5]`，与矩形有交集即取）。
+- 与 HALCON 原生 `gen_rectangle2` 实测对比：轴对齐、`Phi=π/2`、负中心裁剪三档**逐像素一致（对称差 = 0）**；倾斜档面积差 ≈1.8%、对称差 ≈1.8%；极小/退化图形（`Length=0`、半边长 3 之类）差 1 像素量级（如 HALCON 45 → 本算子 53）。
+- **Phi 口径**：本算子用 cv/OpenCV 口径（`cvr` 原始 `phi`，不取反）；因此与 HALCON `gen_rectangle2` 的 `phi` **反号**（同参数生成绕列轴镜像的矩形；`phi=0` 与 `±π/2` 因矩形对称不受影响）。`cv_smallest_rectangle2` / `cv_elliptic_axis` 返回的 `phi` 也是这个口径。
+- 参数为标量：不像原生那样支持元组批量（与包内 `cv_gen_circle` / `cv_gen_rectangle1` 一致）。
+- 与 `cv_shape_trans 'rectangle2'` 口径不同（后者按 HALCON `shape_trans` 的 polygon rasterizer），同一参数下两者面积可差约 5%。
+- 例程：`examples/cv_region_all.hdev`（轴对齐 / 90° / 倾斜三档与 HALCON 原生对照）。
 
 性能：与 HALCON 原生算子同量级（erosion 约 1.8×、connection 约 3×，见 `examples/cv_region_bench.hdev`）。
 

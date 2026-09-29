@@ -15,7 +15,7 @@
 #include "HDevThread.h"
 #include "Halcon_SoftwarePackage.h"
 
-#include "ransac_core.h"   // ransac::CoreOptions/CoreResult/ransac_run
+#include "cvr/cvr.hpp"
 
 #include <muParser.h>          // mu::ParserError 异常映射
 

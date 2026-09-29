@@ -269,11 +269,11 @@ sem_type=number
 multivalue=false
 value_number=RegionErosion == Region
 cv_bin_to_region(BinImage,Region,Threshold)
-short.ascii=byte 二值图转 region（gray ≥ Threshold 的像素），对应 HALCON bin_threshold 的逆过程。
+short.ascii=数值类型图像转 region（gray ≥ Threshold 的像素），对应 HALCON threshold 的逆过程。支持 byte/int1/int2/uint2/int4/int8/real 单通道图像，比较以 double 进行、不受 num_bits 影响；Threshold 可为实数，real 图像可用小数阈值（如 0.5）。
 keywords=UserExtensionsCVRegionBinToRegionImage
 module=0 Foundation
 parameter=BinImage
-description.ascii=byte 二值图。
+description.ascii=输入数值类型图像（byte/int1/int2/uint2/int4/int8/real 单通道）。
 parameter_class=input_object
 sem_type=image
 multivalue=optional
@@ -283,11 +283,11 @@ parameter_class=output_object
 sem_type=region
 multivalue=optional
 parameter=Threshold
-description.ascii=前景阈值（gray ≥ Threshold 为前景，0..255）。
+description.ascii=前景阈值（gray ≥ Threshold 为前景），实数或整数。
 parameter_class=input_control
-type_list=integer
-default_value=1
-default_type=integer
+type_list=realinteger
+default_value=1.0
+default_type=real
 sem_type=number
 multivalue=false
 value_number=Region == BinImage
@@ -339,7 +339,7 @@ sem_type=number
 multivalue=false
 value_number=BinImage == Region
 cv_shape_trans(Region,RegionTrans,Type)
-short.ascii=region 形状变换，对应 HALCON shape_trans。Type 支持 convex（凸包）/outer_circle（外接圆）/inner_circle（内切圆）/rectangle1/rectangle2 等。
+short.ascii=region 形状变换，对应 HALCON shape_trans。Type 支持 rectangle1 / rectangle2 / ellipse / outer_circle / convex，未实现 inner_circle 与 inner_rectangle1。生成的 region 以像素方格 [r,r+1)x[c,c+1) 为口径（行取 floor(min_row)..floor(max_row)）。rectangle2 为最小外接旋转矩形：轴对齐档与 HALCON 逐像素一致，倾斜档面积差 ≤5%（HALCON 边界栅格化略宽松）。注意 ellipse / outer_circle / convex 与 HALCON 的原生输出存在明显面积偏差（见 README 的 cv_shape_trans 说明）。
 keywords=UserExtensionsCVRegionShapeTrans
 module=0 Foundation
 parameter=Region
@@ -355,7 +355,7 @@ multivalue=optional
 parameter=Type
 description.ascii=类型（字符串或整数，见算子说明）。
 parameter_class=input_control
-value_list="rectangle1""rectangle2""ellipse""outer_circle""convex"
+value_list=rectangle1rectangle2ellipseouter_circleconvex
 type_list=string
 default_value="convex"
 default_type=string
@@ -750,74 +750,6 @@ parameter_class=output_object
 sem_type=region
 multivalue=optional
 value_number=RegionFillUp == Region
-cv_closing(Region,StructElement,RegionClosing)
-short.ascii=region 闭运算：先膨胀后腐蚀，填补细小暗孔洞。对应 HALCON closing。
-keywords=UserExtensionsCVRegionClosingMorphology
-module=0 Foundation
-parameter=Region
-description.ascii=输入 region。
-parameter_class=input_object
-sem_type=region
-multivalue=optional
-parameter=StructElement
-description.ascii=结构元（region），参考点取其质心四舍五入。
-parameter_class=input_object
-sem_type=region
-multivalue=optional
-parameter=RegionClosing
-description.ascii=输出闭运算结果 region。
-parameter_class=output_object
-sem_type=region
-multivalue=optional
-value_number=RegionClosing == Region && StructElement == Region || StructElement == 1
-cv_opening(Region,StructElement,RegionOpening)
-short.ascii=region 开运算：先腐蚀后膨胀，去除细小亮结构。对应 HALCON opening。
-keywords=UserExtensionsCVRegionOpeningMorphology
-module=0 Foundation
-parameter=Region
-description.ascii=输入 region。
-parameter_class=input_object
-sem_type=region
-multivalue=optional
-parameter=StructElement
-description.ascii=结构元（region），参考点取其质心四舍五入。
-parameter_class=input_object
-sem_type=region
-multivalue=optional
-parameter=RegionOpening
-description.ascii=输出开运算结果 region。
-parameter_class=output_object
-sem_type=region
-multivalue=optional
-value_number=RegionOpening == Region && StructElement == Region || StructElement == 1
-cv_dilation1(Region,StructElement,RegionDilation,Iterations)
-short.ascii=region 膨胀（自定义结构元），对应 HALCON dilation1。SE 参考点=质心四舍五入，用居中+反射 SE 做 Minkowski 和；按行 O(n×SE行数) 实现。
-keywords=UserExtensionsCVRegionDilationMorphology
-module=0 Foundation
-parameter=Region
-description.ascii=输入 region。
-parameter_class=input_object
-sem_type=region
-multivalue=optional
-parameter=StructElement
-description.ascii=结构元（region），参考点取其质心四舍五入。
-parameter_class=input_object
-sem_type=region
-multivalue=optional
-parameter=RegionDilation
-description.ascii=输出膨胀结果 region。
-parameter_class=output_object
-sem_type=region
-multivalue=optional
-parameter=Iterations
-description.ascii=迭代次数（≥1）。
-parameter_class=input_control
-type_list=integer
-default_value=1
-default_type=integer
-sem_type=number
-multivalue=false
-value_number=RegionDilation == Region && StructElement == Region || StructElement == 1
 cv_symm_difference(Region1,Region2,RegionSymmDifference)
 short.ascii=两个 region 求对称差，对应 HALCON symm_difference。
 keywords=UserExtensionsCVRegionSymmDifference
@@ -888,7 +820,7 @@ parameter_class=output_object
 sem_type=region
 multivalue=optional
 cv_select_shape(Regions,SelectedRegions,Features,Operation,Min,Max)
-short.ascii=按形状特征筛选 region 子集，对应 HALCON select_shape。Features 为多特征名元组，Operation 为 and/or，Min/Max 为阈值范围；输出保持引用语义。
+short.ascii=按形状特征筛选 region 子集，对应 HALCON select_shape。Features 为多特征名元组（可用名称与 cv_region_features 完全一致，含 ratio/outer_radius/dist_mean/max_diameter/connect_num/holes_num/area_holes/euler_number/rect2_phi/rect2_len1/rect2_len2 与 moments_* 系列），Operation 为 and/or，Min/Max 为阈值范围；输出保持引用语义。
 keywords=UserExtensionsCVRegionSelectShape
 module=0 Foundation
 parameter=Regions
@@ -904,7 +836,7 @@ multivalue=optional
 parameter=Features
 description.ascii=特征名元组（如 area/circularity，见 cvr_get_feature）。
 parameter_class=input_control
-value_list="area""row""column""width""height""row1""column1""row2""column2""circularity""compactness""convexity""rectangularity""contlength""phi""ra""rb""anisometry""bulkiness""structure_factor"
+value_list=arearowcolumnwidthheightratiorow1column1row2column2circularitycompactnessconvexityrectangularitycontlengthphirarbanisometrybulkinessstruct_factorstructure_factorouter_radiusmax_diameterdist_meandist_deviationroundnessnum_sidesorientationconnect_numholes_numarea_holeseuler_numberrect2_phirect2_len1rect2_len2moments_m11moments_m20moments_m02moments_iamoments_ibmoments_m11_invarmoments_m20_invarmoments_m02_invarmoments_phi1moments_phi2moments_m21moments_m12moments_m03moments_m30moments_m21_invarmoments_m12_invarmoments_m03_invarmoments_m30_invar
 type_list=string
 default_value="area"
 default_type=string
@@ -913,7 +845,7 @@ multivalue=true
 parameter=Operation
 description.ascii=组合方式：'and'（全部满足）/ 'or'（任一满足）。
 parameter_class=input_control
-value_list="and""or"
+value_list=andor
 type_list=string
 default_value="and"
 default_type=string
@@ -951,34 +883,6 @@ parameter_class=output_object
 sem_type=region
 multivalue=optional
 value_number=ConnectedRegions >= 0
-cv_erosion1(Region,StructElement,RegionErosion,Iterations)
-short.ascii=region 腐蚀（自定义结构元），对应 HALCON erosion1。SE 参考点=质心四舍五入；按行 O(n×SE行数) 实现。
-keywords=UserExtensionsCVRegionErosionMorphology
-module=0 Foundation
-parameter=Region
-description.ascii=输入 region。
-parameter_class=input_object
-sem_type=region
-multivalue=optional
-parameter=StructElement
-description.ascii=结构元（region），参考点取其质心四舍五入。
-parameter_class=input_object
-sem_type=region
-multivalue=optional
-parameter=RegionErosion
-description.ascii=输出腐蚀结果 region。
-parameter_class=output_object
-sem_type=region
-multivalue=optional
-parameter=Iterations
-description.ascii=迭代次数（≥1）。
-parameter_class=input_control
-type_list=integer
-default_value=1
-default_type=integer
-sem_type=number
-multivalue=false
-value_number=RegionErosion == Region && StructElement == Region || StructElement == 1
 cv_intersection(Region1,Region2,RegionIntersection)
 short.ascii=两个 region 求交集，对应 HALCON intersection（RLE 双指针归并）。
 keywords=UserExtensionsCVRegionIntersection
@@ -1019,6 +923,216 @@ parameter_class=output_object
 sem_type=region
 multivalue=optional
 value_number=RegionUnion == Region1 && Region2 == Region1 || Region2 == 1
+cv_region_features(Regions,Features,Values)
+short.ascii=按名称计算 region 的形状特征，对应 HALCON region_features。Features 为特征名元组，口径与 cv_select_shape 完全一致；支持 54 个名称：area/row/column/width/height/ratio/row1/column1/row2/column2/circularity/compactness/convexity/rectangularity/contlength/phi/ra/rb/anisometry/bulkiness/struct_factor（别名 structure_factor）/outer_radius/max_diameter/dist_mean/dist_deviation/roundness/num_sides/orientation/connect_num/holes_num/area_holes/euler_number/rect2_phi/rect2_len1/rect2_len2/moments_m11/moments_m20/moments_m02/moments_ia/moments_ib/moments_m11_invar/moments_m20_invar/moments_m02_invar/moments_phi1/moments_phi2/moments_m21/moments_m12/moments_m03/moments_m30/moments_m21_invar/moments_m12_invar/moments_m03_invar/moments_m30_invar。与 HALCON region_features 实测：27 个特征（ratio、outer_radius、rect2_len1/2、max_diameter、connect_num、holes_num、area_holes、euler_number 与 18 个 moments_*）数值一致（≤1e-13）；其余为已知偏差（phi 系符号相反、roundness 系轮廓口径不同，见 README）。Regions 可为元组，输出 Values 平铺为「区域数 × 特征数」，区域优先，同一区域的各特征值相邻。
+keywords=UserExtensionsCVRegionFeaturesRegion
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算特征。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=Features
+description.ascii=特征名元组，名称与 cv_select_shape 同名同义。
+parameter_class=input_control
+value_list=arearowcolumnwidthheightratiorow1column1row2column2circularitycompactnessconvexityrectangularitycontlengthphirarbanisometrybulkinessstruct_factorstructure_factorouter_radiusmax_diameterdist_meandist_deviationroundnessnum_sidesorientationconnect_numholes_numarea_holeseuler_numberrect2_phirect2_len1rect2_len2moments_m11moments_m20moments_m02moments_iamoments_ibmoments_m11_invarmoments_m20_invarmoments_m02_invarmoments_phi1moments_phi2moments_m21moments_m12moments_m03moments_m30moments_m21_invarmoments_m12_invarmoments_m03_invarmoments_m30_invar
+type_list=string
+default_value="area"
+default_type=string
+sem_type=string
+multivalue=true
+parameter=Values
+description.ascii=特征值元组，平铺为「区域数 × 特征数」，区域优先。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_gen_rectangle2(Rectangle2,Row,Column,Phi,Length1,Length2)
+short.ascii=生成旋转矩形 region，对应 HALCON gen_rectangle2。Row/Column 为中心坐标，Phi 为主轴与列轴夹角（弧度，cv/OpenCV 口径；与 HALCON gen_rectangle2 的 phi 反号，同参数为镜像矩形，phi=0 与 +-pi/2 不受影响），Length1/Length2 为两个方向的半边长（Length1 沿主轴，均 ≥0）。栅格化口径为「像素方格与矩形相交即取」（像素 (r,c) 覆盖 [r-0.5,r+0.5]×[c-0.5,c+0.5]）：实测轴对齐、Phi=π/2、负中心裁剪三档与 HALCON gen_rectangle2 逐像素一致，倾斜档面积差约 2%。注意 Phi 与 cv_smallest_rectangle2 / cv_elliptic_axis 返回的 phi 反号（既有约定偏差）；口径也与 shape_trans 'rectangle2' 不同（后者面积可差约 5%）。参数为标量，不支持原生那样的元组批量。
+keywords=UserExtensionsCVRegionGenRectangle2Region
+module=0 Foundation
+parameter=Rectangle2
+description.ascii=输出的旋转矩形 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Row
+description.ascii=中心行坐标。
+parameter_class=input_control
+type_list=realinteger
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Column
+description.ascii=中心列坐标。
+parameter_class=input_control
+type_list=realinteger
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Phi
+description.ascii=主轴与列轴夹角（弧度）。
+parameter_class=input_control
+type_list=realinteger
+default_value=0.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Length1
+description.ascii=主方向半边长（≥0）。
+parameter_class=input_control
+type_list=realinteger
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=Length2
+description.ascii=次方向半边长（≥0）。
+parameter_class=input_control
+type_list=realinteger
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+cv_gray_features(Regions,Image,Features,Value)
+short.ascii=按名称计算 region 的灰度特征，对应 HALCON gray_features（当前为 8 个特征的可用子集）。Features 为特征名元组，缺省 mean；支持：area（灰度体积 Σg）/row/column（灰度重心 Σr·g、Σc·g 除以 Σg）/mean/deviation（强度均值与标准差 sqrt(Σ(g-mean)²/F)）/min/max（区域内灰度极值）/median（等价 min_max_gray(Percent=50)）。与 HALCON 原生 gray_features 在 byte 图上实测 24 个值（3 区域 × 8 特征）全部一致，最大相对偏差 2.2e-15，median 完全一致。Image 为单通道灰度图，支持 byte/int1/int2/uint2/int4/int8/real（direction/cyclic 等非数值类型不支持）；只使用传入的 Regions，忽略图像已设 domain（与 HALCON 一致）。Regions 可为元组，输出 Value 平铺为「区域数 × 特征数」，区域优先、同一区域的各特征值相邻。
+keywords=UserExtensionsCVRegionGrayFeaturesRegionImage
+module=0 Foundation
+parameter=Regions
+description.ascii=输入 region 元组，逐元素计算灰度特征。
+parameter_class=input_object
+sem_type=region
+multivalue=true
+parameter=Image
+description.ascii=灰度图（单通道），忽略其已设 domain。
+parameter_class=input_object
+sem_type=image
+multivalue=false
+parameter=Features
+description.ascii=特征名元组，缺省 mean。
+parameter_class=input_control
+value_list=arearowcolumnmeandeviationminmaxmedian
+default_type=string
+sem_type=string
+multivalue=optional
+parameter=Value
+description.ascii=特征值元组，平铺为「区域数 × 特征数」，区域优先。
+parameter_class=output_control
+type_list=real
+default_type=real
+sem_type=number
+multivalue=true
+cv_closing_circle(Region,RegionClosing,Radius)
+short.ascii=圆形结构元闭运算（先膨胀后腐蚀），对应 HALCON closing_circle。Radius 为半径（可小数）
+keywords=UserExtensionsCVRegionClosingMorphologyCircle
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionClosing
+description.ascii=输出结果 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Radius
+description.ascii=半径（像素，可小数）。
+parameter_class=input_control
+type_list=realinteger
+default_value=3.5
+default_type=real
+sem_type=number
+multivalue=false
+value_number=RegionClosing == Region
+cv_opening_circle(Region,RegionOpening,Radius)
+short.ascii=圆形结构元开运算（先腐蚀后膨胀），对应 HALCON opening_circle。Radius 为半径（可小数）
+keywords=UserExtensionsCVRegionOpeningMorphologyCircle
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionOpening
+description.ascii=输出结果 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Radius
+description.ascii=半径（像素，可小数）。
+parameter_class=input_control
+type_list=realinteger
+default_value=3.5
+default_type=real
+sem_type=number
+multivalue=false
+value_number=RegionOpening == Region
+cv_closing_rectangle1(Region,RegionClosing,Width,Height)
+short.ascii=矩形结构元闭运算（先膨胀后腐蚀），对应 HALCON closing_rectangle1。Width/Height 为核宽高
+keywords=UserExtensionsCVRegionClosingMorphologyRectangle
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionClosing
+description.ascii=输出结果 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Width
+description.ascii=integer。
+parameter_class=input_control
+type_list=realinteger
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Height
+description.ascii=integer。
+parameter_class=input_control
+type_list=realinteger
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+value_number=RegionClosing == Region
+cv_opening_rectangle1(Region,RegionOpening,Width,Height)
+short.ascii=矩形结构元开运算（先腐蚀后膨胀），对应 HALCON opening_rectangle1。Width/Height 为核宽高
+keywords=UserExtensionsCVRegionOpeningMorphologyRectangle
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=RegionOpening
+description.ascii=输出结果 region。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=Width
+description.ascii=核宽（像素）。
+parameter_class=input_control
+type_list=realinteger
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Height
+description.ascii=integer。
+parameter_class=input_control
+type_list=realinteger
+default_value=3
+default_type=integer
+sem_type=number
+multivalue=false
+value_number=RegionOpening == Region
 linear_fit_2d(modelExpression,paramNames,xData,yData,zData,linearTolerance,paramValues,rss,rank,success,statusMessage)
 short.ascii=Fit a linear-in-parameters model with two independent variables using Eigen ColPivHouseholderQR.
 keywords=UserExtensionsFittingLinearLeastSquaresQREigen
@@ -2267,12 +2381,12 @@ default_value=0.0
 default_type=real
 sem_type=number
 multivalue=false
-cv_subtract(imageA,imageB,imageOut)
-short.ascii=两图相减（饱和截断），对应 cv::subtract。支持 byte/uint2/real 单通道，两图类型尺寸须一致。
+cv_subtract(imageA,imageB,imageOut,dtype)
+short.ascii=两图逐元素相减（饱和截断），对应 cv::subtract。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 指定输出类型：-1 或 'same' 保持输入类型，'u8'/'u16'/'s32'/'f32' 分别输出 byte/uint2/int4/real（'s8'/'s16'/'f64' 无 HALCON 对应类型，会报错）。
 keywords=UserExtensionsSubtractArithmeticOpenCV
 module=0 Foundation
 parameter=imageA
-description.ascii=单通道 byte / uint2 / real
+description.ascii=单通道 byte / uint2 / int4 / real
 parameter_class=input_object
 sem_type=image
 multivalue=optional
@@ -2282,10 +2396,18 @@ parameter_class=input_object
 sem_type=image
 multivalue=optional
 parameter=imageOut
-description.ascii=与输入同类型同尺寸
+description.ascii=输出图像（类型由 Dtype 决定，尺寸同输入）
 parameter_class=output_object
 sem_type=image
 multivalue=optional
+parameter=dtype
+description.ascii=输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）
+parameter_class=input_control
+type_list=stringinteger
+default_value=-1
+default_type=integer
+sem_type=number
+multivalue=false
 cv_blur(image,imageOut,kwidth,kheight,anchorX,anchorY,borderType)
 short.ascii=对图像做归一化盒式滤波（均值滤波），对应 cv::blur；输出与输入同类型同尺寸的单通道图像，支持 byte / uint2 / real。AnchorX/AnchorY 指定核锚点（-1=核中心）；BorderType 为边界模式，支持字符串枚举（如 'border_default'，大小写不敏感）或整数；核宽/高须为 ≥1 的奇数。
 keywords=UserExtensionsBlurSmoothOpenCV
@@ -3094,6 +3216,247 @@ parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
+multivalue=false
+cv_divide_masked(imageA,imageB,mask,imageOut,scale,dtype)
+short.ascii=带掩膜的逐元素相除：掩膜外像素保持 imageA 原值，掩膜内 Out = saturate(Scale * A / B)，除零结果为 0。Mask 为 byte 单通道图像（尺寸须与输入一致）。其余同 cv_divide。
+keywords=UserExtensionsDivideArithmeticMaskOpenCV
+module=0 Foundation
+parameter=imageA
+description.ascii=单通道 byte / uint2 / int4 / real
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+description.ascii=与 ImageA 同类型同尺寸
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=mask
+description.ascii=byte 单通道掩膜，非零处参与运算（尺寸须与输入一致）
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像（类型由 Dtype 决定，尺寸同输入）
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=scale
+description.ascii=乘性系数，默认 1.0
+parameter_class=input_control
+type_list=realinteger
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=dtype
+description.ascii=输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）
+parameter_class=input_control
+type_list=stringinteger
+default_value=-1
+default_type=integer
+sem_type=number
+multivalue=false
+cv_divide(imageA,imageB,imageOut,scale,dtype)
+short.ascii=两图逐元素相除（整除，向零取整），对应 cv::divide：Out = saturate(Scale * A / B)，除零结果为 0。Scale 为乘性系数，默认 1.0。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 语义同 cv_add。
+keywords=UserExtensionsDivideArithmeticOpenCV
+module=0 Foundation
+parameter=imageA
+description.ascii=单通道 byte / uint2 / int4 / real
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+description.ascii=与 ImageA 同类型同尺寸
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像（类型由 Dtype 决定，尺寸同输入）
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=scale
+description.ascii=乘性系数，默认 1.0
+parameter_class=input_control
+type_list=realinteger
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=dtype
+description.ascii=输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）
+parameter_class=input_control
+type_list=stringinteger
+default_value=-1
+default_type=integer
+sem_type=number
+multivalue=false
+cv_multiply_masked(imageA,imageB,mask,imageOut,scale,dtype)
+short.ascii=带掩膜的逐元素相乘：掩膜外像素保持 imageA 原值，掩膜内 Out = saturate(Scale * A * B)。Mask 为 byte 单通道图像（尺寸须与输入一致）。其余同 cv_multiply。
+keywords=UserExtensionsMultiplyArithmeticMaskOpenCV
+module=0 Foundation
+parameter=imageA
+description.ascii=单通道 byte / uint2 / int4 / real
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+description.ascii=与 ImageA 同类型同尺寸
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=mask
+description.ascii=byte 单通道掩膜，非零处参与运算（尺寸须与输入一致）
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像（类型由 Dtype 决定，尺寸同输入）
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=scale
+description.ascii=乘性系数，默认 1.0
+parameter_class=input_control
+type_list=realinteger
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=dtype
+description.ascii=输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）
+parameter_class=input_control
+type_list=stringinteger
+default_value=-1
+default_type=integer
+sem_type=number
+multivalue=false
+cv_multiply(imageA,imageB,imageOut,scale,dtype)
+short.ascii=两图逐元素相乘（饱和截断），对应 cv::multiply：Out = saturate(Scale * A * B)。Scale 为乘性系数，默认 1.0。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 语义同 cv_add。
+keywords=UserExtensionsMultiplyArithmeticOpenCV
+module=0 Foundation
+parameter=imageA
+description.ascii=单通道 byte / uint2 / int4 / real
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+description.ascii=与 ImageA 同类型同尺寸
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像（类型由 Dtype 决定，尺寸同输入）
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=scale
+description.ascii=乘性系数，默认 1.0
+parameter_class=input_control
+type_list=realinteger
+default_value=1.0
+default_type=real
+sem_type=number
+multivalue=false
+parameter=dtype
+description.ascii=输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）
+parameter_class=input_control
+type_list=stringinteger
+default_value=-1
+default_type=integer
+sem_type=number
+multivalue=false
+cv_subtract_masked(imageA,imageB,mask,imageOut,dtype)
+short.ascii=带掩膜的逐元素相减，对应 cv::subtract 的 mask 参数。Mask 为 byte 单通道图像（非零处参与运算，尺寸须与输入一致），掩膜外像素保持 imageA 原值。其余同 cv_subtract。
+keywords=UserExtensionsSubtractArithmeticMaskOpenCV
+module=0 Foundation
+parameter=imageA
+description.ascii=单通道 byte / uint2 / int4 / real
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+description.ascii=与 ImageA 同类型同尺寸
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=mask
+description.ascii=byte 单通道掩膜，非零处参与运算（尺寸须与输入一致）
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像（类型由 Dtype 决定，尺寸同输入）
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=dtype
+description.ascii=输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）
+parameter_class=input_control
+type_list=stringinteger
+default_value=-1
+default_type=integer
+sem_type=number
+multivalue=false
+cv_add_masked(imageA,imageB,mask,imageOut,dtype)
+short.ascii=带掩膜的逐元素相加，对应 cv::add 的 mask 参数。Mask 为 byte 单通道图像（非零处参与运算，尺寸须与输入一致），掩膜外像素保持 imageA 原值。其余同 cv_add。
+keywords=UserExtensionsAddArithmeticMaskOpenCV
+module=0 Foundation
+parameter=imageA
+description.ascii=单通道 byte / uint2 / int4 / real
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+description.ascii=与 ImageA 同类型同尺寸
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=mask
+description.ascii=byte 单通道掩膜，非零处参与运算（尺寸须与输入一致）
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像（类型由 Dtype 决定，尺寸同输入）
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=dtype
+description.ascii=输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）
+parameter_class=input_control
+type_list=stringinteger
+default_value=-1
+default_type=integer
+sem_type=number
+multivalue=false
+cv_add(imageA,imageB,imageOut,dtype)
+short.ascii=两图逐元素相加（饱和截断），对应 cv::add。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 指定输出类型：-1 或 'same' 保持输入类型，'u8'/'u16'/'s32'/'f32' 分别输出 byte/uint2/int4/real（'s8'/'s16'/'f64' 无 HALCON 对应类型，会报错）。
+keywords=UserExtensionsAddArithmeticOpenCV
+module=0 Foundation
+parameter=imageA
+description.ascii=单通道 byte / uint2 / int4 / real
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageB
+description.ascii=与 ImageA 同类型同尺寸
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=输出图像（类型由 Dtype 决定，尺寸同输入）
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=dtype
+description.ascii=输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）
+parameter_class=input_control
+type_list=stringinteger
+default_value=-1
+default_type=integer
+sem_type=number
 multivalue=false
 mysql_store_result(handle,result)
 short.ascii=读取上一条 mysql_query 的结果集，按行优先顺序展开为字符串元组。无数据时返回 NoData。

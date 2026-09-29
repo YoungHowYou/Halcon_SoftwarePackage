@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_shape_trans</span><span data-if="c" style="display:none;">cv_shape_trans</span><span data-if="cpp" style="display:none;">CvShapeTrans</span><span data-if="dotnet" style="display:none;">CvShapeTrans</span><span data-if="python" style="display:none;">cv_shape_trans</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_shape_trans</span><span data-if="c" style="display:none;">cv_shape_trans</span><span data-if="cpp" style="display:none;">CvShapeTrans</span><span data-if="dotnet" style="display:none;">CvShapeTrans</span><span data-if="python" style="display:none;">cv_shape_trans</span></code> — region 形状变换，对应 HALCON shape_trans。Type 支持 convex（凸包）/outer_circle（外接圆）/inner_circle（内切圆）/rectangle1/rectangle2 等。</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_shape_trans</span><span data-if="c" style="display:none;">cv_shape_trans</span><span data-if="cpp" style="display:none;">CvShapeTrans</span><span data-if="dotnet" style="display:none;">CvShapeTrans</span><span data-if="python" style="display:none;">cv_shape_trans</span></code> — region 形状变换，对应 HALCON shape_trans。Type 支持 rectangle1 / rectangle2 / ellipse / outer_circle / convex，未实现 inner_circle 与 inner_rectangle1。生成的 region 以像素方格 [r,r+1)x[c,c+1) 为口径（行取 floor(min_row)..floor(max_row)）。rectangle2 为最小外接旋转矩形：轴对齐档与 HALCON 逐像素一致，倾斜档面积差 ≤5%（HALCON 边界栅格化略宽松）。注意 ellipse / outer_circle / convex 与 HALCON 的原生输出存在明显面积偏差（见 README 的 cv_shape_trans 说明）。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>

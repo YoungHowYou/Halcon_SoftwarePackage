@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv 四则运算族（cv::add / subtract / multiply / divide）</c>
+<c>*   cv_add / cv_subtract / cv_multiply / cv_divide</c>
+<c>*   + cv_add_masked / cv_subtract_masked / cv_multiply_masked / cv_divide_masked</c>
+<c>*   dtype: -1/'same' 保持输入类型；'u8'/'u16'/'s32'/'f32' 输出 byte/uint2/int4/real</c>
+<c>*   scale: 仅 multiply / divide（Out = saturate(Scale * A * B) 等）</c>
+<c>*   mask : byte 单通道、尺寸须与输入一致；掩膜外像素保持 imageA 原值</c>
+<c>* =============================================================</c>
+<l>gen_image_const (A8, 'byte', 4, 4)</l>
+<l>gen_image_const (B8, 'byte', 4, 4)</l>
+<l>set_grayval (A8, [0,1,2,3], [0,1,2,3], [10,100,200,250])</l>
+<l>set_grayval (B8, [0,1,2,3], [0,1,2,3], [10,30,100,10])</l>
+<c></c>
+<c>* ---- cv_add：饱和截断 10+10=20、250+10=255 ----</c>
+<l>cv_add (A8, B8, C8, -1)</l>
+<l>get_grayval (C8, [0,3], [0,3], VAdd)</l>
+<l>get_image_type (C8, TypeAdd)</l>
+<l>if (VAdd[0] != 20 or VAdd[1] != 255 or TypeAdd != 'byte')</l>
+<l>  throw ('cv_add basic failed: ' + VAdd[0] + '/' + VAdd[1] + ' ' + TypeAdd)</l>
+<l>endif</l>
+<c></c>
+<c>* ---- cv_subtract：下溢截断 10-10=0、10-30=0 ----</c>
+<l>cv_subtract (A8, B8, C8s, -1)</l>
+<l>get_grayval (C8s, [0,1], [0,1], VSub)</l>
+<l>if (VSub[0] != 0 or VSub[1] != 70)</l>
+<l>  throw ('cv_subtract clamp failed: ' + VSub[0] + '/' + VSub[1])</l>
+<l>endif</l>
+<c></c>
+<c>* ---- cv_multiply：scale=1 与 scale=0.5（整数输入用整数 scale 也须接受）----</c>
+<l>cv_multiply (A8, B8, C8m, 1, -1)</l>
+<l>get_grayval (C8m, [0,1], [0,1], VMul)</l>
+<l>cv_multiply (A8, B8, C8m2, 0.5, -1)</l>
+<l>get_grayval (C8m2, [0,1], [0,1], VMul2)</l>
+<l>if (VMul[0] != 100 or VMul[1] != 255 or VMul2[0] != 50 or VMul2[1] != 255)</l>
+<l>  throw ('cv_multiply failed: ' + VMul[0] + '/' + VMul[1] + ' ' + VMul2[0] + '/' + VMul2[1])</l>
+<l>endif</l>
+<c></c>
+<c>* ---- cv_divide：整除向零取整；scale 前置相乘；除零 = 0 ----</c>
+<l>cv_divide (A8, B8, C8d, 1.0, -1)</l>
+<l>cv_divide (A8, B8, C8d2, 3.0, -1)</l>
+<l>gen_image_const (Z8, 'byte', 4, 4)</l>
+<l>cv_divide (A8, Z8, C8d3, 1.0, -1)</l>
+<l>get_grayval (C8d, [1,2], [1,2], VDiv)</l>
+<l>get_grayval (C8d2, [1], [1], VDiv2)</l>
+<l>get_grayval (C8d3, [0], [0], VDiv3)</l>
+<l>if (VDiv[0] != 3 or VDiv[1] != 2 or VDiv2[0] != 10 or VDiv3[0] != 0)</l>
+<l>  throw ('cv_divide failed: ' + VDiv[0] + '/' + VDiv[1] + ' ' + VDiv2[0] + ' ' + VDiv3[0])</l>
+<l>endif</l>
+<c></c>
+<c>* ---- dtype：uint2 输入 -> u8（饱和 1500->255）；byte -> f32 保留实数 ----</c>
+<l>gen_image_const (A16, 'uint2', 4, 4)</l>
+<l>gen_image_const (B16, 'uint2', 4, 4)</l>
+<l>set_grayval (A16, [0,1], [0,1], [1000,300])</l>
+<l>set_grayval (B16, [0,1], [0,1], [500,100])</l>
+<l>cv_add (A16, B16, C16, -1)</l>
+<l>get_image_type (C16, Type16)</l>
+<l>get_grayval (C16, [0,1], [0,1], V16)</l>
+<l>cv_add (A16, B16, C16u8, 'u8')</l>
+<l>get_image_type (C16u8, TypeU8)</l>
+<l>get_grayval (C16u8, [0,1], [0,1], VU8)</l>
+<l>cv_divide (A16, B16, C16f, 1.0, 'f32')</l>
+<l>get_image_type (C16f, TypeF32)</l>
+<l>get_grayval (C16f, [0,1], [0,1], VF32)</l>
+<l>if (Type16 != 'uint2' or V16[0] != 1500 or V16[1] != 400)</l>
+<l>  throw ('cv_add uint2 failed: ' + Type16 + ' ' + V16[0] + '/' + V16[1])</l>
+<l>endif</l>
+<l>if (TypeU8 != 'byte' or VU8[0] != 255 or VU8[1] != 255)</l>
+<l>  throw ('cv_add dtype u8 failed: ' + TypeU8 + ' ' + VU8[0] + '/' + VU8[1])</l>
+<l>endif</l>
+<l>if (TypeF32 != 'real' or abs(VF32[0] - 2.0) &gt; 1e-6 or abs(VF32[1] - 3.0) &gt; 1e-6)</l>
+<l>  throw ('cv_divide dtype f32 failed: ' + TypeF32 + ' ' + VF32[0] + '/' + VF32[1])</l>
+<l>endif</l>
+<c></c>
+<c>* ---- int4 输入/输出 ----</c>
+<l>convert_image_type (A8, A32, 'int4')</l>
+<l>convert_image_type (B8, B32, 'int4')</l>
+<l>cv_add (A32, B32, C32, -1)</l>
+<l>get_image_type (C32, Type32)</l>
+<l>get_grayval (C32, [0,2], [0,2], V32)</l>
+<l>if (Type32 != 'int4' or V32[0] != 20 or V32[1] != 300)</l>
+<l>  throw ('cv_add int4 failed: ' + Type32 + ' ' + V32[0] + '/' + V32[1])</l>
+<l>endif</l>
+<c></c>
+<c>* ---- 掩膜：只写掩膜内，掩膜外保持 imageA 原值 ----</c>
+<l>gen_image_const (Mask, 'byte', 4, 4)</l>
+<l>set_grayval (Mask, [0,1], [0,1], [255,255])</l>
+<l>cv_add_masked (A8, B8, Mask, C8mask, -1)</l>
+<l>get_grayval (C8mask, [0,3], [0,3], VMask)</l>
+<l>cv_subtract_masked (A8, B8, Mask, C8mask2, -1)</l>
+<l>get_grayval (C8mask2, [1,2], [1,2], VMask2)</l>
+<l>cv_multiply_masked (A8, B8, Mask, C8mask3, 0.5, -1)</l>
+<l>get_grayval (C8mask3, [0,3], [0,3], VMask3)</l>
+<l>cv_divide_masked (A8, B8, Mask, C8mask4, 1.0, -1)</l>
+<l>get_grayval (C8mask4, [1,2], [1,2], VMask4)</l>
+<l>if (VMask[0] != 20 or VMask[1] != 250)</l>
+<l>  throw ('cv_add_masked failed: ' + VMask[0] + '/' + VMask[1])</l>
+<l>endif</l>
+<l>if (VMask2[0] != 70 or VMask2[1] != 200)</l>
+<l>  throw ('cv_subtract_masked failed: ' + VMask2[0] + '/' + VMask2[1])</l>
+<l>endif</l>
+<l>if (VMask3[0] != 50 or VMask3[1] != 250)</l>
+<l>  throw ('cv_multiply_masked failed: ' + VMask3[0] + '/' + VMask3[1])</l>
+<l>endif</l>
+<l>if (VMask4[0] != 3 or VMask4[1] != 200)</l>
+<l>  throw ('cv_divide_masked failed: ' + VMask4[0] + '/' + VMask4[1])</l>
+<l>endif</l>
+<c></c>
+<c>* ---- 掩膜 + dtype 组合：掩膜外按 imageA 的类型转换 ----</c>
+<l>cv_add_masked (A16, B16, Mask, C16mask, 'u8')</l>
+<l>get_image_type (C16mask, TypeMU8)</l>
+<l>get_grayval (C16mask, [0,1], [0,1], VMU8)</l>
+<l>if (TypeMU8 != 'byte' or VMU8[0] != 255 or VMU8[1] != 255)</l>
+<l>  throw ('cv_add_masked dtype u8 failed: ' + TypeMU8 + ' ' + VMU8[0] + '/' + VMU8[1])</l>
+<l>endif</l>
+<c></c>
+<c>* ---- 负例：dtype 无 HALCON 对应类型 / 掩膜尺寸不符 / 输入类型不一致 ----</c>
+<l>ErrDtype := false</l>
+<l>try</l>
+<l>  cv_add (A8, B8, CX, 's16')</l>
+<l>catch (Exception)</l>
+<l>  ErrDtype := true</l>
+<l>endtry</l>
+<l>gen_image_const (MaskBad, 'byte', 2, 2)</l>
+<l>ErrMask := false</l>
+<l>try</l>
+<l>  cv_add_masked (A8, B8, MaskBad, CX2, -1)</l>
+<l>catch (Exception)</l>
+<l>  ErrMask := true</l>
+<l>endtry</l>
+<l>ErrType := false</l>
+<l>try</l>
+<l>  cv_add (A8, B16, CX3, -1)</l>
+<l>catch (Exception)</l>
+<l>  ErrType := true</l>
+<l>endtry</l>
+<l>if (not ErrDtype or not ErrMask or not ErrType)</l>
+<l>  throw ('negative cases not rejected: ' + ErrDtype + '/' + ErrMask + '/' + ErrType)</l>
+<l>endif</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

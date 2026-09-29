@@ -26,10 +26,10 @@
 <c></c>
 <l>* 形态学 + 形状筛选</l>
 <l>gen_circle (SE, 0, 0, 3.5)</l>
-<l>cv_erosion1 (RUnion, SE, REroded, 1)</l>
+<l>cv_erosion_circle (RUnion, REroded, 3.5)</l>
 <l>area_center (REroded, AreaEroded, Row, Col)</l>
 <l>if (AreaEroded &gt; AreaUnion)</l>
-<l>  throw ('cv_erosion1 area increased')</l>
+<l>  throw ('cv_erosion_circle area increased')</l>
 <l>endif</l>
 <c></c>
 <l>cv_select_shape (ConnectedRegions, Selected, 'area', 'and', 500, 99999999)</l>

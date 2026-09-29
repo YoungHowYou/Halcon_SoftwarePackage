@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>cv_subtract [HALCON Operator Reference / Version 24.11.1.0]</title>
+<title>cv_gen_rectangle2 [HALCON Operator Reference / Version 24.11.1.0]</title>
 <style type="text/css">
 
       body {
@@ -1083,31 +1083,31 @@ toggleLanguage(new_lang,1);return;}
 </div>
 <!--OP_REF_HEADER_END-->
 <h1 id="sec_name">
-<span data-if="hdevelop" style="display:inline;">cv_subtract</span><span data-if="c" style="display:none;">cv_subtract</span><span data-if="cpp" style="display:none;">CvSubtract</span><span data-if="dotnet" style="display:none;">CvSubtract</span><span data-if="python" style="display:none;">cv_subtract</span> (Operator)</h1>
+<span data-if="hdevelop" style="display:inline;">cv_gen_rectangle2</span><span data-if="c" style="display:none;">cv_gen_rectangle2</span><span data-if="cpp" style="display:none;">CvGenRectangle2</span><span data-if="dotnet" style="display:none;">CvGenRectangle2</span><span data-if="python" style="display:none;">cv_gen_rectangle2</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_subtract</span><span data-if="c" style="display:none;">cv_subtract</span><span data-if="cpp" style="display:none;">CvSubtract</span><span data-if="dotnet" style="display:none;">CvSubtract</span><span data-if="python" style="display:none;">cv_subtract</span></code> — 两图逐元素相减（饱和截断），对应 cv::subtract。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 指定输出类型：-1 或 'same' 保持输入类型，'u8'/'u16'/'s32'/'f32' 分别输出 byte/uint2/int4/real（'s8'/'s16'/'f64' 无 HALCON 对应类型，会报错）。</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_gen_rectangle2</span><span data-if="c" style="display:none;">cv_gen_rectangle2</span><span data-if="cpp" style="display:none;">CvGenRectangle2</span><span data-if="dotnet" style="display:none;">CvGenRectangle2</span><span data-if="python" style="display:none;">cv_gen_rectangle2</span></code> — 生成旋转矩形 region，对应 HALCON gen_rectangle2。Row/Column 为中心坐标，Phi 为主轴与列轴夹角（弧度，HALCON 约定），Length1/Length2 为两个方向的半边长（Length1 沿主轴，均 ≥0）。栅格化口径为「像素方格与矩形相交即取」（像素 (r,c) 覆盖 [r-0.5,r+0.5]×[c-0.5,c+0.5]）：实测轴对齐、Phi=π/2、负中心裁剪三档与 HALCON gen_rectangle2 逐像素一致，倾斜档面积差约 2%。注意 Phi 与 cv_smallest_rectangle2 / cv_elliptic_axis 返回的 phi 反号（既有约定偏差）；口径也与 shape_trans 'rectangle2' 不同（后者面积可差约 5%）。参数为标量，不支持原生那样的元组批量。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
-<code><b>cv_subtract</b>(<a href="#imageA"><i>imageA</i></a>, <a href="#imageB"><i>imageB</i></a> : <a href="#imageOut"><i>imageOut</i></a> : <a href="#dtype"><i>dtype</i></a> : )</code></p>
+<code><b>cv_gen_rectangle2</b>( : <a href="#Rectangle2"><i>Rectangle2</i></a> : <a href="#Row"><i>Row</i></a>, <a href="#Column"><i>Column</i></a>, <a href="#Phi"><i>Phi</i></a>, <a href="#Length1"><i>Length1</i></a>, <a href="#Length2"><i>Length2</i></a> : )</code></p>
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>cv_subtract</b>(const Hobject <a href="#imageA"><i>imageA</i></a>, const Hobject <a href="#imageB"><i>imageB</i></a>, Hobject* <a href="#imageOut"><i>imageOut</i></a>, const Hlong <a href="#dtype"><i>dtype</i></a>)</code></p>
+<code>Herror <b>cv_gen_rectangle2</b>(Hobject* <a href="#Rectangle2"><i>Rectangle2</i></a>, double <a href="#Row"><i>Row</i></a>, double <a href="#Column"><i>Column</i></a>, double <a href="#Phi"><i>Phi</i></a>, double <a href="#Length1"><i>Length1</i></a>, double <a href="#Length2"><i>Length2</i></a>)</code></p>
 <p>
-<code>Herror <b>T_cv_subtract</b>(const Hobject <a href="#imageA"><i>imageA</i></a>, const Hobject <a href="#imageB"><i>imageB</i></a>, Hobject* <a href="#imageOut"><i>imageOut</i></a>, const Htuple <a href="#dtype"><i>dtype</i></a>)</code></p>
+<code>Herror <b>T_cv_gen_rectangle2</b>(Hobject* <a href="#Rectangle2"><i>Rectangle2</i></a>, const Htuple <a href="#Row"><i>Row</i></a>, const Htuple <a href="#Column"><i>Column</i></a>, const Htuple <a href="#Phi"><i>Phi</i></a>, const Htuple <a href="#Length1"><i>Length1</i></a>, const Htuple <a href="#Length2"><i>Length2</i></a>)</code></p>
 </div>
 <div data-if="cpp" style="display:none;">
 <p>
-<code>void <b>CvSubtract</b>(const HObject&amp; <a href="#imageA"><i>imageA</i></a>, const HObject&amp; <a href="#imageB"><i>imageB</i></a>, HObject* <a href="#imageOut"><i>imageOut</i></a>, const HTuple&amp; <a href="#dtype"><i>dtype</i></a>)</code></p>
+<code>void <b>CvGenRectangle2</b>(HObject* <a href="#Rectangle2"><i>Rectangle2</i></a>, const HTuple&amp; <a href="#Row"><i>Row</i></a>, const HTuple&amp; <a href="#Column"><i>Column</i></a>, const HTuple&amp; <a href="#Phi"><i>Phi</i></a>, const HTuple&amp; <a href="#Length1"><i>Length1</i></a>, const HTuple&amp; <a href="#Length2"><i>Length2</i></a>)</code></p>
 </div>
 <div data-if="dotnet" style="display:none;">
 <p>
-<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvSubtract</b>(<a href="HObject.html">HObject</a> <a href="#imageA"><i>imageA</i></a>, <a href="HObject.html">HObject</a> <a href="#imageB"><i>imageB</i></a>, out <a href="HObject.html">HObject</a> <a href="#imageOut"><i>imageOut</i></a>, <a href="HTuple.html">HTuple</a> <a href="#dtype"><i>dtype</i></a>)</code></p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvGenRectangle2</b>(out <a href="HObject.html">HObject</a> <a href="#Rectangle2"><i>rectangle2</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Row"><i>row</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Column"><i>column</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Phi"><i>phi</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Length1"><i>length1</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Length2"><i>length2</i></a>)</code></p>
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>cv_subtract</b>(<a href="#imageA"><i>image_a</i></a>: HObject, <a href="#imageB"><i>image_b</i></a>: HObject, <a href="#dtype"><i>dtype</i></a>: Union[str, int]) -&gt; HObject</code></p>
+<code>def <b>cv_gen_rectangle2</b>(<a href="#Row"><i>row</i></a>: Union[float, int], <a href="#Column"><i>column</i></a>: Union[float, int], <a href="#Phi"><i>phi</i></a>: Union[float, int], <a href="#Length1"><i>length_1</i></a>: Union[float, int], <a href="#Length2"><i>length_2</i></a>: Union[float, int]) -&gt; HObject</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1118,30 +1118,54 @@ toggleLanguage(new_lang,1);return;}
 <h2 id="sec_parameters">Parameters</h2>
   <div class="par">
 <div class="parhead">
-<span id="imageA" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageA</span><span data-if="c" style="display:none">imageA</span><span data-if="cpp" style="display:none">imageA</span><span data-if="dotnet" style="display:none">imageA</span><span data-if="python" style="display:none">image_a</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
+<span id="Rectangle2" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Rectangle2</span><span data-if="c" style="display:none">Rectangle2</span><span data-if="cpp" style="display:none">Rectangle2</span><span data-if="dotnet" style="display:none">rectangle2</span><span data-if="python" style="display:none">rectangle_2</span></code></b> (output_object)  </span><span>region(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
 </div>
-<p class="pardesc">单通道 byte / uint2 / int4 / real</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="imageB" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageB</span><span data-if="c" style="display:none">imageB</span><span data-if="cpp" style="display:none">imageB</span><span data-if="dotnet" style="display:none">imageB</span><span data-if="python" style="display:none">image_b</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
-</div>
-<p class="pardesc">与 ImageA 同类型同尺寸</p>
+<p class="pardesc">输出的旋转矩形 region。</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="imageOut" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageOut</span><span data-if="c" style="display:none">imageOut</span><span data-if="cpp" style="display:none">imageOut</span><span data-if="dotnet" style="display:none">imageOut</span><span data-if="python" style="display:none">image_out</span></code></b> (output_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
+<span id="Row" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Row</span><span data-if="c" style="display:none">Row</span><span data-if="cpp" style="display:none">Row</span><span data-if="dotnet" style="display:none">row</span><span data-if="python" style="display:none">row</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
 </div>
-<p class="pardesc">输出图像（类型由 Dtype 决定，尺寸同输入）</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="dtype" class="parname"><b><code><span data-if="hdevelop" style="display:inline">dtype</span><span data-if="c" style="display:none">dtype</span><span data-if="cpp" style="display:none">dtype</span><span data-if="dotnet" style="display:none">dtype</span><span data-if="python" style="display:none">dtype</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[str, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer / </span><span data-if="hdevelop" style="display:inline">string)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long / </span><span data-if="dotnet" style="display:none">string)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i> / </span><span data-if="cpp" style="display:none">HString)</span><span data-if="c" style="display:none"> (<i>Hlong</i> / </span><span data-if="c" style="display:none">char*)</span></span>
-</div>
-<p class="pardesc">输出类型（-1/'same'=同输入；'u8'/'u16'/'s32'/'f32' 或 CV 深度整数）</p>
+<p class="pardesc">中心行坐标。</p>
 <p class="pardesc"><span class="parcat">Default:
 
-      </span>-1</p>
+      </span>0.0</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="Column" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Column</span><span data-if="c" style="display:none">Column</span><span data-if="cpp" style="display:none">Column</span><span data-if="dotnet" style="display:none">column</span><span data-if="python" style="display:none">column</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
+</div>
+<p class="pardesc">中心列坐标。</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>0.0</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="Phi" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Phi</span><span data-if="c" style="display:none">Phi</span><span data-if="cpp" style="display:none">Phi</span><span data-if="dotnet" style="display:none">phi</span><span data-if="python" style="display:none">phi</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
+</div>
+<p class="pardesc">主轴与列轴夹角（弧度）。</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>0.0</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="Length1" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Length1</span><span data-if="c" style="display:none">Length1</span><span data-if="cpp" style="display:none">Length1</span><span data-if="dotnet" style="display:none">length1</span><span data-if="python" style="display:none">length_1</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
+</div>
+<p class="pardesc">主方向半边长（≥0）。</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>1.0</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="Length2" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Length2</span><span data-if="c" style="display:none">Length2</span><span data-if="cpp" style="display:none">Length2</span><span data-if="dotnet" style="display:none">length2</span><span data-if="python" style="display:none">length_2</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
+</div>
+<p class="pardesc">次方向半边长（≥0）。</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>1.0</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>
