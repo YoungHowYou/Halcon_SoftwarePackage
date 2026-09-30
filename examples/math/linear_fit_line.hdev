@@ -43,8 +43,9 @@
 <c>* ---- 2. 拟合显式形式 y = k*x + d（等价于 b = -1 归一化的 ax+by+c=0）----</c>
 <l>Model := 'k*x + d'</l>
 <l>ParamNames := ['k', 'd']</l>
-<l>linear_fit (Model, ParamNames, XData, YData, 'x', 1e-10, \
-            ParamValues, Rss, Rank, Success, StatusMessage)</l>
+<l>cv_linear_create (Model, ParamNames, ['x'], LinH)</l>
+<l>cv_linear_fit (LinH, XData, YData, [], 1e-10, ParamValues, Rss, Rank, Success, StatusMessage)</l>
+<l>cv_fit_clear (LinH)</l>
 <l>KV := ParamValues[0]</l>
 <l>DV := ParamValues[1]</l>
 

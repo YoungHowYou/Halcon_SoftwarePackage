@@ -13,12 +13,41 @@
 <l>ParamNames := ['a', 'b']</l>
 <l>XData := real([0, 1, 2, 3])</l>
 <l>YData := real([2, 4, 6, 8])</l>
-<l>linear_fit (Model, ParamNames, XData, YData, 'x', 1e-10, ParamValues, Rss, Rank, Success, StatusMessage)</l>
+<l>cv_linear_create (Model, ParamNames, ['x'], LinH)</l>
+<l>cv_linear_fit (LinH, XData, YData, [], 1e-10, ParamValues, Rss, Rank, Success, StatusMessage)</l>
+<l>cv_fit_clear (LinH)</l>
 <c>* 期望: ParamValues = [2, 2], Rss = 0, Success = 1</c>
 <l>ACoef := ParamValues[0]</l>
 <l>BCoef := ParamValues[1]</l>
 <c>* 验证: y(5) = 2 + 2*5 = 12</c>
 <l>YAt5 := ACoef + BCoef*5</l>
+<c>* ---- 可视化：散点 + 拟合线 + 竖直残差 ----</c>
+<l>dev_update_off ()</l>
+<l>dev_close_window ()</l>
+<l>dev_open_window (0, 0, 640, 480, 'black', WindowHandle)</l>
+<l>set_display_font (WindowHandle, 16, 'mono', 'true', 'false')</l>
+<l>dev_set_part (0.0, -0.5, 9.0, 3.5)</l>
+<l>gen_cross_contour_xld (Crosses, YData, XData, 0.12, 0.785398)</l>
+<l>dev_set_line_width (2)</l>
+<l>dev_set_color ('white')</l>
+<l>dev_display (Crosses)</l>
+<l>FitY := ACoef + BCoef * XData</l>
+<l>dev_set_color ('orange')</l>
+<l>dev_set_line_width (1)</l>
+<l>for i := 0 to 3 by 1</l>
+<l>    gen_contour_polygon_xld (ResidualSeg, [YData[i], FitY[i]], [XData[i], XData[i]])</l>
+<l>    dev_display (ResidualSeg)</l>
+<l>endfor</l>
+<l>gen_contour_polygon_xld (FitLine, [ACoef, ACoef + BCoef * 3.0], [0.0, 3.0])</l>
+<l>dev_set_color ('green')</l>
+<l>dev_set_line_width (3)</l>
+<l>dev_display (FitLine)</l>
+<l>Message := 'cv_linear_fit : y = a + b*x'</l>
+<l>disp_message (WindowHandle, Message, 'window', 12, 12, 'white', 'false')</l>
+<l>Message := 'a = ' + ACoef$'.4f' + '   b = ' + BCoef$'.4f' + '   Rss = ' + Rss$'.6f'</l>
+<l>disp_message (WindowHandle, Message, 'window', 40, 12, 'green', 'false')</l>
+<l>disp_message (WindowHandle, 'white: samples   orange: residuals   green: fit', 'window', 440, 12, 'white', 'false')</l>
+<l>dev_update_on ()</l>
 </body>
 <docu id="main">
 <parameters/>

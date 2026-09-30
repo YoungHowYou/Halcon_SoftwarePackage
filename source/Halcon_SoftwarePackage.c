@@ -532,25 +532,9 @@ Herror Carma_interp1(Hproc_handle proc_handle)
     return HCarma_interp1(proc_handle);
 }
 
-Herror Ceigen_lm_fit(Hproc_handle proc_handle)
-{
-    return HCeigen_lm_fit(proc_handle);
-}
 
-Herror Ceigen_lm_fit_2d(Hproc_handle proc_handle)
-{
-    return HCeigen_lm_fit_2d(proc_handle);
-}
 
-Herror Clinear_fit(Hproc_handle proc_handle)
-{
-    return HLinear_fit(proc_handle);
-}
 
-Herror Clinear_fit_2d(Hproc_handle proc_handle)
-{
-    return HLinear_fit_2d(proc_handle);
-}
 #pragma endregion
 
 #pragma region cv_region
@@ -567,6 +551,12 @@ Herror CHcv_intersection(Hproc_handle proc_handle)
 Herror CHcv_connection(Hproc_handle proc_handle)
 {
     return Hcv_connection(proc_handle);
+}
+
+/* cv_connection_ex：同 cv_connection，另支持 CacheFeatures 预计算特征缓存 */
+Herror CHcv_connection_ex(Hproc_handle proc_handle)
+{
+    return Hcv_connection_ex(proc_handle);
 }
 
 Herror CHcv_select_shape(Hproc_handle proc_handle)
@@ -788,8 +778,40 @@ Herror Ccv_gray_closing_circle(Hproc_handle proc_handle)
     return HCcv_gray_closing_circle(proc_handle);
 }
 
-Herror CHcv_ransac_fit(Hproc_handle proc_handle)
-{
-    return Hcv_ransac_fit(proc_handle);
-}
 #pragma endregion
+
+/* ---- 两步式拟合算子包装（2026-09-30，替代一步到位拟合族） ---- */
+Herror CHcv_lm_create(Hproc_handle proc_handle)
+{
+    return Hcv_lm_create(proc_handle);
+}
+
+Herror CHcv_lm_fit(Hproc_handle proc_handle)
+{
+    return Hcv_lm_fit(proc_handle);
+}
+
+Herror CHcv_linear_create(Hproc_handle proc_handle)
+{
+    return Hcv_linear_create(proc_handle);
+}
+
+Herror CHcv_linear_fit(Hproc_handle proc_handle)
+{
+    return Hcv_linear_fit(proc_handle);
+}
+
+Herror CHcv_fit_clear(Hproc_handle proc_handle)
+{
+    return Hcv_fit_clear(proc_handle);
+}
+
+Herror CHcv_geom_create(Hproc_handle proc_handle)
+{
+    return Hcv_geom_create(proc_handle);
+}
+
+Herror CHcv_geom_fit(Hproc_handle proc_handle)
+{
+    return Hcv_geom_fit(proc_handle);
+}

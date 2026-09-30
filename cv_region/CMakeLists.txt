@@ -36,9 +36,7 @@ option(CVR_BUILD_TESTS  "Build cv_region core tests"  ${_cvr_default})
 option(CVR_BUILD_OPENCV "Build OpenCV I/O bridge"    ${_cvr_default})
 unset(_cvr_default)
 
-# ---- 依赖（优化器需要 Eigen + muparser；头文件泄漏到使用者，需 PUBLIC） ----
-find_package(Eigen3 CONFIG REQUIRED)
-find_package(muparser CONFIG REQUIRED)
+# ---- 依赖：拆分后 cv_region 只依赖 STL（ransac/measure 已迁至 cv_flow） ----
 
 # ---- 静态库：单头 + 单实现（直接链入扩展包，免跨 DLL 拷贝） ----
 add_library(cvr_core STATIC
@@ -51,11 +49,32 @@ target_include_directories(cvr_core
     $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(cvr_core
-  PUBLIC
-    Eigen3::Eigen
-    muparser::muparser
+# 无三方链接依赖（纯 STL）
+
+#=============================================================================
+#  Install & export — 外部 CMake 工程免 HALCON 复用：
+#    find_package(cvr_core CONFIG REQUIRED)
+#    target_link_libraries(app PRIVATE cvr::cvr_core)
+#=============================================================================
+add_library(cvr::cvr_core ALIAS cvr_core)
+include(GNUInstallDirs)
+install(TARGETS cvr_core
+  EXPORT cvr_core-targets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+# cvr_core 纯 STL、无链接依赖，config 直接引入 targets 文件
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cvr_core-config.cmake"
+  "include(\"\${CMAKE_CURRENT_LIST_DIR}/cvr_core-targets.cmake\")\n")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cvr_core-config.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cvr_core")
+install(EXPORT cvr_core-targets
+  FILE cvr_core-targets.cmake
+  NAMESPACE cvr::
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cvr_core")
 
 # 注：单 TU 失去了「按 obj 粒度丢弃未引用代码」的粒度，但**不需要** /Gy ——
 # 实测（2026-09）：加 /Gy 与不加，cvr.obj 同为 10,352 KB、cvr_core.lib 15,612 vs 15,246 KB、
@@ -90,10 +109,10 @@ endif()
 if(CVR_BUILD_TESTS)
   enable_testing()
 
+  # m8_ransac / m9_measure 已随 ransac/measure 迁至 cv_flow/tests
   foreach(_t IN ITEMS
       test_m1_region test_m2_ops test_m3_conn test_m4_morph
-      test_m5_features test_m6_shape test_m7_select test_m8_ransac
-      test_m9_measure)
+      test_m5_features test_m6_shape test_m7_select test_m10_cache)
     add_executable(${_t} tests/${_t}.cpp)
     target_link_libraries(${_t} PRIVATE cvr_core)
     add_test(NAME ${_t} COMMAND ${_t})

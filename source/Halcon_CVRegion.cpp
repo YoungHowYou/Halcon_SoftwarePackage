@@ -32,6 +32,10 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <array>
+#include <deque>
+#include <mutex>
+#include <unordered_map>
 
 /* cv_region 自定义错误码段（避免与包内其它模块冲突，使用 10100 起） */
 #define CVR_ERR_DOMAIN   10101
@@ -45,10 +49,109 @@ using cvr::CvrChords;
 
 namespace {
 
+/*=============================================================================
+ * 跨算子特征缓存（内容指纹）
+ *
+ *   HALCON 的 region 对象无法携带 CvrRegion 里的惰性特征缓存：每个算子调用都从
+ *   Hrlregion 重建 CvrRegion 并 invalidate（避开陈旧值）。为把"算过的特征"跨算子
+ *   复用（如 connection → select_shape → region_features），这里按内容指纹缓存：
+ *   指纹只覆盖影响特征值的量（runs + is_compl）；所有 cvr_feature_* 都不依赖
+ *   定义域 w/h，因此不存在"同 key 不同值"的风险，最差情况只是未命中。
+ *
+ *   用法：特征类算子读 region 时传 &key（read_region 顺带算指纹，该循环本就
+ *   遍历全部 run 做 int16→int32 扩宽），命中即把缓存拷回 out.feature；算完后
+ *   feature_cache_store 回写。集合/形态学等算子不参与，零额外开销。
+ *===========================================================================*/
+namespace {
+
+struct FeatureCacheKey {
+    uint64_t h1 = 0, h2 = 0;
+    bool operator==(const FeatureCacheKey& o) const noexcept {
+        return h1 == o.h1 && h2 == o.h2;
+    }
+};
+
+struct FeatureCacheKeyHash {
+    size_t operator()(const FeatureCacheKey& k) const noexcept {
+        return static_cast<size_t>(k.h1 ^ (k.h2 + 0x9e3779b97f4a7c15ull +
+                                           (k.h1 << 6) + (k.h1 >> 2)));
+    }
+};
+
+/* 双累加器（FNV-1a + LCG 混合）=> 128 位指纹，碰撞概率可忽略 */
+inline void feature_hash_mix(uint64_t& h1, uint64_t& h2, uint64_t v) noexcept {
+    h1 ^= v;
+    h1 *= 1099511628211ull;
+    h2 = h2 * 6364136223846793005ull + v + 1442695040888963407ull;
+}
+
+inline FeatureCacheKey feature_key_of(const cvr::CvrRun* runs, size_t n,
+                                      bool is_compl) noexcept {
+    FeatureCacheKey k;
+    k.h1 = 1469598103934665603ull;
+    k.h2 = 0x9e3779b97f4a7c15ull;
+    feature_hash_mix(k.h1, k.h2, static_cast<uint64_t>(n));
+    for (size_t i = 0; i < n; ++i) {
+        const uint64_t r  = static_cast<uint64_t>(static_cast<uint32_t>(runs[i].r));
+        const uint64_t cb = static_cast<uint64_t>(static_cast<uint32_t>(runs[i].cb));
+        const uint64_t ce = static_cast<uint64_t>(static_cast<uint32_t>(runs[i].ce));
+        feature_hash_mix(k.h1, k.h2, r);
+        feature_hash_mix(k.h1, k.h2, cb);
+        feature_hash_mix(k.h1, k.h2, ce);
+    }
+    feature_hash_mix(k.h1, k.h2, is_compl ? 1ull : 0ull);
+    return k;
+}
+
+/* 分片 + 每片 FIFO 上限（防长跑会话无限增长）；条目仅特征值（~300B/region） */
+struct FeatureCacheShard {
+    static constexpr size_t kCap = 512;
+    std::mutex                                     mtx;
+    std::unordered_map<FeatureCacheKey, cvr::CvrFeature, FeatureCacheKeyHash> map;
+    std::deque<FeatureCacheKey>                    fifo;
+};
+
+constexpr size_t kFeatureCacheShards = 16;
+
+inline std::array<FeatureCacheShard, kFeatureCacheShards>& feature_cache() noexcept {
+    /* 函数内 static：进程内单例，首次使用时构造 */
+    static std::array<FeatureCacheShard, kFeatureCacheShards> s;
+    return s;
+}
+
+inline bool feature_cache_lookup(const FeatureCacheKey& k, cvr::CvrFeature& out) {
+    FeatureCacheShard& sh = feature_cache()[static_cast<size_t>(k.h1 % kFeatureCacheShards)];
+    std::lock_guard<std::mutex> lk(sh.mtx);
+    const auto it = sh.map.find(k);
+    if (it == sh.map.end()) return false;
+    out = it->second;
+    return true;
+}
+
+inline void feature_cache_store(const FeatureCacheKey& k, const cvr::CvrFeature& f) {
+    if (!f.flags.any()) return;
+    FeatureCacheShard& sh = feature_cache()[static_cast<size_t>(k.h1 % kFeatureCacheShards)];
+    std::lock_guard<std::mutex> lk(sh.mtx);
+    const auto r = sh.map.emplace(k, f);
+    if (r.second) {
+        sh.fifo.push_back(k);
+        while (sh.fifo.size() > FeatureCacheShard::kCap) {
+            sh.map.erase(sh.fifo.front());
+            sh.fifo.pop_front();
+        }
+    } else {
+        r.first->second = f;   /* 已存在：用后算的（信息更全）覆盖 */
+    }
+}
+
+} // namespace
+
 /* 读取对象 key 的 region 组件到 CvrRegion（失败返回 false）。
    注意 Hrun 的坐标是 int16（HC_LARGE_IMAGES 未定义时）而 CvrRun 是 int32，
-   必须逐字段扩宽；用 resize + 下标直写替代 push_back（免每次容量/大小检查）。 */
-inline bool read_region(Hproc_handle proc_handle, Hkey obj_key, CvrRegion& out) {
+   必须逐字段扩宽；用 resize + 下标直写替代 push_back（免每次容量/大小检查）。
+   key != nullptr 时顺带算内容指纹并在命中时水合特征缓存（见上文）。 */
+inline bool read_region(Hproc_handle proc_handle, Hkey obj_key, CvrRegion& out,
+                        FeatureCacheKey* key = nullptr) {
     Hkey region_key;
     if (HPGetComp(proc_handle, obj_key, REGION, &region_key) != H_MSG_OK)
         return false;
@@ -66,6 +169,11 @@ inline bool read_region(Hproc_handle proc_handle, Hkey obj_key, CvrRegion& out) 
     }
     out.is_compl = (hrl->is_compl != 0);
     cvr::cvr_region_invalidate(out);
+    if (key) {
+        *key = feature_key_of(out.runs.data(), out.runs.size(), out.is_compl);
+        /* 命中：把之前算过的特征挂回本次打开的对象（后续 cvr_feature_* 直接查表） */
+        feature_cache_lookup(*key, out.feature);
+    }
     return true;
 }
 
@@ -118,6 +226,7 @@ inline void clip_negative(CvrRegion& r) {
         if (cb <= rr.ce) kept.push_back(CvrRun{ rr.r, cb, rr.ce });
     }
     r.runs = std::move(kept);
+    cvr::cvr_region_invalidate(r);   /* runs 已变：惰性特征缓存必须失效 */
 }
 
 /* region -> byte 掩码图（fg/bg 填充；补集先物化） */
@@ -295,7 +404,8 @@ static Herror cvr_feature1_impl(Hproc_handle proc_handle, CvrFeatFn fn,
         Hkey k;
         HGetObj(proc_handle, 1, i, &k);
         CvrRegion r;
-        if (!read_region(proc_handle, k, r) ||
+        FeatureCacheKey ck;
+        if (!read_region(proc_handle, k, r, &ck) ||
             !fn(r, &vals[static_cast<size_t>(i - 1)])) {
             char msg[256];
             snprintf(msg, sizeof(msg), "%s failed: %s", feat_name,
@@ -303,6 +413,7 @@ static Herror cvr_feature1_impl(Hproc_handle proc_handle, CvrFeatFn fn,
             HSetErrText(msg);
             return CVR_ERR_OP;
         }
+        feature_cache_store(ck, r.feature);
     }
 
     HPutElem(proc_handle, 1, vals.data(), n, DOUBLE_PAR);
@@ -429,6 +540,82 @@ Herror Hcv_connection(Hproc_handle proc_handle)
 }
 
 /*=============================================================================
+ * cv_connection_ex —— 同 cv_connection，另支持按 CacheFeatures 预计算形状特征
+ *
+ *   预计算结果写入"内容指纹"缓存（见文件开头 feature_cache_*）：后续算子
+ *   （cv_select_shape / cv_region_features / 单值特征算子）对同一 region 内容
+ *   直接查表，不再重复计算。CacheFeatures 为字符串元组（元素内可用 '|' 拼接，
+ *   支持 none/basic/cheap/hull/all 组合名）；传 'none' / 不传时行为与
+ *   cv_connection 完全一致。
+ *===========================================================================*/
+Herror Hcv_connection_ex(Hproc_handle proc_handle)
+{
+    HCkNoObj(proc_handle);
+
+    /* 读字符串参数前必须分配字符串内存（手册 5.5.10），每算子只调一次 */
+    HAllocStringMem(proc_handle, 1024);
+
+    /* 输入控制 1 = CacheFeatures（字符串元组） */
+    uint32_t mask = 0u;
+    {
+        char const* const* feat_ptr = nullptr;
+        INT4_8 n_feat = 0;
+        HGetPElemS(proc_handle, 1, CONV_NONE, &feat_ptr, &n_feat);
+        if (n_feat > 0) {
+            std::vector<std::string> names;
+            names.reserve(static_cast<size_t>(n_feat));
+            for (INT4_8 j = 0; j < n_feat; ++j)
+                names.emplace_back(feat_ptr[j] ? feat_ptr[j] : "");
+            if (!cvr::cvr_feature_mask_parse(names, mask)) {
+                HSetErrText(const_cast<char*>(cvr::cvr_last_error()));
+                return CVR_ERR_PARAM;
+            }
+        }
+    }
+
+    int32_t w = 0, h = 0;
+    bool has_domain = false;
+    get_domain(proc_handle, &w, &h, &has_domain);
+
+    INT4_8 n = 0;
+    HGetObjNum(proc_handle, 1, &n);
+
+    for (INT4_8 i = 1; i <= n; ++i) {
+        Hkey k;
+        HGetObj(proc_handle, 1, i, &k);
+
+        CvrRegion r;
+        if (!read_region(proc_handle, k, r)) {
+            HSetErrText(const_cast<char*>("cv_connection_ex: failed to read region"));
+            return CVR_ERR_PARAM;
+        }
+
+        std::vector<CvrRegion> comps;
+        if (!cvr::cvr_connection(r, 8, w, h, comps)) {
+            HSetErrText(const_cast<char*>(cvr::cvr_last_error()));
+            return CVR_ERR_OP;
+        }
+
+        for (size_t c = 0; c < comps.size(); ++c) {
+            if (mask != 0u) {
+                const FeatureCacheKey ck =
+                    feature_key_of(comps[c].runs.data(), comps[c].runs.size(),
+                                   comps[c].is_compl);
+                /* 先水合：命中时保留既有（可能更全）的字段，
+                   precompute 只补 mask 里还缺的位，回写时不会降级已有条目 */
+                feature_cache_lookup(ck, comps[c].feature);
+                cvr::cvr_region_precompute_features(comps[c], mask);
+                if (comps[c].feature.flags.any())
+                    feature_cache_store(ck, comps[c].feature);
+            }
+            Herror err = output_region(proc_handle, comps[c]);
+            if (err != H_MSG_OK) return err;
+        }
+    }
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
  * cv_select_shape —— 输出为输入子集（HCopyObj 引用语义）
  *===========================================================================*/
 Herror Hcv_select_shape(Hproc_handle proc_handle)
@@ -482,10 +669,12 @@ Herror Hcv_select_shape(Hproc_handle proc_handle)
     /* 全部输入 region -> CvrRegion 数组（保持原 C API 的索引+引用语义） */
     std::vector<CvrRegion> regs(static_cast<size_t>(n));
     std::vector<Hkey>      obj_keys(static_cast<size_t>(n));
+    std::vector<FeatureCacheKey> keys(static_cast<size_t>(n));
     for (INT4_8 i = 1; i <= n; ++i) {
         HGetObj(proc_handle, 1, i, &obj_keys[static_cast<size_t>(i - 1)]);
         if (!read_region(proc_handle, obj_keys[static_cast<size_t>(i - 1)],
-                         regs[static_cast<size_t>(i - 1)])) {
+                         regs[static_cast<size_t>(i - 1)],
+                         &keys[static_cast<size_t>(i - 1)])) {
             HSetErrText(const_cast<char*>("cv_select_shape: failed to read region"));
             return CVR_ERR_PARAM;
         }
@@ -512,6 +701,9 @@ Herror Hcv_select_shape(Hproc_handle proc_handle)
             if (is_or) { if (ok) { pass = true; break; } }
             else       { if (!ok) { pass = false; break; } }
         }
+        /* 本次算出的特征按内容指纹回写，供后续算子（如 region_features）直接命中 */
+        feature_cache_store(keys[static_cast<size_t>(i - 1)],
+                            regs[static_cast<size_t>(i - 1)].feature);
         if (pass) {
             Hkey out_key;
             HCopyObj(proc_handle, obj_keys[static_cast<size_t>(i - 1)], 1,
@@ -553,10 +745,12 @@ Herror Hcv_region_features(Hproc_handle proc_handle)
     HGetObjNum(proc_handle, 1, &n);
 
     std::vector<CvrRegion> regs(static_cast<size_t>(n));
+    std::vector<FeatureCacheKey> keys(static_cast<size_t>(n));
     for (INT4_8 i = 1; i <= n; ++i) {
         Hkey k;
         HGetObj(proc_handle, 1, i, &k);
-        if (!read_region(proc_handle, k, regs[static_cast<size_t>(i - 1)])) {
+        if (!read_region(proc_handle, k, regs[static_cast<size_t>(i - 1)],
+                         &keys[static_cast<size_t>(i - 1)])) {
             HSetErrText(const_cast<char*>(
                 "cv_region_features: failed to read region"));
             return CVR_ERR_PARAM;
@@ -568,6 +762,11 @@ Herror Hcv_region_features(Hproc_handle proc_handle)
         /* 未知名 / 计算失败，cvr_last_error 带具体原因 */
         HSetErrText(const_cast<char*>(cvr::cvr_last_error()));
         return CVR_ERR_OP;
+    }
+    /* 本次算出的特征按内容指纹回写（后续算子可直接查表） */
+    for (INT4_8 i = 1; i <= n; ++i) {
+        feature_cache_store(keys[static_cast<size_t>(i - 1)],
+                            regs[static_cast<size_t>(i - 1)].feature);
     }
 
     if (!values.empty()) {
@@ -887,12 +1086,14 @@ Herror Hcv_area_center(Hproc_handle proc_handle)
         CvrRegion r;
         const size_t j = static_cast<size_t>(i - 1);
         CvrChords a = 0;
-        if (!read_region(proc_handle, k, r) ||
+        FeatureCacheKey ck;
+        if (!read_region(proc_handle, k, r, &ck) ||
             !cvr::cvr_feature_area_center(r, row[j], col[j], a)) {
             HSetErrText(const_cast<char*>("cv_area_center failed"));
             return CVR_ERR_OP;
         }
         area[j] = static_cast<double>(a);
+        feature_cache_store(ck, r.feature);
     }
 
     HPutElem(proc_handle, 1, area.data(), n, DOUBLE_PAR);
@@ -917,7 +1118,8 @@ Herror Hcv_smallest_rectangle1(Hproc_handle proc_handle)
         CvrRegion r;
         const size_t j = static_cast<size_t>(i - 1);
         CvrCoord vr1 = 0, vc1 = 0, vr2 = 0, vc2 = 0;
-        if (!read_region(proc_handle, k, r) ||
+        FeatureCacheKey ck;
+        if (!read_region(proc_handle, k, r, &ck) ||
             !cvr::cvr_feature_smallest_rectangle1(r, vr1, vc1, vr2, vc2)) {
             HSetErrText(const_cast<char*>("cv_smallest_rectangle1 failed"));
             return CVR_ERR_OP;
@@ -926,6 +1128,7 @@ Herror Hcv_smallest_rectangle1(Hproc_handle proc_handle)
         c1[j] = static_cast<double>(vc1);
         r2[j] = static_cast<double>(vr2);
         c2[j] = static_cast<double>(vc2);
+        feature_cache_store(ck, r.feature);
     }
 
     HPutElem(proc_handle, 1, r1.data(), n, DOUBLE_PAR);
@@ -951,12 +1154,14 @@ Herror Hcv_smallest_rectangle2(Hproc_handle proc_handle)
         HGetObj(proc_handle, 1, i, &k);
         CvrRegion r;
         const size_t j = static_cast<size_t>(i - 1);
-        if (!read_region(proc_handle, k, r) ||
+        FeatureCacheKey ck;
+        if (!read_region(proc_handle, k, r, &ck) ||
             !cvr::cvr_feature_smallest_rectangle2(r, row[j], col[j], phi[j],
                                                   l1[j], l2[j])) {
             HSetErrText(const_cast<char*>("cv_smallest_rectangle2 failed"));
             return CVR_ERR_OP;
         }
+        feature_cache_store(ck, r.feature);
     }
 
     HPutElem(proc_handle, 1, row.data(), n, DOUBLE_PAR);
@@ -982,11 +1187,13 @@ Herror Hcv_smallest_circle(Hproc_handle proc_handle)
         HGetObj(proc_handle, 1, i, &k);
         CvrRegion r;
         const size_t j = static_cast<size_t>(i - 1);
-        if (!read_region(proc_handle, k, r) ||
+        FeatureCacheKey ck;
+        if (!read_region(proc_handle, k, r, &ck) ||
             !cvr::cvr_feature_smallest_circle(r, row[j], col[j], radius[j])) {
             HSetErrText(const_cast<char*>("cv_smallest_circle failed"));
             return CVR_ERR_OP;
         }
+        feature_cache_store(ck, r.feature);
     }
 
     HPutElem(proc_handle, 1, row.data(),    n, DOUBLE_PAR);
@@ -1010,11 +1217,13 @@ Herror Hcv_elliptic_axis(Hproc_handle proc_handle)
         HGetObj(proc_handle, 1, i, &k);
         CvrRegion r;
         const size_t j = static_cast<size_t>(i - 1);
-        if (!read_region(proc_handle, k, r) ||
+        FeatureCacheKey ck;
+        if (!read_region(proc_handle, k, r, &ck) ||
             !cvr::cvr_feature_elliptic_axis(r, ra[j], rb[j], phi[j])) {
             HSetErrText(const_cast<char*>("cv_elliptic_axis failed"));
             return CVR_ERR_OP;
         }
+        feature_cache_store(ck, r.feature);
     }
 
     HPutElem(proc_handle, 1, ra.data(),  n, DOUBLE_PAR);

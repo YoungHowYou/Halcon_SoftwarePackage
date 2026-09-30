@@ -1014,9 +1014,41 @@ cv_morphology_ex(Image : ImageOut : Op, Shape, Kwidth, Kheight, Iterations :)
 
 - 集合运算：cv_union1 / cv_union2 / cv_intersection / cv_difference / cv_complement / cv_symm_difference
 - 形态学（8 个，仅矩形/圆结构元）：cv_erosion_circle / cv_dilation_circle / cv_opening_circle / cv_closing_circle（半径）+ cv_erosion_rectangle1 / cv_dilation_rectangle1 / cv_opening_rectangle1 / cv_closing_rectangle1（宽高）
-- 连通域：cv_connection；生成：cv_gen_circle / cv_gen_rectangle1；填充：cv_fill_up；形状变换：cv_shape_trans；筛选：cv_select_shape
+- 连通域：cv_connection / cv_connection_ex（后者可在标记同时预计算形状特征并缓存）；生成：cv_gen_circle / cv_gen_rectangle1；填充：cv_fill_up；形状变换：cv_shape_trans；筛选：cv_select_shape
 - 特征：cv_area_center / cv_smallest_rectangle1 / cv_smallest_rectangle2 / cv_smallest_circle / cv_elliptic_axis / cv_contlength / cv_circularity / cv_compactness / cv_convexity / cv_rectangularity / cv_anisometry / cv_bulkiness / cv_structure_factor
 - 互转：cv_region_to_bin / cv_bin_to_region（cv_bin_to_region 支持 byte/int1/int2/uint2/int4/int8/real 单通道，Threshold 为 real/integer）
+
+#### cv_connection_ex
+
+带**形状特征预计算缓存**的连通域标记。标记语义与 `cv_connection` 完全一致（8 连通、RLE chord 编码、并查集），额外可在标记时把指定形状特征算好并写入**跨算子内容指纹缓存**，供后续 `cv_region_features` / `cv_select_shape` / `cv_area_center` / `cv_smallest_rectangle1` / `cv_smallest_rectangle2` / `cv_smallest_circle` / `cv_elliptic_axis` / `cv_contlength` / `cv_circularity` / `cv_compactness` / `cv_convexity` / `cv_rectangularity` 直接命中，免重复扫描 region。
+
+```
+cv_connection_ex(Region : ConnectedRegions : CacheFeatures :)
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| Region | region | 输入 | 输入 region（连通域标记） |
+| ConnectedRegions | region | 输出 | 连通分量元组，与 `cv_connection` 逐元素一致 |
+| CacheFeatures | 字符串元组 | 输入 | 需预计算的特征名，缺省 `none`（此时与 `cv_connection` 等价） |
+
+`CacheFeatures` 取值（HALCON 层一律用**字符串**，名称与 `cv_region_features` 同口径）：
+
+| 类别 | 取值 |
+|---|---|
+| 单特征（按一次遍历分组） | `area` `center` `row` `column` `col` `bbox` `rectangle1` `smallest_rectangle1` `width` `height` `ratio` `row1` `column1` `row2` `column2` `rect2` `rectangle2` `smallest_rectangle2` `phi_rect` `length1` `length2` `circle` `smallest_circle` `radius` `contlength` `convexity` `circularity` `compactness` `rectangularity` `moments` `elliptic_axis` `ra` `rb` `phi` `excentricity` `anisometry` `bulkiness` `structure_factor`（别名 `struct_factor`） |
+| 组合名 | `none`（不缓存）· `basic` / `cheap`（=`area+row+column+bbox+moments+contlength`）· `hull`（=`convexity+rect2+circle`）· `all`（全部 12 组，含依赖项） |
+| `\|` 拼接 | 元素内可拼接，如 `'area\|bbox'`、`'all\|contlength'`（重复位自动合并） |
+
+- 名称大小写不敏感、允许前后空白；未知名报错 **10102**，元素为空串报错 **10103**。
+- 特征按**依赖关系**自动补齐（如 `circularity` 会带上 `convexity` + `contlength` + `area`，`rectangularity` 会带上 `convexity` + `rectangle2`）。
+- **缓存是进程内的**，按 region **内容指纹**（chord 数据 + 是否补集）分片存放（16 分片 × 512 条 FIFO 淘汰），命中即把已算好的特征"水合"到本次调用重建的 region 结构上；因为所有形状特征都与定义域 `w/h` 无关，指纹无需包含图像尺寸。
+- **未预计算的特征照旧按需计算并回写缓存**——即首次 `cv_region_features` 会顺带填充缓存，之后的重复调用、以及 `cv_select_shape` 的多次比较都直接命中。region 内容一变（平移 / 形态学 / 集合运算等），指纹随之改变，自动按新内容计算，不存在陈旧命中。
+- 例程：`examples/cv_region_cache.hdev`（37 个连通域 × 8 特征：预计算 vs 冷算逐值一致 ≤1e-12、四种掩码变体计数一致、`cv_select_shape` 双路径一致、`move_region` 后与 HALCON 原生 `area_center` 逐值对照防陈旧；实测重复取特征 **1.88 ms → 0.12 ms（15.7×）**，一次性预计算 2.85 ms）。
+
+> **选型建议（实测，`examples/cv_region_cache.hdev`）**：预计算只对"同一批 region 被反复取特征"有利；**单趟流水线（`connection → select_shape → region_features` 各一次）反而更慢**——实测同一条链预计算 8 个特征 **0.44 ms → 3.05 ms（慢 6.9×）**，原因是 `select_shape` 的 `and` 分支会短路（`area` 不过关就不算 `circularity`）、且 `region_features` 只需为**选中的 28/37** 个区域算，而 `cv_connection_ex` 得为**全部 37 个**区域把整组特征算完。
+>
+> 结论：**默认用 `cv_connection`，让"按需计算 + 自动回写"的惰性缓存（无需任何参数）吃掉重复调用**；只有当你明确会对同一批成分多次调用特征算子时，才用 `cv_connection_ex` 指定掩码（建议只写真正要用的特征，例如 `'area|bbox|circularity'`，别图省事写 `'all'`）。
 
 #### cv_bin_to_region
 
@@ -1059,7 +1091,8 @@ cv_region_features(Regions : : Features : Values)
   - 矩（18 个）：`moments_m11` / `m20` / `m02` / `ia` / `ib` / `m11_invar` / `m20_invar` / `m02_invar` / `phi1` / `phi2` / `m21` / `m12` / `m03` / `m30` / `m21_invar` / `m12_invar` / `m03_invar` / `m30_invar`
   - 核心库另有 `row_rect` / `column_rect` / `phi_rect` / `length1` / `length2` / `row_circle` / `column_circle` / `radius` 等内部别名，未列入 DEF 的 `value_list`
 - 未知名 / 计算失败报错 10102，`Features` 为空报错 10103。
-- 例程：`examples/cv_region_all.hdev`（408 区域 × 20 特征 = 8160 值，校验长度与行优先布局；几何类 + 25 个新特征与 HALCON 原生 `region_features` 对照——新特征实测 max rel ≤ 1.5e-12）。
+- **缓存命中**：同一内容若已被 `cv_connection_ex` 预计算过（或在其它算子调用中被回写），本算子直接查表回填、不再扫描 region（`examples/cv_region_cache.hdev` 实测 15.7× 加速）；本算子自身算完的特征也会回写缓存，缓存机制与指纹口径见 `cv_connection_ex`。
+- 例程：`examples/cv_region_all.hdev`（408 区域 × 20 特征 = 8160 值，校验长度与行优先布局；几何类 + 25 个新特征与 HALCON 原生 `region_features` 对照——新特征实测 max rel ≤ 1.5e-12）、`examples/cv_region_cache.hdev`。
 
 **本次补齐的 32 个 HALCON 对齐特征**（`Features` 取值表已同步到两个算子的 DEF `value_list`）：
 
@@ -1678,6 +1711,34 @@ cmake --build build
 
 编译产物输出到 `bin/`（Windows）或 `lib/<platform>/`（Linux/macOS）。首次会自动下载编译 vcpkg 依赖，后续秒级缓存。
 
+Debug / Release 切换（多配置生成器）：
+
+```bash
+cmake --build build --config Release   # 或 Debug
+```
+
+## 脱离 HALCON 复用核心库
+
+扩展包的算法本体是 `cv_region/`（`cvr_core`，纯 STL region 运算）与 `cv_flow/`
+（`cv_flow`，RANSAC 拟合 / 1D 测量 / 特征匹配 / LM 拟合等流程算法）两个静态库，
+**不依赖 HALCON**，扩展包 supply 层只是它们的薄封装。其他 C++ 项目可直接复用：
+
+```bash
+# 1) 安装到任意前缀（库 + 头文件 + CMake package config）
+cmake --install build --config Release --prefix D:/swpkg
+
+# 2) 消费方 CMakeLists.txt
+find_package(cvr_core CONFIG REQUIRED)   # cvr::cvr_core（纯 STL，零依赖）
+find_package(cv_flow  CONFIG REQUIRED)   # cvf::cv_flow（自动解析 Eigen3/muparser/OpenCV）
+target_link_libraries(app PRIVATE cvr::cvr_core cvf::cv_flow)
+
+# 3) 配置消费方（把安装前缀和 vcpkg 依赖树加进前缀路径）
+cmake -B build -DCMAKE_PREFIX_PATH="D:/swpkg;<本仓库>/build/vcpkg_installed/x64-windows"
+```
+
+代码里 `#include <cvr/cvr.hpp>` / `#include <cvflow/ransac.hpp>` 等即可直接调用，
+两个库各自 `tests/` 目录下的测试程序就是脱离 HALCON 使用的范例。
+
 ## 部署与使用
 
 ### 1. 编译
@@ -1764,19 +1825,38 @@ hrun -v examples\cv_region.hdev      # 跑通即部署成功（退出码 0）
 ## 许可证
 
 本项目基于 [GPL-3.0](LICENSE) 许可证开源。
-0xC0FFEE10 python  0xC0FFEE20 海康相机   0xC0FFEE30 海康采集卡  0xC0FFEE31埃克采集卡  0xC0FFEE40 sqlite
-0xC0FFEE50 UI   0xC0FFEE60BV相机   0xC0FFEE70自研AIcpu   0xC0FFEE80大恒相机
-0xC0FFEE90海康读码器   0xC0FFEEA0Spdlog   0xC0FFEEB0MYSQL   0xC0FFEEC0
-0xC0FFEED0   0xC0FFEEE0   0xC0FFEEF0   0xC0FFEF00
 
-0xDEADBE10   0xDEADBE20   0xDEADBE30   0xDEADBE40
-0xDEADBE50   0xDEADBE60   0xDEADBE70   0xDEADBE80
+## 句柄 TAG 分配表
 
-0xBAADF00D   0xBAADF10D   0xBAADF20D   0xBAADF30D
-0xBAADF40D   0xBAADF50D   0xBAADF60D   0xBAADF70D
+用户句柄类型（`HHandleInfo` 的第一个参数，即 `include/Halcon_Def.h` 里的 `H_<模块>_TAG`）的编号池，**公司内各扩展包共用**。新增句柄类型前必须先在此登记领一个空号，禁止撞号——`HGetCElemH1` 按 TAG 校验句柄类型，撞号后 A 模块的句柄会被 B 模块的算子接受，直接野指针崩溃。
 
-0xCAFEBABE   0xCAFEBA10   0xCAFEBA20   0xCAFEBA30
-0xCAFEBA40   0xCAFEBA50   0xCAFEBA60   0xCAFEBA70
+### 0xC0FFEE 区段（本包主用）
 
-0xFEEDFACE   0xFEEDF10E   0xFEEDF20E   0xFEEDF30E
-0xFEEDF40E   0xFEEDF50E   0xFEEDF60E   0xFEEDF70E
+| TAG | 用途 | 状态 |
+|---|---|---|
+| 0xC0FFEE10 | python | 已占用 |
+| 0xC0FFEE20 | 海康相机 | 已占用 |
+| 0xC0FFEE30 | 海康采集卡 | 已占用 |
+| 0xC0FFEE31 | 埃克采集卡 | 已占用 |
+| 0xC0FFEE40 | sqlite | 已占用（Halcon_Def.h） |
+| 0xC0FFEE50 | UI（IUP） | 已占用 |
+| 0xC0FFEE60 | BV相机 | 已占用 |
+| 0xC0FFEE70 | 自研AIcpu | 已占用 |
+| 0xC0FFEE80 | 大恒相机 | 已占用 |
+| 0xC0FFEE90 | 海康读码器 | 已占用 |
+| 0xC0FFEEA0 | Spdlog | 已占用（Halcon_Def.h） |
+| 0xC0FFEEB0 | MYSQL | 已占用（Halcon_Def.h） |
+| 0xC0FFEEC0 | Modbus | 已占用（Halcon_Def.h） |
+| 0xC0FFEED0 | 拟合模型（FitModel，LM/Linear/Geom 三族两步式拟合共用） | 已占用（Halcon_Def.h） |
+| 0xC0FFEEE0 | — | 空 |
+| 0xC0FFEEF0 | — | 空 |
+| 0xC0FFEF00 | — | 空 |
+
+### 备用区段（全空，主区段用满后再启用）
+
+| 区段 | 可用编号 |
+|---|---|
+| 0xDEADBE | 0xDEADBE10–0xDEADBE80（步进 0x10） |
+| 0xBAADF00D | 0xBAADF00D、0xBAADF10D–0xBAADF70D |
+| 0xCAFEBABE | 0xCAFEBABE、0xCAFEBA10–0xCAFEBA70 |
+| 0xFEEDFACE | 0xFEEDFACE、0xFEEDF10E–0xFEEDF70E |

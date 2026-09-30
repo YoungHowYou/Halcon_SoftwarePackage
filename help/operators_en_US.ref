@@ -1,164 +1,162 @@
-cv_ransac_fit(ModelExpression,ParamNames,InitialValues,XData,YData,XName,Threshold,MaxIter,OutlierRatio,ModelType,YName,MinSampleSize,Confidence,Seed,ParamValues,InlierMask,ResidualSum,Iterations,Status,StatusMessage,InlierRatio)
-short.ascii=RANSAC generic geometric fitting (cv_region).
-keywords=UserExtensionsRANSACFittingMuparser
-module=0 Foundation
-parameter=ModelExpression
-description.ascii=模型表达式（muparser 语法）：显式 y=f(x) 或隐式 F(x,y)=0。
+cv_geom_fit(ModelHandle,XData,YData,InitialValues,Threshold,MaxIter,OutlierRatio,Confidence,Seed,ParamValues,InlierMask,ResidualSum,Iterations,Status,StatusMessage,InlierRatio)
+short.ascii=用 cv_geom_create 构建的模型句柄做 RANSAC 几何拟合（动态迭代 + LM 精化，零表达式解析开销）。
+module=4294967295 Foundation
+parameter=ModelHandle
+description.ascii=cv_geom_create 生成的模型句柄
 parameter_class=input_control
-type_list=string
-default_value="a*x+b"
-default_type=string
-sem_type=string
+type_list=handle
+default_type=handle
+sem_type=handle
 multivalue=false
-parameter=ParamNames
-description.ascii=参数名元组（与 InitialValues/ParamValues 一一对应）。
-parameter_class=input_control
-type_list=string
-default_type=string
-sem_type=string
-multivalue=true
-parameter=InitialValues
-description.ascii=参数初值元组（可为空，默认全 0）。
-parameter_class=input_control
-type_list=realinteger
-default_type=real
-sem_type=number
-multivalue=true
 parameter=XData
-description.ascii=自变量数据元组。
+description.ascii=自变量观测数据元组
 parameter_class=input_control
 type_list=realinteger
 default_type=real
-sem_type=number
+sem_type=real
 multivalue=true
 parameter=YData
-description.ascii=因变量数据元组（与 XData 等长）。
+description.ascii=纵坐标观测数据元组（长度须与 XData 一致）
 parameter_class=input_control
 type_list=realinteger
 default_type=real
-sem_type=number
+sem_type=real
 multivalue=true
-parameter=XName
-description.ascii=表达式中自变量名（默认 x）。
-parameter_class=input_control
-type_list=string
-default_value="x"
-default_type=string
-sem_type=string
-multivalue=false
-parameter=Threshold
-description.ascii=内点残差阈值（几何距离，像素）。
+parameter=InitialValues
+description.ascii=参数初值元组（长度=参数数，可为空取默认 0）
 parameter_class=input_control
 type_list=realinteger
-default_value=1.0
 default_type=real
-sem_type=number
+sem_type=real
+multivalue=true
+parameter=Threshold
+description.ascii=内点几何距离阈值（>0）
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=real
 multivalue=false
 parameter=MaxIter
-description.ascii=RANSAC 最大迭代次数。
+description.ascii=最大迭代次数（>0）
 parameter_class=input_control
 type_list=integer
-default_value=1000
 default_type=integer
-sem_type=number
+sem_type=integer
 multivalue=false
 parameter=OutlierRatio
-description.ascii=预估外点比例 [0,1)。
+description.ascii=外点比例估计 [0,1)
 parameter_class=input_control
-type_list=realinteger
-default_value=0.2
+type_list=real
 default_type=real
-sem_type=number
-multivalue=false
-parameter=ModelType
-description.ascii=0=显式 y=f(x)，1=隐式 F(x,y)=0。
-parameter_class=input_control
-value_list=01
-type_list=integer
-default_value=0
-default_type=integer
-sem_type=number
-multivalue=false
-parameter=YName
-description.ascii=表达式中因变量名（隐式模型必填）。
-parameter_class=input_control
-type_list=string
-default_value="y"
-default_type=string
-sem_type=string
-multivalue=false
-parameter=MinSampleSize
-description.ascii=每轮采样点数（0=自动取参数个数）。
-parameter_class=input_control
-type_list=integer
-default_value=0
-default_type=integer
-sem_type=number
+sem_type=real
 multivalue=false
 parameter=Confidence
-description.ascii=置信度（0,1），默认 0.99。
+description.ascii=置信度 (0,1)，<=0 取 0.99
 parameter_class=input_control
-type_list=realinteger
-default_value=0.99
+type_list=real
 default_type=real
-sem_type=number
+sem_type=real
 multivalue=false
 parameter=Seed
-description.ascii=随机种子（0=非确定）。
+description.ascii=随机种子（0=非确定性）
 parameter_class=input_control
 type_list=integer
-default_value=0
 default_type=integer
-sem_type=number
+sem_type=integer
 multivalue=false
 parameter=ParamValues
-description.ascii=拟合参数输出元组。
+description.ascii=拟合参数值元组
 parameter_class=output_control
-type_list=real
 default_type=real
-sem_type=number
+sem_type=real
 multivalue=true
 parameter=InlierMask
-description.ascii=内点掩码（1=内点）。
+description.ascii=内点掩码（1=内点，逐点输出）
 parameter_class=output_control
-type_list=integer
 default_type=integer
-sem_type=number
+sem_type=integer
 multivalue=true
 parameter=ResidualSum
-description.ascii=内点残差平方和。
+description.ascii=内点（加权）残差平方和
 parameter_class=output_control
-type_list=real
 default_type=real
-sem_type=number
+sem_type=real
 multivalue=false
 parameter=Iterations
-description.ascii=迭代次数（≥1）。
+description.ascii=实际迭代次数
 parameter_class=output_control
-type_list=integer
 default_type=integer
-sem_type=number
+sem_type=integer
 multivalue=false
 parameter=Status
-description.ascii=状态码（0=成功，负值见状态说明）。
+description.ascii=状态码（0=成功，负值见算子文档）
 parameter_class=output_control
-type_list=integer
 default_type=integer
-sem_type=number
+sem_type=integer
 multivalue=false
 parameter=StatusMessage
-description.ascii=状态描述文本。
+description.ascii=状态描述文本
 parameter_class=output_control
-type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=InlierRatio
-description.ascii=内点比例输出。
+description.ascii=内点比例
 parameter_class=output_control
-type_list=real
 default_type=real
-sem_type=number
+sem_type=real
+multivalue=false
+cv_geom_create(ModelExpression,XName,YName,ParamNames,ModelType,ResidualType,ModelHandle)
+short.ascii=构建 RANSAC 几何拟合模型：表达式白名单校验 + 预编译 + 最小采样数自动推导（只解析一次），返回可复用句柄。配合 cv_geom_fit 反复拟合、cv_fit_clear 释放。
+module=4294967295 Foundation
+parameter=ModelExpression
+description.ascii=模型表达式：显式 y=f(x) 或隐式 F(x,y)=0（圆/椭圆/圆锥曲线）
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=XName
+description.ascii=自变量名（如 x）
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=YName
+description.ascii=纵坐标名（如 y，隐式模型必填）
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=ParamNames
+description.ascii=参数名元组
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+parameter=ModelType
+description.ascii=模型类型：explicit（y=f(x)）/ implicit（F(x,y)=0），大小写不敏感，也接受 0/1
+parameter_class=input_control
+type_list=stringinteger
+default_type=string
+sem_type=string
+multivalue=false
+parameter=ResidualType
+description.ascii=残差类型：vertical（|y-f(x)|，仅显式）/ geometric（几何距离，推荐），大小写不敏感，也接受 0/1
+parameter_class=input_control
+type_list=stringinteger
+default_type=string
+sem_type=string
+multivalue=false
+parameter=ModelHandle
+description.ascii=几何拟合模型句柄（cv_geom_fit 输入，cv_fit_clear 释放）
+parameter_class=output_control
+type_list=handle
+default_type=handle
+sem_type=handle
 multivalue=false
 cv_dilation_rectangle1(Region,RegionDilation,Width,Height)
 short.ascii=矩形结构元膨胀，对应 HALCON dilation_rectangle1。
@@ -868,6 +866,30 @@ default_type=real
 sem_type=number
 multivalue=true
 value_number=SelectedRegions <= Regions
+cv_connection_ex(Region,ConnectedRegions,CacheFeatures)
+short.ascii=连通域标记（同 cv_connection，8 连通），并可按 CacheFeatures 预先计算指定形状特征。算出的特征按 region 内容指纹缓存，后续 cv_select_shape / cv_region_features / 单值特征算子对同一 region 直接查表，不再重复计算。CacheFeatures 为特征名元组，可用名称与 cv_region_features 一致（area/row/column/bbox/width/height/rect2/circle/contlength/convexity/circularity/compactness/rectangularity/moments/elliptic_axis/anisometry/bulkiness/structure_factor 等），另支持组合名 none/basic/cheap/hull/all，元素内可用 '|' 拼接（如 'area|bbox'）；'none' 或不传时行为与 cv_connection 完全一致。选型提示：预计算只对“同一批 region 被反复取特征”有利；若下游对每个成分只查一次（如一次 select_shape 加一次 region_features），直接用 cv_connection 更快——select_shape 的 and 分支会短路，且只需为选中的区域计算。
+keywords=UserExtensionsCVRegionConnectionCacheFeatures
+module=0 Foundation
+parameter=Region
+description.ascii=输入 region。
+parameter_class=input_object
+sem_type=region
+multivalue=optional
+parameter=ConnectedRegions
+description.ascii=输出连通域元组。
+parameter_class=output_object
+sem_type=region
+multivalue=optional
+parameter=CacheFeatures
+description.ascii=需要预先计算并缓存的特征名元组；none/basic/cheap/hull/all 为组合名，元素内可用 '|' 拼接，缺省 none 表示不做预计算。
+parameter_class=input_control
+value_list=nonebasiccheaphullallareacenterrowcolumnbboxrectangle1widthheightrect2rectangle2circlecontlengthconvexitycircularitycompactnessrectangularitymomentselliptic_axisrarbphianisometrybulkinessstructure_factor
+type_list=string
+default_value="none"
+default_type=string
+sem_type=string
+multivalue=true
+value_number=ConnectedRegions >= 0
 cv_connection(Region,ConnectedRegions)
 short.ascii=连通域标记（8 连通），对应 HALCON connection。输出连通域元组。按行并查集 + 双指针实现。
 keywords=UserExtensionsCVRegionConnection
@@ -1133,369 +1155,6 @@ default_type=integer
 sem_type=number
 multivalue=false
 value_number=RegionOpening == Region
-linear_fit_2d(modelExpression,paramNames,xData,yData,zData,linearTolerance,paramValues,rss,rank,success,statusMessage)
-short.ascii=Fit a linear-in-parameters model with two independent variables using Eigen ColPivHouseholderQR.
-keywords=UserExtensionsFittingLinearLeastSquaresQREigen
-module=0 Foundation
-parameter=modelExpression
-description.ascii=Model expression, linear in parameters, e.g. a+b*x+c*y+d*x*y. Independent variables are named x and y.
-parameter_class=input_control
-type_list=string
-default_value="a+b*x+c*y"
-default_type=string
-sem_type=string
-multivalue=false
-parameter=paramNames
-description.ascii=Names of the parameters to fit, e.g. a,b,c,d. Must be unique and differ from x,y.
-parameter_class=input_control
-type_list=string
-default_type=string
-sem_type=string
-multivalue=true
-parameter=xData
-description.ascii=Samples of the independent variable x.
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=yData
-description.ascii=Samples of the independent variable y.
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=zData
-description.ascii=Observed values of the dependent variable z. Length must equal the number of XData/YData.
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=linearTolerance
-description.ascii=Tolerance for the parameter-linearity verification (default: 1e-10).
-parameter_class=input_control
-type_list=real
-default_value=1.0e-10
-default_type=real
-sem_type=number
-multivalue=false
-parameter=paramValues
-description.ascii=Fitted parameter values, ordered like ParamNames.
-parameter_class=output_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=rss
-description.ascii=Residual sum of squares (-1 on failure).
-parameter_class=output_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=false
-parameter=rank
-description.ascii=Rank of the design matrix.
-parameter_class=output_control
-type_list=integer
-default_type=integer
-sem_type=number
-multivalue=false
-parameter=success
-description.ascii=1 if the fit succeeded, 0 otherwise.
-parameter_class=output_control
-type_list=integer
-default_type=integer
-sem_type=number
-multivalue=false
-parameter=statusMessage
-description.ascii=Status text of the result.
-parameter_class=output_control
-type_list=string
-default_type=string
-sem_type=string
-multivalue=false
-linear_fit(modelExpression,paramNames,xData,yData,xName,linearTolerance,paramValues,rss,rank,success,statusMessage)
-short.ascii=Fit a linear-in-parameters model expression to data using Eigen ColPivHouseholderQR.
-keywords=UserExtensionsFittingLinearLeastSquaresQREigen
-module=0 Foundation
-parameter=modelExpression
-description.ascii=Model expression, linear in parameters, e.g. a+b*x+c*x*x.
-parameter_class=input_control
-type_list=string
-default_value="a*x+b"
-default_type=string
-sem_type=string
-multivalue=false
-parameter=paramNames
-description.ascii=Names of the parameters to fit, e.g. a,b,c. Must be unique and differ from XName.
-parameter_class=input_control
-type_list=string
-default_type=string
-sem_type=string
-multivalue=true
-parameter=xData
-description.ascii=Samples of the independent variable.
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=yData
-description.ascii=Samples of the dependent variable. Length must equal the number of XData.
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=xName
-description.ascii=Name of the independent variable used in the model expression (default: x).
-parameter_class=input_control
-type_list=string
-default_value="x"
-default_type=string
-sem_type=string
-multivalue=false
-parameter=linearTolerance
-description.ascii=Tolerance for the parameter-linearity verification (default: 1e-10).
-parameter_class=input_control
-type_list=real
-default_value=1.0e-10
-default_type=real
-sem_type=number
-multivalue=false
-parameter=paramValues
-description.ascii=Fitted parameter values, ordered like ParamNames.
-parameter_class=output_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=rss
-description.ascii=Residual sum of squares (-1 on failure).
-parameter_class=output_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=false
-parameter=rank
-description.ascii=Rank of the design matrix.
-parameter_class=output_control
-type_list=integer
-default_type=integer
-sem_type=number
-multivalue=false
-parameter=success
-description.ascii=1 if the fit succeeded, 0 otherwise.
-parameter_class=output_control
-type_list=integer
-default_type=integer
-sem_type=number
-multivalue=false
-parameter=statusMessage
-description.ascii=Status text of the result.
-parameter_class=output_control
-type_list=string
-default_type=string
-sem_type=string
-multivalue=false
-eigen_lm_fit_2d(expressions,paramNames,initialValues,xNames,xData,yData,maxIter,eps,paramValues,rss,iterations,status,statusMessage)
-short.ascii=Multi-variable multi-output nonlinear least-squares fit with shared parameters using Eigen LevenbergMarquardt.
-keywords=UserExtensionsFittingLevenbergMarquardtOptimizationEigenDistortion
-module=0 Foundation
-parameter=expressions
-description.ascii=Modellausdruecke (einer oder mehr), z.B. je einer fuer dx und dy. Alle teilen sich ParamNames.
-parameter_class=input_control
-type_list=string
-default_type=string
-sem_type=string
-multivalue=true
-parameter=paramNames
-description.ascii=Namen der gemeinsamen Parameter, z.B. k1,k2,k3,p1,p2.
-parameter_class=input_control
-type_list=string
-default_type=string
-sem_type=string
-multivalue=true
-parameter=initialValues
-description.ascii=Startwerte der Parameter, Laenge muss der Anzahl von ParamNames entsprechen.
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=xNames
-description.ascii=Namen der unabhaengigen Variablen (eine oder mehr), z.B. u,v. Ableitungen wie r2=u^2+v^2 duerfen vorab berechnet mitgegeben werden.
-parameter_class=input_control
-type_list=string
-default_type=string
-sem_type=string
-multivalue=true
-parameter=xData
-description.ascii=Werte der unabhaengigen Variablen, Laenge = Anzahl Punkte mal Anzahl XNames (pro Punkt M Werte).
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=yData
-description.ascii=Beobachtete Werte, Laenge = Anzahl Punkte mal Anzahl Expressions (pro Punkt K Werte).
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=maxIter
-description.ascii=Maximale Anzahl der Funktionsaufrufe (0 = 400*(Anzahl Parameter+1)).
-parameter_class=input_control
-type_list=integer
-default_value=0
-default_type=integer
-sem_type=number
-multivalue=false
-parameter=eps
-description.ascii=Schrittweite der numerischen Differentiation (0 = automatisch).
-parameter_class=input_control
-type_list=real
-default_value=0.0
-default_type=real
-sem_type=number
-multivalue=false
-parameter=paramValues
-description.ascii=Angepasste Parameterwerte in der Reihenfolge von ParamNames.
-parameter_class=output_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=rss
-description.ascii=Summe der Fehlerquadrate aller Ausgaenge (-1 bei Ausdrucksfehler).
-parameter_class=output_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=false
-parameter=iterations
-description.ascii=Anzahl der durchgefuehrten Iterationen.
-parameter_class=output_control
-type_list=integer
-default_type=integer
-sem_type=number
-multivalue=false
-parameter=status
-description.ascii=Statuscode des LevenbergMarquardt-Algorithmus (1-4 konvergiert, 5-8 beendet, 0 fehlgeschlagen).
-parameter_class=output_control
-type_list=integer
-default_type=integer
-sem_type=number
-multivalue=false
-parameter=statusMessage
-description.ascii=Statustext des Ergebnisses (bei Ausdrucksfehler mit expression error: ...).
-parameter_class=output_control
-type_list=string
-default_type=string
-sem_type=string
-multivalue=false
-eigen_lm_fit(modelExpression,paramNames,initialValues,xData,yData,xName,maxIter,eps,paramValues,rss,iterations,status,statusMessage)
-short.ascii=Fit a user-supplied model expression to data using the Eigen LevenbergMarquardt algorithm.
-keywords=UserExtensionsFittingLevenbergMarquardtOptimizationEigen
-module=0 Foundation
-parameter=modelExpression
-description.ascii=Modellausdruck, z.B. a*exp(b*x)+c.
-parameter_class=input_control
-type_list=string
-default_value="a*x+b"
-default_type=string
-sem_type=string
-multivalue=false
-parameter=paramNames
-description.ascii=Namen der anzupassenden Parameter, z.B. a,b,c.
-parameter_class=input_control
-type_list=string
-default_type=string
-sem_type=string
-multivalue=true
-parameter=initialValues
-description.ascii=Startwerte der Parameter, Laenge muss der Anzahl von ParamNames entsprechen.
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=xData
-description.ascii=Stuetzstellen der unabhaengigen Variablen.
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=yData
-description.ascii=Stuetzstellen der abhaengigen Variablen, Laenge muss der Anzahl von XData entsprechen.
-parameter_class=input_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=xName
-description.ascii=Name der unabhaengigen Variablen im Modellausdruck (Standard: x).
-parameter_class=input_control
-type_list=string
-default_value="x"
-default_type=string
-sem_type=string
-multivalue=false
-parameter=maxIter
-description.ascii=Maximale Anzahl der Funktionsaufrufe (0 = 400*(Anzahl Parameter+1)).
-parameter_class=input_control
-type_list=integer
-default_value=0
-default_type=integer
-sem_type=number
-multivalue=false
-parameter=eps
-description.ascii=Schrittweite der numerischen Differentiation (0 = automatisch).
-parameter_class=input_control
-type_list=real
-default_value=0.0
-default_type=real
-sem_type=number
-multivalue=false
-parameter=paramValues
-description.ascii=Angepasste Parameterwerte in der Reihenfolge von ParamNames.
-parameter_class=output_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=true
-parameter=rss
-description.ascii=Summe der Fehlerquadrate (-1 bei Ausdrucksfehler).
-parameter_class=output_control
-type_list=real
-default_type=real
-sem_type=number
-multivalue=false
-parameter=iterations
-description.ascii=Anzahl der durchgefuehrten Iterationen.
-parameter_class=output_control
-type_list=integer
-default_type=integer
-sem_type=number
-multivalue=false
-parameter=status
-description.ascii=Statuscode des LevenbergMarquardt-Algorithmus (1-4 konvergiert, 5-8 beendet, 0 fehlgeschlagen).
-parameter_class=output_control
-type_list=integer
-default_type=integer
-sem_type=number
-multivalue=false
-parameter=statusMessage
-description.ascii=Statustext des Ergebnisses (bei Ausdrucksfehler mit expression error: ...).
-parameter_class=output_control
-type_list=string
-default_type=string
-sem_type=string
-multivalue=false
 arma_interp1(imageX,imageY,imageXI,imageYI,interpMethod)
 short.ascii=One-dimensional interpolation using Armadillo interp1.
 keywords=UserExtensionsInterp1InterpolationArmadillo
@@ -1659,6 +1318,228 @@ parameter_class=output_control
 type_list=real
 default_type=real
 sem_type=number
+multivalue=false
+cv_fit_clear(ModelHandle)
+short.ascii=显式释放拟合模型句柄占用的原生资源（表达式编译产物等）。句柄随后不可再用于拟合；模型内存立即释放，句柄壳由 HALCON 句柄 GC 回收。
+module=4294967295 Foundation
+parameter=ModelHandle
+description.ascii=cv_lm_create / cv_linear_create / cv_geom_create 生成的句柄
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+cv_linear_fit(ModelHandle,X,Y,Z,Tolerance,Coefficients,RSS,Rank,Success,Message)
+short.ascii=用 cv_linear_create 构建的模型句柄做线性最小二乘拟合（列主元 QR + 对参数线性校验，零解析开销）。一维传 X,Y（Z 空）；二维传 X,Y,Z。
+module=4294967295 Foundation
+parameter=ModelHandle
+description.ascii=cv_linear_create 生成的模型句柄
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=X
+description.ascii=自变量数据（一维时唯一的自变量；二维时第 1 自变量）
+parameter_class=input_control
+type_list=realinteger
+default_type=real
+sem_type=real
+multivalue=true
+parameter=Y
+description.ascii=一维时为观测数据，二维时为第 2 自变量
+parameter_class=input_control
+type_list=realinteger
+default_type=real
+sem_type=real
+multivalue=true
+parameter=Z
+description.ascii=二维时的观测数据（一维传空元组）
+parameter_class=input_control
+type_list=realinteger
+default_type=real
+sem_type=real
+multivalue=true
+parameter=Tolerance
+description.ascii=线性校验容差（<=0 取 1e-10）
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=real
+multivalue=false
+parameter=Coefficients
+description.ascii=拟合系数元组（与 ParamNames 同序）
+parameter_class=output_control
+default_type=real
+sem_type=real
+multivalue=true
+parameter=RSS
+description.ascii=残差平方和（失败为 -1）
+parameter_class=output_control
+default_type=real
+sem_type=real
+multivalue=false
+parameter=Rank
+description.ascii=设计矩阵数值秩
+parameter_class=output_control
+default_type=integer
+sem_type=integer
+multivalue=false
+parameter=Success
+description.ascii=拟合成功标志（1/0）
+parameter_class=output_control
+default_type=integer
+sem_type=integer
+multivalue=false
+parameter=Message
+description.ascii=结果描述文本
+parameter_class=output_control
+default_type=string
+sem_type=string
+multivalue=false
+cv_linear_create(Expression,ParamNames,XNames,ModelHandle)
+short.ascii=构建线性最小二乘拟合模型：一次性校验并编译表达式（只解析一次），返回可复用句柄。XNames 1 个=一维、2 个=二维。配合 cv_linear_fit、cv_fit_clear。
+module=4294967295 Foundation
+parameter=Expression
+description.ascii=模型表达式（单输出，对参数必须线性，自变量可非线性）
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=ParamNames
+description.ascii=参数名元组（建模时做查重/冲突校验）
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+parameter=XNames
+description.ascii=自变量名元组（1~2 个）
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+parameter=ModelHandle
+description.ascii=拟合模型句柄（cv_linear_fit 输入，cv_fit_clear 释放）
+parameter_class=output_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+cv_lm_fit(ModelHandle,X,Y,Z,InitialValues,MaxIter,Eps,ParamValues,RSS,Iterations,Status,StatusMessage)
+short.ascii=用 cv_lm_create 构建的模型句柄做 LM 非线性最小二乘拟合（零表达式解析开销）。单输出(K=1)：M=1 传 X+Y、M=2 传 X,Y+Z；多输出(K>1)：X=自变量拉平(点数×M)、Y=观测拉平(点数×K)、Z 传空。
+module=4294967295 Foundation
+parameter=ModelHandle
+description.ascii=cv_lm_create 生成的模型句柄
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=X
+description.ascii=自变量数据（K=1,M=1 时为自变量；K>1 时为自变量拉平 点数×M）
+parameter_class=input_control
+type_list=realinteger
+default_type=real
+sem_type=real
+multivalue=true
+parameter=Y
+description.ascii=观测数据（K=1,M=1 时为观测；K=1,M=2 时为第 2 自变量；K>1 时为观测拉平 点数×K）
+parameter_class=input_control
+type_list=realinteger
+default_type=real
+sem_type=real
+multivalue=true
+parameter=Z
+description.ascii=观测数据（仅 K=1,M=2 时使用；其余模式传空元组）
+parameter_class=input_control
+type_list=realinteger
+default_type=real
+sem_type=real
+multivalue=true
+parameter=InitialValues
+description.ascii=参数初值元组（长度=参数数）
+parameter_class=input_control
+type_list=realinteger
+default_type=real
+sem_type=real
+multivalue=true
+parameter=MaxIter
+description.ascii=最大函数求值次数（<=0 取 400*(n+1)）
+parameter_class=input_control
+type_list=integer
+default_type=integer
+sem_type=integer
+multivalue=false
+parameter=Eps
+description.ascii=数值微分步长（<=0 由 Eigen 自动选取）
+parameter_class=input_control
+type_list=real
+default_type=real
+sem_type=real
+multivalue=false
+parameter=ParamValues
+description.ascii=拟合后的参数值元组
+parameter_class=output_control
+default_type=real
+sem_type=real
+multivalue=true
+parameter=RSS
+description.ascii=残差平方和（表达式出错时为 -1）
+parameter_class=output_control
+default_type=real
+sem_type=real
+multivalue=false
+parameter=Iterations
+description.ascii=LM 迭代次数
+parameter_class=output_control
+default_type=integer
+sem_type=integer
+multivalue=false
+parameter=Status
+description.ascii=Eigen LM 状态码
+parameter_class=output_control
+default_type=integer
+sem_type=integer
+multivalue=false
+parameter=StatusMessage
+description.ascii=状态描述文本
+parameter_class=output_control
+default_type=string
+sem_type=string
+multivalue=false
+cv_lm_create(Expressions,ParamNames,XNames,ModelHandle)
+short.ascii=构建 LM 非线性拟合模型：一次性校验并编译表达式（muparser 整个生命周期只解析这一次），返回可复用的拟合模型句柄。配合 cv_lm_fit 反复拟合、cv_fit_clear 释放。
+module=4294967295 Foundation
+parameter=Expressions
+description.ascii=输出表达式元组（1~K 个，共享同一组参数，如畸变场 [dx模型,dy模型]）
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+parameter=ParamNames
+description.ascii=共享参数名元组（建模时做查重/冲突校验）
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+parameter=XNames
+description.ascii=自变量名元组（1~M 个，M=1 即一维拟合）
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+parameter=ModelHandle
+description.ascii=拟合模型句柄（cv_lm_fit 输入，cv_fit_clear 释放）
+parameter_class=output_control
+type_list=handle
+default_type=handle
+sem_type=handle
 multivalue=false
 cv_gray_closing_circle(image,imageOut,radius)
 short.ascii=灰度闭运算（圆核）。对应 cv::morphologyEx MORPH_CLOSE，核尺寸 2R+1。

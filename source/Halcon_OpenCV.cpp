@@ -18,7 +18,9 @@
 #include <stdio.h>
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "cvr/cvr.hpp"
+#include "cvflow/measure.hpp"
+#include "cvflow/features.hpp"
+#include "cvflow/roi_arith.hpp"
 #include "HalconCpp.h"
 #include "HDevThread.h"
 #include <string>
@@ -259,13 +261,15 @@ Herror HPNGIn(Hproc_handle proc_handle)
     // 判断输入通道数：依次尝试读取，能读到第3通道则为3通道
     INT4_8 num_channels = 1;
     {
-        Himage chk2, chk3;
-        HGetDImage(proc_handle, in_obj_key, 2, &chk2);
-        HGetDImage(proc_handle, in_obj_key, 3, &chk3);
+        Himage chk2 = {}, chk3 = {};   // 零初始化：HGetDImage 对缺失通道不写 pixel，未初始化会误检成多通道
+        // 必须检查返回值：对单通道图像请求第 2/3 通道时返回非 OK 且 pixel 可能非空（误检）
+        Herror _e3 = HPGetDImage(proc_handle, in_obj_key, 3, &chk3);
+        Herror _e2 = HPGetDImage(proc_handle, in_obj_key, 2, &chk2);
+        (void)_e2; (void)_e3;
         // 通道3的像素指针非空则认为存在
-        if (chk3.pixel.b != NULL) {
+        if (_e3 == H_MSG_OK && chk3.pixel.b != NULL) {
             num_channels = 3;
-        } else if (chk2.pixel.b != NULL) {
+        } else if (_e2 == H_MSG_OK && chk2.pixel.b != NULL) {
             num_channels = 2;
         }
     }
@@ -464,83 +468,13 @@ Herror HPNGOut(Hproc_handle proc_handle)
 }
 
 /*=============================================================================
- * ROI 算术运算辅助函数
+ * ROI 算术运算（流程已迁入 cv_flow，见 cvflow/roi_arith.hpp；
+ * 这里仅做像素类型校验 + Himage→cv::Mat 包装 + 错误码透传）
  *===========================================================================*/
-int roi_error(Himage small_image, Himage big_image, int x, int y, int w, int h)
+static int roi_kind_check(const Himage& small_image, const Himage& big_image)
 {
     if (small_image.kind != UINT2_IMAGE) return 1;
-    if (big_image.kind != UINT2_IMAGE) return 2;
-    if ((x < 0) || (y < 0) || (w < 0) || (h < 0)) return 3;
-    if (x + w > big_image.width) return 4;
-    if (y + h > big_image.height) return 5;
-    if (small_image.width != w) return 6;
-    if (small_image.height != h) return 7;
-    return 0;
-}
-
-// A + (B ∩ Roi)
-int add_roi(Himage small_image, Himage big_image, int x, int y, int w, int h)
-{
-    int error = roi_error(small_image, big_image, x, y, w, h);
-    if (error != 0) return error;
-    cv::Mat small_imagein((int)small_image.height, (int)small_image.width, CV_16UC1, small_image.pixel.u.p);
-    cv::Mat big_imagein((int)big_image.height, (int)big_image.width, CV_16UC1, big_image.pixel.u.p);
-    cv::add(small_imagein, big_imagein(cv::Rect(x, y, w, h)), big_imagein(cv::Rect(x, y, w, h)));
-    return 0;
-}
-
-// A * (B ∩ Roi)
-int mul_roi(Himage small_image, Himage big_image, int x, int y, int w, int h)
-{
-    int error = roi_error(small_image, big_image, x, y, w, h);
-    if (error != 0) return error;
-    cv::Mat small_imagein((int)small_image.height, (int)small_image.width, CV_16UC1, small_image.pixel.u.p);
-    cv::Mat big_imagein((int)big_image.height, (int)big_image.width, CV_16UC1, big_image.pixel.u.p);
-    cv::multiply(small_imagein, big_imagein(cv::Rect(x, y, w, h)), big_imagein(cv::Rect(x, y, w, h)));
-    return 0;
-}
-
-// A - (B ∩ Roi)
-int sub_B_roi(Himage small_image, Himage big_image, int x, int y, int w, int h)
-{
-    int error = roi_error(small_image, big_image, x, y, w, h);
-    if (error != 0) return error;
-    cv::Mat small_imagein((int)small_image.height, (int)small_image.width, CV_16UC1, small_image.pixel.u.p);
-    cv::Mat big_imagein((int)big_image.height, (int)big_image.width, CV_16UC1, big_image.pixel.u.p);
-    cv::subtract(small_imagein, big_imagein(cv::Rect(x, y, w, h)), big_imagein(cv::Rect(x, y, w, h)));
-    return 0;
-}
-
-// A / (B ∩ Roi)
-int div_B_roi(Himage small_image, Himage big_image, int x, int y, int w, int h)
-{
-    int error = roi_error(small_image, big_image, x, y, w, h);
-    if (error != 0) return error;
-    cv::Mat small_imagein((int)small_image.height, (int)small_image.width, CV_16UC1, small_image.pixel.u.p);
-    cv::Mat big_imagein((int)big_image.height, (int)big_image.width, CV_16UC1, big_image.pixel.u.p);
-    cv::divide(small_imagein, big_imagein(cv::Rect(x, y, w, h)), big_imagein(cv::Rect(x, y, w, h)));
-    return 0;
-}
-
-// (A ∩ Roi) / B
-int div_A_roi(Himage big_image, Himage small_image, int x, int y, int w, int h)
-{
-    int error = roi_error(small_image, big_image, x, y, w, h);
-    if (error != 0) return error;
-    cv::Mat small_imagein((int)small_image.height, (int)small_image.width, CV_16UC1, small_image.pixel.u.p);
-    cv::Mat big_imagein((int)big_image.height, (int)big_image.width, CV_16UC1, big_image.pixel.u.p);
-    cv::divide(big_imagein(cv::Rect(x, y, w, h)), small_imagein, big_imagein(cv::Rect(x, y, w, h)));
-    return 0;
-}
-
-// (A ∩ Roi) - B
-int sub_A_roi(Himage big_image, Himage small_image, int x, int y, int w, int h)
-{
-    int error = roi_error(small_image, big_image, x, y, w, h);
-    if (error != 0) return error;
-    cv::Mat small_imagein((int)small_image.height, (int)small_image.width, CV_16UC1, small_image.pixel.u.p);
-    cv::Mat big_imagein((int)big_image.height, (int)big_image.width, CV_16UC1, big_image.pixel.u.p);
-    cv::subtract(big_imagein(cv::Rect(x, y, w, h)), small_imagein, big_imagein(cv::Rect(x, y, w, h)));
+    if (big_image.kind   != UINT2_IMAGE) return 2;
     return 0;
 }
 
@@ -564,7 +498,12 @@ Herror HCadd_roi(Hproc_handle proc_handle)
     HGetObj(proc_handle, 2, 1, &in_bigobj_key);
     HGetDImage(proc_handle, in_bigobj_key, 1, &inbig_image);
 
-    iRes = add_roi(insmallimage, inbig_image, sx.par.l, sy.par.l, ew.par.l, eh.par.l);
+    iRes = roi_kind_check(insmallimage, inbig_image);
+    if (0 == iRes) {
+        cv::Mat small16(insmallimage.height, insmallimage.width, CV_16UC1, insmallimage.pixel.u.p);
+        cv::Mat   big16(inbig_image.height,  inbig_image.width,  CV_16UC1, inbig_image.pixel.u.p);
+        iRes = cvflow::roi_add(small16, big16, sx.par.l, sy.par.l, ew.par.l, eh.par.l);
+    }
     if (0 != iRes) return 30000 + iRes;
     return H_MSG_TRUE;
 }
@@ -589,7 +528,12 @@ Herror HCmul_roi(Hproc_handle proc_handle)
     HGetObj(proc_handle, 2, 1, &in_bigobj_key);
     HGetDImage(proc_handle, in_bigobj_key, 1, &inbig_image);
 
-    iRes = mul_roi(insmallimage, inbig_image, sx.par.l, sy.par.l, ew.par.l, eh.par.l);
+    iRes = roi_kind_check(insmallimage, inbig_image);
+    if (0 == iRes) {
+        cv::Mat small16(insmallimage.height, insmallimage.width, CV_16UC1, insmallimage.pixel.u.p);
+        cv::Mat   big16(inbig_image.height,  inbig_image.width,  CV_16UC1, inbig_image.pixel.u.p);
+        iRes = cvflow::roi_mul(small16, big16, sx.par.l, sy.par.l, ew.par.l, eh.par.l);
+    }
     if (0 != iRes) return 30000 + iRes;
     return H_MSG_TRUE;
 }
@@ -614,7 +558,12 @@ Herror HCsub_B_roi(Hproc_handle proc_handle)
     HGetObj(proc_handle, 2, 1, &in_bigobj_key);
     HGetDImage(proc_handle, in_bigobj_key, 1, &inbig_image);
 
-    iRes = sub_B_roi(insmallimage, inbig_image, sx.par.l, sy.par.l, ew.par.l, eh.par.l);
+    iRes = roi_kind_check(insmallimage, inbig_image);
+    if (0 == iRes) {
+        cv::Mat small16(insmallimage.height, insmallimage.width, CV_16UC1, insmallimage.pixel.u.p);
+        cv::Mat   big16(inbig_image.height,  inbig_image.width,  CV_16UC1, inbig_image.pixel.u.p);
+        iRes = cvflow::roi_subB(small16, big16, sx.par.l, sy.par.l, ew.par.l, eh.par.l);
+    }
     if (0 != iRes) return 30000 + iRes;
     return H_MSG_TRUE;
 }
@@ -639,7 +588,12 @@ Herror HCdiv_B_roi(Hproc_handle proc_handle)
     HGetObj(proc_handle, 2, 1, &in_bigobj_key);
     HGetDImage(proc_handle, in_bigobj_key, 1, &inbig_image);
 
-    iRes = div_B_roi(insmallimage, inbig_image, sx.par.l, sy.par.l, ew.par.l, eh.par.l);
+    iRes = roi_kind_check(insmallimage, inbig_image);
+    if (0 == iRes) {
+        cv::Mat small16(insmallimage.height, insmallimage.width, CV_16UC1, insmallimage.pixel.u.p);
+        cv::Mat   big16(inbig_image.height,  inbig_image.width,  CV_16UC1, inbig_image.pixel.u.p);
+        iRes = cvflow::roi_divB(small16, big16, sx.par.l, sy.par.l, ew.par.l, eh.par.l);
+    }
     if (0 != iRes) return 30000 + iRes;
     return H_MSG_TRUE;
 }
@@ -665,7 +619,12 @@ Herror HCdiv_A_roi(Hproc_handle proc_handle)
     HGetObj(proc_handle, 2, 1, &in_bigobj_key);
     HGetDImage(proc_handle, in_bigobj_key, 1, &inbig_image);
 
-    iRes = div_A_roi(inbig_image, insmallimage, sx.par.l, sy.par.l, ew.par.l, eh.par.l);
+    iRes = roi_kind_check(insmallimage, inbig_image);
+    if (0 == iRes) {
+        cv::Mat small16(insmallimage.height, insmallimage.width, CV_16UC1, insmallimage.pixel.u.p);
+        cv::Mat   big16(inbig_image.height,  inbig_image.width,  CV_16UC1, inbig_image.pixel.u.p);
+        iRes = cvflow::roi_divA(big16, small16, sx.par.l, sy.par.l, ew.par.l, eh.par.l);
+    }
     if (0 != iRes) return 30000 + iRes;
     return H_MSG_TRUE;
 }
@@ -691,7 +650,12 @@ Herror HCsub_A_roi(Hproc_handle proc_handle)
     HGetObj(proc_handle, 2, 1, &in_bigobj_key);
     HGetDImage(proc_handle, in_bigobj_key, 1, &inbig_image);
 
-    iRes = sub_A_roi(inbig_image, insmallimage, sx.par.l, sy.par.l, ew.par.l, eh.par.l);
+    iRes = roi_kind_check(insmallimage, inbig_image);
+    if (0 == iRes) {
+        cv::Mat small16(insmallimage.height, insmallimage.width, CV_16UC1, insmallimage.pixel.u.p);
+        cv::Mat   big16(inbig_image.height,  inbig_image.width,  CV_16UC1, inbig_image.pixel.u.p);
+        iRes = cvflow::roi_subA(big16, small16, sx.par.l, sy.par.l, ew.par.l, eh.par.l);
+    }
     if (0 != iRes) return 30000 + iRes;
     return H_MSG_TRUE;
 }
@@ -982,14 +946,14 @@ Herror HCcv_orb_detect(Hproc_handle proc_handle)
     try { GetDictTuple(hv_DictHandle, "PatchSize", &t);     patchSize     = (int)t.L(); } catch (...) {}
     try { GetDictTuple(hv_DictHandle, "FastThreshold", &t); fastThreshold = (int)t.L(); } catch (...) {}
 
-    cv::Ptr<cv::ORB> orb = cv::ORB::create(
-        nFeatures, (float)scaleFactor, nlevels, edgeThreshold,
-        firstLevel, WTA_K, (cv::ORB::ScoreType)scoreType, patchSize,
-        fastThreshold);
+    cvflow::OrbParams op;
+    op.nFeatures = nFeatures; op.scaleFactor = scaleFactor; op.nlevels = nlevels;
+    op.edgeThreshold = edgeThreshold; op.firstLevel = firstLevel; op.WTA_K = WTA_K;
+    op.scoreType = scoreType; op.patchSize = patchSize; op.fastThreshold = fastThreshold;
 
     std::vector<cv::KeyPoint> keypoints;
-    cv::Mat descriptors;
-    orb->detectAndCompute(img, cv::noArray(), keypoints, descriptors);
+    cv::Mat descU8;
+    cvflow::orb_detect(img, op, keypoints, descU8);   // 流程在 cv_flow
 
     int nKP = (int)keypoints.size();
 
@@ -1003,10 +967,10 @@ Herror HCcv_orb_detect(Hproc_handle proc_handle)
     SetDictTuple(hv_DictHandle, "KeypointsCol", hv_Cols);
     SetDictTuple(hv_DictHandle, "NumKeypoints", (Hlong)nKP);
 
-    if (nKP > 0 && !descriptors.empty())
+    if (nKP > 0 && !descU8.empty())
     {
         HObject ho_Desc;
-        GenImage1(&ho_Desc, "byte", 32, nKP, (Hlong)descriptors.data);
+        GenImage1(&ho_Desc, "byte", descU8.cols, nKP, (Hlong)descU8.data);
         SetDictObject(ho_Desc, hv_DictHandle, "Descriptors");
     }
 
@@ -1050,14 +1014,14 @@ Herror HCcv_akaze_detect(Hproc_handle proc_handle)
     try { GetDictTuple(hv_DictHandle, "NOctaveLayers", &t);      nOctaveLayers      = (int)t.L(); } catch (...) {}
     try { GetDictTuple(hv_DictHandle, "Diffusivity", &t);        diffusivity        = (int)t.L(); } catch (...) {}
 
-    cv::Ptr<cv::AKAZE> akaze = cv::AKAZE::create(
-        (cv::AKAZE::DescriptorType)descriptorType, descriptorSize,
-        descriptorChannels, (float)threshold, nOctaves, nOctaveLayers,
-        (cv::KAZE::DiffusivityType)diffusivity);
+    cvflow::AkazeParams ap;
+    ap.descriptorType = descriptorType; ap.descriptorSize = descriptorSize;
+    ap.descriptorChannels = descriptorChannels; ap.threshold = threshold;
+    ap.nOctaves = nOctaves; ap.nOctaveLayers = nOctaveLayers; ap.diffusivity = diffusivity;
 
     std::vector<cv::KeyPoint> keypoints;
-    cv::Mat descriptors;
-    akaze->detectAndCompute(img, cv::noArray(), keypoints, descriptors);
+    cv::Mat descU8;
+    cvflow::akaze_detect(img, ap, keypoints, descU8);   // 流程在 cv_flow（含 u8 转换）
 
     int nKP = (int)keypoints.size();
 
@@ -1071,16 +1035,9 @@ Herror HCcv_akaze_detect(Hproc_handle proc_handle)
     SetDictTuple(hv_DictHandle, "KeypointsCol", hv_Cols);
     SetDictTuple(hv_DictHandle, "NumKeypoints", (Hlong)nKP);
 
-    if (nKP > 0 && !descriptors.empty())
+    if (nKP > 0 && !descU8.empty())
     {
-        int descWidth = descriptors.cols;
-
-        cv::Mat descU8;
-        if (descriptors.type() != CV_8UC1)
-            descriptors.convertTo(descU8, CV_8UC1);
-        else
-            descU8 = descriptors;
-
+        int descWidth = descU8.cols;
         HObject ho_Desc;
         GenImage1(&ho_Desc, "byte", descWidth, nKP, (Hlong)descU8.data);
         SetDictObject(ho_Desc, hv_DictHandle, "Descriptors");
@@ -1126,14 +1083,14 @@ Herror HCcv_sift_detect(Hproc_handle proc_handle)
     try { GetDictTuple(hv_DictHandle, "EdgeThreshold", &t);     edgeThreshold     = t.D(); } catch (...) {}
     try { GetDictTuple(hv_DictHandle, "Sigma", &t);             sigma             = t.D(); } catch (...) {}
 
-    // descriptorType 取 CV_8U，使描述子与 cv_bf_knn_match（NORM_HAMMING）直接兼容
-    cv::Ptr<cv::SIFT> sift = cv::SIFT::create(
-        nFeatures, nOctaveLayers, contrastThreshold, edgeThreshold,
-        sigma, CV_8U);
+    cvflow::SiftParams sp;
+    sp.nFeatures = nFeatures; sp.nOctaveLayers = nOctaveLayers;
+    sp.contrastThreshold = contrastThreshold; sp.edgeThreshold = edgeThreshold;
+    sp.sigma = sigma;
 
     std::vector<cv::KeyPoint> keypoints;
-    cv::Mat descriptors;
-    sift->detectAndCompute(img, cv::noArray(), keypoints, descriptors);
+    cv::Mat descU8;
+    cvflow::sift_detect(img, sp, keypoints, descU8);   // 流程在 cv_flow（含 u8 转换）
 
     int nKP = (int)keypoints.size();
 
@@ -1147,14 +1104,8 @@ Herror HCcv_sift_detect(Hproc_handle proc_handle)
     SetDictTuple(hv_DictHandle, "KeypointsCol", hv_Cols);
     SetDictTuple(hv_DictHandle, "NumKeypoints", (Hlong)nKP);
 
-    if (nKP > 0 && !descriptors.empty())
+    if (nKP > 0 && !descU8.empty())
     {
-        cv::Mat descU8;
-        if (descriptors.type() != CV_8UC1)
-            descriptors.convertTo(descU8, CV_8UC1);
-        else
-            descU8 = descriptors;
-
         int descWidth = descU8.cols;
         HObject ho_Desc;
         GenImage1(&ho_Desc, "byte", descWidth, nKP, (Hlong)descU8.data);
@@ -1211,55 +1162,12 @@ Herror HCcv_bf_knn_match(Hproc_handle proc_handle)
     cv::Mat matRef(nRef, descWidth, CV_8UC1, (uchar *)ptrRef.L());
     cv::Mat matTarget(nTarget, descWidth, CV_8UC1, (uchar *)ptrTarget.L());
 
-    cv::BFMatcher bf(normType, crossCheck != 0);
-    std::vector<std::vector<cv::DMatch>> knnMatches;
-
-    if (nRef < 2 || nTarget < 2)
-    {
-        SetDictTuple(hv_DictHandle, "NumGoodMatches", (Hlong)0);
-        return H_MSG_TRUE;
-    }
-
-    try { bf.knnMatch(matRef, matTarget, knnMatches, knnK); }
-    catch (const cv::Exception &) {
-        SetDictTuple(hv_DictHandle, "NumGoodMatches", (Hlong)0);
-        return H_MSG_TRUE;
-    }
+    cvflow::BfMatchParams bp;
+    bp.descWidth = descWidth; bp.ratioThresh = ratioThresh;
+    bp.normType = normType; bp.crossCheck = crossCheck; bp.knnK = knnK;
 
     std::vector<int> goodIdxRef, goodIdxTarget;
-    if (crossCheck)
-    {
-        /* crossCheck 模式：必须用 match()（crossCheck 仅在 match/k=1 语义下生效），
-           BFMatcher(crossCheck=true) 的 match 只返回互为最佳的匹配 */
-        std::vector<cv::DMatch> ccMatches;
-        try { bf.match(matRef, matTarget, ccMatches); }
-        catch (const cv::Exception &) {
-            SetDictTuple(hv_DictHandle, "NumGoodMatches", (Hlong)0);
-            return H_MSG_TRUE;
-        }
-        for (size_t i = 0; i < ccMatches.size(); i++)
-        {
-            goodIdxRef.push_back(ccMatches[i].queryIdx);
-            goodIdxTarget.push_back(ccMatches[i].trainIdx);
-        }
-    }
-    else
-    {
-        /* 常规模式：Lowe's Ratio Test（需 knnK >= 2） */
-        for (size_t i = 0; i < knnMatches.size(); i++)
-        {
-            if (knnMatches[i].size() == 2)
-            {
-                const cv::DMatch &m = knnMatches[i][0];
-                const cv::DMatch &n = knnMatches[i][1];
-                if (m.distance < ratioThresh * n.distance)
-                {
-                    goodIdxRef.push_back(m.queryIdx);
-                    goodIdxTarget.push_back(m.trainIdx);
-                }
-            }
-        }
-    }
+    cvflow::bf_knn_match(matRef, matTarget, bp, goodIdxRef, goodIdxTarget);  // 流程在 cv_flow
 
     int nGood = (int)goodIdxRef.size();
 
@@ -1317,58 +1225,42 @@ Herror HCcv_estimate_affine_partial2d(Hproc_handle proc_handle)
     try { GetDictTuple(hv_DictHandle, "Confidence", &t);  confidence  = t.D(); } catch (...) {}
     try { GetDictTuple(hv_DictHandle, "RefineIters", &t); refineIters = (int)t.L(); } catch (...) {}
 
-    std::vector<cv::Point2f> srcPts(nPts), dstPts(nPts);
+    std::vector<double> srcRow(nPts), srcCol(nPts), dstRow(nPts), dstCol(nPts);
     for (int i = 0; i < nPts; i++)
     {
-        srcPts[i] = cv::Point2f((float)hv_SrcCol[i].D(), (float)hv_SrcRow[i].D());
-        dstPts[i] = cv::Point2f((float)hv_DstCol[i].D(), (float)hv_DstRow[i].D());
+        srcRow[(size_t)i] = hv_SrcRow[i].D();
+        srcCol[(size_t)i] = hv_SrcCol[i].D();
+        dstRow[(size_t)i] = hv_DstRow[i].D();
+        dstCol[(size_t)i] = hv_DstCol[i].D();
     }
 
-    cv::Mat inlierMask;
-    cv::Mat M = cv::estimateAffinePartial2D(
-        srcPts, dstPts, inlierMask, method, ransacThresh,
-        (size_t)maxIters, confidence, (size_t)refineIters
-    );
+    cvflow::AffinePartialParams ap;
+    ap.ransacThresh = ransacThresh; ap.method = method; ap.maxIters = maxIters;
+    ap.confidence = confidence; ap.refineIters = refineIters;
 
-    if (M.empty())
+    cvflow::AffinePartialResult res;
+    if (!cvflow::estimate_affine_partial2d(srcRow, srcCol, dstRow, dstCol, ap, res))
     {
         SetDictTuple(hv_DictHandle, "Success", (Hlong)0);
         SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)0);
         return H_MSG_TRUE;
     }
 
-    int inlierCount = 0;
-    if (!inlierMask.empty())
-    {
-        for (int i = 0; i < inlierMask.rows; i++)
-            if (inlierMask.at<uchar>(i, 0) != 0) inlierCount++;
-    }
-
-    double a00 = M.at<double>(0, 0);
-    double a01 = M.at<double>(0, 1);
-    double a02 = M.at<double>(0, 2);
-    double a10 = M.at<double>(1, 0);
-    double a11 = M.at<double>(1, 1);
-    double a12 = M.at<double>(1, 2);
-
-    double angle = std::atan2(a10, a00);
-    double scale = std::sqrt(a00 * a00 + a10 * a10);
-
     HTuple hv_HomMat2D;
-    hv_HomMat2D[0] = a11;
-    hv_HomMat2D[1] = a10;
-    hv_HomMat2D[2] = a12;
-    hv_HomMat2D[3] = a01;
-    hv_HomMat2D[4] = a00;
-    hv_HomMat2D[5] = a02;
+    hv_HomMat2D[0] = res.hom[0];
+    hv_HomMat2D[1] = res.hom[1];
+    hv_HomMat2D[2] = res.hom[2];
+    hv_HomMat2D[3] = res.hom[3];
+    hv_HomMat2D[4] = res.hom[4];
+    hv_HomMat2D[5] = res.hom[5];
 
     SetDictTuple(hv_DictHandle, "HomMat2D", hv_HomMat2D);
     SetDictTuple(hv_DictHandle, "Success", (Hlong)1);
-    SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)inlierCount);
-    SetDictTuple(hv_DictHandle, "TranslateRow", a12);
-    SetDictTuple(hv_DictHandle, "TranslateCol", a02);
-    SetDictTuple(hv_DictHandle, "Angle", angle);
-    SetDictTuple(hv_DictHandle, "Scale", scale);
+    SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)res.inlierCount);
+    SetDictTuple(hv_DictHandle, "TranslateRow", res.translateRow);
+    SetDictTuple(hv_DictHandle, "TranslateCol", res.translateCol);
+    SetDictTuple(hv_DictHandle, "Angle", res.angle);
+    SetDictTuple(hv_DictHandle, "Scale", res.scale);
 
     return H_MSG_TRUE;
 }
@@ -1404,7 +1296,6 @@ Herror HCcv_estimate_rigid_2d(Hproc_handle proc_handle)
     try { GetDictTuple(hv_DictHandle, "RansacThreshold", &hv_RansacThresh); }
     catch (...) { hv_RansacThresh = 3.0; }
     double ransacThresh = hv_RansacThresh.D();
-    const double thresh2 = ransacThresh * ransacThresh;
 
     /* ---- RANSAC 全开放参数（从 dict 键读取，带默认值） ---- */
     HTuple t;
@@ -1413,130 +1304,40 @@ Herror HCcv_estimate_rigid_2d(Hproc_handle proc_handle)
     try { GetDictTuple(hv_DictHandle, "MaxIter", &t); maxIter = (int)t.L(); } catch (...) {}
     try { GetDictTuple(hv_DictHandle, "Seed", &t);    seed    = (int)t.L(); } catch (...) {}
 
-    std::vector<cv::Point2f> srcPts(nPts), dstPts(nPts);
+    std::vector<double> srcRow(nPts), srcCol(nPts), dstRow(nPts), dstCol(nPts);
     for (int i = 0; i < nPts; i++)
     {
-        srcPts[i] = cv::Point2f((float)hv_SrcCol[i].D(), (float)hv_SrcRow[i].D());
-        dstPts[i] = cv::Point2f((float)hv_DstCol[i].D(), (float)hv_DstRow[i].D());
+        srcRow[(size_t)i] = hv_SrcRow[i].D();
+        srcCol[(size_t)i] = hv_SrcCol[i].D();
+        dstRow[(size_t)i] = hv_DstRow[i].D();
+        dstCol[(size_t)i] = hv_DstCol[i].D();
     }
 
-    // ---- RANSAC：每次随机取 2 点求刚体变换，统计内点 ----
-    double bestCos = 1.0, bestSin = 0.0, bestTx = 0.0, bestTy = 0.0;
-    int bestInliers = 0;
+    cvflow::RigidParams rp;
+    rp.ransacThresh = ransacThresh; rp.maxIter = maxIter; rp.seed = seed;
 
-    cv::RNG rng((uint64)seed);
-    for (int iter = 0; iter < maxIter; ++iter)
-    {
-        int i1 = rng.uniform(0, nPts);
-        int i2 = rng.uniform(0, nPts);
-        if (i1 == i2) continue;
-
-        double sx = (double)srcPts[i2].x - srcPts[i1].x;
-        double sy = (double)srcPts[i2].y - srcPts[i1].y;
-        double dx = (double)dstPts[i2].x - dstPts[i1].x;
-        double dy = (double)dstPts[i2].y - dstPts[i1].y;
-
-        double lenSrc2 = sx * sx + sy * sy;
-        double lenDst2 = dx * dx + dy * dy;
-        if (lenSrc2 < 1e-12 || lenDst2 < 1e-12) continue;
-
-        // 旋转角：cos = (s·d)/(|s||d|), sin = (s×d)/(|s||d|)
-        double dot   = sx * dx + sy * dy;
-        double cross = sx * dy - sy * dx;
-        double inv   = 1.0 / std::sqrt(lenSrc2 * lenDst2);
-        double cosT  = dot * inv;
-        double sinT  = cross * inv;
-
-        double tx = (double)dstPts[i1].x - (cosT * srcPts[i1].x - sinT * srcPts[i1].y);
-        double ty = (double)dstPts[i1].y - (sinT * srcPts[i1].x + cosT * srcPts[i1].y);
-
-        int inliers = 0;
-        for (int i = 0; i < nPts; ++i)
-        {
-            double px = cosT * srcPts[i].x - sinT * srcPts[i].y + tx;
-            double py = sinT * srcPts[i].x + cosT * srcPts[i].y + ty;
-            double ex = px - dstPts[i].x;
-            double ey = py - dstPts[i].y;
-            if (ex * ex + ey * ey <= thresh2) ++inliers;
-        }
-
-        if (inliers > bestInliers)
-        {
-            bestInliers = inliers;
-            bestCos = cosT; bestSin = sinT;
-            bestTx = tx;    bestTy = ty;
-        }
-    }
-
-    if (bestInliers < 2)
+    cvflow::RigidResult res;
+    if (!cvflow::estimate_rigid_2d(srcRow, srcCol, dstRow, dstCol, rp, res))
     {
         SetDictTuple(hv_DictHandle, "Success", (Hlong)0);
         SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)0);
         return H_MSG_TRUE;
     }
 
-    // ---- 用内点做最小二乘精化（刚体，scale=1）----
-    std::vector<cv::Point2f> inSrc, inDst;
-    inSrc.reserve((size_t)bestInliers);
-    inDst.reserve((size_t)bestInliers);
-    for (int i = 0; i < nPts; ++i)
-    {
-        double px = bestCos * srcPts[i].x - bestSin * srcPts[i].y + bestTx;
-        double py = bestSin * srcPts[i].x + bestCos * srcPts[i].y + bestTy;
-        double ex = px - dstPts[i].x;
-        double ey = py - dstPts[i].y;
-        if (ex * ex + ey * ey <= thresh2)
-        {
-            inSrc.push_back(srcPts[i]);
-            inDst.push_back(dstPts[i]);
-        }
-    }
-
-    int nIn = (int)inSrc.size();
-    double cSx = 0.0, cSy = 0.0, cDx = 0.0, cDy = 0.0;
-    for (int i = 0; i < nIn; ++i)
-    {
-        cSx += inSrc[i].x; cSy += inSrc[i].y;
-        cDx += inDst[i].x; cDy += inDst[i].y;
-    }
-    cSx /= nIn; cSy /= nIn; cDx /= nIn; cDy /= nIn;
-
-    // H = Σ dst_i' * src_i'^T，刚体旋转角闭式解
-    double h00 = 0.0, h01 = 0.0, h10 = 0.0, h11 = 0.0;
-    for (int i = 0; i < nIn; ++i)
-    {
-        double sx = inSrc[i].x - cSx;
-        double sy = inSrc[i].y - cSy;
-        double dx = inDst[i].x - cDx;
-        double dy = inDst[i].y - cDy;
-        h00 += dx * sx;
-        h01 += dx * sy;
-        h10 += dy * sx;
-        h11 += dy * sy;
-    }
-
-    double angle = std::atan2(h10 - h01, h00 + h11);
-    double cosT  = std::cos(angle);
-    double sinT  = std::sin(angle);
-    double tx = cDx - (cosT * cSx - sinT * cSy);
-    double ty = cDy - (sinT * cSx + cosT * cSy);
-
-    // HomMat2D 排列与 cv_estimate_affine_partial2d 保持一致
-    //   a00=cos, a01=-sin, a02=tx, a10=sin, a11=cos, a12=ty
     HTuple hv_HomMat2D;
-    hv_HomMat2D[0] = cosT;   // a11
-    hv_HomMat2D[1] = sinT;   // a10
-    hv_HomMat2D[2] = ty;     // a12
-    hv_HomMat2D[3] = -sinT;  // a01
-    hv_HomMat2D[4] = cosT;   // a00
-    hv_HomMat2D[5] = tx;     // a02
+    hv_HomMat2D[0] = res.hom[0];
+    hv_HomMat2D[1] = res.hom[1];
+    hv_HomMat2D[2] = res.hom[2];
+    hv_HomMat2D[3] = res.hom[3];
+    hv_HomMat2D[4] = res.hom[4];
+    hv_HomMat2D[5] = res.hom[5];
 
     SetDictTuple(hv_DictHandle, "HomMat2D", hv_HomMat2D);
     SetDictTuple(hv_DictHandle, "Success", (Hlong)1);
-    SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)nIn);
-    SetDictTuple(hv_DictHandle, "TranslateRow", ty);
-    SetDictTuple(hv_DictHandle, "TranslateCol", tx);
-    SetDictTuple(hv_DictHandle, "Angle", angle);
+    SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)res.inlierCount);
+    SetDictTuple(hv_DictHandle, "TranslateRow", res.translateRow);
+    SetDictTuple(hv_DictHandle, "TranslateCol", res.translateCol);
+    SetDictTuple(hv_DictHandle, "Angle", res.angle);
     SetDictTuple(hv_DictHandle, "Scale", 1.0);
 
     return H_MSG_TRUE;
@@ -1559,11 +1360,13 @@ Herror HCcv_write_image(Hproc_handle proc_handle)
     // 检测通道数
     INT4_8 num_channels = 1;
     {
-        Himage chk2, chk3;
-        HGetDImage(proc_handle, in_obj_key, 2, &chk2);
-        HGetDImage(proc_handle, in_obj_key, 3, &chk3);
-        if (chk3.pixel.b != NULL)      num_channels = 3;
-        else if (chk2.pixel.b != NULL) num_channels = 2;
+        Himage chk2 = {}, chk3 = {};   // 零初始化：HGetDImage 对缺失通道不写 pixel，未初始化会误检成多通道
+        // 必须检查返回值：对单通道图像请求第 2/3 通道时返回非 OK 且 pixel 可能非空（误检）
+        Herror _e3 = HPGetDImage(proc_handle, in_obj_key, 3, &chk3);
+        Herror _e2 = HPGetDImage(proc_handle, in_obj_key, 2, &chk2);
+        (void)_e2; (void)_e3;
+        if (_e3 == H_MSG_OK && chk3.pixel.b != NULL) num_channels = 3;
+        else if (_e2 == H_MSG_OK && chk2.pixel.b != NULL) num_channels = 2;
     }
 
     cv::Mat cv_img;
@@ -1952,8 +1755,8 @@ Herror HCcv_measure_pos(Hproc_handle proc_handle)
         return 30001;   // 仅支持 byte / uint2 / real 单通道图像
     }
 
-    cvr::CvrMeasureResult mres;
-    cvr::cvr_measure_pos(gray.data, gray.cols, gray.rows,
+    cvflow::MeasureResult mres;
+    cvflow::measure_pos(gray.data, gray.cols, gray.rows,
                          column.par.d, row.par.d, phi.par.d,
                          length1.par.d, length2.par.d, sigma.par.d,
                          threshold.par.d, static_cast<int>(transition.par.l),
@@ -2424,37 +2227,19 @@ Herror HCcv_estimate_affine_2d(Hproc_handle proc_handle)
 
     if (nSrc == nDst && nSrc >= 3)
     {
-        std::vector<cv::Point2f> from((size_t)nSrc), to((size_t)nSrc);
-        for (INT4_8 i = 0; i < nSrc; ++i)
-        {
-            from[(size_t)i] = cv::Point2f((float)srcCol[i], (float)srcRow[i]);
-            to[(size_t)i]   = cv::Point2f((float)dstCol[i], (float)dstRow[i]);
-        }
+        cvflow::Affine2DParams ap;
+        ap.method = (int)method.par.l; ap.ransacThresh = ransacThresh.par.d;
+        ap.maxIters = (int)maxIters.par.l; ap.confidence = confidence.par.d;
+        ap.refineIters = (int)refineIters.par.l;
 
-        cv::Mat inlierMask, M;
-        try
+        cvflow::Affine2DResult res;
+        if (cvflow::estimate_affine_2d(srcRow, srcCol, dstRow, dstCol,
+                                       (int)nSrc, ap, res))
         {
-            M = cv::estimateAffine2D(from, to, inlierMask,
-                                     (int)method.par.l, ransacThresh.par.d,
-                                     (size_t)maxIters.par.l, confidence.par.d,
-                                     (size_t)refineIters.par.l);
-        }
-        catch (const cv::Exception&)
-        {
-            M = cv::Mat();
-        }
-
-        if (!M.empty())
-        {
-            double a00 = M.at<double>(0, 0), a01 = M.at<double>(0, 1), a02 = M.at<double>(0, 2);
-            double a10 = M.at<double>(1, 0), a11 = M.at<double>(1, 1), a12 = M.at<double>(1, 2);
-            // HALCON hom_mat2d 顺序 [R00,R10,T0,R01,R11,T1] = [a00,a10,a02,a01,a11,a12]
-            hom[0] = a00; hom[1] = a10; hom[2] = a02;
-            hom[3] = a01; hom[4] = a11; hom[5] = a12;
+            hom[0] = res.hom[0]; hom[1] = res.hom[1]; hom[2] = res.hom[2];
+            hom[3] = res.hom[3]; hom[4] = res.hom[4]; hom[5] = res.hom[5];
             success = 1;
-            if (!inlierMask.empty())
-                for (int i = 0; i < inlierMask.rows; ++i)
-                    if (inlierMask.at<uchar>(i, 0) != 0) ++inliers;
+            inliers = res.inliers;
         }
     }
 

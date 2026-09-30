@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>* cv_connection_ex + 跨算子特征缓存（ContentFingerprint）验证例程</l>
+<l>*</l>
+<l>*   1) cv_connection_ex 与 cv_connection 结果一致（连通域数量）</l>
+<l>*   2) 冷算（直接计算）与热算（命中缓存/预计算）的特征值逐位一致</l>
+<l>*   3) select_shape 在两条路径下结果一致</l>
+<l>*   4) 组合名 'all' / 'basic' / 'none' 与 '|' 拼接可用</l>
+<l>*   5) 内容变化（move_region）后不会命中陈旧缓存</l>
+<l>*   6) 缓存加速：同一批 region 反复取 8 个特征，对比冷/热耗时</l>
+<l>*   7) 整链基准：connection -> select_shape -> region_features，预计算 vs 不预计算</l>
+<l>read_image (Image, 'printer_chip/printer_chip_01')</l>
+<l>threshold (Image, RegText, 0, 90)</l>
+<l>connection (RegText, RegsAll)</l>
+<l>select_shape (RegsAll, RegsH, 'area', 'and', 20, 999999999)</l>
+<l>count_obj (RegsH, NIn)</l>
+<l>if (NIn &lt; 8)</l>
+<l>  throw ('too few input regions: ' + NIn)</l>
+<l>endif</l>
+<l>* ---- 冷算参照：本次会话第一次对这些内容取特征（缓存为空） ----</l>
+<l>Feats := ['area','row','column','width','height','contlength','circularity','rectangularity']</l>
+<l>cv_region_features (RegsH, Feats, VCold)</l>
+<l>cv_connection (RegsH, ConnRef)</l>
+<l>count_obj (ConnRef, NRef)</l>
+<l>* ---- 预计算：connection 后立即算好这些特征并写入内容指纹缓存 ----</l>
+<l>cv_connection_ex (RegsH, ConnPre, Feats)</l>
+<l>count_obj (ConnPre, NPre)</l>
+<l>if (NRef # NPre)</l>
+<l>  throw ('cv_connection_ex count mismatch: ' + NRef + ' vs ' + NPre)</l>
+<l>endif</l>
+<l>* ---- 热算：应当命中缓存，且值必须与冷算逐位一致 ----</l>
+<l>cv_region_features (ConnPre, Feats, VWarm)</l>
+<l>if (max(abs(VWarm - VCold)) &gt; 1e-12)</l>
+<l>  throw ('cache changed feature values')</l>
+<l>endif</l>
+<l>cv_region_features (ConnRef, Feats, VRef)</l>
+<l>if (max(abs(VRef - VCold)) &gt; 1e-12)</l>
+<l>  throw ('cached path differs from cold path')</l>
+<l>endif</l>
+<l>* ---- select_shape：两条路径结果一致 ----</l>
+<l>cv_select_shape (ConnPre, SelPre, ['area','circularity'], 'and', [20.0, 0.5], [999999999.0, 1.0])</l>
+<l>cv_select_shape (ConnRef, SelRef, ['area','circularity'], 'and', [20.0, 0.5], [999999999.0, 1.0])</l>
+<l>count_obj (SelPre, NSelPre)</l>
+<l>count_obj (SelRef, NSelRef)</l>
+<l>if (NSelPre # NSelRef)</l>
+<l>  throw ('select_shape mismatch: ' + NSelPre + ' vs ' + NSelRef)</l>
+<l>endif</l>
+<l>* ---- 组合名与 '|' 拼接 ----</l>
+<l>cv_connection_ex (RegsH, ConnAll, 'all')</l>
+<l>cv_connection_ex (RegsH, ConnBasic, 'basic')</l>
+<l>cv_connection_ex (RegsH, ConnNone, 'none')</l>
+<l>cv_connection_ex (RegsH, ConnPipe, 'area|bbox')</l>
+<l>count_obj (ConnAll, NAll)</l>
+<l>count_obj (ConnBasic, NBasic)</l>
+<l>count_obj (ConnNone, NNone)</l>
+<l>count_obj (ConnPipe, NPipe)</l>
+<l>if (NAll # NRef or NBasic # NRef or NNone # NRef or NPipe # NRef)</l>
+<l>  throw ('cv_connection_ex mask variants count mismatch')</l>
+<l>endif</l>
+<l>* ---- 反陈旧/口径对照：内容平移 (3,4) 后，area/row/column 必须与 HALCON 原生</l>
+<l>*      area_center 一致（若误命中未平移时的缓存，row/col 会差 3/4 而报错） ----</l>
+<l>move_region (RegsH, RegsMoved, 3, 4)</l>
+<l>cv_region_features (RegsMoved, ['area','row','column'], VMove)</l>
+<l>area_center (RegsMoved, HalArea, HalRow, HalCol)</l>
+<l>for i := 1 to NIn by 1</l>
+<l>  if (abs(VMove[3 * (i - 1)] - HalArea[i - 1]) &gt; 1e-9)</l>
+<l>    throw ('area mismatch after move_region at index ' + i)</l>
+<l>  endif</l>
+<l>  if (abs(VMove[3 * (i - 1) + 1] - HalRow[i - 1]) &gt; 1e-9)</l>
+<l>    throw ('row mismatch after move_region at index ' + i)</l>
+<l>  endif</l>
+<l>  if (abs(VMove[3 * (i - 1) + 2] - HalCol[i - 1]) &gt; 1e-9)</l>
+<l>    throw ('column mismatch after move_region at index ' + i)</l>
+<l>  endif</l>
+<l>endfor</l>
+<l>* ---- 加速对比 ----</l>
+<l>*   冷路径：每次换一个平移量，内容都是新的 -> 必然未命中，只能真算</l>
+<l>*   热路径：同一批内容反复取特征 -> 全部命中缓存</l>
+<l>N := 20</l>
+<l>count_seconds (T0)</l>
+<l>for i := 1 to N by 1</l>
+<l>  move_region (RegsH, RegsTmp, 1, i)</l>
+<l>  cv_region_features (RegsTmp, Feats, VA)</l>
+<l>endfor</l>
+<l>count_seconds (T1)</l>
+<l>cv_connection_ex (RegsMoved, ConnMovedPre, Feats)</l>
+<l>count_seconds (T2)</l>
+<l>for i := 1 to N by 1</l>
+<l>  cv_region_features (ConnMovedPre, Feats, VB)</l>
+<l>endfor</l>
+<l>count_seconds (T3)</l>
+<l>TCold := (T1 - T0) / N</l>
+<l>TWarm := (T3 - T2) / N</l>
+<l>TCacheFill := T2 - T1</l>
+<l>Speedup := TCold / TWarm</l>
+<l>if (|VA| # |VB| or |VA| # NIn * 8)</l>
+<l>  throw ('feature tuple size mismatch')</l>
+<l>endif</l>
+<l>count_obj (ConnMovedPre, NMoved)</l>
+<l>if (NMoved # NRef)</l>
+<l>  throw ('moved connection count mismatch')</l>
+<l>endif</l>
+<l>* ---- 整链基准：connection -> select_shape -> region_features ----</l>
+<l>*   A：不预计算（特征在 select_shape / region_features 里按需算，and 分支可短路）</l>
+<l>*   B：connection_ex 预先把同样需要的 8 个特征算好（后续 select / features 全命中）</l>
+<l>*   每轮都换平移量，保证内容不同 -> A 不会跨轮命中缓存（否则不公平）</l>
+<l>ChainMask := 'area|row|column|bbox|contlength|circularity|rectangularity'</l>
+<l>SelFeats := ['area','circularity']</l>
+<l>count_seconds (C0)</l>
+<l>for i := 1 to N by 1</l>
+<l>  move_region (RegsH, RegsC, 1, i)</l>
+<l>  cv_connection (RegsC, CC)</l>
+<l>  cv_select_shape (CC, SC, SelFeats, 'and', [20.0, 0.5], [999999999.0, 1.0])</l>
+<l>  cv_region_features (SC, Feats, VC)</l>
+<l>endfor</l>
+<l>count_seconds (C1)</l>
+<l>count_seconds (C2)</l>
+<l>for i := 1 to N by 1</l>
+<l>  move_region (RegsH, RegsD, 1, i)</l>
+<l>  cv_connection_ex (RegsD, CD, ChainMask)</l>
+<l>  cv_select_shape (CD, SD, SelFeats, 'and', [20.0, 0.5], [999999999.0, 1.0])</l>
+<l>  cv_region_features (SD, Feats, VD)</l>
+<l>endfor</l>
+<l>count_seconds (C3)</l>
+<l>TChainCold := (C1 - C0) / N</l>
+<l>TChainPre := (C3 - C2) / N</l>
+<l>ChainSpeedup := TChainCold / TChainPre</l>
+<l>count_obj (SC, NSC)</l>
+<l>count_obj (SD, NSD)</l>
+<l>if (NSC # NSD)</l>
+<l>  throw ('chain select count mismatch: ' + NSC + ' vs ' + NSD)</l>
+<l>endif</l>
+<l>if (|VC| # |VD|)</l>
+<l>  throw ('chain feature tuple size mismatch')</l>
+<l>endif</l>
+<l>for i := 1 to |VC| by 1</l>
+<l>  if (abs(VC[i - 1] - VD[i - 1]) &gt; 1e-12)</l>
+<l>    throw ('chain feature mismatch at index ' + i)</l>
+<l>  endif</l>
+<l>endfor</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

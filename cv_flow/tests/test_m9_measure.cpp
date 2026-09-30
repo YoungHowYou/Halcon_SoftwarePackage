@@ -3,7 +3,7 @@
  *   合成阶梯/脉冲边缘图，验证：边缘位置、振幅、极性过滤、参数校验
  *===========================================================================*/
 
-#include "cvr/cvr.hpp"
+#include "cvflow/measure.hpp"
 
 #include <cmath>
 #include <cstdio>
@@ -59,8 +59,8 @@ std::vector<std::uint8_t> makePulseImage(int w, int h, int pulseLo, int pulseHi,
 
 int main()
 {
-    using cvr::cvr_measure_pos;
-    using cvr::CvrMeasureResult;
+    using cvflow::measure_pos;
+    using cvflow::MeasureResult;
 
     // 1) 垂直正边缘（暗->亮，沿水平线测量）
     //    注意：本实现对暗->亮（上升沿）输出负振幅（kernel 为互相关而非卷积），
@@ -70,8 +70,8 @@ int main()
         const int W = 200, H = 100, EDGE = 100;
         auto img = makeStepImage(W, H, EDGE);
 
-        CvrMeasureResult r0;
-        check(cvr_measure_pos(img.data(), W, H,
+        MeasureResult r0;
+        check(measure_pos(img.data(), W, H,
                               100.0, 50.0, 0.0,   // 中心在边缘上，phi=0 沿水平
                               60.0, 8.0,          // length1=60（覆盖边缘）, length2=8
                               1.0, 20.0, 0, r0),
@@ -84,13 +84,13 @@ int main()
                   "step edge: |amplitude| sizable (~190)");
         }
 
-        CvrMeasureResult rp;
-        cvr_measure_pos(img.data(), W, H, 100.0, 50.0, 0.0,
+        MeasureResult rp;
+        measure_pos(img.data(), W, H, 100.0, 50.0, 0.0,
                         60.0, 8.0, 1.0, 20.0, 1, rp);
         check(rp.row.empty(), "transition=1 keeps bright->dark only (filters this edge)");
 
-        CvrMeasureResult rn;
-        cvr_measure_pos(img.data(), W, H, 100.0, 50.0, 0.0,
+        MeasureResult rn;
+        measure_pos(img.data(), W, H, 100.0, 50.0, 0.0,
                         60.0, 8.0, 1.0, 20.0, -1, rn);
         check(rn.row.size() == 1, "transition=-1 keeps dark->bright edge");
     }
@@ -100,8 +100,8 @@ int main()
         const int W = 200, H = 100, LO = 60, HI = 140;
         auto img = makePulseImage(W, H, LO, HI);
 
-        CvrMeasureResult r;
-        cvr_measure_pos(img.data(), W, H, 100.0, 50.0, 0.0,
+        MeasureResult r;
+        measure_pos(img.data(), W, H, 100.0, 50.0, 0.0,
                         80.0, 8.0, 1.0, 20.0, 0, r);
         check(r.row.size() == 2, "pulse: exactly 2 edges");
         if (r.row.size() == 2) {
@@ -122,8 +122,8 @@ int main()
             for (int x = 0; x < W; ++x)
                 img[(size_t)y * W + x] = 220;
 
-        CvrMeasureResult r;
-        cvr_measure_pos(img.data(), W, H, 50.0, 120.0, kPi / 2.0,
+        MeasureResult r;
+        measure_pos(img.data(), W, H, 50.0, 120.0, kPi / 2.0,
                         60.0, 8.0, 1.0, 20.0, 0, r);
         check(r.row.size() == 1, "horizontal edge via phi=pi/2: 1 edge");
         if (r.row.size() == 1)
@@ -134,14 +134,14 @@ int main()
     {
         const int W = 50, H = 50;
         std::vector<std::uint8_t> img((size_t)W * H, 128);
-        CvrMeasureResult r;
-        check(!cvr_measure_pos(img.data(), W, H, 25, 25, 0.0,
+        MeasureResult r;
+        check(!measure_pos(img.data(), W, H, 25, 25, 0.0,
                                10, 4, 0.0, 10, 0, r) && r.row.empty(),
               "invalid sigma rejected");
-        check(!cvr_measure_pos(img.data(), W, H, 25, 25, 0.0,
+        check(!measure_pos(img.data(), W, H, 25, 25, 0.0,
                                0.5, 4, 1.0, 10, 0, r) && r.row.empty(),
               "invalid length1 rejected");
-        check(!cvr_measure_pos(nullptr, W, H, 25, 25, 0.0,
+        check(!measure_pos(nullptr, W, H, 25, 25, 0.0,
                                10, 4, 1.0, 10, 0, r),
               "null image rejected");
     }
@@ -150,8 +150,8 @@ int main()
     {
         const int W = 100, H = 50, EDGE = 50;
         auto img = makeStepImage(W, H, EDGE);
-        CvrMeasureResult r;
-        check(cvr_measure_pos(img.data(), W, H, 50.0, 25.0, 0.0,
+        MeasureResult r;
+        check(measure_pos(img.data(), W, H, 50.0, 25.0, 0.0,
                               30.0, 6.0, 1.0, 1e9, 0, r) && r.row.empty(),
               "huge threshold -> empty result, ok=true");
     }

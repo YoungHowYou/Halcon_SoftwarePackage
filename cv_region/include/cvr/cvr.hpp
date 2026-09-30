@@ -17,11 +17,12 @@
  *   include/cvr/cvr_io.hpp             OpenCV 桥（可选；需定义 CVR_WITH_OPENCV）
  *   include/cvr/cvr_c_api.h            遗留 C ABI（当前无人调用，保留兼容）
  *
- * 外部工程集成（把本文件 + cvr.cpp 两个文件拷走即可，无需本仓库其它东西）：
- *   - 语言/标准：C++17；
- *   - 编译期**必须**有 Eigen3（<Eigen/Dense> + <unsupported/Eigen/LevenbergMarquardt>）
- *     与 muparser 头（<muParser.h>），否则 cvr.cpp 直接 C1083 编不过（ransac 段无开关）；
- *   - 链接期需要 muparser 库；运行期需要 muparser.dll（muparser 是 SHARED）；
+ * 外部工程集成（两种方式任选）：
+ *   1) CMake 工程（推荐）：对本目录 `cmake --install` 后
+ *        find_package(cvr_core CONFIG REQUIRED)
+ *        target_link_libraries(app PRIVATE cvr::cvr_core)
+ *   2) 源码级：把本文件 + cvr.cpp 两个文件拷走即可，无需本仓库其它东西；
+ *   - 语言/标准：C++17；ransac / measure 已迁至 cv_flow，本库**纯 STL、零三方依赖**；
  *   - **不需要 OpenCV**：<opencv2/core.hpp> 在文件末尾 #ifdef CVR_WITH_OPENCV 段内，
  *     要用 region<->mask 互转才定义该宏并补 OpenCV 头/库；
  *   - 本文件与 cvr.cpp 是 UTF-8 **with BOM**（含中文注释），拷到别处请保持；
@@ -41,237 +42,6 @@
 #include <vector>
 #include <stdint.h>
 #include <stdexcept>   // ransac::ExprInvalid / ExprBudgetExceeded（std::runtime_error）
-
-/*===========================================================================
- * RANSAC 枚举 / 结构 / 句柄式 C 接口（test_m8_ransac 与配套实现）
- * （原 include/cvr/ransac_interface.h）
- *=========================================================================*/
-/*=============================================================================
- * ransac_interface.h — RANSAC 通用几何拟合 C ABI（v4.0.0）
- *
- * 支持显式模型 y=f(x) 与隐式模型 F(x,y)=0（圆/椭圆/圆锥曲线），
- * 几何距离残差、句柄式 API（表达式创建时预编译）、函数白名单、随机种子、
- * 权重、动态迭代更新、迭代精化、细化状态码。
- *
- * 兼容：v3.0.0 的 ransac_generic_fit / ransac_generic_fit_ex 保留为兼容层。
- * 异常不穿越 C ABI；句柄内部状态独立，可重入。
- *===========================================================================*/
-
-
-#if defined(_WIN32) || defined(_WIN64)
-#  ifdef RANSAC_BUILD_DLL
-#    define RANSAC_API __declspec(dllexport)
-#  else
-     /* 静态链接（当前唯一用法）：不加 dllimport，否则链静态库报 __imp_ 未解析 */
-#    define RANSAC_API
-#  endif
-#else
-#  define RANSAC_API __attribute__((visibility("default")))
-#endif
-
-#define RANSAC_VERSION_MAJOR 4
-#define RANSAC_VERSION_MINOR 0
-#define RANSAC_VERSION_PATCH 0
-#define RANSAC_VERSION_STRING "4.0.0"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* ---------- 状态码 ---------- */
-typedef enum {
-    RANSAC_OK                     =   0,  /* 成功 */
-    RANSAC_ERR_INVALID_ARG        =  -1,  /* 参数非法 */
-    RANSAC_ERR_EXPR_PARSE         =  -2,  /* 表达式解析失败 */
-    RANSAC_ERR_EXPR_EVAL          =  -3,  /* 表达式评估失败 */
-    RANSAC_ERR_EXPR_TIMEOUT       =  -4,  /* 评估超时/预算耗尽 */
-    RANSAC_ERR_NOT_ENOUGH_POINTS  =  -5,  /* 数据点不足 */
-    RANSAC_ERR_SAMPLE_DEGENERATE  =  -6,  /* 采样持续退化 */
-    RANSAC_ERR_SOLVE_FAILED       =  -7,  /* 求解持续失败 */
-    RANSAC_ERR_NUMERIC            =  -8,  /* 数值异常 */
-    RANSAC_ERR_NOT_CONVERGED      =  -9,  /* 未收敛（输出最佳候选） */
-    RANSAC_ERR_MAX_ITER           = -10,  /* 达到最大迭代（输出最佳候选） */
-    RANSAC_ERR_INTERNAL           = -99   /* 内部错误 */
-} RansacStatus;
-
-/* v3 兼容状态码别名 */
-#define RANSAC_STATUS_OK        RANSAC_OK
-#define RANSAC_STATUS_NO_CONV   RANSAC_ERR_NOT_CONVERGED
-#define RANSAC_STATUS_ERROR     RANSAC_ERR_INVALID_ARG
-
-/* ---------- 模型类型 ---------- */
-typedef enum {
-    RANSAC_MODEL_EXPLICIT = 0,   /* y = f(x; params) */
-    RANSAC_MODEL_IMPLICIT = 1    /* F(x, y; params) = 0 */
-} RansacModelType;
-
-/* ---------- 残差类型 ---------- */
-typedef enum {
-    RANSAC_RESIDUAL_VERTICAL   = 0,  /* |y - f(x)|，仅显式模型 */
-    RANSAC_RESIDUAL_GEOMETRIC  = 1   /* 几何距离 |F|/||grad F||，推荐 */
-} RansacResidualType;
-
-/* ---------- 参数求解策略 ---------- */
-typedef enum {
-    RANSAC_SOLVER_AUTO      = 0,  /* 自动判断线性/非线性 */
-    RANSAC_SOLVER_LINEAR    = 1,  /* 强制线性最小二乘 */
-    RANSAC_SOLVER_NONLINEAR = 2   /* 强制 LM 非线性 */
-} RansacSolverType;
-
-/* ---------- 拟合选项 ---------- */
-typedef struct {
-    /* 模型定义 */
-    const char*        ModelExpression;
-    const char*        XName;             /* 自变量/横坐标名 */
-    const char*        YName;             /* 纵坐标名（隐式必填，显式可 NULL） */
-    const char* const* ParamNames;
-    int                ParamCount;
-    const double*      InitialValues;     /* 长度 = ParamCount，可为 NULL */
-    RansacModelType    ModelType;
-    RansacResidualType ResidualType;
-
-    /* RANSAC 参数 */
-    int                MinSampleSize;     /* 最小采样点数，必须 >= 1 */
-    double             Threshold;         /* 内点几何距离阈值，> 0 */
-    int                MaxIterations;     /* > 0 */
-    double             OutlierRatio;      /* [0,1) */
-    double             Confidence;        /* (0,1)，如 0.99；0 = 取 0.99 */
-    unsigned int       Seed;              /* 0 = 非确定性 */
-
-    /* 求解器参数 */
-    RansacSolverType   SolverType;
-    int                MaxSolverIterations; /* 每次候选求解最大迭代，<=0 默认 50 */
-    double             SolverTolerance;     /* <=0 默认 1e-8 */
-
-    /* 精化参数 */
-    int                EnableRefinement;    /* 默认 1 */
-    int                MaxRefineIterations; /* <=0 默认 5 */
-
-    /* 安全限制 */
-    int                MaxExpressionLength; /* <=0 默认 4096 */
-    long               MaxExpressionEvals;  /* <=0 不限 */
-    int                EvalTimeoutMs;       /* <=0 不限（当前实现按评估预算代替） */
-
-    /* 权重（可选） */
-    const double*      Weights;             /* 长度 = PointCount，可为 NULL */
-} RansacOptions;
-
-/* ---------- 拟合结果 ---------- */
-typedef struct {
-    double*        ParamValues;       /* 长度 = ParamCount，调用方分配 */
-    size_t         ParamValuesLen;
-
-    unsigned char* InlierMask;        /* 长度 = PointCount，调用方分配 */
-    size_t         InlierMaskLen;
-
-    double         ResidualSum;       /* 内点（加权）残差平方和 */
-    double         InlierRatio;       /* 内点比例 */
-    int            Iterations;
-    RansacStatus   Status;
-    char*          StatusMessage;     /* 调用方分配 */
-    size_t         StatusMessageLen;
-
-    /* 可选输出（当前版本预留，未实现时为 0/NULL） */
-    double*        Covariance;
-    size_t         CovarianceLen;
-} RansacResult;
-
-/* ---------- 句柄 ---------- */
-typedef struct RansacHandleOpaque* RansacHandle;
-
-/* 创建句柄：预编译表达式；失败返回 NULL 并写 statusMessage */
-RANSAC_API RansacHandle ransac_create(
-    const char*        modelExpression,
-    const char*        xName,
-    const char*        yName,
-    const char* const  paramNames[],
-    int                paramCount,
-    RansacModelType    modelType,
-    char*              statusMessage,
-    size_t             statusMessageLen);
-
-RANSAC_API void ransac_destroy(RansacHandle handle);
-
-RANSAC_API int ransac_get_param_count(RansacHandle handle);
-RANSAC_API int ransac_get_required_min_sample(RansacHandle handle);
-
-/* 执行拟合。返回 0 = 函数成功执行（结果看 result->Status）；-1 = 函数级异常 */
-RANSAC_API int ransac_fit(
-    RansacHandle       handle,
-    const RansacOptions* options,
-    const double*      xData,
-    const double*      yData,
-    int                pointCount,
-    RansacResult*      result);
-
-/* ---------- 便捷单次调用 ---------- */
-RANSAC_API int ransac_fit_once(
-    const char*        modelExpression,
-    const char*        xName,
-    const char*        yName,
-    const char* const  paramNames[],
-    int                paramCount,
-    RansacModelType    modelType,
-    RansacResidualType residualType,
-    int                minSampleSize,
-    const double*      initialValues,
-    const double*      xData,
-    const double*      yData,
-    int                pointCount,
-    double             threshold,
-    int                maxIterations,
-    double             outlierRatio,
-    unsigned int       seed,
-    double*            paramValues,       size_t paramValuesLen,
-    unsigned char*     inlierMask,        size_t inlierMaskLen,
-    double*            residualSum,
-    int*               iterations,
-    RansacStatus*      status,
-    char*              statusMessage,     size_t statusMessageLen);
-
-/* ================= v3.0.0 兼容层（deprecated） ================= */
-RANSAC_API int ransac_generic_fit(
-    const char*   ModelExpression,
-    const char*   ParamNames[],
-    int           nParams,
-    const double  InitialValues[],
-    const double  XData[],
-    const double  YData[],
-    int           nPoints,
-    const char*   XName,
-    double        Threshold,
-    int           MaxIter,
-    double        OutlierRatio,
-    double        ParamValues[],
-    unsigned char InlierMask[],
-    double*       ResidualSum,
-    int*          Iterations,
-    int*          Status,
-    char*         StatusMessage);
-
-RANSAC_API int ransac_generic_fit_ex(
-    const char*   ModelExpression,
-    const char*   ParamNames[],
-    int           nParams,
-    const double  InitialValues[],
-    const double  XData[],
-    const double  YData[],
-    int           nPoints,
-    const char*   XName,
-    double        Threshold,
-    int           MaxIter,
-    double        OutlierRatio,
-    long          Seed,
-    double        ParamValues[],
-    unsigned char InlierMask[],
-    double*       ResidualSum,
-    int*          Iterations,
-    int*          Status,
-    char*         StatusMessage);
-
-#ifdef __cplusplus
-}
-#endif
 
 /*===========================================================================
  * 基础类型：RLE chord 编码、坐标与游程类型
@@ -327,6 +97,7 @@ struct CvrFeatureFlags {
 
     void reset() noexcept { *reinterpret_cast<uint32_t*>(this) = 0; }
     bool any() const noexcept { return *reinterpret_cast<const uint32_t*>(this) != 0; }
+    uint32_t raw() const noexcept { return *reinterpret_cast<const uint32_t*>(this); }
 };
 
 static_assert(sizeof(CvrFeatureFlags) == sizeof(uint32_t),
@@ -408,7 +179,9 @@ struct CvrFeature {
 struct CvrRegion {
     std::vector<CvrRun> runs;
     bool                is_compl = false;
-    CvrFeature          feature;
+    // 惰性特征缓存：cvr_feature_* 在 const 引用下按需填充（故为 mutable），
+    // flags 位表示对应字段有效；修改 runs 后必须调用 cvr_region_invalidate()。
+    mutable CvrFeature  feature;
 };
 
 // ----------------------------------------------------------------------------
@@ -614,6 +387,45 @@ bool cvr_region_features(const std::vector<CvrRegion>& regions,
                          std::vector<double>& values);
 
 // ----------------------------------------------------------------------------
+// 特征缓存掩码（供“预计算”接口使用，如 HALCON 侧 cv_connection_ex 的 CacheFeatures）
+//   位与 CvrFeatureFlags 对应；名字大小写不敏感，与 cvr_get_feature 同一套口径。
+//   组合名：none / all / basic（O(runs) 级）/ hull（凸包族，最贵）。
+// ----------------------------------------------------------------------------
+enum CvrFeatureBits : uint32_t {
+    CVR_FC_NONE           = 0u,
+    CVR_FC_CENTER_AREA    = 1u << 0,   // area / row / column（一次遍历同时得到）
+    CVR_FC_MOMENTS        = 1u << 1,   // m11 / m20 / m02
+    CVR_FC_ELLIPTIC_AXIS  = 1u << 2,   // ra / rb / phi（依赖 moments + center_area）
+    CVR_FC_EXCENTRICITY   = 1u << 3,   // anisometry / bulkiness / structure_factor
+    CVR_FC_CONT_LENGTH    = 1u << 4,   // contlength
+    CVR_FC_CONVEXITY      = 1u << 5,   // convexity（含 is_convex；内部建凸包）
+    CVR_FC_CIRCULARITY    = 1u << 6,   // 依赖 convexity + contlength + center_area
+    CVR_FC_COMPACTNESS    = 1u << 7,   // 依赖 contlength + center_area
+    CVR_FC_RECTANGULARITY = 1u << 8,   // 依赖 convexity + center_area + rectangle2
+    CVR_FC_RECTANGLE1     = 1u << 9,   // row1/column1/row2/column2/width/height
+    CVR_FC_RECTANGLE2     = 1u << 10,  // row_rect/column_rect/phi_rect/length1/length2
+    CVR_FC_CIRCLE         = 1u << 11,  // row_circle/column_circle/radius
+    CVR_FC_BASIC          = CVR_FC_CENTER_AREA | CVR_FC_RECTANGLE1 | CVR_FC_MOMENTS
+                            | CVR_FC_CONT_LENGTH,
+    CVR_FC_HULL           = CVR_FC_CONVEXITY | CVR_FC_RECTANGLE2 | CVR_FC_CIRCLE,
+    CVR_FC_ALL            = CVR_FC_CENTER_AREA | CVR_FC_MOMENTS | CVR_FC_ELLIPTIC_AXIS
+                            | CVR_FC_EXCENTRICITY | CVR_FC_CONT_LENGTH | CVR_FC_CONVEXITY
+                            | CVR_FC_CIRCULARITY | CVR_FC_COMPACTNESS
+                            | CVR_FC_RECTANGULARITY | CVR_FC_RECTANGLE1
+                            | CVR_FC_RECTANGLE2 | CVR_FC_CIRCLE
+};
+
+// 单个名字 -> 位集合（大小写不敏感；未知名字返回 false，掩码不变）
+bool cvr_feature_mask_name(const std::string& name, uint32_t& bits);
+
+// 名字列表 -> 掩码（逐个解析并按位或；任一名未知返回 false 并 set_last_error）
+bool cvr_feature_mask_parse(const std::vector<std::string>& names, uint32_t& mask);
+
+// 按掩码预计算特征并写入 r.feature 缓存（幂等：已在缓存中的组直接跳过）。
+// 返回本次新置位的位数；某组计算失败不置位、也不中断其它组（错误文本被清空）。
+uint32_t cvr_region_precompute_features(const CvrRegion& r, uint32_t mask);
+
+// ----------------------------------------------------------------------------
 // Halcon: gray_features(Regions, Image : : Features : Value) —— 灰度特征
 // 像素类型（depth 决定 gray 指向的实际类型）：
 //   CVR_GRAY_U8  -> uint8_t*   (byte / direction / cyclic)
@@ -713,131 +525,6 @@ bool cvr_select_shape_single(const std::vector<CvrRegion>& regions,
                              std::vector<CvrRegion>& selected);
 
 } // namespace cvr
-
-/*===========================================================================
- * 1D 边缘测量
- * （原 include/cvr/cvr_measure.hpp）
- *=========================================================================*/
-/*=============================================================================
- * cvr_measure.hpp — 一维边缘测量（HALCON measure_pos 语义子集）
- *
- * 算法流程（与 HALCON 一致的核心步骤）：
- *   1) 沿测量矩形主轴抽取一维灰度剖面（双线性采样 + 垂直方向平均）
- *   2) 构造高斯一阶导数核 G'(x; sigma)
- *    3) 剖面与核卷积（mode='same'）
- *   4) |d| 局部极大值 + 振幅阈值过滤
- *   5) 抛物线亚像素插值
- *   6) 按位置排序、去重（间距 <= 0.5 像素合并）
- *   7) 方向过滤（transition: 1 仅正边缘 / -1 仅负边缘 / 0 全部），映射回 2D 坐标
- *
- * 输入为 8 位单通道灰度图（raw 字节缓冲，行优先），不依赖 OpenCV。
- *===========================================================================*/
-
-
-namespace cvr {
-
-/* 测量结果：边缘点的行/列（亚像素）与振幅（一阶梯度幅值） */
-struct CvrMeasureResult {
-    std::vector<double> row;
-    std::vector<double> col;
-    std::vector<double> amplitude;
-};
-
-/* 参数语义与 HALCON measure_pos 对应：
- *   (column, row) 矩形中心；phi 主轴方向（弧度）；
- *   length1/length2 矩形半长/半宽（像素）；sigma 高斯平滑；
- *   threshold 振幅阈值；transition 极性（1 正 / -1 负 / 0 全部）
- * 返回 false 表示参数非法（sigma<=0、length1<1 等），结果为空向量。 */
-bool cvr_measure_pos(const std::uint8_t* gray, int width, int height,
-                     double column, double row, double phi,
-                     double length1, double length2, double sigma,
-                     double threshold, int transition,
-                     CvrMeasureResult& out);
-
-} // namespace cvr
-
-/*===========================================================================
- * ransac 表达式异常（原 src/model_expression.h 的公开部分）
- *   扩展包 supply 按异常类型映射错误码（ExprInvalid → ERR_EXPR_PARSE、
- *   ExprBudgetExceeded → ERR_EXPR_TIMEOUT/NOT_CONVERGED），故必须放在公开头；
- *   表达式求值本体（class ModelExpression，依赖 muparser）在 cvr.cpp 内部段落。
- *=========================================================================*/
-namespace ransac {
-
-/* 表达式预算耗尽（映射到 ERR_EXPR_TIMEOUT/NOT_CONVERGED） */
-struct ExprBudgetExceeded : public std::runtime_error {
-    ExprBudgetExceeded() : std::runtime_error("expression eval budget exceeded") {}
-};
-
-/* 表达式非法（白名单外函数/未知标识符/超长），映射到 ERR_EXPR_PARSE */
-struct ExprInvalid : public std::runtime_error {
-    explicit ExprInvalid(const std::string& m) : std::runtime_error(m) {}
-};
-
-} // namespace ransac
-
-/*===========================================================================
- * ransac::CoreOptions / CoreResult / ransac_run（原内部头，扩展包 supply 需要）
- * （原 src/ransac_core.h）
- *=========================================================================*/
-/*=============================================================================
- * ransac_core.h — RANSAC 主循环（显式/隐式模型、动态迭代、精化、权重）
- *===========================================================================*/
-
-
-
-namespace ransac {
-
-struct CoreOptions {
-    // 模型
-    std::string              modelExpression;
-    std::string              xName;
-    std::string              yName;
-    std::vector<std::string> paramNames;
-    std::vector<double>      initialValues;   // 可为空 -> 全 0
-    bool                     implicit;
-    bool                     useVertical;     // 仅显式模型有效
-
-    // RANSAC
-    int                      minSampleSize;
-    double                   threshold;
-    int                      maxIterations;
-    double                   outlierRatio;
-    double                   confidence;      // (0,1)
-    unsigned int             seed;            // 0 = 非确定
-
-    // 求解器
-    RansacSolverType         solverType;
-    int                      maxSolverIterations;
-    double                   solverTolerance;
-
-    // 精化
-    bool                     enableRefinement;
-    int                      maxRefineIterations;
-
-    // 安全
-    int                      maxExpressionLength;
-    long                     maxExpressionEvals;
-
-    // 权重（可为空）
-    std::vector<double>      weights;
-};
-
-struct CoreResult {
-    std::vector<double>        paramValues;
-    std::vector<unsigned char> inlierMask;
-    double                     residualSum;
-    double                     inlierRatio;
-    int                        iterations;
-    RansacStatus               status;
-    std::string                statusMessage;
-};
-
-CoreResult ransac_run(const CoreOptions& opt,
-                      const std::vector<double>& xData,
-                      const std::vector<double>& yData);
-
-} // namespace ransac
 
 /*===========================================================================
  * OpenCV 桥（可选；需定义 CVR_WITH_OPENCV）

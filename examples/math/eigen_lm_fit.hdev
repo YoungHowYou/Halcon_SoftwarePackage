@@ -45,8 +45,9 @@
 <l>ParamNames := ['a', 'b', 'c']</l>
 <l>InitialValues := [1.0, -0.1, 0.0]</l>
 <c>* MaxIter = 0 → 自动；Eps = 0 → 自动数值微分步长</c>
-<l>eigen_lm_fit (ModelExpression, ParamNames, InitialValues, XData, YData, 'x', 0, 0.0, \
-              ParamValues, Rss, Iterations, Status, StatusMessage)</l>
+<l>cv_lm_create (ModelExpression, ParamNames, ['x'], LmHandle)</l>
+<l>cv_lm_fit (LmHandle, XData, YData, [], InitialValues, 0, 0.0, ParamValues, Rss, Iterations, Status, StatusMessage)</l>
+<l>cv_fit_clear (LmHandle)</l>
 <l>A := ParamValues[0]</l>
 <l>B := ParamValues[1]</l>
 <l>C := ParamValues[2]</l>
@@ -90,11 +91,9 @@
 <l>disp_message (WindowHandle, 'green: samples   red: LM fit', 'window', 440, 12, 'white', 'false')</l>
 <c>* Status 为 1~4 表示已收敛；5~8 表示迭代结束但未达严格收敛判据（结果通常仍可用）</c>
 <c>* 若 StatusMessage 含 'expression error'，说明模型表达式无法解析或求值失败</c>
-<c>* ---- 5. 容错演示：表达式含未定义变量 ----</c>
-<c>* 以下调用不会中断程序，而是返回 Status = 0 并在 StatusMessage 中给出原因</c>
-<l>eigen_lm_fit ('a*z+b', ['a', 'b'], [1.0, 1.0], XData, YData, 'x', 0, 0.0, \
-              BadParams, BadRss, BadIterations, BadStatus, BadMessage)</l>
-<c>* 期望: BadStatus = 0, BadRss = -1, BadMessage 以 'expression error:' 开头</c>
+<c>* ---- 5. 容错说明（两步式 API 行为变化） ----</c>
+<c>* 新 API 中表达式错误在建模时即报算子错误：cv_lm_create('a*z+b',...) 因未定义变量 z 返回 30010</c>
+<c>* 不再走 Status/Message 通道（HDevelop 无法捕获算子错误，故此处不再演示）</c>
 <l>dev_update_on ()</l>
 </body>
 <docu id="main">

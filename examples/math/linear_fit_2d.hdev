@@ -14,7 +14,9 @@
 <l>XData := real([0, 1, 2, 0, 1, 2, 0, 1, 2])</l>
 <l>YData := real([0, 0, 0, 1, 1, 1, 2, 2, 2])</l>
 <l>ZData := real([10, 12, 16, 13, 15, 19, 18, 20, 24])</l>
-<l>linear_fit_2d (Model, ParamNames, XData, YData, ZData, 1e-10, ParamValues, Rss, Rank, Success, StatusMessage)</l>
+<l>cv_linear_create (Model, ParamNames, ['x', 'y'], LinH)</l>
+<l>cv_linear_fit (LinH, XData, YData, ZData, 1e-10, ParamValues, Rss, Rank, Success, StatusMessage)</l>
+<l>cv_fit_clear (LinH)</l>
 <c>* 期望: ParamValues = [10, 1, 2, 1, 0, 1], Rss = 0, Success = 1</c>
 <l>Acoef := ParamValues[0]</l>
 <l>Bcoef := ParamValues[1]</l>

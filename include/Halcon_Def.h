@@ -1,5 +1,10 @@
 #pragma once
 #include "Halcon.h"
+
+/* FitModel 句柄析构需要 cv_flow 的模型类型（仅 C++ 编译单元包含本头） */
+#include "cvflow/fit.hpp"
+#include "cvflow/ransac.hpp"
+
 #include "modbus.h"
 #include "sqlite3.h"
 #include "spdlog/spdlog.h"
@@ -28,14 +33,19 @@ extern "C"
 
     static Herror SqliteHUserHandleDestructor(Hproc_handle ph, SqliteHUserHandleData *data)
     {
-        int rev;
-        if (strcmp(data->DBPath, ":memory:") == 0)
+        // 防 double close：sqlite3_close 算子已把 SQLLiteDB 置 NULL，此处必须判空，
+        // 否则对已关闭的 sqlite3* 再做 backup / sqlite3_close 直接 0xC0000005
+        if (data->SQLLiteDB)
         {
-            rev = loadOrSaveDb(data->SQLLiteDB, "./memory.db", 1);
-        }
-        else
-        {
-            rev = sqlite3_close(data->SQLLiteDB);
+            if (strcmp(data->DBPath, ":memory:") == 0)
+            {
+                loadOrSaveDb(data->SQLLiteDB, "./memory.db", 1);
+            }
+            else
+            {
+                sqlite3_close(data->SQLLiteDB);
+            }
+            data->SQLLiteDB = NULL;
         }
 
         return HFree(ph, data);
@@ -55,8 +65,38 @@ extern "C"
 
 #pragma endregion
 
+#pragma region FitModel
+// TAG 分配见 README.md「句柄 TAG 分配表」：0xC0FFEED0（拟合模型句柄，2026-09-30）
+#define H_FitModel_TAG 0xC0FFEED0
+#define H_FitModel_SEM_TYPE "FitModel"
+extern "C"
+{
+    typedef struct
+    {
+        int   kind;   // cvflow::FitModelKind：0=LM / 1=Linear / 2=Geom(RansacHandle)
+        void* ptr;    // 句柄拥有的模型对象；cv_fit_clear 后置 NULL，析构不再重复释放
+        long  aux;    // geom：ResidualType（0=vertical / 1=geometric）
+    } FitModelHUserHandleData;
+
+    /* 唯一实体定义在 Halcon_Math.cpp（跨 TU 使用：create 与 clear 在不同模块，
+     * 若按本文件其他句柄的 static 每 TU 一份写法，句柄类型比对会失败 2404） */
+    extern const HHandleInfo FitModelHandleTypeUser;
+}
+#define Def_INFitModel(pos, pUserData) \
+    FitModelHUserHandleData *(pUserData);    \
+    HGetCElemH1(proc_handle, (pos), &FitModelHandleTypeUser, &(pUserData))
+
+#define Def_OUTFitModel(pos, pUserData)                                        \
+    FitModelHUserHandleData **(pUserData);                                           \
+    HCkP(HAllocOutputHandle(proc_handle, 1, &(pUserData), &FitModelHandleTypeUser)); \
+    HCkP(HAlloc(proc_handle, sizeof(FitModelHUserHandleData), (void **)(pUserData)))
+#define OUTFitModel(pUserData) (*(pUserData))
+
+#pragma endregion
+
 #pragma region Modbus
-#define H_Modbus_TAG 0xC0FFEE40
+// TAG 分配见 README.md「句柄 TAG 分配表」：0xC0FFEEC0（曾误用 0xC0FFEE40 与 sqlite 撞号，已纠正）
+#define H_Modbus_TAG 0xC0FFEEC0
 #define H_Modbus_SEM_TYPE "Modbus"
 extern "C"
 {
@@ -87,7 +127,8 @@ extern "C"
 #pragma endregion
 
 #pragma region Spdlog
-#define H_Spdlog_TAG 0xC0FFEE80
+// TAG 分配见 README.md「句柄 TAG 分配表」：0xC0FFEEA0（曾误用大恒相机的 0xC0FFEE80，已纠正）
+#define H_Spdlog_TAG 0xC0FFEEA0
 #define H_Spdlog_SEM_TYPE "Spdlog"
 extern "C"
 {

@@ -145,6 +145,7 @@ set(EXT_SOURCES
 #  supply 层直接调 C++ API
 #----------------------------------------------------------------------
 add_subdirectory(cv_region)
+add_subdirectory(cv_flow)
 
 #----------------------------------------------------------------------
 #  核心：创建 HALCON 扩展包目标
@@ -265,6 +266,7 @@ if(WIN32)
     ${HALCON_LIB_DIR}/halconcpp.lib
     ws2_32.lib
     cvr_core
+    cv_flow
     ${OpenCV_LIBS}
     exiv2lib
     ${SPDLOG_LIBS}
@@ -280,6 +282,7 @@ else()
   target_link_libraries(${ProjectName}
     ${HALCON_LIB_DIR}/libhalconcpp${HALCON_SHARED_SUFFIX}
     cvr_core
+    cv_flow
     ${OpenCV_LIBS}
     exiv2lib
     ${SPDLOG_LIBS}

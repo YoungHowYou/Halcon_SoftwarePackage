@@ -51,9 +51,9 @@
 <c>* ---- 2. 联合拟合两个位移场（共享 k1,k2,p1,p2）----</c>
 <l>E1 := 'u*(k1*r2 + k2*r2^2) + p1*(r2 + 2*u^2) + 2*p2*u*v'</l>
 <l>E2 := 'v*(k1*r2 + k2*r2^2) + 2*p1*u*v + p2*(r2 + 2*v^2)'</l>
-<l>eigen_lm_fit_2d ([E1, E2], ['k1', 'k2', 'p1', 'p2'], [-0.1, 0.0, 0.0, 0.0], \
-                 ['u', 'v', 'r2'], XData, YData, 0, 0.0, \
-                 ParamValues, Rss, Iterations, Status, StatusMessage)</l>
+<l>cv_lm_create ([E1, E2], ['k1', 'k2', 'p1', 'p2'], ['u', 'v', 'r2'], LmH2)</l>
+<l>cv_lm_fit (LmH2, XData, YData, [], [-0.1, 0.0, 0.0, 0.0], 0, 0.0, ParamValues, Rss, Iterations, Status, StatusMessage)</l>
+<l>cv_fit_clear (LmH2)</l>
 <l>K1 := ParamValues[0]</l>
 <l>K2 := ParamValues[1]</l>
 <l>P1 := ParamValues[2]</l>
@@ -98,6 +98,28 @@
 <l>Message := 'RMS residual = ' + RmsRes$'.6e'</l>
 <l>disp_message (WindowHandle, Message, 'window', 304, 12, 'white', 'false')</l>
 <l>disp_message (WindowHandle, '拟合值应接近真值；残差约等于所加噪声量级 1e-3', 'window', 356, 12, 'white', 'false')</l>
+<c>* ---- 5. 位移场矢量图：观测（白） vs 拟合重建（绿），放大 1.5 倍便于观察 ----</c>
+<l>dev_open_window (0, 740, 460, 460, 'black', PlotWin)</l>
+<l>set_display_font (PlotWin, 12, 'mono', 'true', 'false')</l>
+<l>dev_set_part (PlotWin, -1.35, -1.35, 1.35, 1.35)</l>
+<l>ArrowScale := 1.5</l>
+<l>for i := 0 to NumPts - 1 by 1</l>
+<l>    u := XData[i * 3]</l>
+<l>    v := XData[i * 3 + 1]</l>
+<l>    r2 := XData[i * 3 + 2]</l>
+<l>    dxM := YData[i * 2]</l>
+<l>    dyM := YData[i * 2 + 1]</l>
+<l>    dxF := u * (K1 * r2 + K2 * r2 * r2) + P1 * (r2 + 2 * u * u) + 2 * P2 * u * v</l>
+<l>    dyF := v * (K1 * r2 + K2 * r2 * r2) + 2 * P1 * u * v + P2 * (r2 + 2 * v * v)</l>
+<l>    gen_arrow_contour_xld (ArrowM, v, u, v + dyM * ArrowScale, u + dxM * ArrowScale, 0.04, 0.06)</l>
+<l>    dev_set_color ('white')</l>
+<l>    dev_display (ArrowM)</l>
+<l>    gen_arrow_contour_xld (ArrowF, v, u, v + dyF * ArrowScale, u + dxF * ArrowScale, 0.04, 0.06)</l>
+<l>    dev_set_color ('green')</l>
+<l>    dev_display (ArrowF)</l>
+<l>endfor</l>
+<l>disp_message (PlotWin, 'distortion field (x1.5)', 'window', 12, 12, 'white', 'false')</l>
+<l>disp_message (PlotWin, 'white: measured   green: fitted', 'window', 32, 12, 'white', 'false')</l>
 <l>dev_update_on ()</l>
 </body>
 <docu id="main">

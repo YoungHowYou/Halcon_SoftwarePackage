@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>* ============================================================</l>
+<l>* 两步式拟合演示：cv_lm_create/fit（LM 非线性）+ cv_linear_create/fit（线性）</l>
+<l>* 表达式在建模时编译一次，批量/循环拟合零解析开销</l>
+<l>* ============================================================</l>
+<l>* ---- 1. LM 一维：y = a*exp(-b*x)，真值 a=2, b=0.5 ----</l>
+<l>X := []</l>
+<l>Y := []</l>
+<l>for I := 0 to 19 by 1</l>
+<l>  X := [X, 0.2 * I]</l>
+<l>  Y := [Y, 2.0 * exp(-0.5 * 0.2 * I)]</l>
+<l>endfor</l>
+<l>cv_lm_create ('a*exp(-b*x)', ['a','b'], ['x'], LmHandle)</l>
+<l>cv_lm_fit (LmHandle, X, Y, [], [1.0, 1.0], 2000, 0.0, Params, RSS, It, St, Msg)</l>
+<l>cv_lm_fit (LmHandle, X, Y, [], [3.0, 0.8], 2000, 0.0, Params2, RSS2, It2, St2, Msg2)</l>
+<l>cv_fit_clear (LmHandle)</l>
+<l>if (St != 1 and St != 2 and St != 3)</l>
+<l>  throw ('cv_lm_fit 1d not converged: ' + Msg)</l>
+<l>endif</l>
+<l>if (fabs(Params[0] - 2.0) &gt; 1e-4 or fabs(Params[1] - 0.5) &gt; 1e-4)</l>
+<l>  throw ('cv_lm_fit 1d params wrong: ' + Params)</l>
+<l>endif</l>
+<l>* 句柄复用：同一模型换个相近初值再拟合，应收敛到同一结果</l>
+<l>if (St2 != 1 and St2 != 2 and St2 != 3)</l>
+<l>  throw ('cv_lm_fit reuse not converged: ' + Msg2)</l>
+<l>endif</l>
+<l>if (fabs(Params2[0] - Params[0]) &gt; 1e-3 or fabs(Params2[1] - Params[1]) &gt; 1e-3)</l>
+<l>  throw ('cv_lm_fit reuse from nearby init diverged')</l>
+<l>endif</l>
+<c></c>
+<l>* ---- 2. LM 二维（M=2,K=1）：z = a*u + b*v + c，真值 a=1,b=2,c=3 ----</l>
+<l>U := []</l>
+<l>V := []</l>
+<l>Z := []</l>
+<l>for R := 0 to 4 by 1</l>
+<l>  for C := 0 to 4 by 1</l>
+<l>    U := [U, R]</l>
+<l>    V := [V, C]</l>
+<l>    Z := [Z, R + 2*C + 3]</l>
+<l>  endfor</l>
+<l>endfor</l>
+<l>cv_lm_create ('a*u + b*v + c', ['a','b','c'], ['u','v'], LmH2)</l>
+<l>cv_lm_fit (LmH2, U, V, Z, [0,0,0], 2000, 0.0, P3, RSS3, It3, St3, Msg3)</l>
+<l>cv_fit_clear (LmH2)</l>
+<l>if (fabs(P3[0]-1.0) &gt; 1e-6 or fabs(P3[1]-2.0) &gt; 1e-6 or fabs(P3[2]-3.0) &gt; 1e-6)</l>
+<l>  throw ('cv_lm_fit 2d params wrong: ' + P3)</l>
+<l>endif</l>
+<c></c>
+<l>* ---- 3. linear 一维：y = a + b*x + c*x^2（对参数线性），真值 1,2,3 ----</l>
+<l>Xl := []</l>
+<l>Yl := []</l>
+<l>for I := 0 to 9 by 1</l>
+<l>  Xl := [Xl, I]</l>
+<l>  Yl := [Yl, 1 + 2*I + 3*I*I]</l>
+<l>endfor</l>
+<l>cv_linear_create ('a + b*x + c*pow(x,2)', ['a','b','c'], ['x'], LinH)</l>
+<l>cv_linear_fit (LinH, Xl, Yl, [], 0.0, Coef, RSS4, Rank4, OK4, Msg4)</l>
+<l>cv_fit_clear (LinH)</l>
+<l>if (OK4 != 1)</l>
+<l>  throw ('cv_linear_fit 1d failed: ' + Msg4)</l>
+<l>endif</l>
+<l>if (fabs(Coef[0]-1.0) &gt; 1e-9 or fabs(Coef[1]-2.0) &gt; 1e-9 or fabs(Coef[2]-3.0) &gt; 1e-9)</l>
+<l>  throw ('cv_linear_fit 1d coef wrong: ' + Coef)</l>
+<l>endif</l>
+<c></c>
+<l>* ---- 4. linear 二维：z = a + b*x + c*y，真值 1,2,3 ----</l>
+<l>cv_linear_create ('a + b*x + c*y', ['a','b','c'], ['x','y'], LinH2)</l>
+<l>cv_linear_fit (LinH2, U, V, Z, 0.0, Coef2, RSS5, Rank5, OK5, Msg5)</l>
+<l>cv_fit_clear (LinH2)</l>
+<l>if (OK5 != 1)</l>
+<l>  throw ('cv_linear_fit 2d failed: ' + Msg5)</l>
+<l>endif</l>
+<l>* 复用 LM 段数据：z = R + 2C + 3 → a=3（常数项）, b=1（x=R 系数）, c=2（y=C 系数）</l>
+<l>if (fabs(Coef2[0]-3.0) &gt; 1e-9 or fabs(Coef2[1]-1.0) &gt; 1e-9 or fabs(Coef2[2]-2.0) &gt; 1e-9)</l>
+<l>  throw ('cv_linear_fit 2d coef wrong: ' + Coef2)</l>
+<l>endif</l>
+<c></c>
+<l>* ---- 5. 句柄类型错配应报错：linear 句柄传给 cv_lm_fit ----</l>
+<l>cv_linear_create ('a + b*x', ['a','b'], ['x'], LinH3)</l>
+<l>* 预期 30001（hrun 会报算子错误，本行故意触发后由外部核对文档，故注释掉）</l>
+<l>* cv_lm_fit (LinH3, Xl, Yl, [], [0,0], 100, 0.0, PX, RX, IX, SX, MX)</l>
+<l>cv_fit_clear (LinH3)</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

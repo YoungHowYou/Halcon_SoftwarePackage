@@ -64,6 +64,7 @@ Herror Hsqlite3_close(Hproc_handle proc_handle)
 {
     Def_INSqliteObject(1,pUserData);
 	int rev= sqlite3_close(pUserData->SQLLiteDB);
+	if (rev == SQLITE_OK) pUserData->SQLLiteDB = NULL;   // 防句柄析构时 double close
 	return H_MSG_TRUE + rev * 10000;
 }
 
@@ -150,7 +151,6 @@ Herror Hsqlite3_loadOrSaveDb(Hproc_handle proc_handle)
     Def_INSqliteObject(1,pUserData);
 	HGetSPar(proc_handle, 2, STRING_PAR, &zFilename, 1);
 	HGetSPar(proc_handle, 3, LONG_PAR, &isSave, 1);
-	if (DbNumber.par.l = 0) { return 99990; }
 	INT4_8 rev;
 	rev = loadOrSaveDb(pUserData->SQLLiteDB, zFilename.par.s, isSave.par.l);
 	return H_MSG_TRUE + rev * 10000;

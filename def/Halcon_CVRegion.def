@@ -527,6 +527,57 @@ value_number:
   ConnectedRegions >= 0;
 
 
+cv_connection_ex<- CHcv_connection_ex[Region:ConnectedRegions:CacheFeatures:]
+short.german
+  Zusammenhangskomponenten mit Merkmalsvorberechnung (cv_region).;
+
+short.english
+  连通域标记（同 cv_connection，8 连通），并可按 CacheFeatures 预先计算指定形状特征。算出的特征按 region 内容指纹缓存，后续 cv_select_shape / cv_region_features / 单值特征算子对同一 region 直接查表，不再重复计算。CacheFeatures 为特征名元组，可用名称与 cv_region_features 一致（area/row/column/bbox/width/height/rect2/circle/contlength/convexity/circularity/compactness/rectangularity/moments/elliptic_axis/anisometry/bulkiness/structure_factor 等），另支持组合名 none/basic/cheap/hull/all，元素内可用 '|' 拼接（如 'area|bbox'）；'none' 或不传时行为与 cv_connection 完全一致。选型提示：预计算只对“同一批 region 被反复取特征”有利；若下游对每个成分只查一次（如一次 select_shape 加一次 region_features），直接用 cv_connection 更快——select_shape 的 and 分支会短路，且只需为选中的区域计算。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, CVRegion, Connection, Cache, Features;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Region:            input_object;
+  description.english: 输入 region。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  ConnectedRegions:   output_object;
+  description.english: 输出连通域元组。;
+  sem_type:           region;
+  multivalue:         optional;
+
+parameter
+  CacheFeatures:     input_control;
+  description.english: 需要预先计算并缓存的特征名元组；none/basic/cheap/hull/all 为组合名，元素内可用 '|' 拼接，缺省 none 表示不做预计算。;
+  default_type:       string;
+  multivalue:         true;
+  sem_type:           string;
+  type_list:          string;
+  default_value:      "none";
+  value_list:         none,basic,cheap,hull,all,area,center,row,column,bbox,rectangle1,width,height,rect2,rectangle2,circle,contlength,convexity,circularity,compactness,rectangularity,moments,elliptic_axis,ra,rb,phi,anisometry,bulkiness,structure_factor;
+
+value_number:
+  ConnectedRegions >= 0;
+
+
 cv_select_shape<- CHcv_select_shape[Regions:SelectedRegions:Features,Operation,Min,Max:]
 short.german
   Auswahl von Regionen anhand von Formmerkmalen (cv_region).;

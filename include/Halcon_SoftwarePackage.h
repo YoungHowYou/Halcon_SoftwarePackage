@@ -124,6 +124,7 @@ extern EXPORTS_API Herror HCcv_magnitude(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_union2(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_intersection(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_connection(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_connection_ex(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_select_shape(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_region_features(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_gray_features(Hproc_handle proc_handle);
@@ -159,7 +160,8 @@ extern EXPORTS_API Herror Hcv_closing_rectangle1(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_opening_circle(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_closing_circle(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_dilation_rectangle1(Hproc_handle proc_handle);
-extern EXPORTS_API Herror Hcv_ransac_fit(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_geom_create(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_geom_fit(Hproc_handle proc_handle);
 #pragma endregion
 
 #pragma region math
@@ -170,10 +172,11 @@ extern EXPORTS_API Herror HCeigen_svd(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCeigen_ldlt(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCeigen_llt(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCarma_interp1(Hproc_handle proc_handle);
-extern EXPORTS_API Herror HCeigen_lm_fit(Hproc_handle proc_handle);
-extern EXPORTS_API Herror HCeigen_lm_fit_2d(Hproc_handle proc_handle);
-extern EXPORTS_API Herror HLinear_fit(Hproc_handle proc_handle);
-extern EXPORTS_API Herror HLinear_fit_2d(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_lm_create(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_lm_fit(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_linear_create(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_linear_fit(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_fit_clear(Hproc_handle proc_handle);
 #pragma endregion
 
 

@@ -3,27 +3,55 @@
 <procedure name="main">
 <interface/>
 <body>
-<l>* ===== 设计文档验收例：y = x^2 + x + 1，应得 a=b=c=1，全内点 =====</l>
+<l>* ===== 两步式几何拟合例程：cv_geom_create 建模 + cv_geom_fit 拟合 =====</l>
+<l>* 表达式在 create 时编译一次，循环/批量拟合零解析开销</l>
+<l>dev_update_off ()</l>
+<l>dev_close_window ()</l>
+<l>dev_open_window (0, 0, 720, 480, 'black', WindowHandle)</l>
+<l>set_display_font (WindowHandle, 16, 'mono', 'true', 'false')</l>
+<l>dev_set_color ('white')</l>
 <l>XData := [0,1,2,3,4]</l>
 <l>YData := [1,3,7,13,21]</l>
-<l>cv_ransac_fit ('a*pow(x,2)+b*x+c', ['a','b','c'], [0.5,0.5,0.5], XData, YData, 'x', 1.0, 1000, 0.2, 0, 'x', 3, 0.99, 0, ParamValues, InlierMask, ResidualSum, Iterations, Status, StatusMessage, InlierRatio)</l>
+<l>cv_geom_create ('a*pow(x,2)+b*x+c', 'x', 'y', ['a','b','c'], 'explicit', 'geometric', Handle)</l>
+<l>cv_geom_fit (Handle, XData, YData, [0.5,0.5,0.5], 1.0, 1000, 0.2, 0.99, 0, ParamValues, InlierMask, ResidualSum, Iterations, Status, StatusMessage, InlierRatio)</l>
+<l>cv_fit_clear (Handle)</l>
 <l>if (Status != 0)</l>
-<l>  throw ('cv_ransac_fit status!=0: ' + StatusMessage)</l>
+<l>  throw ('cv_geom_fit status!=0: ' + StatusMessage)</l>
 <l>endif</l>
 <l>if (fabs(ParamValues[0] - 1.0) &gt; 1e-4 or fabs(ParamValues[1] - 1.0) &gt; 1e-4 or fabs(ParamValues[2] - 1.0) &gt; 1e-4)</l>
-<l>  throw ('cv_ransac_fit params wrong: ' + ParamValues)</l>
+<l>  throw ('cv_geom_fit params wrong: ' + ParamValues)</l>
 <l>endif</l>
 <l>if (|InlierMask| != 5)</l>
-<l>  throw ('cv_ransac_fit mask length wrong')</l>
+<l>  throw ('cv_geom_fit mask length wrong')</l>
 <l>endif</l>
 <l>for I := 0 to 4 by 1</l>
 <l>  if (InlierMask[I] == 0)</l>
-<l>    throw ('cv_ransac_fit: inlier marked outlier at ' + I)</l>
+<l>    throw ('cv_geom_fit: inlier marked outlier at ' + I)</l>
 <l>  endif</l>
 <l>endfor</l>
 <l>if (ResidualSum &gt; 1e-6)</l>
-<l>  throw ('cv_ransac_fit rss too large: ' + ResidualSum)</l>
+<l>  throw ('cv_geom_fit rss too large: ' + ResidualSum)</l>
 <l>endif</l>
+<c>* ---- 图 1：散点 + 拟合抛物线 ----</c>
+<l>dev_set_part (-2.0, -1.0, 24.0, 5.0)</l>
+<l>gen_cross_contour_xld (Crosses1, YData, XData, 0.35, 0.785398)</l>
+<l>dev_set_line_width (2)</l>
+<l>dev_set_color ('white')</l>
+<l>dev_display (Crosses1)</l>
+<l>Xc := []</l>
+<l>Yc := []</l>
+<l>for x := -1.0 to 5.0 by 0.1</l>
+<l>  Xc := [Xc, x]</l>
+<l>  Yc := [Yc, ParamValues[0]*x*x + ParamValues[1]*x + ParamValues[2]]</l>
+<l>endfor</l>
+<l>gen_contour_polygon_xld (Curve1, Yc, Xc)</l>
+<l>dev_set_color ('green')</l>
+<l>dev_set_line_width (3)</l>
+<l>dev_display (Curve1)</l>
+<l>Message := 'cv_geom_fit : y = a*x^2 + b*x + c   (all inliers)'</l>
+<l>disp_message (WindowHandle, Message, 'window', 12, 12, 'white', 'false')</l>
+<l>Message := 'a=' + ParamValues[0]$'.4f' + '  b=' + ParamValues[1]$'.4f' + '  c=' + ParamValues[2]$'.4f' + '  Rss=' + ResidualSum$'.2e'</l>
+<l>disp_message (WindowHandle, Message, 'window', 40, 12, 'green', 'false')</l>
 <c></c>
 <l>* ===== 直线 + 离群点：内点 y=2x+1，3 个离群点应被掩掉 =====</l>
 <l>X2 := [0,1,2,3,4,5,6,7,8,9]</l>
@@ -32,31 +60,59 @@
 <l>Y2[3] := 100</l>
 <l>Y2[5] := -50</l>
 <l>Y2[8] := 200</l>
-<l>cv_ransac_fit ('a*x+b', ['a','b'], [0,0], X2, Y2, 'x', 1.0, 2000, 0.3, 0, 'x', 2, 0.99, 0, PV2, Mask2, RSS2, IT2, ST2, SM2, RT2)</l>
+<l>cv_geom_create ('a*x+b', 'x', 'y', ['a','b'], 'explicit', 'geometric', H2)</l>
+<l>cv_geom_fit (H2, X2, Y2, [0,0], 1.0, 2000, 0.3, 0.99, 0, PV2, Mask2, RSS2, IT2, ST2, SM2, RT2)</l>
+<l>cv_fit_clear (H2)</l>
 <l>if (ST2 != 0)</l>
-<l>  throw ('cv_ransac_fit line status!=0: ' + SM2)</l>
+<l>  throw ('cv_geom_fit line status!=0: ' + SM2)</l>
 <l>endif</l>
 <l>if (fabs(PV2[0] - 2.0) &gt; 1e-2 or fabs(PV2[1] - 1.0) &gt; 1e-2)</l>
-<l>  throw ('cv_ransac_fit line params wrong: ' + PV2)</l>
+<l>  throw ('cv_geom_fit line params wrong: ' + PV2)</l>
 <l>endif</l>
 <l>if (Mask2[3] != 0 or Mask2[5] != 0 or Mask2[8] != 0)</l>
-<l>  throw ('cv_ransac_fit: outlier not masked')</l>
+<l>  throw ('cv_geom_fit: outlier not masked')</l>
 <l>endif</l>
+<c>* ---- 图 2：内点白 / 离群点红 + 拟合直线 ----</c>
+<l>dev_clear_window ()</l>
+<l>dev_set_part (-60.0, -1.0, 220.0, 10.0)</l>
+<l>Xin := []</l>
+<l>Yin := []</l>
+<l>Xout := []</l>
+<l>Yout := []</l>
+<l>for i := 0 to 9 by 1</l>
+<l>  if (Mask2[i] == 1)</l>
+<l>    Xin := [Xin, X2[i]]</l>
+<l>    Yin := [Yin, Y2[i]]</l>
+<l>  else</l>
+<l>    Xout := [Xout, X2[i]]</l>
+<l>    Yout := [Yout, Y2[i]]</l>
+<l>  endif</l>
+<l>endfor</l>
+<l>gen_cross_contour_xld (Inliers2, Yin, Xin, 2.0, 0.785398)</l>
+<l>dev_set_line_width (2)</l>
+<l>dev_set_color ('white')</l>
+<l>dev_display (Inliers2)</l>
+<l>gen_cross_contour_xld (Outliers2, Yout, Xout, 4.0, 0.785398)</l>
+<l>dev_set_color ('red')</l>
+<l>dev_display (Outliers2)</l>
+<l>gen_contour_polygon_xld (Line2, [PV2[1], PV2[0]*9.0 + PV2[1]], [0.0, 9.0])</l>
+<l>dev_set_color ('green')</l>
+<l>dev_set_line_width (3)</l>
+<l>dev_display (Line2)</l>
+<l>Message := 'cv_geom_fit : y = a*x + b   (RANSAC, 3 outliers masked)'</l>
+<l>disp_message (WindowHandle, Message, 'window', 12, 12, 'white', 'false')</l>
+<l>Message := 'a=' + PV2[0]$'.4f' + '  b=' + PV2[1]$'.4f' + '  inlier ratio=' + RT2$'.2f'</l>
+<l>disp_message (WindowHandle, Message, 'window', 40, 12, 'green', 'false')</l>
+<l>disp_message (WindowHandle, 'white: inliers   red: outliers   green: fit', 'window', 440, 12, 'white', 'false')</l>
 <c></c>
-<l>* ===== 参数校验：空表达式 / 点数不足 / XName 冲突，Status 应为 -1 =====</l>
-<l>cv_ransac_fit ('', ['a','b'], [0,0], X2, Y2, 'x', 1.0, 100, 0.2, 0, 'x', 2, 0.99, 0, PV3, M3, R3, I3, ST3, SM3, RT3)</l>
-<l>if (ST3 != -2)</l>
-<l>  throw ('empty expr should give Status=-2, got ' + ST3)</l>
-<l>endif</l>
-<l>* 2 点对 3 参数（欠定）</l>
-<l>cv_ransac_fit ('a*pow(x,2)+b*x+c', ['a','b','c'], [0,0,0], [0,1], [0,1], 'x', 1.0, 100, 0.2, 0, 'x', 3, 0.99, 0, PV4, M4, R4, I4, ST4, SM4, RT4)</l>
+<l>* ===== 欠定（2 点对 3 参数）：fit 时状态码 -5 =====</l>
+<l>cv_geom_create ('a*pow(x,2)+b*x+c', 'x', 'y', ['a','b','c'], 'explicit', 'geometric', H3)</l>
+<l>cv_geom_fit (H3, [0,1], [0,1], [0,0,0], 1.0, 100, 0.2, 0.99, 0, PV4, M4, R4, I4, ST4, SM4, RT4)</l>
+<l>cv_fit_clear (H3)</l>
 <l>if (ST4 != -5)</l>
 <l>  throw ('too few points should give Status=-5, got ' + ST4)</l>
 <l>endif</l>
-<l>cv_ransac_fit ('a*x+b', ['a','b'], [0,0], X2, Y2, 'a', 1.0, 100, 0.2, 0, 'x', 2, 0.99, 0, PV5, M5, R5, I5, ST5, SM5, RT5)</l>
-<l>if (ST5 != -2)</l>
-<l>  throw ('XName conflict should give Status=-2, got ' + ST5)</l>
-<l>endif</l>
+<l>dev_update_on ()</l>
 </body>
 <docu id="main">
 <parameters/>
