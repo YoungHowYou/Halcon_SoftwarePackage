@@ -1,5 +1,5 @@
-ModelHandle,XData,YData,InitialValues,Threshold,MaxIter,OutlierRatio,Confidence,Seed,ParamValues,InlierMask,ResidualSum,Iterations,Status,StatusMessage,InlierRatio:
-ModelExpression,XName,YName,ParamNames,ModelType,ResidualType,ModelHandle:
+ModelHandle,XData,YData,InitialValues,Threshold,MaxIter,OutlierRatio,Confidence,Seed,ParamValues,InlierMask,ResidualSum,Iterations,Status,StatusMessage,InlierRatio:userextensions:UserExtensions:
+ModelExpression,XName,YName,ParamNames,ModelType,ResidualType,ModelHandle:userextensions:UserExtensions:
 Region,RegionDilation,Width,Height:userextensions:UserExtensions:
 Region,RegionErosion,Width,Height:userextensions:UserExtensions:
 Region,RegionDilation,Radius:userextensions:UserExtensions:
@@ -46,11 +46,11 @@ imageA,imageU,imageS,imageV:userextensions:UserExtensions:
 image,value,index:userextensions:UserExtensions:
 image,imageOut,descending:userextensions:UserExtensions:
 image,nIndex,value:userextensions:UserExtensions:
-ModelHandle:
-ModelHandle,X,Y,Z,Tolerance,Coefficients,RSS,Rank,Success,Message:
-Expression,ParamNames,XNames,ModelHandle:
-ModelHandle,X,Y,Z,InitialValues,MaxIter,Eps,ParamValues,RSS,Iterations,Status,StatusMessage:
-Expressions,ParamNames,XNames,ModelHandle:
+ModelHandle:userextensions:UserExtensions:
+ModelHandle,X,Y,Z,Tolerance,Coefficients,RSS,Rank,Success,Message:userextensions:UserExtensions:
+Expression,ParamNames,XNames,ModelHandle:userextensions:UserExtensions:
+ModelHandle,X,Y,Z,InitialValues,MaxIter,Eps,ParamValues,RSS,Iterations,Status,StatusMessage:userextensions:UserExtensions:
+Expressions,ParamNames,XNames,ModelHandle:userextensions:UserExtensions:
 image,imageOut,radius:userextensions:UserExtensions:
 image,imageOut,radius:userextensions:UserExtensions:
 image,imageOut,radius:userextensions:UserExtensions:

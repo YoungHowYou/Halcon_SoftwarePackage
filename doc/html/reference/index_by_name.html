@@ -2140,7 +2140,7 @@ toggleLanguage(new_lang,1);return;}
 <a href="index_classes.html"><span data-if="dotnet" style="display:none;">Classes</span><span data-if="cpp" style="display:none;">Classes</span></a><span data-if="dotnet" style="display:none;"> | </span><span data-if="cpp" style="display:none;"> | </span>Operators</div>
 <h2>Index of all Operators</h2>
 <div id="letters">
-<a href="#C">[C]</a>  <a href="#G">[G]</a>  <a href="#P">[P]</a>  <a href="#S">[S]</a>  <a href="#a">[A]</a>  <a href="#c">[C]</a>  <a href="#d">[D]</a>  <a href="#e">[E]</a>  <a href="#l">[L]</a>  <a href="#m">[M]</a>  <a href="#r">[R]</a>  <a href="#s">[S]</a>  <a href="#w">[W]</a>
+<a href="#C">[C]</a>  <a href="#G">[G]</a>  <a href="#P">[P]</a>  <a href="#S">[S]</a>  <a href="#a">[A]</a>  <a href="#c">[C]</a>  <a href="#d">[D]</a>  <a href="#e">[E]</a>  <a href="#m">[M]</a>  <a href="#r">[R]</a>  <a href="#s">[S]</a>  <a href="#w">[W]</a>
 </div>
 <h3 id="C">C<a href="#letters"> ↑</a>
 </h3>
@@ -2231,8 +2231,12 @@ toggleLanguage(new_lang,1);return;}
 <dd>圆度（4πA/C²），对应 HALCON circularity。</dd>
 </dl>
 <dl>
-<dt><a href="cv_closing.html"><code><span data-if="hdevelop" style="display:inline;">cv_closing</span><span data-if="dotnet" style="display:none;">CvClosing</span><span data-if="python" style="display:none;">cv_closing</span><span data-if="cpp" style="display:none;">CvClosing</span><span data-if="c" style="display:none;">cv_closing</span></code></a></dt>
-<dd>region 闭运算：先膨胀后腐蚀，填补细小暗孔洞。对应 HALCON closing。</dd>
+<dt><a href="cv_closing_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_closing_circle</span><span data-if="dotnet" style="display:none;">CvClosingCircle</span><span data-if="python" style="display:none;">cv_closing_circle</span><span data-if="cpp" style="display:none;">CvClosingCircle</span><span data-if="c" style="display:none;">cv_closing_circle</span></code></a></dt>
+<dd>圆形结构元闭运算（先膨胀后腐蚀），对应 HALCON closing_circle。Radius 为半径（可小数）</dd>
+</dl>
+<dl>
+<dt><a href="cv_closing_rectangle1.html"><code><span data-if="hdevelop" style="display:inline;">cv_closing_rectangle1</span><span data-if="dotnet" style="display:none;">CvClosingRectangle1</span><span data-if="python" style="display:none;">cv_closing_rectangle1</span><span data-if="cpp" style="display:none;">CvClosingRectangle1</span><span data-if="c" style="display:none;">cv_closing_rectangle1</span></code></a></dt>
+<dd>矩形结构元闭运算（先膨胀后腐蚀），对应 HALCON closing_rectangle1。Width/Height 为核宽高</dd>
 </dl>
 <dl>
 <dt><a href="cv_compactness.html"><code><span data-if="hdevelop" style="display:inline;">cv_compactness</span><span data-if="dotnet" style="display:none;">CvCompactness</span><span data-if="python" style="display:none;">cv_compactness</span><span data-if="cpp" style="display:none;">CvCompactness</span><span data-if="c" style="display:none;">cv_compactness</span></code></a></dt>
@@ -2247,6 +2251,10 @@ toggleLanguage(new_lang,1);return;}
 <dd>连通域标记（8 连通），对应 HALCON connection。输出连通域元组。按行并查集 + 双指针实现。</dd>
 </dl>
 <dl>
+<dt><a href="cv_connection_ex.html"><code><span data-if="hdevelop" style="display:inline;">cv_connection_ex</span><span data-if="dotnet" style="display:none;">CvConnectionEx</span><span data-if="python" style="display:none;">cv_connection_ex</span><span data-if="cpp" style="display:none;">CvConnectionEx</span><span data-if="c" style="display:none;">cv_connection_ex</span></code></a></dt>
+<dd>连通域标记（同 cv_connection，8 连通），并可按 CacheFeatures 预先计算指定形状特征。算出的特征按 region 内容指纹缓存，后续 cv_select_shape / cv_region_features / 单值特征算子对同一 region 直接查表，不再重复计算。CacheFeatures 为特征名元组，可用名称与 cv_region_features 一致（area/row/column/bbox/width/height/rect2/circle/contlength/convexity/circularity/compactness/rectangularity/moments/elliptic_axis/anisometry/bulkiness/structure_factor 等），另支持组合名 none/basic/cheap/hull/all，元素内可用 '|' 拼接（如 'area|bbox'）；'none' 或不传时行为与 cv_connection 完全一致。选型提示：预计算只对“同一批 region 被反复取特征”有利；若下游对每个成分只查一次（如一次 select_shape 加一次 region_features），直接用 cv_connection 更快——select_shape 的 and 分支会短路，且只需为选中的区域计算。</dd>
+</dl>
+<dl>
 <dt><a href="cv_contlength.html"><code><span data-if="hdevelop" style="display:inline;">cv_contlength</span><span data-if="dotnet" style="display:none;">CvContlength</span><span data-if="python" style="display:none;">cv_contlength</span><span data-if="cpp" style="display:none;">CvContlength</span><span data-if="c" style="display:none;">cv_contlength</span></code></a></dt>
 <dd>轮廓长度（含对角 sqrt(2) 修正），对应 HALCON contlength。</dd>
 </dl>
@@ -2257,10 +2265,6 @@ toggleLanguage(new_lang,1);return;}
 <dl>
 <dt><a href="cv_difference.html"><code><span data-if="hdevelop" style="display:inline;">cv_difference</span><span data-if="dotnet" style="display:none;">CvDifference</span><span data-if="python" style="display:none;">cv_difference</span><span data-if="cpp" style="display:none;">CvDifference</span><span data-if="c" style="display:none;">cv_difference</span></code></a></dt>
 <dd>两个 region 求差集（R1 − R2），对应 HALCON difference。</dd>
-</dl>
-<dl>
-<dt><a href="cv_dilation1.html"><code><span data-if="hdevelop" style="display:inline;">cv_dilation1</span><span data-if="dotnet" style="display:none;">CvDilation1</span><span data-if="python" style="display:none;">cv_dilation1</span><span data-if="cpp" style="display:none;">CvDilation1</span><span data-if="c" style="display:none;">cv_dilation1</span></code></a></dt>
-<dd>region 膨胀（自定义结构元），对应 HALCON dilation1。SE 参考点=质心四舍五入，用居中+反射 SE 做 Minkowski 和；按行 O(n×SE行数) 实现。</dd>
 </dl>
 <dl>
 <dt><a href="cv_dilation_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_dilation_circle</span><span data-if="dotnet" style="display:none;">CvDilationCircle</span><span data-if="python" style="display:none;">cv_dilation_circle</span><span data-if="cpp" style="display:none;">CvDilationCircle</span><span data-if="c" style="display:none;">cv_dilation_circle</span></code></a></dt>
@@ -2281,10 +2285,6 @@ toggleLanguage(new_lang,1);return;}
 <dl>
 <dt><a href="cv_elliptic_axis.html"><code><span data-if="hdevelop" style="display:inline;">cv_elliptic_axis</span><span data-if="dotnet" style="display:none;">CvEllipticAxis</span><span data-if="python" style="display:none;">cv_elliptic_axis</span><span data-if="cpp" style="display:none;">CvEllipticAxis</span><span data-if="c" style="display:none;">cv_elliptic_axis</span></code></a></dt>
 <dd>等效椭圆轴（长半轴 Ra、短半轴 Rb、主轴角 Phi），对应 HALCON elliptic_axis。</dd>
-</dl>
-<dl>
-<dt><a href="cv_erosion1.html"><code><span data-if="hdevelop" style="display:inline;">cv_erosion1</span><span data-if="dotnet" style="display:none;">CvErosion1</span><span data-if="python" style="display:none;">cv_erosion1</span><span data-if="cpp" style="display:none;">CvErosion1</span><span data-if="c" style="display:none;">cv_erosion1</span></code></a></dt>
-<dd>region 腐蚀（自定义结构元），对应 HALCON erosion1。SE 参考点=质心四舍五入；按行 O(n×SE行数) 实现。</dd>
 </dl>
 <dl>
 <dt><a href="cv_erosion_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_erosion_circle</span><span data-if="dotnet" style="display:none;">CvErosionCircle</span><span data-if="python" style="display:none;">cv_erosion_circle</span><span data-if="cpp" style="display:none;">CvErosionCircle</span><span data-if="c" style="display:none;">cv_erosion_circle</span></code></a></dt>
@@ -2315,6 +2315,10 @@ toggleLanguage(new_lang,1);return;}
 <dd>图像卷积，对应 cv::filter2D。卷积核经 real 单通道图像传入；Ddepth 支持字符串枚举（same/s16/f32/f64）或整数（-1=保持原深度）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数。</dd>
 </dl>
 <dl>
+<dt><a href="cv_fit_clear.html"><code><span data-if="hdevelop" style="display:inline;">cv_fit_clear</span><span data-if="dotnet" style="display:none;">CvFitClear</span><span data-if="python" style="display:none;">cv_fit_clear</span><span data-if="cpp" style="display:none;">CvFitClear</span><span data-if="c" style="display:none;">cv_fit_clear</span></code></a></dt>
+<dd>显式释放拟合模型句柄占用的原生资源（表达式编译产物等）。句柄随后不可再用于拟合；模型内存立即释放，句柄壳由 HALCON 句柄 GC 回收。</dd>
+</dl>
+<dl>
 <dt><a href="cv_gen_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_gen_circle</span><span data-if="dotnet" style="display:none;">CvGenCircle</span><span data-if="python" style="display:none;">cv_gen_circle</span><span data-if="cpp" style="display:none;">CvGenCircle</span><span data-if="c" style="display:none;">cv_gen_circle</span></code></a></dt>
 <dd>生成圆形 region，对应 HALCON gen_circle。负坐标按 HALCON 语义裁剪。</dd>
 </dl>
@@ -2324,7 +2328,15 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="cv_gen_rectangle2.html"><code><span data-if="hdevelop" style="display:inline;">cv_gen_rectangle2</span><span data-if="dotnet" style="display:none;">CvGenRectangle2</span><span data-if="python" style="display:none;">cv_gen_rectangle2</span><span data-if="cpp" style="display:none;">CvGenRectangle2</span><span data-if="c" style="display:none;">cv_gen_rectangle2</span></code></a></dt>
-<dd>生成旋转矩形 region，对应 HALCON gen_rectangle2。Row/Column 为中心坐标，Phi 为主轴与列轴夹角（弧度，HALCON 约定），Length1/Length2 为两个方向的半边长（Length1 沿主轴，均 ≥0）。栅格化口径为「像素方格与矩形相交即取」（像素 (r,c) 覆盖 [r-0.5,r+0.5]×[c-0.5,c+0.5]）：实测轴对齐、Phi=π/2、负中心裁剪三档与 HALCON gen_rectangle2 逐像素一致，倾斜档面积差约 2%。注意 Phi 与 cv_smallest_rectangle2 / cv_elliptic_axis 返回的 phi 反号（既有约定偏差）；口径也与 shape_trans 'rectangle2' 不同（后者面积可差约 5%）。参数为标量，不支持原生那样的元组批量。</dd>
+<dd>生成旋转矩形 region，对应 HALCON gen_rectangle2。Row/Column 为中心坐标，Phi 为主轴与列轴夹角（弧度，cv/OpenCV 口径；与 HALCON gen_rectangle2 的 phi 反号，同参数为镜像矩形，phi=0 与 +-pi/2 不受影响），Length1/Length2 为两个方向的半边长（Length1 沿主轴，均 ≥0）。栅格化口径为「像素方格与矩形相交即取」（像素 (r,c) 覆盖 [r-0.5,r+0.5]×[c-0.5,c+0.5]）：实测轴对齐、Phi=π/2、负中心裁剪三档与 HALCON gen_rectangle2 逐像素一致，倾斜档面积差约 2%。注意 Phi 与 cv_smallest_rectangle2 / cv_elliptic_axis 返回的 phi 反号（既有约定偏差）；口径也与 shape_trans 'rectangle2' 不同（后者面积可差约 5%）。参数为标量，不支持原生那样的元组批量。</dd>
+</dl>
+<dl>
+<dt><a href="cv_geom_create.html"><code><span data-if="hdevelop" style="display:inline;">cv_geom_create</span><span data-if="dotnet" style="display:none;">CvGeomCreate</span><span data-if="python" style="display:none;">cv_geom_create</span><span data-if="cpp" style="display:none;">CvGeomCreate</span><span data-if="c" style="display:none;">cv_geom_create</span></code></a></dt>
+<dd>构建 RANSAC 几何拟合模型：表达式白名单校验 + 预编译 + 最小采样数自动推导（只解析一次），返回可复用句柄。配合 cv_geom_fit 反复拟合、cv_fit_clear 释放。</dd>
+</dl>
+<dl>
+<dt><a href="cv_geom_fit.html"><code><span data-if="hdevelop" style="display:inline;">cv_geom_fit</span><span data-if="dotnet" style="display:none;">CvGeomFit</span><span data-if="python" style="display:none;">cv_geom_fit</span><span data-if="cpp" style="display:none;">CvGeomFit</span><span data-if="c" style="display:none;">cv_geom_fit</span></code></a></dt>
+<dd>用 cv_geom_create 构建的模型句柄做 RANSAC 几何拟合（动态迭代 + LM 精化，零表达式解析开销）。</dd>
 </dl>
 <dl>
 <dt><a href="cv_gray_closing_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_gray_closing_circle</span><span data-if="dotnet" style="display:none;">CvGrayClosingCircle</span><span data-if="python" style="display:none;">cv_gray_closing_circle</span><span data-if="cpp" style="display:none;">CvGrayClosingCircle</span><span data-if="c" style="display:none;">cv_gray_closing_circle</span></code></a></dt>
@@ -2351,6 +2363,10 @@ toggleLanguage(new_lang,1);return;}
 <dd>灰度腐蚀（矩形核），对应 cv::morphologyEx MORPH_ERODE。核尺寸 Width×Height；支持 byte/uint2/real，输出同类型。</dd>
 </dl>
 <dl>
+<dt><a href="cv_gray_features.html"><code><span data-if="hdevelop" style="display:inline;">cv_gray_features</span><span data-if="dotnet" style="display:none;">CvGrayFeatures</span><span data-if="python" style="display:none;">cv_gray_features</span><span data-if="cpp" style="display:none;">CvGrayFeatures</span><span data-if="c" style="display:none;">cv_gray_features</span></code></a></dt>
+<dd>按名称计算 region 的灰度特征，对应 HALCON gray_features（当前为 8 个特征的可用子集）。Features 为特征名元组，缺省 mean；支持：area（灰度体积 Σg）/row/column（灰度重心 Σr·g、Σc·g 除以 Σg）/mean/deviation（强度均值与标准差 sqrt(Σ(g-mean)²/F)）/min/max（区域内灰度极值）/median（等价 min_max_gray(Percent=50)）。与 HALCON 原生 gray_features 在 byte 图上实测 24 个值（3 区域 × 8 特征）全部一致，最大相对偏差 2.2e-15，median 完全一致。Image 为单通道灰度图，支持 byte/int1/int2/uint2/int4/int8/real（direction/cyclic 等非数值类型不支持）；只使用传入的 Regions，忽略图像已设 domain（与 HALCON 一致）。Regions 可为元组，输出 Value 平铺为「区域数 × 特征数」，区域优先、同一区域的各特征值相邻。</dd>
+</dl>
+<dl>
 <dt><a href="cv_gray_opening_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_gray_opening_circle</span><span data-if="dotnet" style="display:none;">CvGrayOpeningCircle</span><span data-if="python" style="display:none;">cv_gray_opening_circle</span><span data-if="cpp" style="display:none;">CvGrayOpeningCircle</span><span data-if="c" style="display:none;">cv_gray_opening_circle</span></code></a></dt>
 <dd>灰度开运算（圆核）。对应 cv::morphologyEx MORPH_OPEN，核尺寸 2R+1。</dd>
 </dl>
@@ -2365,6 +2381,22 @@ toggleLanguage(new_lang,1);return;}
 <dl>
 <dt><a href="cv_kmeans.html"><code><span data-if="hdevelop" style="display:inline;">cv_kmeans</span><span data-if="dotnet" style="display:none;">CvKmeans</span><span data-if="python" style="display:none;">cv_kmeans</span><span data-if="cpp" style="display:none;">CvKmeans</span><span data-if="c" style="display:none;">cv_kmeans</span></code></a></dt>
 <dd>K 均值聚类，对应 cv::kmeans。样本为 real N×D 图像（N 样本每行 D 维）；输出 Labels（N×1）与 Centers（K×D）。Flags 支持字符串枚举（random/pp/use_initial_labels）或整数，默认 pp。</dd>
+</dl>
+<dl>
+<dt><a href="cv_linear_create.html"><code><span data-if="hdevelop" style="display:inline;">cv_linear_create</span><span data-if="dotnet" style="display:none;">CvLinearCreate</span><span data-if="python" style="display:none;">cv_linear_create</span><span data-if="cpp" style="display:none;">CvLinearCreate</span><span data-if="c" style="display:none;">cv_linear_create</span></code></a></dt>
+<dd>构建线性最小二乘拟合模型：一次性校验并编译表达式（只解析一次），返回可复用句柄。XNames 1 个=一维、2 个=二维。配合 cv_linear_fit、cv_fit_clear。</dd>
+</dl>
+<dl>
+<dt><a href="cv_linear_fit.html"><code><span data-if="hdevelop" style="display:inline;">cv_linear_fit</span><span data-if="dotnet" style="display:none;">CvLinearFit</span><span data-if="python" style="display:none;">cv_linear_fit</span><span data-if="cpp" style="display:none;">CvLinearFit</span><span data-if="c" style="display:none;">cv_linear_fit</span></code></a></dt>
+<dd>用 cv_linear_create 构建的模型句柄做线性最小二乘拟合（列主元 QR + 对参数线性校验，零解析开销）。一维传 X,Y（Z 空）；二维传 X,Y,Z。</dd>
+</dl>
+<dl>
+<dt><a href="cv_lm_create.html"><code><span data-if="hdevelop" style="display:inline;">cv_lm_create</span><span data-if="dotnet" style="display:none;">CvLmCreate</span><span data-if="python" style="display:none;">cv_lm_create</span><span data-if="cpp" style="display:none;">CvLmCreate</span><span data-if="c" style="display:none;">cv_lm_create</span></code></a></dt>
+<dd>构建 LM 非线性拟合模型：一次性校验并编译表达式（muparser 整个生命周期只解析这一次），返回可复用的拟合模型句柄。配合 cv_lm_fit 反复拟合、cv_fit_clear 释放。</dd>
+</dl>
+<dl>
+<dt><a href="cv_lm_fit.html"><code><span data-if="hdevelop" style="display:inline;">cv_lm_fit</span><span data-if="dotnet" style="display:none;">CvLmFit</span><span data-if="python" style="display:none;">cv_lm_fit</span><span data-if="cpp" style="display:none;">CvLmFit</span><span data-if="c" style="display:none;">cv_lm_fit</span></code></a></dt>
+<dd>用 cv_lm_create 构建的模型句柄做 LM 非线性最小二乘拟合（零表达式解析开销）。单输出(K=1)：M=1 传 X+Y、M=2 传 X,Y+Z；多输出(K&gt;1)：X=自变量拉平(点数×M)、Y=观测拉平(点数×K)、Z 传空。</dd>
 </dl>
 <dl>
 <dt><a href="cv_magnitude.html"><code><span data-if="hdevelop" style="display:inline;">cv_magnitude</span><span data-if="dotnet" style="display:none;">CvMagnitude</span><span data-if="python" style="display:none;">cv_magnitude</span><span data-if="cpp" style="display:none;">CvMagnitude</span><span data-if="c" style="display:none;">cv_magnitude</span></code></a></dt>
@@ -2403,16 +2435,16 @@ toggleLanguage(new_lang,1);return;}
 <dd>带掩膜的逐元素相乘：掩膜外像素保持 imageA 原值，掩膜内 Out = saturate(Scale * A * B)。Mask 为 byte 单通道图像（尺寸须与输入一致）。其余同 cv_multiply。</dd>
 </dl>
 <dl>
-<dt><a href="cv_opening.html"><code><span data-if="hdevelop" style="display:inline;">cv_opening</span><span data-if="dotnet" style="display:none;">CvOpening</span><span data-if="python" style="display:none;">cv_opening</span><span data-if="cpp" style="display:none;">CvOpening</span><span data-if="c" style="display:none;">cv_opening</span></code></a></dt>
-<dd>region 开运算：先腐蚀后膨胀，去除细小亮结构。对应 HALCON opening。</dd>
+<dt><a href="cv_opening_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_opening_circle</span><span data-if="dotnet" style="display:none;">CvOpeningCircle</span><span data-if="python" style="display:none;">cv_opening_circle</span><span data-if="cpp" style="display:none;">CvOpeningCircle</span><span data-if="c" style="display:none;">cv_opening_circle</span></code></a></dt>
+<dd>圆形结构元开运算（先腐蚀后膨胀），对应 HALCON opening_circle。Radius 为半径（可小数）</dd>
+</dl>
+<dl>
+<dt><a href="cv_opening_rectangle1.html"><code><span data-if="hdevelop" style="display:inline;">cv_opening_rectangle1</span><span data-if="dotnet" style="display:none;">CvOpeningRectangle1</span><span data-if="python" style="display:none;">cv_opening_rectangle1</span><span data-if="cpp" style="display:none;">CvOpeningRectangle1</span><span data-if="c" style="display:none;">cv_opening_rectangle1</span></code></a></dt>
+<dd>矩形结构元开运算（先腐蚀后膨胀），对应 HALCON opening_rectangle1。Width/Height 为核宽高</dd>
 </dl>
 <dl>
 <dt><a href="cv_orb_detect.html"><code><span data-if="hdevelop" style="display:inline;">cv_orb_detect</span><span data-if="dotnet" style="display:none;">CvOrbDetect</span><span data-if="python" style="display:none;">cv_orb_detect</span><span data-if="cpp" style="display:none;">CvOrbDetect</span><span data-if="c" style="display:none;">cv_orb_detect</span></code></a></dt>
 <dd>ORB 特征检测与描述子计算，对应 cv::ORB。输入为 8 位单通道图像（以 dict 对象 InputImage 传入）；输出关键点坐标/数量与描述子（byte，32×N）写回同一 dict。检测参数经 dict 键全开放（NFeatures/ScaleFactor/NLevels/EdgeThreshold/FirstLevel/WTA_K/ScoreType/PatchSize/FastThreshold），未设键取 OpenCV 默认。</dd>
-</dl>
-<dl>
-<dt><a href="cv_ransac_fit.html"><code><span data-if="hdevelop" style="display:inline;">cv_ransac_fit</span><span data-if="dotnet" style="display:none;">CvRansacFit</span><span data-if="python" style="display:none;">cv_ransac_fit</span><span data-if="cpp" style="display:none;">CvRansacFit</span><span data-if="c" style="display:none;">cv_ransac_fit</span></code></a></dt>
-<dd>RANSAC generic geometric fitting (cv_region).</dd>
 </dl>
 <dl>
 <dt><a href="cv_rectangularity.html"><code><span data-if="hdevelop" style="display:inline;">cv_rectangularity</span><span data-if="dotnet" style="display:none;">CvRectangularity</span><span data-if="python" style="display:none;">cv_rectangularity</span><span data-if="cpp" style="display:none;">CvRectangularity</span><span data-if="c" style="display:none;">cv_rectangularity</span></code></a></dt>
@@ -2519,26 +2551,8 @@ toggleLanguage(new_lang,1);return;}
 <dd>Solve positive-definite linear equations A*x=b using Eigen LLT.</dd>
 </dl>
 <dl>
-<dt><a href="eigen_lm_fit.html"><code><span data-if="hdevelop" style="display:inline;">eigen_lm_fit</span><span data-if="dotnet" style="display:none;">EigenLmFit</span><span data-if="python" style="display:none;">eigen_lm_fit</span><span data-if="cpp" style="display:none;">EigenLmFit</span><span data-if="c" style="display:none;">eigen_lm_fit</span></code></a></dt>
-<dd>Fit a user-supplied model expression to data using the Eigen LevenbergMarquardt algorithm.</dd>
-</dl>
-<dl>
-<dt><a href="eigen_lm_fit_2d.html"><code><span data-if="hdevelop" style="display:inline;">eigen_lm_fit_2d</span><span data-if="dotnet" style="display:none;">EigenLmFit2d</span><span data-if="python" style="display:none;">eigen_lm_fit_2d</span><span data-if="cpp" style="display:none;">EigenLmFit2d</span><span data-if="c" style="display:none;">eigen_lm_fit_2d</span></code></a></dt>
-<dd>Multi-variable multi-output nonlinear least-squares fit with shared parameters using Eigen LevenbergMarquardt.</dd>
-</dl>
-<dl>
 <dt><a href="eigen_svd.html"><code><span data-if="hdevelop" style="display:inline;">eigen_svd</span><span data-if="dotnet" style="display:none;">EigenSvd</span><span data-if="python" style="display:none;">eigen_svd</span><span data-if="cpp" style="display:none;">EigenSvd</span><span data-if="c" style="display:none;">eigen_svd</span></code></a></dt>
 <dd>Singular value decomposition (JacobiSVD) using Eigen.</dd>
-</dl>
-<h3 id="l">L<a href="#letters"> ↑</a>
-</h3>
-<dl>
-<dt><a href="linear_fit.html"><code><span data-if="hdevelop" style="display:inline;">linear_fit</span><span data-if="dotnet" style="display:none;">LinearFit</span><span data-if="python" style="display:none;">linear_fit</span><span data-if="cpp" style="display:none;">LinearFit</span><span data-if="c" style="display:none;">linear_fit</span></code></a></dt>
-<dd>Fit a linear-in-parameters model expression to data using Eigen ColPivHouseholderQR.</dd>
-</dl>
-<dl>
-<dt><a href="linear_fit_2d.html"><code><span data-if="hdevelop" style="display:inline;">linear_fit_2d</span><span data-if="dotnet" style="display:none;">LinearFit2d</span><span data-if="python" style="display:none;">linear_fit_2d</span><span data-if="cpp" style="display:none;">LinearFit2d</span><span data-if="c" style="display:none;">linear_fit_2d</span></code></a></dt>
-<dd>Fit a linear-in-parameters model with two independent variables using Eigen ColPivHouseholderQR.</dd>
 </dl>
 <h3 id="m">M<a href="#letters"> ↑</a>
 </h3>

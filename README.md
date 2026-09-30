@@ -1161,15 +1161,116 @@ cv_gen_rectangle2(Rectangle2 : : Row, Column, Phi, Length1, Length2 :)
 
 ---
 
-## RANSAC 扩展算子
+## RANSAC 扩展算子（cv_flow 几何拟合）
 
-RANSAC 通用几何拟合算子 `cv_ransac_fit`（定义于 `def/Halcon_Ransac.def`），算法本体为 **cv_region 静态库内置的 ransac 核心**（`ransac::ransac_run`，muparser 表达式模型 + Eigen LM 求解），supply 直调 C++ API。
+RANSAC 通用几何拟合（定义于 `def/Halcon_Ransac.def`），算法本体在 **cv_flow 静态库**（`cvflow::`，`cv_flow/src/ransac.cpp` 的 `ransac_create` / `ransac_fit`：muparser 表达式模型 + Eigen LM 求解），supply 直调 C++ API。采用**两步式**：建模一次、反复拟合。
 
 ```
-cv_ransac_fit(:: ModelExpression, ParamNames, InitialValues, XData, YData, XName, Threshold, MaxIter, OutlierRatio, ModelType, YName, MinSampleSize, Confidence, Seed : ParamValues, InlierMask, ResidualSum, Iterations, Status, StatusMessage, InlierRatio)
+cv_geom_create(:: ModelExpression, XName, YName, ParamNames, ModelType, ResidualType : ModelHandle)
+cv_geom_fit(:: ModelHandle, XData, YData, InitialValues, Threshold, MaxIter, OutlierRatio, Confidence, Seed : ParamValues, InlierMask, ResidualSum, Iterations, Status, StatusMessage, InlierRatio)
 ```
 
-模型用 muparser 表达式描述，支持显式 `y=f(x)` 与隐式 `F(x,y)=0`（圆/椭圆/圆锥），几何残差 `|F|/||grad F||`；函数白名单含 sin/cos/tan/asin/acos/atan/atan2/sqrt/abs/exp/log/log10/log2/min/max/floor/ceil/sinh/cosh/tanh/sign/rint/pow。异常统一映射为 Status 状态码，不穿越 supply。
+### cv_geom_create
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| ModelExpression | 字符串 | 输入 | 模型表达式：显式 `y=f(x)` 或隐式 `F(x,y)=0`（圆 / 椭圆 / 圆锥曲线） |
+| XName | 字符串 | 输入 | 自变量名（如 `x`） |
+| YName | 字符串 | 输入 | 纵坐标名（如 `y`，隐式模型必填） |
+| ParamNames | 字符串元组 | 输入 | 参数名元组 |
+| ModelType | 字符串/整数 | 输入 | `explicit`（`y=f(x)`）/ `implicit`（`F(x,y)=0`），大小写不敏感，也接受 `0/1` |
+| ResidualType | 字符串/整数 | 输入 | `geometric`（几何距离，推荐）/ `vertical`（垂直残差，仅显式），大小写不敏感，也接受 `0/1` |
+| ModelHandle | 句柄 | 输出 | 模型句柄（`cv_geom_fit` 输入，`cv_fit_clear` 释放） |
+
+建模时一次性完成表达式白名单校验、预编译与**最小采样数自动推导**——不再需要手工传 `MinSampleSize`。
+
+### cv_geom_fit
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| ModelHandle | 句柄 | 输入 | `cv_geom_create` 生成的句柄 |
+| XData / YData | 实数元组 | 输入 | 观测点坐标，两者长度必须一致 |
+| InitialValues | 实数元组 | 输入 | 参数初值（长度 = 参数数，可为空取 0） |
+| Threshold | 实数 | 输入 | 内点几何距离阈值（须 > 0） |
+| MaxIter | 整数 | 输入 | 最大迭代次数（须 > 0） |
+| OutlierRatio | 实数 | 输入 | 外点比例估计 `[0,1)`，用于推算所需迭代次数 |
+| Confidence | 实数 | 输入 | 置信度 `(0,1)`，`<= 0` 取 0.99 |
+| Seed | 整数 | 输入 | 随机种子，`0` = 非确定性 |
+| ParamValues | 实数元组 | 输出 | 拟合参数值（顺序同 `ParamNames`） |
+| InlierMask | 整数元组 | 输出 | 内点掩码（1 = 内点，逐点输出，长度 = 点数） |
+| ResidualSum | 实数 | 输出 | 内点（加权）残差平方和 |
+| Iterations | 整数 | 输出 | 实际迭代次数 |
+| Status | 整数 | 输出 | 状态码，**`0` = 成功**，见下表 |
+| StatusMessage | 字符串 | 输出 | 状态文本（成功为 `Success`） |
+| InlierRatio | 实数 | 输出 | 内点比例 `[0,1]` |
+
+**Status 状态码**（`cv_flow/include/cvflow/ransac.hpp` 的 `RansacStatus`）：
+
+| Status | 含义 | 结果可用性 |
+|---|---|---|
+| `0` | 成功 | 有效 |
+| `-1` | 参数非法 | 未计算 |
+| `-2` | 表达式解析失败 | 未计算 |
+| `-3` | 表达式评估失败 | 未计算 |
+| `-4` | 表达式求值预算耗尽（超时） | 最佳候选 |
+| `-5` | 数据点不足（< 最小采样数） | 未计算 |
+| `-6` | 采样持续退化 | 最佳候选 |
+| `-7` | 求解持续失败 | 最佳候选 |
+| `-8` | 数值异常 | 最佳候选 |
+| `-9` | 未收敛（输出最佳候选） | 最佳候选 |
+| `-10` | 达到最大迭代（输出最佳候选） | 最佳候选 |
+| `-99` | 内部错误 | 未计算 |
+
+> 数据点不足与参数非法属于**数据问题**：supply 会前置校验并写入 `Status`（`-5` / `-1`），**不**作为算子错误抛出。
+
+**算子错误码**：
+
+| 错误码 | 含义 |
+|---|---|
+| 30001 | `ModelHandle` 不是有效的几何模型句柄（类型不符或已 `cv_fit_clear`） |
+| 10201 | `XData` 与 `YData` 长度不一致 |
+| 30002 | 拟合执行异常 |
+| 30005 | `ModelType` 非法（须 `explicit`/`implicit` 或 `0/1`） |
+| 30006 | `ResidualType` 非法（须 `vertical`/`geometric` 或 `0/1`） |
+| 30007 | 模型构建失败（具体原因由算子错误文本给出，如表达式白名单/语法问题） |
+
+### 模型表达式
+
+| 模型 | 类型 | 表达式 | 参数 |
+|---|---|---|---|
+| 直线 | 显式 | `"a*x+b"` | `["a","b"]` |
+| 二次多项式 | 显式 | `"a*pow(x,2)+b*x+c"` | `["a","b","c"]` |
+| 幂函数 | 显式 | `"a*pow(x,b)+c"` | `["a","b","c"]` |
+| 圆 | 隐式 | `"pow(x-cx,2)+pow(y-cy,2)-r*r"` | `["cx","cy","r"]` |
+| 椭圆 | 隐式 | `"pow((x-cx)/a,2)+pow((y-cy)/b,2)-1"` | `["cx","cy","a","b"]` |
+| 一般圆锥 | 隐式 | `"A*x*x+B*x*y+C*y*y+D*x+E*y+F"` | `["A","B","C","D","E","F"]` |
+
+- **几何残差**：隐式模型为 `|F(x,y)| / ||grad F(x,y)||`（数值梯度）；显式模型选 `geometric` 时为 `|y-f(x)| / sqrt(1+f'(x)^2)`。内点判定统一用几何距离与 `Threshold` 比较。
+- **求解策略自动选择**：建模时判断表达式对参数是否线性——线性走 Eigen 最小二乘（隐式做 SVD 零空间解，自由度为 `nParams-1`），非线性走 Eigen LevenbergMarquardt（隐式用 Taubin 几何归一化残差）；求解持续失败会中断并输出最佳候选。
+- **表达式安全**：表达式长度与求值预算均有上限，超限返回 `-4`（不穿越 supply）。
+- 函数白名单：`sin/cos/tan/asin/acos/atan/atan2/sqrt/abs/exp/log/log10/log2/min/max/floor/ceil/sinh/cosh/tanh/sign/rint/pow`。
+
+**示例**（显式二次多项式 + 含离群点的隐式圆）：
+
+```hdevelop
+* 显式：y = x^2 + x + 1
+XData := [0,1,2,3,4]
+YData := [1,3,7,13,21]
+cv_geom_create ('a*pow(x,2)+b*x+c', 'x', 'y', ['a','b','c'], 'explicit', 'geometric', H0)
+cv_geom_fit (H0, XData, YData, [0.5,0.5,0.5], 1.0, 1000, 0.2, 0.99, 0, \
+             PV, Mask, RSS, Iter, Status, SM, Ratio)
+cv_fit_clear (H0)
+* → PV ≈ [1,1,1]，Status = 0，Ratio = 1
+
+* 隐式圆：圆心 (2,3)、半径 5，并注入离群点
+cv_geom_create ('pow(x-cx,2)+pow(y-cy,2)-r*r', 'x', 'y', ['cx','cy','r'], 'implicit', 'geometric', H1)
+cv_geom_fit (H1, X2, Y2, [0,0,1], 0.5, 3000, 0.35, 0.99, 42, \
+             PV2, Mask2, RSS2, Iter2, Status2, SM2, Ratio2)
+cv_fit_clear (H1)
+* → PV2 ≈ [2,3,5]
+```
+
+例程：`examples/cv_ransac_v4.hdev`（显式多项式 / 隐式圆 / 隐式直线三档）、`examples/cv_ransac_fit.hdev`
 
 ---
 
@@ -1315,253 +1416,261 @@ arma_interp1(ImageX, ImageY, ImageXI : ImageYI : InterpMethod)
 
 ---
 
-### 非线性拟合
+### 表达式拟合（两步式）
 
-#### eigen_lm_fit
+拟合类算子统一采用 **create（建模）+ fit（拟合）** 两步式：表达式只在建模时解析一次，同一个模型句柄可反复拟合（批量 / 循环场景**零表达式解析开销**），句柄用 `cv_fit_clear` 显式释放。模型本体在 **cv_flow 静态库**（`cvflow::LmModel` / `cvflow::LinearModel` / RANSAC 句柄），supply 只做参数搬运。
 
-通用**非线性最小二乘曲线拟合**，底层为 `Eigen::LevenbergMarquardt`（MINPACK LM 算法的 Eigen 实现）+ `NumericalDiff` 数值微分。
+| 模型 | 建模算子 | 拟合算子 | 适用 |
+|---|---|---|---|
+| LM 非线性最小二乘 | `cv_lm_create` | `cv_lm_fit` | 任意表达式（参数可非线性）；支持 M 个自变量、K 个输出（共享参数） |
+| 线性最小二乘 | `cv_linear_create` | `cv_linear_fit` | 对参数线性（自变量可非线性）；1~2 个自变量，列主元 QR |
+| RANSAC 几何拟合 | `cv_geom_create` | `cv_geom_fit` | 含离群点的几何拟合，见上节「RANSAC 扩展算子」 |
 
-模型函数**不是编译期固定的**，而是在调用时以**字符串表达式**给出，由 `muparser` 在运行时解析。因此同一个算子可以拟合任意形式的模型（指数、幂、高斯、多参数有理式……），无需为每种模型重新编译扩展包。
+### 迁移对照（旧一步到位算子已移除）
 
-```hdevelop
-eigen_lm_fit (ModelExpression, ParamNames, InitialValues, XData, YData, XName, MaxIter, Eps \
-              : ParamValues, Rss, Iterations, Status, StatusMessage)
+| 旧算子（已删除） | 新用法 |
+|---|---|
+| `eigen_lm_fit` | `cv_lm_create` + `cv_lm_fit`（M=1、K=1） |
+| `eigen_lm_fit_2d` | `cv_lm_create` + `cv_lm_fit`（M ≥ 1、K ≥ 1，同一算子覆盖，不再区分 `_2d`） |
+| `linear_fit` | `cv_linear_create` + `cv_linear_fit`（`XNames` 传 1 个） |
+| `linear_fit_2d` | `cv_linear_create` + `cv_linear_fit`（`XNames` 传 2 个，`X/Y` 为自变量、`Z` 为观测） |
+| `cv_ransac_fit` | `cv_geom_create` + `cv_geom_fit` |
+
+> 迁移要点：①表达式、参数名、自变量名改由 `*_create` 传入（建模时做查重 / 冲突 / 白名单校验）；②数据改为在 `*_fit` 传入；③模型类型 / 残差类型等选项在建模时确定；④句柄用完调 `cv_fit_clear` 立即释放原生资源。
+
+### cv_lm_create
+
+构建 LM 非线性拟合模型：一次性校验并编译表达式（muparser 整个生命周期只解析这一次）。
+
+```
+cv_lm_create(:: Expressions, ParamNames, XNames : ModelHandle)
 ```
 
-**参数**（全部为 tuple，不涉及图像对象）：
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| Expressions | 字符串元组 | 输入 | 输出表达式元组（1~K 个，**共享同一组参数**，如畸变场 `['dx模型','dy模型']`） |
+| ParamNames | 字符串元组 | 输入 | 共享参数名元组（建模时做查重 / 冲突校验） |
+| XNames | 字符串元组 | 输入 | 自变量名元组（1~M 个，M=1 即一维拟合） |
+| ModelHandle | 句柄 | 输出 | 拟合模型句柄（`cv_lm_fit` 输入，`cv_fit_clear` 释放） |
 
-| 参数 | 类型 | 说明 |
+错误码（`30000 + errCode`）：
+
+| 错误码 | 含义 |
+|---|---|
+| 30001 | 至少需要一个模型表达式 |
+| 30002 | 至少需要一个自变量名 |
+| 30003 | 至少需要一个参数名 |
+| 30004 | 表达式为空串 |
+| 30005 | 自变量名为空串 |
+| 30006 | 自变量名重复 |
+| 30007 | 参数名为空串 |
+| 30008 | 参数名重复 |
+| 30009 | 参数名与自变量名冲突 |
+| 30010 | 内存不足 |
+
+### cv_lm_fit
+
+用模型句柄做 LM 非线性最小二乘拟合，底层为 `Eigen::LevenbergMarquardt`（MINPACK LM 的 Eigen 实现）+ `NumericalDiff` 数值微分；`ftol` / `xtol` 内部固定为 `1e-12`，梯度判据 `gtol` 置 0（关闭）。
+
+```
+cv_lm_fit(:: ModelHandle, X, Y, Z, InitialValues, MaxIter, Eps : ParamValues, RSS, Iterations, Status, StatusMessage)
+```
+
+**数据传递模式**（由建模时的 M / K 决定，务必对照下表）：
+
+| 模式 | 自变量 | 观测 |
 |---|---|---|
-| `ModelExpression` | input_control, string | 模型表达式，如 `'a*exp(b*x)+c'`。式中出现的自变量名与参数名需与 `XName` / `ParamNames` 一致 |
-| `ParamNames` | input_control, string tuple | 待拟合参数名，如 `['a','b','c']`。名称必须唯一且不能与 `XName` 相同 |
-| `InitialValues` | input_control, real tuple | 参数初值，长度须与 `ParamNames` 相同（初值只需大致量级） |
-| `XData` | input_control, real tuple | 自变量观测值 |
-| `YData` | input_control, real tuple | 因变量观测值，长度须与 `XData` 相同 |
-| `XName` | input_control, string | 自变量名，空串时取 `'x'` |
-| `MaxIter` | input_control, integer | 最大函数求值次数，`<= 0` 时取 `400*(nParams+1)` |
-| `Eps` | input_control, real | 数值微分步长 `epsfcn`，`<= 0` 时由 Eigen 自动取 `sqrt(machine eps)` |
-| `ParamValues` | output_control, real tuple | 拟合后的参数值，顺序与 `ParamNames` 一致 |
-| `Rss` | output_control, real | 残差平方和（表达式出错时为 `-1`） |
-| `Iterations` | output_control, integer | 迭代次数 |
-| `Status` | output_control, integer | LM 状态码，见下表 |
-| `StatusMessage` | output_control, string | 状态文本说明 |
+| K=1、M=1（单输出单自变量） | `X` | `Y`（`Z` 传空） |
+| K=1、M=2 | `X`、`Y` 两个自变量 | `Z` |
+| K>1（多输出共享参数） | `X` = 自变量拉平（点数 × M） | `Y` = 观测拉平（点数 × K）（`Z` 传空） |
 
-**残差定义**：$\;fvec_i = YData_i - f(XData_i;\ \mathbf{p})$，即最小化 $\sum_i \left(YData_i - f(XData_i)\right)^2$。
+> K=1 且 M>2 时不能走 X/Y/Z 模式（报 30022），请改用「拉平」模式：把 M 个自变量按行优先拉平到 `X`、观测放到 `Y`。
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| ModelHandle | 句柄 | 输入 | `cv_lm_create` 生成的句柄 |
+| X / Y / Z | 实数元组 | 输入 | 见上表「数据传递模式」 |
+| InitialValues | 实数元组 | 输入 | 参数初值（长度 = 参数数，初值只需大致量级） |
+| MaxIter | 整数 | 输入 | 最大函数求值次数，`<= 0` 取 `400*(nParams+1)` |
+| Eps | 实数 | 输入 | 数值微分步长（`<= 0` 由 Eigen 自动选取） |
+| ParamValues | 实数元组 | 输出 | 拟合参数值，顺序同 `ParamNames`（失败时回吐初值） |
+| RSS | 实数 | 输出 | 残差平方和（非有限时会追加警告到 `StatusMessage`） |
+| Iterations | 整数 | 输出 | LM 迭代次数 |
+| Status | 整数 | 输出 | LM 状态码，见下表 |
+| StatusMessage | 字符串 | 输出 | 状态文本 |
+
+**残差定义**：$\;fvec_{h,k} = YData_{h,k} - \text{expr}_k(X_h;\ \mathbf{p})$，即最小化所有输出合并的 $\sum (YData - f(X))^2$。
 
 **Status 状态码**：
 
 | Status | 含义 | 结果可用性 |
 |---|---|---|
-| `1` | 相对残差下降量满足 `ftol` | ✅ 已收敛 |
-| `2` | 相邻两次参数变化满足 `xtol` | ✅ 已收敛 |
-| `3` | `ftol` 与 `xtol` 同时满足 | ✅ 已收敛 |
-| `4` | 梯度余弦判据满足 `gtol` | ✅ 已收敛 |
-| `5` | 达到最大函数求值次数 | ⚠️ 结果可用但可能未到最优，可增大 `MaxIter` |
-| `6` | `ftol` 过小，无法进一步下降 | ⚠️ 通常已到平台区，检查 `Rss` |
-| `7` | `xtol` 过小，参数无法进一步改善 | ⚠️ 同上 |
-| `8` | `gtol` 过小，无法进一步改善 | ⚠️ 同上 |
-| `0` | 输入参数不当 / 表达式解析或求值失败 | ❌ 见 `StatusMessage` |
-| `-1` / `-2` | 运行中 / 未开始（正常调用不会出现） | — |
+| `1` | 相对残差下降满足 `ftol` | 已收敛 |
+| `2` | 相邻迭代参数变化满足 `xtol` | 已收敛 |
+| `3` | `ftol` 与 `xtol` 同时满足 | 已收敛 |
+| `5` | 达到最大函数求值次数 | 可用但可能未到最优，可增大 `MaxIter` |
+| `6` | `ftol` 过小，无法进一步下降 | 通常已到平台区，结合 `RSS` 判断 |
+| `7` | `xtol` 过小，参数无法进一步改善 | 同上 |
+| `0` | 输入参数不当 / 表达式解析或求值失败 | 见 `StatusMessage` |
+| `4` / `8` | 梯度余弦判据相关 | **本实现 `gtol=0` 已关闭，不会出现** |
+| `-1` / `-2` | 运行中 / 未开始 | 正常调用不会出现 |
 
-> 拟合是否成功**不应只看 Status**：`1~4` 为严格收敛；`5~8` 表示迭代正常结束但未达严格判据，
-> 此时应结合 `Rss` 与 `StatusMessage` 判断结果是否可接受。
+> 判断是否成功不要只看 Status：`1~3` 为严格收敛；`5~7` 表示迭代正常结束但未达严格判据，应结合 `RSS` 与 `StatusMessage`。
+> 表达式语法错误、求值定义域错误等运行期问题**不报算子错误**，而是写入 `StatusMessage`（文本以 `expression error:` 或 `error:` 开头）。
 
-**出错处理**：以下情况不会中断程序，而是返回 `Status = 0`、`Rss = -1`，原因写入 `StatusMessage`（以 `expression error:` 开头）：
-
-- 表达式中出现未定义变量或语法错误
-- 表达式求值失败（除零、`log` 负数、`sqrt` 负数等定义域错误）
-- 拟合过程中出现非有限数
-
-以下情况属于调用方参数错误，直接返回错误码（HALCON 报错）：
+**算子错误码**：
 
 | 错误码 | 含义 |
 |---|---|
-| 30001 | 表达式为空 |
-| 30002 | `ParamNames` 为空（至少需要一个参数） |
-| 30003 | `InitialValues` 长度与 `ParamNames` 不一致 |
-| 30004 | `XData` 与 `YData` 长度不一致 |
-| 30005 | 数据点少于参数个数（欠定，需 `len(XData) >= len(ParamNames)`） |
-| 30006 | 参数名为空串 |
-| 30007 | 参数名与自变量名（`XName`）冲突 |
-| 30008 | 参数名重复 |
+| 30001 | 句柄无效（类型不符或已 `cv_fit_clear`），**或** `InitialValues` 长度 ≠ 参数数（两者同码，看错误文本区分） |
+| 30002 | 自变量长度非法（`X` 长度须为自变量个数 M 的整数倍） |
+| 30003 | 观测长度 ≠ 点数 × 输出个数 K |
+| 30004 | 欠定（点数 < 参数数） |
+| 30021 | X/Y/Z 与模型维度不匹配（如 K=1,M=1 未传 `Y`） |
+| 30022 | K=1 且 M>2 时使用了 X/Y/Z 模式（请改用拉平模式） |
 
 **表达式语法**（由 muparser 提供）：
 
 | 类别 | 可用内容 |
 |---|---|
 | 运算符 | `+ - * / ^`（`^` 为乘方）、一元 `-` |
-| 常用函数 | `sin cos tan asin acos atan atan2 sinh cosh tanh exp log log2 log10 sqrt abs ceil floor` |
+| 常用函数 | `sin cos tan asin acos atan atan2 sinh cosh tanh exp log log2 log10 sqrt abs ceil floor pow` |
 | 其它 | `min max sum avg if(cond,a,b) sign`，以及常量 `pi`、`e` |
 
-**示例**：拟合 $y = a\,e^{b x} + c$
+**示例**：$y = a\,e^{-b x}$（真值 a=2, b=0.5），并演示句柄复用
 
 ```hdevelop
-XData := [0.0, 0.5, 1.0, 1.5, 2.0, 2.5]
-YData := [4.62, 3.72, 3.05, 2.54, 2.14, 1.85]
+X := []
+Y := []
+for I := 0 to 19 by 1
+  X := [X, 0.2 * I]
+  Y := [Y, 2.0 * exp(-0.5 * 0.2 * I)]
+endfor
 
-eigen_lm_fit ('a*exp(b*x)+c', ['a','b','c'], [1.0, -0.1, 0.0], XData, YData, 'x', 0, 0.0, \
-              ParamValues, Rss, Iterations, Status, StatusMessage)
-* → ParamValues ≈ [3.50, -0.45, 1.20], Status ∈ {1,2,3,4}
+cv_lm_create ('a*exp(-b*x)', ['a','b'], ['x'], LmHandle)
+cv_lm_fit (LmHandle, X, Y, [], [1.0, 1.0], 2000, 0.0, Params, RSS, It, St, Msg)
+* → Params ≈ [2.0, 0.5]，St ∈ {1,2,3}
+cv_lm_fit (LmHandle, X, Y, [], [3.0, 0.8], 2000, 0.0, Params2, RSS2, It2, St2, Msg2)
+* 句柄复用：换个相近初值再拟合，应收敛到同一结果
+cv_fit_clear (LmHandle)
 ```
 
-**其它可用模型示例**：
-
-| 表达式 | 模型 |
-|---|---|
-| `'a*x+b'` | 线性（亦可直接用 `eigen_ldlt`/`eigen_llt`） |
-| `'a*x^2+b*x+c'` | 二次多项式 |
-| `'a*exp(-b*x)+c'` | 指数衰减（初值 `b > 0`） |
-| `'a*sin(b*x+c)+d'` | 正弦 |
-| `'a*exp(-((x-b)/c)^2)'` | 高斯峰 |
-| `'1/(1+exp(-a*(x-b)))'` | Logistic（无显式幅度） |
-
-> ⚠️ 模型的参数**可辨识性**由用户负责：例如 `a*exp(b*x)+c` 中若数据几乎不衰减，
-> `a` 与 `c` 会相互抵消而无法唯一确定，此时可能出现 `Rss` 很小但参数跑偏的情况。
-
-例程：`examples/math/eigen_lm_fit.hdev`
-
-#### eigen_lm_fit_2d
-
-多维自变量 / 多输出的**联合**拟合。与 `eigen_lm_fit` 的区别：
-
-| | `eigen_lm_fit` | `eigen_lm_fit_2d` |
-|---|---|---|
-| 自变量个数 | 1 | **任意**（典型 2 个：u, v） |
-| 输出表达式个数 | 1 | **任意**（典型 2 个：dx, dy） |
-| 参数组织 | 单个模型独享 | **所有表达式共享同一组参数** |
-
-参数共享是关键——畸变场这类模型里 `dx` 与 `dy` 用的是同一组畸变系数，
-必须联合求解，两个方向的信息才能互相约束。
-
-```
-eigen_lm_fit_2d(Expressions, ParamNames, InitialValues, XNames, XData, YData, MaxIter, Eps
-                : ParamValues, Rss, Iterations, Status, StatusMessage)
-```
-
-| 参数 | 类型 | 说明 |
-|---|---|---|
-| Expressions | 字符串元组 | 一个或多个模型表达式，如 `['dx模型','dy模型']`，全部共享 `ParamNames` |
-| ParamNames | 字符串元组 | 共享参数名，如 `['k1','k2','p1','p2']` |
-| InitialValues | real 元组 | 参数初值，长度须与 `ParamNames` 一致 |
-| XNames | 字符串元组 | 自变量名，如 `['u','v','r2']`。**预计算的派生量也可当作自变量传入**（如 $r^2=u^2+v^2$） |
-| XData | real 元组 | 自变量数据，长度 = 点数 × M，**行优先**（每点的 M 个值连续存放） |
-| YData | real 元组 | 观测数据，长度 = 点数 × K，**行优先**（每点的 K 个值连续存放） |
-| MaxIter / Eps | 整数 / real | 同 `eigen_lm_fit` |
-| ParamValues | real 元组 | 拟合参数，顺序同 `ParamNames` |
-| Rss | real | **所有输出合并**的残差平方和（表达式出错时为 -1） |
-| Iterations / Status / StatusMessage | — | 同 `eigen_lm_fit`（状态码含义一致） |
-
-残差定义为 $fvec_{h,k} = YData_{h,k} - \text{expr}_k(X_h;\ \mathbf{p})$，向量长度 $H \times K$，
-交由同一个 LevenbergMarquardt 联合最小化。
-
-**错误码**：
-
-| 错误码 | 含义 |
-|---|---|
-| 30001 / 30002 / 30003 | `Expressions` / `XNames` / `ParamNames` 为空 |
-| 30004 | `InitialValues` 长度与 `ParamNames` 不符 |
-| 30005 | `XData` 长度不是自变量个数的整数倍 |
-| 30006 | `YData` 长度 ≠ 点数 × 表达式个数 |
-| 30007 | 数据点少于参数个数（欠定） |
-| 30008 / 30009 / 30011 | 表达式 / 自变量名 / 参数名为空串 |
-| 30010 / 30012 | 自变量名 / 参数名重复 |
-| 30013 | 参数名与自变量名冲突 |
-
-**示例**（畸变场，dx/dy 共享 $k_1,k_2,p_1,p_2$）：
+**多输出共享参数示例**（M 个自变量 + K 个输出的畸变场）：
 
 ```hdevelop
 E1 := 'u*(k1*r2 + k2*r2^2) + p1*(r2 + 2*u^2) + 2*p2*u*v'
 E2 := 'v*(k1*r2 + k2*r2^2) + 2*p1*u*v + p2*(r2 + 2*v^2)'
-* XData 每点 3 个值 [u, v, r2]；YData 每点 2 个值 [dx, dy]
-eigen_lm_fit_2d ([E1, E2], ['k1','k2','p1','p2'], [-0.1, 0.0, 0.0, 0.0], \
-                 ['u','v','r2'], XData, YData, 0, 0.0, \
-                 ParamValues, Rss, Iterations, Status, StatusMessage)
+* XNames = [u, v, r2]，r2 = u^2+v^2 作为预计算派生量直接当一个自变量传入
+cv_lm_create ([E1, E2], ['k1','k2','p1','p2'], ['u','v','r2'], LmDist)
+* XData 每点 3 个值 [u, v, r2]（行优先拉平）；YData 每点 2 个值 [dx, dy]
+cv_lm_fit (LmDist, XData, YData, [], [-0.1, 0.0, 0.0, 0.0], 0, 0.0, \
+           ParamValues, Rss, Iterations, Status, StatusMessage)
+cv_fit_clear (LmDist)
 ```
 
-> ⚠️ 名称中的 `2d` 指典型用途（二维定位 / 位移场拟合）。实现上自变量与输出个数
-> **均不设上限**；`K = 1` 时它就是普通的二维曲面拟合。
+> 其它可用模型：`'a*x+b'`（线性，也可用 `cv_linear_*`）、`'a*pow(x,2)+b*x+c'`、`'a*exp(-b*x)+c'`、`'a*sin(b*x+c)+d'`、`'a*exp(-((x-b)/c)^2)'`、`'1/(1+exp(-a*(x-b)))'`。
 
-> 💡 **该用哪个**：若模型对参数是**线性**的（经典径向+切向畸变、任意维多项式位移场
-> 都属于此类），用 `cv_solve` 解线性最小二乘更合适——无需初值、无局部极小、一次求解。
-> `eigen_lm_fit_2d` 的价值在参数**非线性**进入模型时，例如主点 $c_x, c_y$ 藏在
-> $r^2 = (x-c_x)^2 + (y-c_y)^2$ 内部、需要与内参一起估计的场合。
+> 模型的参数**可辨识性**由用户负责：例如 `a*exp(b*x)+c` 在数据几乎不衰减时 `a` 与 `c` 会相互抵消，可能出现 `RSS` 很小但参数跑偏的情况。
 
-例程：`examples/math/eigen_lm_fit_2d.hdev`
+例程：`examples/math/eigen_lm_fit.hdev`、`examples/math/eigen_lm_fit_2d.hdev`（已迁移到两步式 API）、`examples/cv_fit_demo.hdev`
 
----
+### cv_linear_create
 
-#### linear_fit
-
-单自变量**线性**最小二乘拟合，对应 Eigen `ColPivHouseholderQR`（模型对参数线性，无需初值、无需迭代）。
+构建线性最小二乘模型：一次性校验并编译表达式（只解析一次）。`XNames` 传 1 个 = 一维，传 2 个 = 二维。
 
 ```
-linear_fit(ModelExpression, ParamNames, XData, YData, XName, LinearTolerance : ParamValues, Rss, Rank, Success, StatusMessage)
+cv_linear_create(:: Expression, ParamNames, XNames : ModelHandle)
 ```
 
 | 参数 | 类型 | 方向 | 说明 |
 |---|---|---|---|
-| ModelExpression | string | 输入 | 对参数线性的模型表达式，如 `a+b*x+c*x*x` |
-| ParamNames | string 元组 | 输入 | 参数名，如 `['a','b','c']` |
-| XData | real 元组 | 输入 | 自变量观测值 |
-| YData | real 元组 | 输入 | 因变量观测值（长度与 XData 相同） |
-| XName | string | 输入 | 自变量名，默认 `x` |
-| LinearTolerance | real | 输入 | 线性验证容差，默认 `1e-10` |
-| ParamValues | real 元组 | 输出 | 拟合参数值 |
-| Rss | real | 输出 | 残差平方和（失败为 -1） |
-| Rank | integer | 输出 | 设计矩阵秩 |
-| Success | integer | 输出 | 1 = 成功，0 = 失败 |
-| StatusMessage | string | 输出 | 状态描述 |
+| Expression | 字符串 | 输入 | 模型表达式（单输出，**对参数必须线性**，自变量可非线性） |
+| ParamNames | 字符串元组 | 输入 | 参数名元组（建模时做查重 / 冲突校验） |
+| XNames | 字符串元组 | 输入 | 自变量名元组（1~2 个） |
+| ModelHandle | 句柄 | 输出 | 模型句柄（`cv_linear_fit` 输入，`cv_fit_clear` 释放） |
 
-> 模型对参数必须线性（如 `a+b*x+c*x*x`）；自变量可非线性（如 `a+b*exp(-x)`）。
-> 不支持 `a*exp(b*x)+c` 这类参数非线性模型（请用 `eigen_lm_fit`）。
-
-错误码：
+错误码（`30000 + errCode`）：
 
 | 错误码 | 含义 |
 |---|---|
 | 30001 | 表达式为空 |
-| 30002 | 参数为空 |
-| 30003 | X/Y 数据长度不符 |
-| 30004 | 数据点少于参数个数 |
-| 30005 | 参数名为空 |
-| 30006 | 参数名与自变量名冲突 |
-| 30007 | 参数名重复 |
+| 30002 | 至少需要一个参数名 |
+| 30003 | 自变量个数必须为 1 或 2 |
+| 30004 | 参数名为空串 |
+| 30005 | 参数名重复 |
+| 30006 | 自变量名为空串 |
+| 30007 | 自变量名重复 |
+| 30008 | 参数名与自变量名冲突 |
+| 30009 | 内存不足 |
 
-例程：`examples/math/linear_fit.hdev`；直线拟合演示（`ax+by+c=0` 归一化用法 + 可视化）：`examples/math/linear_fit_line.hdev`
+### cv_linear_fit
 
----
-
-#### linear_fit_2d
-
-双自变量（x、y）**线性**最小二乘拟合，与 `linear_fit` 的区别是自变量拆成两个独立参数。
+用模型句柄做线性最小二乘拟合（设计矩阵列主元 QR + 对参数线性校验），无需初值、无需迭代。
 
 ```
-linear_fit_2d(ModelExpression, ParamNames, XData, YData, ZData, LinearTolerance : ParamValues, Rss, Rank, Success, StatusMessage)
+cv_linear_fit(:: ModelHandle, X, Y, Z, Tolerance : Coefficients, RSS, Rank, Success, Message)
 ```
 
 | 参数 | 类型 | 方向 | 说明 |
 |---|---|---|---|
-| ModelExpression | string | 输入 | 对参数线性的模型表达式，自变量固定为 `x`、`y`，如 `a+b*x+c*y+d*x*y` |
-| ParamNames | string 元组 | 输入 | 参数名，须唯一且不同于 `x`、`y` |
-| XData | real 元组 | 输入 | 自变量 x 的观测值（N 个） |
-| YData | real 元组 | 输入 | 自变量 y 的观测值（N 个） |
-| ZData | real 元组 | 输入 | 因变量 z 的观测值（N 个） |
-| LinearTolerance | real | 输入 | 线性验证容差，默认 `1e-10` |
-| ParamValues / Rss / Rank / Success / StatusMessage | — | 输出 | 同 `linear_fit` |
+| ModelHandle | 句柄 | 输入 | `cv_linear_create` 生成的句柄 |
+| X / Y / Z | 实数元组 | 输入 | 一维：`X` = 自变量、`Y` = 观测（`Z` 传空）；二维：`X`、`Y` = 两个自变量、`Z` = 观测 |
+| Tolerance | 实数 | 输入 | 线性校验容差，`<= 0` 取 `1e-10` |
+| Coefficients | 实数元组 | 输出 | 拟合系数，顺序同 `ParamNames` |
+| RSS | 实数 | 输出 | 残差平方和（失败为 -1） |
+| Rank | 整数 | 输出 | 设计矩阵数值秩 |
+| Success | 整数 | 输出 | 1 = 成功，0 = 失败 |
+| Message | 字符串 | 输出 | 结果描述文本 |
 
-错误码：
+> 模型对参数必须线性（如 `a + b*x + c*pow(x,2)`）；自变量可非线性（如 `a + b*exp(-x)`）。
+> 参数非线性模型（如 `a*exp(b*x)+c`）请用 `cv_lm_create` + `cv_lm_fit`。
+
+**算子错误码**：
 
 | 错误码 | 含义 |
 |---|---|
-| 30001 | 表达式为空 |
-| 30002 | 参数为空 |
-| 30003 | X/Y/Z 数据长度不一致 |
-| 30004 | 数据点少于参数个数 |
-| 30005 | 参数名为空 |
-| 30006 | 参数名与自变量名 x/y 冲突 |
-| 30007 | 参数名重复 |
+| 30001 | 句柄无效（类型不符或已 `cv_fit_clear`） |
+| 30021 | 一维模型却传了非空 `Z` |
+| 30022 | X/Y/Z 长度不匹配（或长度为空） |
 
-例程：`examples/math/linear_fit_2d.hdev`
+**示例**（一维二次多项式，真值 1,2,3；二维见 `examples/cv_fit_demo.hdev`）：
+
+```hdevelop
+Xl := []
+Yl := []
+for I := 0 to 9 by 1
+  Xl := [Xl, I]
+  Yl := [Yl, 1 + 2*I + 3*I*I]
+endfor
+
+cv_linear_create ('a + b*x + c*pow(x,2)', ['a','b','c'], ['x'], LinH)
+cv_linear_fit (LinH, Xl, Yl, [], 0.0, Coef, RSS, Rank, OK, Msg)
+cv_fit_clear (LinH)
+* → Coef ≈ [1,2,3]，OK = 1
+
+* 二维：z = a + b*x + c*y（X、Y 为自变量，Z 为观测）
+cv_linear_create ('a + b*x + c*y', ['a','b','c'], ['x','y'], LinH2)
+cv_linear_fit (LinH2, X, Y, Z, 0.0, Coef2, RSS2, Rank2, OK2, Msg2)
+cv_fit_clear (LinH2)
+```
+
+例程：`examples/math/linear_fit.hdev`、`examples/math/linear_fit_2d.hdev`、`examples/math/linear_fit_line.hdev`（`ax+by+c=0` 归一化用法 + 可视化）
+
+### cv_fit_clear
+
+显式释放拟合模型句柄占用的原生资源（表达式编译产物等）。
+
+```
+cv_fit_clear(:: ModelHandle :)
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| ModelHandle | 句柄 | 输入 | `cv_lm_create` / `cv_linear_create` / `cv_geom_create` 生成的句柄 |
+
+- 释放后句柄**不可再用于拟合**（再用会报 30001）；重复 `clear` 是安全的（幂等）。
+- 模型内存立即释放，句柄壳由 HALCON 句柄 GC 回收。
+- 句柄类型与算子匹配校验：把 linear 句柄传给 `cv_lm_fit`、或把 `cv_lm` 句柄传给 `cv_linear_fit` / `cv_geom_fit` 都会报 30001。
 
 ---
 
@@ -1652,10 +1761,10 @@ std_lower_bound(Image : : Value : Index)
 | `eigen_ldlt` | real 方阵 + b | 解 x 图像 | A 须对称 |
 | `eigen_llt` | real 方阵 + b | 解 x 图像 | A 须正定 |
 | `arma_interp1` | 三个 real 向量 | 插值结果图像 | linear / nearest（可加 `*` 单调前缀） |
-| `eigen_lm_fit` | 8 个 tuple（表达式 + 数据） | 参数值 / RSS / 状态 | 通用表达式拟合，无需重编译 |
-| `eigen_lm_fit_2d` | 8 个 tuple（多表达式 + 数据） | 参数值 / RSS / 状态 | 多自变量 + 多输出共享参数，联合拟合 |
-| `linear_fit` | 6 个 tuple（表达式 + 数据） | 参数值 / RSS / 秩 / 状态 | 参数线性，单自变量，QR 求解 |
-| `linear_fit_2d` | 6 个 tuple（表达式 + X/Y/Z 数据） | 参数值 / RSS / 秩 / 状态 | 参数线性，双自变量 x/y，QR 求解 |
+| `cv_lm_create` / `cv_lm_fit` | 表达式 + 数据 tuple | 参数值 / RSS / 状态 | LM 非线性；M 自变量 × K 输出共享参数，建模式（零解析开销） |
+| `cv_linear_create` / `cv_linear_fit` | 表达式 + 数据 tuple | 系数 / RSS / 秩 / 状态 | 参数线性；1~2 自变量，列主元 QR |
+| `cv_geom_create` / `cv_geom_fit` | 表达式 + 点数据 tuple | 参数值 / 内点掩码 / 状态 | RANSAC 几何拟合，含离群点 |
+| `cv_fit_clear` | 拟合模型句柄 | — | 显式释放模型句柄（幂等） |
 | `std_nth_element` | real 图像 | 标量 tuple | 0-based，可用于求中位数 |
 | `std_sort` | real 图像 | 排序后图像 | 升/降序 |
 | `std_lower_bound` | real 升序图像 | 索引 tuple | 返回 `end` = 元素个数 |
@@ -1676,7 +1785,8 @@ Halcon_SoftwarePackage/
 │   ├── Image2String.hdev
 │   ├── opencv/           # OpenCV 算子例程
 │   └── math/             # 数学 / 矩阵算子例程
-├── cv_region/            # 独立 region 库 + ransac 拟合核心（C++17；静态库 cvr_core 直接链入扩展包，可脱离 HALCON 调用）
+├── cv_region/            # 独立 region 库（C++17；静态库 cvr_core 直接链入扩展包，可脱离 HALCON 调用）
+├── cv_flow/              # 流程算法库（RANSAC / LM / 线性拟合、1D 测量、特征匹配、ROI 运算、图像序列化；静态库 cvf::cv_flow）
 ├── help/                 # 算子签名数据库（构建时同步，HALCON 调用校验依赖）
 ├── include/              # 头文件
 ├── source/               # 源代码
@@ -1820,7 +1930,7 @@ hrun -v examples\cv_region.hdev      # 跑通即部署成功（退出码 0）
 | [Exiv2](https://exiv2.org/) | 图像 EXIF 元数据读写 | `exiv2` |
 | [Eigen](https://eigen.tuxfamily.org/) | 线性代数模板库（SVD / LDLT / LLT / LM） | `eigen3` |
 | [Armadillo](https://arma.sourceforge.net/) | C++ 线性代数与统计库 | `armadillo` |
-| [muparser](https://beltoforion.de/en/muparser/) | 数学表达式解析（`eigen_lm_fit` 运行时模型） | `muparser` |
+| [muparser](https://beltoforion.de/en/muparser/) | 数学表达式解析（`cv_lm_create` / `cv_geom_create` 的运行时模型） | `muparser` |
 
 ## 许可证
 

@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>linear_fit [HALCON Operator Reference / Version 24.11.1.0]</title>
+<title>cv_linear_fit [HALCON Operator Reference / Version 24.11.1.0]</title>
 <style type="text/css">
 
       body {
@@ -1083,29 +1083,29 @@ toggleLanguage(new_lang,1);return;}
 </div>
 <!--OP_REF_HEADER_END-->
 <h1 id="sec_name">
-<span data-if="hdevelop" style="display:inline;">linear_fit</span><span data-if="c" style="display:none;">T_linear_fit</span><span data-if="cpp" style="display:none;">LinearFit</span><span data-if="dotnet" style="display:none;">LinearFit</span><span data-if="python" style="display:none;">linear_fit</span> (Operator)</h1>
+<span data-if="hdevelop" style="display:inline;">cv_linear_fit</span><span data-if="c" style="display:none;">T_cv_linear_fit</span><span data-if="cpp" style="display:none;">CvLinearFit</span><span data-if="dotnet" style="display:none;">CvLinearFit</span><span data-if="python" style="display:none;">cv_linear_fit</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">linear_fit</span><span data-if="c" style="display:none;">T_linear_fit</span><span data-if="cpp" style="display:none;">LinearFit</span><span data-if="dotnet" style="display:none;">LinearFit</span><span data-if="python" style="display:none;">linear_fit</span></code> — Fit a linear-in-parameters model expression to data using Eigen ColPivHouseholderQR.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_linear_fit</span><span data-if="c" style="display:none;">T_cv_linear_fit</span><span data-if="cpp" style="display:none;">CvLinearFit</span><span data-if="dotnet" style="display:none;">CvLinearFit</span><span data-if="python" style="display:none;">cv_linear_fit</span></code> — 用 cv_linear_create 构建的模型句柄做线性最小二乘拟合（列主元 QR + 对参数线性校验，零解析开销）。一维传 X,Y（Z 空）；二维传 X,Y,Z。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
-<code><b>linear_fit</b>( :  : <a href="#modelExpression"><i>modelExpression</i></a>, <a href="#paramNames"><i>paramNames</i></a>, <a href="#xData"><i>xData</i></a>, <a href="#yData"><i>yData</i></a>, <a href="#xName"><i>xName</i></a>, <a href="#linearTolerance"><i>linearTolerance</i></a> : <a href="#paramValues"><i>paramValues</i></a>, <a href="#rss"><i>rss</i></a>, <a href="#rank"><i>rank</i></a>, <a href="#success"><i>success</i></a>, <a href="#statusMessage"><i>statusMessage</i></a>)</code></p>
+<code><b>cv_linear_fit</b>( :  : <a href="#ModelHandle"><i>ModelHandle</i></a>, <a href="#X"><i>X</i></a>, <a href="#Y"><i>Y</i></a>, <a href="#Z"><i>Z</i></a>, <a href="#Tolerance"><i>Tolerance</i></a> : <a href="#Coefficients"><i>Coefficients</i></a>, <a href="#RSS"><i>RSS</i></a>, <a href="#Rank"><i>Rank</i></a>, <a href="#Success"><i>Success</i></a>, <a href="#Message"><i>Message</i></a>)</code></p>
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>T_linear_fit</b>(const Htuple <a href="#modelExpression"><i>modelExpression</i></a>, const Htuple <a href="#paramNames"><i>paramNames</i></a>, const Htuple <a href="#xData"><i>xData</i></a>, const Htuple <a href="#yData"><i>yData</i></a>, const Htuple <a href="#xName"><i>xName</i></a>, const Htuple <a href="#linearTolerance"><i>linearTolerance</i></a>, Htuple* <a href="#paramValues"><i>paramValues</i></a>, Htuple* <a href="#rss"><i>rss</i></a>, Htuple* <a href="#rank"><i>rank</i></a>, Htuple* <a href="#success"><i>success</i></a>, Htuple* <a href="#statusMessage"><i>statusMessage</i></a>)</code></p>
+<code>Herror <b>T_cv_linear_fit</b>(const Htuple <a href="#ModelHandle"><i>ModelHandle</i></a>, const Htuple <a href="#X"><i>X</i></a>, const Htuple <a href="#Y"><i>Y</i></a>, const Htuple <a href="#Z"><i>Z</i></a>, const Htuple <a href="#Tolerance"><i>Tolerance</i></a>, Htuple* <a href="#Coefficients"><i>Coefficients</i></a>, Htuple* <a href="#RSS"><i>RSS</i></a>, Htuple* <a href="#Rank"><i>Rank</i></a>, Htuple* <a href="#Success"><i>Success</i></a>, Htuple* <a href="#Message"><i>Message</i></a>)</code></p>
 </div>
 <div data-if="cpp" style="display:none;">
 <p>
-<code>void <b>LinearFit</b>(const HTuple&amp; <a href="#modelExpression"><i>modelExpression</i></a>, const HTuple&amp; <a href="#paramNames"><i>paramNames</i></a>, const HTuple&amp; <a href="#xData"><i>xData</i></a>, const HTuple&amp; <a href="#yData"><i>yData</i></a>, const HTuple&amp; <a href="#xName"><i>xName</i></a>, const HTuple&amp; <a href="#linearTolerance"><i>linearTolerance</i></a>, HTuple* <a href="#paramValues"><i>paramValues</i></a>, HTuple* <a href="#rss"><i>rss</i></a>, HTuple* <a href="#rank"><i>rank</i></a>, HTuple* <a href="#success"><i>success</i></a>, HTuple* <a href="#statusMessage"><i>statusMessage</i></a>)</code></p>
+<code>void <b>CvLinearFit</b>(const HTuple&amp; <a href="#ModelHandle"><i>ModelHandle</i></a>, const HTuple&amp; <a href="#X"><i>X</i></a>, const HTuple&amp; <a href="#Y"><i>Y</i></a>, const HTuple&amp; <a href="#Z"><i>Z</i></a>, const HTuple&amp; <a href="#Tolerance"><i>Tolerance</i></a>, HTuple* <a href="#Coefficients"><i>Coefficients</i></a>, HTuple* <a href="#RSS"><i>RSS</i></a>, HTuple* <a href="#Rank"><i>Rank</i></a>, HTuple* <a href="#Success"><i>Success</i></a>, HTuple* <a href="#Message"><i>Message</i></a>)</code></p>
 </div>
 <div data-if="dotnet" style="display:none;">
 <p>
-<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>LinearFit</b>(<a href="HTuple.html">HTuple</a> <a href="#modelExpression"><i>modelExpression</i></a>, <a href="HTuple.html">HTuple</a> <a href="#paramNames"><i>paramNames</i></a>, <a href="HTuple.html">HTuple</a> <a href="#xData"><i>xData</i></a>, <a href="HTuple.html">HTuple</a> <a href="#yData"><i>yData</i></a>, <a href="HTuple.html">HTuple</a> <a href="#xName"><i>xName</i></a>, <a href="HTuple.html">HTuple</a> <a href="#linearTolerance"><i>linearTolerance</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#paramValues"><i>paramValues</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#rss"><i>rss</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#rank"><i>rank</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#success"><i>success</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#statusMessage"><i>statusMessage</i></a>)</code></p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvLinearFit</b>(<a href="HTuple.html">HTuple</a> <a href="#ModelHandle"><i>modelHandle</i></a>, <a href="HTuple.html">HTuple</a> <a href="#X"><i>x</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Y"><i>y</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Z"><i>z</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Tolerance"><i>tolerance</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#Coefficients"><i>coefficients</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#RSS"><i>RSS</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#Rank"><i>rank</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#Success"><i>success</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#Message"><i>message</i></a>)</code></p>
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>linear_fit</b>(<a href="#modelExpression"><i>model_expression</i></a>: str, <a href="#paramNames"><i>param_names</i></a>: Sequence[str], <a href="#xData"><i>xdata</i></a>: Sequence[float], <a href="#yData"><i>ydata</i></a>: Sequence[float], <a href="#xName"><i>xname</i></a>: str, <a href="#linearTolerance"><i>linear_tolerance</i></a>: float) -&gt; Tuple[Sequence[float], float, int, int, str]</code></p>
+<code>def <b>cv_linear_fit</b>(<a href="#ModelHandle"><i>model_handle</i></a>: HHandle, <a href="#X"><i>x</i></a>: Sequence[Union[float, int]], <a href="#Y"><i>y</i></a>: Sequence[Union[float, int]], <a href="#Z"><i>z</i></a>: Sequence[Union[float, int]], <a href="#Tolerance"><i>tolerance</i></a>: float) -&gt; Tuple[Sequence[float], float, int, int, str]</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1116,90 +1116,63 @@ toggleLanguage(new_lang,1);return;}
 <h2 id="sec_parameters">Parameters</h2>
   <div class="par">
 <div class="parhead">
-<span id="modelExpression" class="parname"><b><code><span data-if="hdevelop" style="display:inline">modelExpression</span><span data-if="c" style="display:none">modelExpression</span><span data-if="cpp" style="display:none">modelExpression</span><span data-if="dotnet" style="display:none">modelExpression</span><span data-if="python" style="display:none">model_expression</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
+<span id="ModelHandle" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ModelHandle</span><span data-if="c" style="display:none">ModelHandle</span><span data-if="cpp" style="display:none">ModelHandle</span><span data-if="dotnet" style="display:none">modelHandle</span><span data-if="python" style="display:none">model_handle</span></code></b> (input_control)  </span><span>handle <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">HHandle</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (handle)</span><span data-if="dotnet" style="display:none"> (<i>IntPtr</i>)</span><span data-if="cpp" style="display:none"> (<i>HHandle</i>)</span><span data-if="c" style="display:none"> (<i>handle</i>)</span></span>
 </div>
-<p class="pardesc">Model expression, linear in parameters, e.g. a+b*x+c*x*x.</p>
-<p class="pardesc"><span class="parcat">Default:
-
-      </span>
-    <span data-if="hdevelop" style="display:inline">'"a*x+b"'</span>
-    <span data-if="c" style="display:none">""a*x+b""</span>
-    <span data-if="cpp" style="display:none">""a*x+b""</span>
-    <span data-if="dotnet" style="display:none">""a*x+b""</span>
-    <span data-if="python" style="display:none">""a*x+b""</span>
-</p>
+<p class="pardesc">cv_linear_create 生成的模型句柄</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="paramNames" class="parname"><b><code><span data-if="hdevelop" style="display:inline">paramNames</span><span data-if="c" style="display:none">paramNames</span><span data-if="cpp" style="display:none">paramNames</span><span data-if="dotnet" style="display:none">paramNames</span><span data-if="python" style="display:none">param_names</span></code></b> (input_control)  </span><span>string-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[str]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
+<span id="X" class="parname"><b><code><span data-if="hdevelop" style="display:inline">X</span><span data-if="c" style="display:none">X</span><span data-if="cpp" style="display:none">X</span><span data-if="dotnet" style="display:none">x</span><span data-if="python" style="display:none">x</span></code></b> (input_control)  </span><span>real-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[Union[float, int]]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
 </div>
-<p class="pardesc">Names of the parameters to fit, e.g. a,b,c. Must be unique and differ from XName.</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="xData" class="parname"><b><code><span data-if="hdevelop" style="display:inline">xData</span><span data-if="c" style="display:none">xData</span><span data-if="cpp" style="display:none">xData</span><span data-if="dotnet" style="display:none">xData</span><span data-if="python" style="display:none">xdata</span></code></b> (input_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
-</div>
-<p class="pardesc">Samples of the independent variable.</p>
+<p class="pardesc">自变量数据（一维时唯一的自变量；二维时第 1 自变量）</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="yData" class="parname"><b><code><span data-if="hdevelop" style="display:inline">yData</span><span data-if="c" style="display:none">yData</span><span data-if="cpp" style="display:none">yData</span><span data-if="dotnet" style="display:none">yData</span><span data-if="python" style="display:none">ydata</span></code></b> (input_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
+<span id="Y" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Y</span><span data-if="c" style="display:none">Y</span><span data-if="cpp" style="display:none">Y</span><span data-if="dotnet" style="display:none">y</span><span data-if="python" style="display:none">y</span></code></b> (input_control)  </span><span>real-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[Union[float, int]]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
 </div>
-<p class="pardesc">Samples of the dependent variable. Length must equal the number of XData.</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="xName" class="parname"><b><code><span data-if="hdevelop" style="display:inline">xName</span><span data-if="c" style="display:none">xName</span><span data-if="cpp" style="display:none">xName</span><span data-if="dotnet" style="display:none">xName</span><span data-if="python" style="display:none">xname</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
-</div>
-<p class="pardesc">Name of the independent variable used in the model expression (default: x).</p>
-<p class="pardesc"><span class="parcat">Default:
-
-      </span>
-    <span data-if="hdevelop" style="display:inline">'"x"'</span>
-    <span data-if="c" style="display:none">""x""</span>
-    <span data-if="cpp" style="display:none">""x""</span>
-    <span data-if="dotnet" style="display:none">""x""</span>
-    <span data-if="python" style="display:none">""x""</span>
-</p>
+<p class="pardesc">一维时为观测数据，二维时为第 2 自变量</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="linearTolerance" class="parname"><b><code><span data-if="hdevelop" style="display:inline">linearTolerance</span><span data-if="c" style="display:none">linearTolerance</span><span data-if="cpp" style="display:none">linearTolerance</span><span data-if="dotnet" style="display:none">linearTolerance</span><span data-if="python" style="display:none">linear_tolerance</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
+<span id="Z" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Z</span><span data-if="c" style="display:none">Z</span><span data-if="cpp" style="display:none">Z</span><span data-if="dotnet" style="display:none">z</span><span data-if="python" style="display:none">z</span></code></b> (input_control)  </span><span>real-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[Union[float, int]]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
 </div>
-<p class="pardesc">Tolerance for the parameter-linearity verification (default: 1e-10).</p>
-<p class="pardesc"><span class="parcat">Default:
-
-      </span>1.0e-10</p>
+<p class="pardesc">二维时的观测数据（一维传空元组）</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="paramValues" class="parname"><b><code><span data-if="hdevelop" style="display:inline">paramValues</span><span data-if="c" style="display:none">paramValues</span><span data-if="cpp" style="display:none">paramValues</span><span data-if="dotnet" style="display:none">paramValues</span><span data-if="python" style="display:none">param_values</span></code></b> (output_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
+<span id="Tolerance" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Tolerance</span><span data-if="c" style="display:none">Tolerance</span><span data-if="cpp" style="display:none">Tolerance</span><span data-if="dotnet" style="display:none">tolerance</span><span data-if="python" style="display:none">tolerance</span></code></b> (input_control)  </span><span>real <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc">Fitted parameter values, ordered like ParamNames.</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="rss" class="parname"><b><code><span data-if="hdevelop" style="display:inline">rss</span><span data-if="c" style="display:none">rss</span><span data-if="cpp" style="display:none">rss</span><span data-if="dotnet" style="display:none">rss</span><span data-if="python" style="display:none">rss</span></code></b> (output_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
-</div>
-<p class="pardesc">Residual sum of squares (-1 on failure).</p>
+<p class="pardesc">线性校验容差（&lt;=0 取 1e-10）</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="rank" class="parname"><b><code><span data-if="hdevelop" style="display:inline">rank</span><span data-if="c" style="display:none">rank</span><span data-if="cpp" style="display:none">rank</span><span data-if="dotnet" style="display:none">rank</span><span data-if="python" style="display:none">rank</span></code></b> (output_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
+<span id="Coefficients" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Coefficients</span><span data-if="c" style="display:none">Coefficients</span><span data-if="cpp" style="display:none">Coefficients</span><span data-if="dotnet" style="display:none">coefficients</span><span data-if="python" style="display:none">coefficients</span></code></b> (output_control)  </span><span>real-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc">Rank of the design matrix.</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="success" class="parname"><b><code><span data-if="hdevelop" style="display:inline">success</span><span data-if="c" style="display:none">success</span><span data-if="cpp" style="display:none">success</span><span data-if="dotnet" style="display:none">success</span><span data-if="python" style="display:none">success</span></code></b> (output_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
-</div>
-<p class="pardesc">1 if the fit succeeded, 0 otherwise.</p>
+<p class="pardesc">拟合系数元组（与 ParamNames 同序）</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="statusMessage" class="parname"><b><code><span data-if="hdevelop" style="display:inline">statusMessage</span><span data-if="c" style="display:none">statusMessage</span><span data-if="cpp" style="display:none">statusMessage</span><span data-if="dotnet" style="display:none">statusMessage</span><span data-if="python" style="display:none">status_message</span></code></b> (output_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
+<span id="RSS" class="parname"><b><code><span data-if="hdevelop" style="display:inline">RSS</span><span data-if="c" style="display:none">RSS</span><span data-if="cpp" style="display:none">RSS</span><span data-if="dotnet" style="display:none">RSS</span><span data-if="python" style="display:none">rss</span></code></b> (output_control)  </span><span>real <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
 </div>
-<p class="pardesc">Status text of the result.</p>
+<p class="pardesc">残差平方和（失败为 -1）</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="Rank" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Rank</span><span data-if="c" style="display:none">Rank</span><span data-if="cpp" style="display:none">Rank</span><span data-if="dotnet" style="display:none">rank</span><span data-if="python" style="display:none">rank</span></code></b> (output_control)  </span><span>integer <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
+</div>
+<p class="pardesc">设计矩阵数值秩</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="Success" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Success</span><span data-if="c" style="display:none">Success</span><span data-if="cpp" style="display:none">Success</span><span data-if="dotnet" style="display:none">success</span><span data-if="python" style="display:none">success</span></code></b> (output_control)  </span><span>integer <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
+</div>
+<p class="pardesc">拟合成功标志（1/0）</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="Message" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Message</span><span data-if="c" style="display:none">Message</span><span data-if="cpp" style="display:none">Message</span><span data-if="dotnet" style="display:none">message</span><span data-if="python" style="display:none">message</span></code></b> (output_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
+</div>
+<p class="pardesc">结果描述文本</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

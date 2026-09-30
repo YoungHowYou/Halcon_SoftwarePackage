@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>cv_shape_trans [HALCON Operator Reference / Version 24.11.1.0]</title>
+<title>cv_linear_create [HALCON Operator Reference / Version 24.11.1.0]</title>
 <style type="text/css">
 
       body {
@@ -1083,31 +1083,29 @@ toggleLanguage(new_lang,1);return;}
 </div>
 <!--OP_REF_HEADER_END-->
 <h1 id="sec_name">
-<span data-if="hdevelop" style="display:inline;">cv_shape_trans</span><span data-if="c" style="display:none;">cv_shape_trans</span><span data-if="cpp" style="display:none;">CvShapeTrans</span><span data-if="dotnet" style="display:none;">CvShapeTrans</span><span data-if="python" style="display:none;">cv_shape_trans</span> (Operator)</h1>
+<span data-if="hdevelop" style="display:inline;">cv_linear_create</span><span data-if="c" style="display:none;">T_cv_linear_create</span><span data-if="cpp" style="display:none;">CvLinearCreate</span><span data-if="dotnet" style="display:none;">CvLinearCreate</span><span data-if="python" style="display:none;">cv_linear_create</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_shape_trans</span><span data-if="c" style="display:none;">cv_shape_trans</span><span data-if="cpp" style="display:none;">CvShapeTrans</span><span data-if="dotnet" style="display:none;">CvShapeTrans</span><span data-if="python" style="display:none;">cv_shape_trans</span></code> — region 形状变换，对应 HALCON shape_trans。Type 支持 rectangle1 / rectangle2 / ellipse / outer_circle / convex，未实现 inner_circle 与 inner_rectangle1。生成的 region 以像素方格 [r,r+1)x[c,c+1) 为口径（行取 floor(min_row)..floor(max_row)）。rectangle2 为最小外接旋转矩形：轴对齐档与 HALCON 逐像素一致，倾斜档面积差 ≤5%（HALCON 边界栅格化略宽松）。注意 ellipse / outer_circle / convex 与 HALCON 的原生输出存在明显面积偏差（见 README 的 cv_shape_trans 说明）。</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_linear_create</span><span data-if="c" style="display:none;">T_cv_linear_create</span><span data-if="cpp" style="display:none;">CvLinearCreate</span><span data-if="dotnet" style="display:none;">CvLinearCreate</span><span data-if="python" style="display:none;">cv_linear_create</span></code> — 构建线性最小二乘拟合模型：一次性校验并编译表达式（只解析一次），返回可复用句柄。XNames 1 个=一维、2 个=二维。配合 cv_linear_fit、cv_fit_clear。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
-<code><b>cv_shape_trans</b>(<a href="#Region"><i>Region</i></a> : <a href="#RegionTrans"><i>RegionTrans</i></a> : <a href="#Type"><i>Type</i></a> : )</code></p>
+<code><b>cv_linear_create</b>( :  : <a href="#Expression"><i>Expression</i></a>, <a href="#ParamNames"><i>ParamNames</i></a>, <a href="#XNames"><i>XNames</i></a> : <a href="#ModelHandle"><i>ModelHandle</i></a>)</code></p>
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>cv_shape_trans</b>(const Hobject <a href="#Region"><i>Region</i></a>, Hobject* <a href="#RegionTrans"><i>RegionTrans</i></a>, const char* <a href="#Type"><i>Type</i></a>)</code></p>
-<p>
-<code>Herror <b>T_cv_shape_trans</b>(const Hobject <a href="#Region"><i>Region</i></a>, Hobject* <a href="#RegionTrans"><i>RegionTrans</i></a>, const Htuple <a href="#Type"><i>Type</i></a>)</code></p>
+<code>Herror <b>T_cv_linear_create</b>(const Htuple <a href="#Expression"><i>Expression</i></a>, const Htuple <a href="#ParamNames"><i>ParamNames</i></a>, const Htuple <a href="#XNames"><i>XNames</i></a>, Htuple* <a href="#ModelHandle"><i>ModelHandle</i></a>)</code></p>
 </div>
 <div data-if="cpp" style="display:none;">
 <p>
-<code>void <b>CvShapeTrans</b>(const HObject&amp; <a href="#Region"><i>Region</i></a>, HObject* <a href="#RegionTrans"><i>RegionTrans</i></a>, const HTuple&amp; <a href="#Type"><i>Type</i></a>)</code></p>
+<code>void <b>CvLinearCreate</b>(const HTuple&amp; <a href="#Expression"><i>Expression</i></a>, const HTuple&amp; <a href="#ParamNames"><i>ParamNames</i></a>, const HTuple&amp; <a href="#XNames"><i>XNames</i></a>, HTuple* <a href="#ModelHandle"><i>ModelHandle</i></a>)</code></p>
 </div>
 <div data-if="dotnet" style="display:none;">
 <p>
-<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvShapeTrans</b>(<a href="HObject.html">HObject</a> <a href="#Region"><i>region</i></a>, out <a href="HObject.html">HObject</a> <a href="#RegionTrans"><i>regionTrans</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Type"><i>type</i></a>)</code></p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvLinearCreate</b>(<a href="HTuple.html">HTuple</a> <a href="#Expression"><i>expression</i></a>, <a href="HTuple.html">HTuple</a> <a href="#ParamNames"><i>paramNames</i></a>, <a href="HTuple.html">HTuple</a> <a href="#XNames"><i>XNames</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#ModelHandle"><i>modelHandle</i></a>)</code></p>
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>cv_shape_trans</b>(<a href="#Region"><i>region</i></a>: HObject, <a href="#Type"><i>type</i></a>: str) -&gt; HObject</code></p>
+<code>def <b>cv_linear_create</b>(<a href="#Expression"><i>expression</i></a>: str, <a href="#ParamNames"><i>param_names</i></a>: Sequence[str], <a href="#XNames"><i>xnames</i></a>: Sequence[str]) -&gt; HHandle</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1115,39 +1113,31 @@ toggleLanguage(new_lang,1);return;}
 <li>Multithreading scope: global (may be called from any thread).</li>
   <li>Processed without parallelization.</li>
 </ul>
+<p>This operator returns a handle. Note that the state of an instance of this handle type may be changed by specific operators even though the handle is used as an input parameter by those operators.</p>
 <h2 id="sec_parameters">Parameters</h2>
   <div class="par">
 <div class="parhead">
-<span id="Region" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Region</span><span data-if="c" style="display:none">Region</span><span data-if="cpp" style="display:none">Region</span><span data-if="dotnet" style="display:none">region</span><span data-if="python" style="display:none">region</span></code></b> (input_object)  </span><span>region(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
+<span id="Expression" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Expression</span><span data-if="c" style="display:none">Expression</span><span data-if="cpp" style="display:none">Expression</span><span data-if="dotnet" style="display:none">expression</span><span data-if="python" style="display:none">expression</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc">输入 region。</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="RegionTrans" class="parname"><b><code><span data-if="hdevelop" style="display:inline">RegionTrans</span><span data-if="c" style="display:none">RegionTrans</span><span data-if="cpp" style="display:none">RegionTrans</span><span data-if="dotnet" style="display:none">regionTrans</span><span data-if="python" style="display:none">region_trans</span></code></b> (output_object)  </span><span>region(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
-</div>
-<p class="pardesc">输出形状变换后的 region。</p>
+<p class="pardesc">模型表达式（单输出，对参数必须线性，自变量可非线性）</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="Type" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Type</span><span data-if="c" style="display:none">Type</span><span data-if="cpp" style="display:none">Type</span><span data-if="dotnet" style="display:none">type</span><span data-if="python" style="display:none">type</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
+<span id="ParamNames" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ParamNames</span><span data-if="c" style="display:none">ParamNames</span><span data-if="cpp" style="display:none">ParamNames</span><span data-if="dotnet" style="display:none">paramNames</span><span data-if="python" style="display:none">param_names</span></code></b> (input_control)  </span><span>string-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[str]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc">类型（字符串或整数，见算子说明）。</p>
-<p class="pardesc"><span class="parcat">Number of elements:
-
-      </span>RegionTrans == Region</p>
-<p class="pardesc"><span class="parcat">Default:
-
-      </span>
-    <span data-if="hdevelop" style="display:inline">'"convex"'</span>
-    <span data-if="c" style="display:none">""convex""</span>
-    <span data-if="cpp" style="display:none">""convex""</span>
-    <span data-if="dotnet" style="display:none">""convex""</span>
-    <span data-if="python" style="display:none">""convex""</span>
-</p>
-<p class="pardesc"><span class="parcat">List of values:
-
-      </span><span data-if="hdevelop" style="display:inline">'convex'</span><span data-if="c" style="display:none">"convex"</span><span data-if="cpp" style="display:none">"convex"</span><span data-if="dotnet" style="display:none">"convex"</span><span data-if="python" style="display:none">"convex"</span>, <span data-if="hdevelop" style="display:inline">'ellipse'</span><span data-if="c" style="display:none">"ellipse"</span><span data-if="cpp" style="display:none">"ellipse"</span><span data-if="dotnet" style="display:none">"ellipse"</span><span data-if="python" style="display:none">"ellipse"</span>, <span data-if="hdevelop" style="display:inline">'outer_circle'</span><span data-if="c" style="display:none">"outer_circle"</span><span data-if="cpp" style="display:none">"outer_circle"</span><span data-if="dotnet" style="display:none">"outer_circle"</span><span data-if="python" style="display:none">"outer_circle"</span>, <span data-if="hdevelop" style="display:inline">'rectangle1'</span><span data-if="c" style="display:none">"rectangle1"</span><span data-if="cpp" style="display:none">"rectangle1"</span><span data-if="dotnet" style="display:none">"rectangle1"</span><span data-if="python" style="display:none">"rectangle1"</span>, <span data-if="hdevelop" style="display:inline">'rectangle2'</span><span data-if="c" style="display:none">"rectangle2"</span><span data-if="cpp" style="display:none">"rectangle2"</span><span data-if="dotnet" style="display:none">"rectangle2"</span><span data-if="python" style="display:none">"rectangle2"</span></p>
+<p class="pardesc">参数名元组（建模时做查重/冲突校验）</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="XNames" class="parname"><b><code><span data-if="hdevelop" style="display:inline">XNames</span><span data-if="c" style="display:none">XNames</span><span data-if="cpp" style="display:none">XNames</span><span data-if="dotnet" style="display:none">XNames</span><span data-if="python" style="display:none">xnames</span></code></b> (input_control)  </span><span>string-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[str]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
+</div>
+<p class="pardesc">自变量名元组（1 2 个）</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="ModelHandle" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ModelHandle</span><span data-if="c" style="display:none">ModelHandle</span><span data-if="cpp" style="display:none">ModelHandle</span><span data-if="dotnet" style="display:none">modelHandle</span><span data-if="python" style="display:none">model_handle</span></code></b> (output_control)  </span><span>handle <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">HHandle</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (handle)</span><span data-if="dotnet" style="display:none"> (<i>IntPtr</i>)</span><span data-if="cpp" style="display:none"> (<i>HHandle</i>)</span><span data-if="c" style="display:none"> (<i>handle</i>)</span></span>
+</div>
+<p class="pardesc">拟合模型句柄（cv_linear_fit 输入，cv_fit_clear 释放）</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

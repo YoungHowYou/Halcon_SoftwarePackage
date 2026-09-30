@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>cv_shape_trans [HALCON Operator Reference / Version 24.11.1.0]</title>
+<title>cv_gray_features [HALCON Operator Reference / Version 24.11.1.0]</title>
 <style type="text/css">
 
       body {
@@ -1083,31 +1083,29 @@ toggleLanguage(new_lang,1);return;}
 </div>
 <!--OP_REF_HEADER_END-->
 <h1 id="sec_name">
-<span data-if="hdevelop" style="display:inline;">cv_shape_trans</span><span data-if="c" style="display:none;">cv_shape_trans</span><span data-if="cpp" style="display:none;">CvShapeTrans</span><span data-if="dotnet" style="display:none;">CvShapeTrans</span><span data-if="python" style="display:none;">cv_shape_trans</span> (Operator)</h1>
+<span data-if="hdevelop" style="display:inline;">cv_gray_features</span><span data-if="c" style="display:none;">T_cv_gray_features</span><span data-if="cpp" style="display:none;">CvGrayFeatures</span><span data-if="dotnet" style="display:none;">CvGrayFeatures</span><span data-if="python" style="display:none;">cv_gray_features</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_shape_trans</span><span data-if="c" style="display:none;">cv_shape_trans</span><span data-if="cpp" style="display:none;">CvShapeTrans</span><span data-if="dotnet" style="display:none;">CvShapeTrans</span><span data-if="python" style="display:none;">cv_shape_trans</span></code> — region 形状变换，对应 HALCON shape_trans。Type 支持 rectangle1 / rectangle2 / ellipse / outer_circle / convex，未实现 inner_circle 与 inner_rectangle1。生成的 region 以像素方格 [r,r+1)x[c,c+1) 为口径（行取 floor(min_row)..floor(max_row)）。rectangle2 为最小外接旋转矩形：轴对齐档与 HALCON 逐像素一致，倾斜档面积差 ≤5%（HALCON 边界栅格化略宽松）。注意 ellipse / outer_circle / convex 与 HALCON 的原生输出存在明显面积偏差（见 README 的 cv_shape_trans 说明）。</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_gray_features</span><span data-if="c" style="display:none;">T_cv_gray_features</span><span data-if="cpp" style="display:none;">CvGrayFeatures</span><span data-if="dotnet" style="display:none;">CvGrayFeatures</span><span data-if="python" style="display:none;">cv_gray_features</span></code> — 按名称计算 region 的灰度特征，对应 HALCON gray_features（当前为 8 个特征的可用子集）。Features 为特征名元组，缺省 mean；支持：area（灰度体积 Σg）/row/column（灰度重心 Σr·g、Σc·g 除以 Σg）/mean/deviation（强度均值与标准差 sqrt(Σ(g-mean)²/F)）/min/max（区域内灰度极值）/median（等价 min_max_gray(Percent=50)）。与 HALCON 原生 gray_features 在 byte 图上实测 24 个值（3 区域 × 8 特征）全部一致，最大相对偏差 2.2e-15，median 完全一致。Image 为单通道灰度图，支持 byte/int1/int2/uint2/int4/int8/real（direction/cyclic 等非数值类型不支持）；只使用传入的 Regions，忽略图像已设 domain（与 HALCON 一致）。Regions 可为元组，输出 Value 平铺为「区域数 × 特征数」，区域优先、同一区域的各特征值相邻。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
-<code><b>cv_shape_trans</b>(<a href="#Region"><i>Region</i></a> : <a href="#RegionTrans"><i>RegionTrans</i></a> : <a href="#Type"><i>Type</i></a> : )</code></p>
+<code><b>cv_gray_features</b>(<a href="#Regions"><i>Regions</i></a>, <a href="#Image"><i>Image</i></a> :  : <a href="#Features"><i>Features</i></a> : <a href="#Value"><i>Value</i></a>)</code></p>
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>cv_shape_trans</b>(const Hobject <a href="#Region"><i>Region</i></a>, Hobject* <a href="#RegionTrans"><i>RegionTrans</i></a>, const char* <a href="#Type"><i>Type</i></a>)</code></p>
-<p>
-<code>Herror <b>T_cv_shape_trans</b>(const Hobject <a href="#Region"><i>Region</i></a>, Hobject* <a href="#RegionTrans"><i>RegionTrans</i></a>, const Htuple <a href="#Type"><i>Type</i></a>)</code></p>
+<code>Herror <b>T_cv_gray_features</b>(const Hobject <a href="#Regions"><i>Regions</i></a>, const Hobject <a href="#Image"><i>Image</i></a>, const Htuple <a href="#Features"><i>Features</i></a>, Htuple* <a href="#Value"><i>Value</i></a>)</code></p>
 </div>
 <div data-if="cpp" style="display:none;">
 <p>
-<code>void <b>CvShapeTrans</b>(const HObject&amp; <a href="#Region"><i>Region</i></a>, HObject* <a href="#RegionTrans"><i>RegionTrans</i></a>, const HTuple&amp; <a href="#Type"><i>Type</i></a>)</code></p>
+<code>void <b>CvGrayFeatures</b>(const HObject&amp; <a href="#Regions"><i>Regions</i></a>, const HObject&amp; <a href="#Image"><i>Image</i></a>, const HTuple&amp; <a href="#Features"><i>Features</i></a>, HTuple* <a href="#Value"><i>Value</i></a>)</code></p>
 </div>
 <div data-if="dotnet" style="display:none;">
 <p>
-<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvShapeTrans</b>(<a href="HObject.html">HObject</a> <a href="#Region"><i>region</i></a>, out <a href="HObject.html">HObject</a> <a href="#RegionTrans"><i>regionTrans</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Type"><i>type</i></a>)</code></p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvGrayFeatures</b>(<a href="HObject.html">HObject</a> <a href="#Regions"><i>regions</i></a>, <a href="HObject.html">HObject</a> <a href="#Image"><i>image</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Features"><i>features</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#Value"><i>value</i></a>)</code></p>
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>cv_shape_trans</b>(<a href="#Region"><i>region</i></a>: HObject, <a href="#Type"><i>type</i></a>: str) -&gt; HObject</code></p>
+<code>def <b>cv_gray_features</b>(<a href="#Regions"><i>regions</i></a>: HObject, <a href="#Image"><i>image</i></a>: HObject, <a href="#Features"><i>features</i></a>: MaybeSequence[str]) -&gt; Sequence[float]</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1118,36 +1116,30 @@ toggleLanguage(new_lang,1);return;}
 <h2 id="sec_parameters">Parameters</h2>
   <div class="par">
 <div class="parhead">
-<span id="Region" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Region</span><span data-if="c" style="display:none">Region</span><span data-if="cpp" style="display:none">Region</span><span data-if="dotnet" style="display:none">region</span><span data-if="python" style="display:none">region</span></code></b> (input_object)  </span><span>region(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
+<span id="Regions" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Regions</span><span data-if="c" style="display:none">Regions</span><span data-if="cpp" style="display:none">Regions</span><span data-if="dotnet" style="display:none">regions</span><span data-if="python" style="display:none">regions</span></code></b> (input_object)  </span><span>region-array <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc">输入 region。</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="RegionTrans" class="parname"><b><code><span data-if="hdevelop" style="display:inline">RegionTrans</span><span data-if="c" style="display:none">RegionTrans</span><span data-if="cpp" style="display:none">RegionTrans</span><span data-if="dotnet" style="display:none">regionTrans</span><span data-if="python" style="display:none">region_trans</span></code></b> (output_object)  </span><span>region(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
-</div>
-<p class="pardesc">输出形状变换后的 region。</p>
+<p class="pardesc">输入 region 元组，逐元素计算灰度特征。</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="Type" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Type</span><span data-if="c" style="display:none">Type</span><span data-if="cpp" style="display:none">Type</span><span data-if="dotnet" style="display:none">type</span><span data-if="python" style="display:none">type</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
+<span id="Image" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Image</span><span data-if="c" style="display:none">Image</span><span data-if="cpp" style="display:none">Image</span><span data-if="dotnet" style="display:none">image</span><span data-if="python" style="display:none">image</span></code></b> (input_object)  </span><span>image <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc">类型（字符串或整数，见算子说明）。</p>
-<p class="pardesc"><span class="parcat">Number of elements:
-
-      </span>RegionTrans == Region</p>
-<p class="pardesc"><span class="parcat">Default:
-
-      </span>
-    <span data-if="hdevelop" style="display:inline">'"convex"'</span>
-    <span data-if="c" style="display:none">""convex""</span>
-    <span data-if="cpp" style="display:none">""convex""</span>
-    <span data-if="dotnet" style="display:none">""convex""</span>
-    <span data-if="python" style="display:none">""convex""</span>
-</p>
+<p class="pardesc">灰度图（单通道），忽略其已设 domain。</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="Features" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Features</span><span data-if="c" style="display:none">Features</span><span data-if="cpp" style="display:none">Features</span><span data-if="dotnet" style="display:none">features</span><span data-if="python" style="display:none">features</span></code></b> (input_control)  </span><span>string(-array) <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">MaybeSequence[str]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
+</div>
+<p class="pardesc">特征名元组，缺省 mean。</p>
 <p class="pardesc"><span class="parcat">List of values:
 
-      </span><span data-if="hdevelop" style="display:inline">'convex'</span><span data-if="c" style="display:none">"convex"</span><span data-if="cpp" style="display:none">"convex"</span><span data-if="dotnet" style="display:none">"convex"</span><span data-if="python" style="display:none">"convex"</span>, <span data-if="hdevelop" style="display:inline">'ellipse'</span><span data-if="c" style="display:none">"ellipse"</span><span data-if="cpp" style="display:none">"ellipse"</span><span data-if="dotnet" style="display:none">"ellipse"</span><span data-if="python" style="display:none">"ellipse"</span>, <span data-if="hdevelop" style="display:inline">'outer_circle'</span><span data-if="c" style="display:none">"outer_circle"</span><span data-if="cpp" style="display:none">"outer_circle"</span><span data-if="dotnet" style="display:none">"outer_circle"</span><span data-if="python" style="display:none">"outer_circle"</span>, <span data-if="hdevelop" style="display:inline">'rectangle1'</span><span data-if="c" style="display:none">"rectangle1"</span><span data-if="cpp" style="display:none">"rectangle1"</span><span data-if="dotnet" style="display:none">"rectangle1"</span><span data-if="python" style="display:none">"rectangle1"</span>, <span data-if="hdevelop" style="display:inline">'rectangle2'</span><span data-if="c" style="display:none">"rectangle2"</span><span data-if="cpp" style="display:none">"rectangle2"</span><span data-if="dotnet" style="display:none">"rectangle2"</span><span data-if="python" style="display:none">"rectangle2"</span></p>
+      </span><span data-if="hdevelop" style="display:inline">'area'</span><span data-if="c" style="display:none">"area"</span><span data-if="cpp" style="display:none">"area"</span><span data-if="dotnet" style="display:none">"area"</span><span data-if="python" style="display:none">"area"</span>, <span data-if="hdevelop" style="display:inline">'column'</span><span data-if="c" style="display:none">"column"</span><span data-if="cpp" style="display:none">"column"</span><span data-if="dotnet" style="display:none">"column"</span><span data-if="python" style="display:none">"column"</span>, <span data-if="hdevelop" style="display:inline">'deviation'</span><span data-if="c" style="display:none">"deviation"</span><span data-if="cpp" style="display:none">"deviation"</span><span data-if="dotnet" style="display:none">"deviation"</span><span data-if="python" style="display:none">"deviation"</span>, <span data-if="hdevelop" style="display:inline">'max'</span><span data-if="c" style="display:none">"max"</span><span data-if="cpp" style="display:none">"max"</span><span data-if="dotnet" style="display:none">"max"</span><span data-if="python" style="display:none">"max"</span>, <span data-if="hdevelop" style="display:inline">'mean'</span><span data-if="c" style="display:none">"mean"</span><span data-if="cpp" style="display:none">"mean"</span><span data-if="dotnet" style="display:none">"mean"</span><span data-if="python" style="display:none">"mean"</span>, <span data-if="hdevelop" style="display:inline">'median'</span><span data-if="c" style="display:none">"median"</span><span data-if="cpp" style="display:none">"median"</span><span data-if="dotnet" style="display:none">"median"</span><span data-if="python" style="display:none">"median"</span>, <span data-if="hdevelop" style="display:inline">'min'</span><span data-if="c" style="display:none">"min"</span><span data-if="cpp" style="display:none">"min"</span><span data-if="dotnet" style="display:none">"min"</span><span data-if="python" style="display:none">"min"</span>, <span data-if="hdevelop" style="display:inline">'row'</span><span data-if="c" style="display:none">"row"</span><span data-if="cpp" style="display:none">"row"</span><span data-if="dotnet" style="display:none">"row"</span><span data-if="python" style="display:none">"row"</span></p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="Value" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Value</span><span data-if="c" style="display:none">Value</span><span data-if="cpp" style="display:none">Value</span><span data-if="dotnet" style="display:none">value</span><span data-if="python" style="display:none">value</span></code></b> (output_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
+</div>
+<p class="pardesc">特征值元组，平铺为「区域数 × 特征数」，区域优先。</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

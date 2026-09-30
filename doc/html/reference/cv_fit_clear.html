@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>cv_shape_trans [HALCON Operator Reference / Version 24.11.1.0]</title>
+<title>cv_fit_clear [HALCON Operator Reference / Version 24.11.1.0]</title>
 <style type="text/css">
 
       body {
@@ -1083,31 +1083,29 @@ toggleLanguage(new_lang,1);return;}
 </div>
 <!--OP_REF_HEADER_END-->
 <h1 id="sec_name">
-<span data-if="hdevelop" style="display:inline;">cv_shape_trans</span><span data-if="c" style="display:none;">cv_shape_trans</span><span data-if="cpp" style="display:none;">CvShapeTrans</span><span data-if="dotnet" style="display:none;">CvShapeTrans</span><span data-if="python" style="display:none;">cv_shape_trans</span> (Operator)</h1>
+<span data-if="hdevelop" style="display:inline;">cv_fit_clear</span><span data-if="c" style="display:none;">T_cv_fit_clear</span><span data-if="cpp" style="display:none;">CvFitClear</span><span data-if="dotnet" style="display:none;">CvFitClear</span><span data-if="python" style="display:none;">cv_fit_clear</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_shape_trans</span><span data-if="c" style="display:none;">cv_shape_trans</span><span data-if="cpp" style="display:none;">CvShapeTrans</span><span data-if="dotnet" style="display:none;">CvShapeTrans</span><span data-if="python" style="display:none;">cv_shape_trans</span></code> — region 形状变换，对应 HALCON shape_trans。Type 支持 rectangle1 / rectangle2 / ellipse / outer_circle / convex，未实现 inner_circle 与 inner_rectangle1。生成的 region 以像素方格 [r,r+1)x[c,c+1) 为口径（行取 floor(min_row)..floor(max_row)）。rectangle2 为最小外接旋转矩形：轴对齐档与 HALCON 逐像素一致，倾斜档面积差 ≤5%（HALCON 边界栅格化略宽松）。注意 ellipse / outer_circle / convex 与 HALCON 的原生输出存在明显面积偏差（见 README 的 cv_shape_trans 说明）。</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_fit_clear</span><span data-if="c" style="display:none;">T_cv_fit_clear</span><span data-if="cpp" style="display:none;">CvFitClear</span><span data-if="dotnet" style="display:none;">CvFitClear</span><span data-if="python" style="display:none;">cv_fit_clear</span></code> — 显式释放拟合模型句柄占用的原生资源（表达式编译产物等）。句柄随后不可再用于拟合；模型内存立即释放，句柄壳由 HALCON 句柄 GC 回收。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
-<code><b>cv_shape_trans</b>(<a href="#Region"><i>Region</i></a> : <a href="#RegionTrans"><i>RegionTrans</i></a> : <a href="#Type"><i>Type</i></a> : )</code></p>
+<code><b>cv_fit_clear</b>( :  : <a href="#ModelHandle"><i>ModelHandle</i></a> : )</code></p>
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>cv_shape_trans</b>(const Hobject <a href="#Region"><i>Region</i></a>, Hobject* <a href="#RegionTrans"><i>RegionTrans</i></a>, const char* <a href="#Type"><i>Type</i></a>)</code></p>
-<p>
-<code>Herror <b>T_cv_shape_trans</b>(const Hobject <a href="#Region"><i>Region</i></a>, Hobject* <a href="#RegionTrans"><i>RegionTrans</i></a>, const Htuple <a href="#Type"><i>Type</i></a>)</code></p>
+<code>Herror <b>T_cv_fit_clear</b>(const Htuple <a href="#ModelHandle"><i>ModelHandle</i></a>)</code></p>
 </div>
 <div data-if="cpp" style="display:none;">
 <p>
-<code>void <b>CvShapeTrans</b>(const HObject&amp; <a href="#Region"><i>Region</i></a>, HObject* <a href="#RegionTrans"><i>RegionTrans</i></a>, const HTuple&amp; <a href="#Type"><i>Type</i></a>)</code></p>
+<code>void <b>CvFitClear</b>(const HTuple&amp; <a href="#ModelHandle"><i>ModelHandle</i></a>)</code></p>
 </div>
 <div data-if="dotnet" style="display:none;">
 <p>
-<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvShapeTrans</b>(<a href="HObject.html">HObject</a> <a href="#Region"><i>region</i></a>, out <a href="HObject.html">HObject</a> <a href="#RegionTrans"><i>regionTrans</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Type"><i>type</i></a>)</code></p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvFitClear</b>(<a href="HTuple.html">HTuple</a> <a href="#ModelHandle"><i>modelHandle</i></a>)</code></p>
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>cv_shape_trans</b>(<a href="#Region"><i>region</i></a>: HObject, <a href="#Type"><i>type</i></a>: str) -&gt; HObject</code></p>
+<code>def <b>cv_fit_clear</b>(<a href="#ModelHandle"><i>model_handle</i></a>: HHandle) -&gt; None</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1118,36 +1116,9 @@ toggleLanguage(new_lang,1);return;}
 <h2 id="sec_parameters">Parameters</h2>
   <div class="par">
 <div class="parhead">
-<span id="Region" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Region</span><span data-if="c" style="display:none">Region</span><span data-if="cpp" style="display:none">Region</span><span data-if="dotnet" style="display:none">region</span><span data-if="python" style="display:none">region</span></code></b> (input_object)  </span><span>region(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
+<span id="ModelHandle" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ModelHandle</span><span data-if="c" style="display:none">ModelHandle</span><span data-if="cpp" style="display:none">ModelHandle</span><span data-if="dotnet" style="display:none">modelHandle</span><span data-if="python" style="display:none">model_handle</span></code></b> (input_control)  </span><span>handle <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">HHandle</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (handle)</span><span data-if="dotnet" style="display:none"> (<i>IntPtr</i>)</span><span data-if="cpp" style="display:none"> (<i>HHandle</i>)</span><span data-if="c" style="display:none"> (<i>handle</i>)</span></span>
 </div>
-<p class="pardesc">输入 region。</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="RegionTrans" class="parname"><b><code><span data-if="hdevelop" style="display:inline">RegionTrans</span><span data-if="c" style="display:none">RegionTrans</span><span data-if="cpp" style="display:none">RegionTrans</span><span data-if="dotnet" style="display:none">regionTrans</span><span data-if="python" style="display:none">region_trans</span></code></b> (output_object)  </span><span>region(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
-</div>
-<p class="pardesc">输出形状变换后的 region。</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="Type" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Type</span><span data-if="c" style="display:none">Type</span><span data-if="cpp" style="display:none">Type</span><span data-if="dotnet" style="display:none">type</span><span data-if="python" style="display:none">type</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
-</div>
-<p class="pardesc">类型（字符串或整数，见算子说明）。</p>
-<p class="pardesc"><span class="parcat">Number of elements:
-
-      </span>RegionTrans == Region</p>
-<p class="pardesc"><span class="parcat">Default:
-
-      </span>
-    <span data-if="hdevelop" style="display:inline">'"convex"'</span>
-    <span data-if="c" style="display:none">""convex""</span>
-    <span data-if="cpp" style="display:none">""convex""</span>
-    <span data-if="dotnet" style="display:none">""convex""</span>
-    <span data-if="python" style="display:none">""convex""</span>
-</p>
-<p class="pardesc"><span class="parcat">List of values:
-
-      </span><span data-if="hdevelop" style="display:inline">'convex'</span><span data-if="c" style="display:none">"convex"</span><span data-if="cpp" style="display:none">"convex"</span><span data-if="dotnet" style="display:none">"convex"</span><span data-if="python" style="display:none">"convex"</span>, <span data-if="hdevelop" style="display:inline">'ellipse'</span><span data-if="c" style="display:none">"ellipse"</span><span data-if="cpp" style="display:none">"ellipse"</span><span data-if="dotnet" style="display:none">"ellipse"</span><span data-if="python" style="display:none">"ellipse"</span>, <span data-if="hdevelop" style="display:inline">'outer_circle'</span><span data-if="c" style="display:none">"outer_circle"</span><span data-if="cpp" style="display:none">"outer_circle"</span><span data-if="dotnet" style="display:none">"outer_circle"</span><span data-if="python" style="display:none">"outer_circle"</span>, <span data-if="hdevelop" style="display:inline">'rectangle1'</span><span data-if="c" style="display:none">"rectangle1"</span><span data-if="cpp" style="display:none">"rectangle1"</span><span data-if="dotnet" style="display:none">"rectangle1"</span><span data-if="python" style="display:none">"rectangle1"</span>, <span data-if="hdevelop" style="display:inline">'rectangle2'</span><span data-if="c" style="display:none">"rectangle2"</span><span data-if="cpp" style="display:none">"rectangle2"</span><span data-if="dotnet" style="display:none">"rectangle2"</span><span data-if="python" style="display:none">"rectangle2"</span></p>
+<p class="pardesc">cv_lm_create / cv_linear_create / cv_geom_create 生成的句柄</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

@@ -255,6 +255,7 @@ parameter
   default_type:       string;
   multivalue:         optional;
   sem_type:           string;
+  type_list:          string;
   value_list:         area,row,column,mean,deviation,min,max,median;
 
 parameter

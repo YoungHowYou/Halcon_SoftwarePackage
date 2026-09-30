@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>linear_fit_2d [HALCON Operator Reference / Version 24.11.1.0]</title>
+<title>cv_geom_create [HALCON Operator Reference / Version 24.11.1.0]</title>
 <style type="text/css">
 
       body {
@@ -1083,29 +1083,29 @@ toggleLanguage(new_lang,1);return;}
 </div>
 <!--OP_REF_HEADER_END-->
 <h1 id="sec_name">
-<span data-if="hdevelop" style="display:inline;">linear_fit_2d</span><span data-if="c" style="display:none;">T_linear_fit_2d</span><span data-if="cpp" style="display:none;">LinearFit2d</span><span data-if="dotnet" style="display:none;">LinearFit2d</span><span data-if="python" style="display:none;">linear_fit_2d</span> (Operator)</h1>
+<span data-if="hdevelop" style="display:inline;">cv_geom_create</span><span data-if="c" style="display:none;">T_cv_geom_create</span><span data-if="cpp" style="display:none;">CvGeomCreate</span><span data-if="dotnet" style="display:none;">CvGeomCreate</span><span data-if="python" style="display:none;">cv_geom_create</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">linear_fit_2d</span><span data-if="c" style="display:none;">T_linear_fit_2d</span><span data-if="cpp" style="display:none;">LinearFit2d</span><span data-if="dotnet" style="display:none;">LinearFit2d</span><span data-if="python" style="display:none;">linear_fit_2d</span></code> — Fit a linear-in-parameters model with two independent variables using Eigen ColPivHouseholderQR.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_geom_create</span><span data-if="c" style="display:none;">T_cv_geom_create</span><span data-if="cpp" style="display:none;">CvGeomCreate</span><span data-if="dotnet" style="display:none;">CvGeomCreate</span><span data-if="python" style="display:none;">cv_geom_create</span></code> — 构建 RANSAC 几何拟合模型：表达式白名单校验 + 预编译 + 最小采样数自动推导（只解析一次），返回可复用句柄。配合 cv_geom_fit 反复拟合、cv_fit_clear 释放。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
-<code><b>linear_fit_2d</b>( :  : <a href="#modelExpression"><i>modelExpression</i></a>, <a href="#paramNames"><i>paramNames</i></a>, <a href="#xData"><i>xData</i></a>, <a href="#yData"><i>yData</i></a>, <a href="#zData"><i>zData</i></a>, <a href="#linearTolerance"><i>linearTolerance</i></a> : <a href="#paramValues"><i>paramValues</i></a>, <a href="#rss"><i>rss</i></a>, <a href="#rank"><i>rank</i></a>, <a href="#success"><i>success</i></a>, <a href="#statusMessage"><i>statusMessage</i></a>)</code></p>
+<code><b>cv_geom_create</b>( :  : <a href="#ModelExpression"><i>ModelExpression</i></a>, <a href="#XName"><i>XName</i></a>, <a href="#YName"><i>YName</i></a>, <a href="#ParamNames"><i>ParamNames</i></a>, <a href="#ModelType"><i>ModelType</i></a>, <a href="#ResidualType"><i>ResidualType</i></a> : <a href="#ModelHandle"><i>ModelHandle</i></a>)</code></p>
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>T_linear_fit_2d</b>(const Htuple <a href="#modelExpression"><i>modelExpression</i></a>, const Htuple <a href="#paramNames"><i>paramNames</i></a>, const Htuple <a href="#xData"><i>xData</i></a>, const Htuple <a href="#yData"><i>yData</i></a>, const Htuple <a href="#zData"><i>zData</i></a>, const Htuple <a href="#linearTolerance"><i>linearTolerance</i></a>, Htuple* <a href="#paramValues"><i>paramValues</i></a>, Htuple* <a href="#rss"><i>rss</i></a>, Htuple* <a href="#rank"><i>rank</i></a>, Htuple* <a href="#success"><i>success</i></a>, Htuple* <a href="#statusMessage"><i>statusMessage</i></a>)</code></p>
+<code>Herror <b>T_cv_geom_create</b>(const Htuple <a href="#ModelExpression"><i>ModelExpression</i></a>, const Htuple <a href="#XName"><i>XName</i></a>, const Htuple <a href="#YName"><i>YName</i></a>, const Htuple <a href="#ParamNames"><i>ParamNames</i></a>, const Htuple <a href="#ModelType"><i>ModelType</i></a>, const Htuple <a href="#ResidualType"><i>ResidualType</i></a>, Htuple* <a href="#ModelHandle"><i>ModelHandle</i></a>)</code></p>
 </div>
 <div data-if="cpp" style="display:none;">
 <p>
-<code>void <b>LinearFit2d</b>(const HTuple&amp; <a href="#modelExpression"><i>modelExpression</i></a>, const HTuple&amp; <a href="#paramNames"><i>paramNames</i></a>, const HTuple&amp; <a href="#xData"><i>xData</i></a>, const HTuple&amp; <a href="#yData"><i>yData</i></a>, const HTuple&amp; <a href="#zData"><i>zData</i></a>, const HTuple&amp; <a href="#linearTolerance"><i>linearTolerance</i></a>, HTuple* <a href="#paramValues"><i>paramValues</i></a>, HTuple* <a href="#rss"><i>rss</i></a>, HTuple* <a href="#rank"><i>rank</i></a>, HTuple* <a href="#success"><i>success</i></a>, HTuple* <a href="#statusMessage"><i>statusMessage</i></a>)</code></p>
+<code>void <b>CvGeomCreate</b>(const HTuple&amp; <a href="#ModelExpression"><i>ModelExpression</i></a>, const HTuple&amp; <a href="#XName"><i>XName</i></a>, const HTuple&amp; <a href="#YName"><i>YName</i></a>, const HTuple&amp; <a href="#ParamNames"><i>ParamNames</i></a>, const HTuple&amp; <a href="#ModelType"><i>ModelType</i></a>, const HTuple&amp; <a href="#ResidualType"><i>ResidualType</i></a>, HTuple* <a href="#ModelHandle"><i>ModelHandle</i></a>)</code></p>
 </div>
 <div data-if="dotnet" style="display:none;">
 <p>
-<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>LinearFit2d</b>(<a href="HTuple.html">HTuple</a> <a href="#modelExpression"><i>modelExpression</i></a>, <a href="HTuple.html">HTuple</a> <a href="#paramNames"><i>paramNames</i></a>, <a href="HTuple.html">HTuple</a> <a href="#xData"><i>xData</i></a>, <a href="HTuple.html">HTuple</a> <a href="#yData"><i>yData</i></a>, <a href="HTuple.html">HTuple</a> <a href="#zData"><i>zData</i></a>, <a href="HTuple.html">HTuple</a> <a href="#linearTolerance"><i>linearTolerance</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#paramValues"><i>paramValues</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#rss"><i>rss</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#rank"><i>rank</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#success"><i>success</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#statusMessage"><i>statusMessage</i></a>)</code></p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvGeomCreate</b>(<a href="HTuple.html">HTuple</a> <a href="#ModelExpression"><i>modelExpression</i></a>, <a href="HTuple.html">HTuple</a> <a href="#XName"><i>XName</i></a>, <a href="HTuple.html">HTuple</a> <a href="#YName"><i>YName</i></a>, <a href="HTuple.html">HTuple</a> <a href="#ParamNames"><i>paramNames</i></a>, <a href="HTuple.html">HTuple</a> <a href="#ModelType"><i>modelType</i></a>, <a href="HTuple.html">HTuple</a> <a href="#ResidualType"><i>residualType</i></a>, out <a href="HTuple.html">HTuple</a> <a href="#ModelHandle"><i>modelHandle</i></a>)</code></p>
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>linear_fit_2d</b>(<a href="#modelExpression"><i>model_expression</i></a>: str, <a href="#paramNames"><i>param_names</i></a>: Sequence[str], <a href="#xData"><i>xdata</i></a>: Sequence[float], <a href="#yData"><i>ydata</i></a>: Sequence[float], <a href="#zData"><i>zdata</i></a>: Sequence[float], <a href="#linearTolerance"><i>linear_tolerance</i></a>: float) -&gt; Tuple[Sequence[float], float, int, int, str]</code></p>
+<code>def <b>cv_geom_create</b>(<a href="#ModelExpression"><i>model_expression</i></a>: str, <a href="#XName"><i>xname</i></a>: str, <a href="#YName"><i>yname</i></a>: str, <a href="#ParamNames"><i>param_names</i></a>: Sequence[str], <a href="#ModelType"><i>model_type</i></a>: Union[str, int], <a href="#ResidualType"><i>residual_type</i></a>: Union[str, int]) -&gt; HHandle</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1113,84 +1113,49 @@ toggleLanguage(new_lang,1);return;}
 <li>Multithreading scope: global (may be called from any thread).</li>
   <li>Processed without parallelization.</li>
 </ul>
+<p>This operator returns a handle. Note that the state of an instance of this handle type may be changed by specific operators even though the handle is used as an input parameter by those operators.</p>
 <h2 id="sec_parameters">Parameters</h2>
   <div class="par">
 <div class="parhead">
-<span id="modelExpression" class="parname"><b><code><span data-if="hdevelop" style="display:inline">modelExpression</span><span data-if="c" style="display:none">modelExpression</span><span data-if="cpp" style="display:none">modelExpression</span><span data-if="dotnet" style="display:none">modelExpression</span><span data-if="python" style="display:none">model_expression</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
+<span id="ModelExpression" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ModelExpression</span><span data-if="c" style="display:none">ModelExpression</span><span data-if="cpp" style="display:none">ModelExpression</span><span data-if="dotnet" style="display:none">modelExpression</span><span data-if="python" style="display:none">model_expression</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc">Model expression, linear in parameters, e.g. a+b*x+c*y+d*x*y. Independent variables are named x and y.</p>
-<p class="pardesc"><span class="parcat">Default:
-
-      </span>
-    <span data-if="hdevelop" style="display:inline">'"a+b*x+c*y"'</span>
-    <span data-if="c" style="display:none">""a+b*x+c*y""</span>
-    <span data-if="cpp" style="display:none">""a+b*x+c*y""</span>
-    <span data-if="dotnet" style="display:none">""a+b*x+c*y""</span>
-    <span data-if="python" style="display:none">""a+b*x+c*y""</span>
-</p>
+<p class="pardesc">模型表达式：显式 y=f(x) 或隐式 F(x,y)=0（圆/椭圆/圆锥曲线）</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="paramNames" class="parname"><b><code><span data-if="hdevelop" style="display:inline">paramNames</span><span data-if="c" style="display:none">paramNames</span><span data-if="cpp" style="display:none">paramNames</span><span data-if="dotnet" style="display:none">paramNames</span><span data-if="python" style="display:none">param_names</span></code></b> (input_control)  </span><span>string-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[str]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
+<span id="XName" class="parname"><b><code><span data-if="hdevelop" style="display:inline">XName</span><span data-if="c" style="display:none">XName</span><span data-if="cpp" style="display:none">XName</span><span data-if="dotnet" style="display:none">XName</span><span data-if="python" style="display:none">xname</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc">Names of the parameters to fit, e.g. a,b,c,d. Must be unique and differ from x,y.</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="xData" class="parname"><b><code><span data-if="hdevelop" style="display:inline">xData</span><span data-if="c" style="display:none">xData</span><span data-if="cpp" style="display:none">xData</span><span data-if="dotnet" style="display:none">xData</span><span data-if="python" style="display:none">xdata</span></code></b> (input_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
-</div>
-<p class="pardesc">Samples of the independent variable x.</p>
+<p class="pardesc">自变量名（如 x）</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="yData" class="parname"><b><code><span data-if="hdevelop" style="display:inline">yData</span><span data-if="c" style="display:none">yData</span><span data-if="cpp" style="display:none">yData</span><span data-if="dotnet" style="display:none">yData</span><span data-if="python" style="display:none">ydata</span></code></b> (input_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
+<span id="YName" class="parname"><b><code><span data-if="hdevelop" style="display:inline">YName</span><span data-if="c" style="display:none">YName</span><span data-if="cpp" style="display:none">YName</span><span data-if="dotnet" style="display:none">YName</span><span data-if="python" style="display:none">yname</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc">Samples of the independent variable y.</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="zData" class="parname"><b><code><span data-if="hdevelop" style="display:inline">zData</span><span data-if="c" style="display:none">zData</span><span data-if="cpp" style="display:none">zData</span><span data-if="dotnet" style="display:none">zData</span><span data-if="python" style="display:none">zdata</span></code></b> (input_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
-</div>
-<p class="pardesc">Observed values of the dependent variable z. Length must equal the number of XData/YData.</p>
+<p class="pardesc">纵坐标名（如 y，隐式模型必填）</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="linearTolerance" class="parname"><b><code><span data-if="hdevelop" style="display:inline">linearTolerance</span><span data-if="c" style="display:none">linearTolerance</span><span data-if="cpp" style="display:none">linearTolerance</span><span data-if="dotnet" style="display:none">linearTolerance</span><span data-if="python" style="display:none">linear_tolerance</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
+<span id="ParamNames" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ParamNames</span><span data-if="c" style="display:none">ParamNames</span><span data-if="cpp" style="display:none">ParamNames</span><span data-if="dotnet" style="display:none">paramNames</span><span data-if="python" style="display:none">param_names</span></code></b> (input_control)  </span><span>string-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[str]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
 </div>
-<p class="pardesc">Tolerance for the parameter-linearity verification (default: 1e-10).</p>
-<p class="pardesc"><span class="parcat">Default:
-
-      </span>1.0e-10</p>
+<p class="pardesc">参数名元组</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="paramValues" class="parname"><b><code><span data-if="hdevelop" style="display:inline">paramValues</span><span data-if="c" style="display:none">paramValues</span><span data-if="cpp" style="display:none">paramValues</span><span data-if="dotnet" style="display:none">paramValues</span><span data-if="python" style="display:none">param_values</span></code></b> (output_control)  </span><span>number-array <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Sequence[float]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
+<span id="ModelType" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ModelType</span><span data-if="c" style="display:none">ModelType</span><span data-if="cpp" style="display:none">ModelType</span><span data-if="dotnet" style="display:none">modelType</span><span data-if="python" style="display:none">model_type</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[str, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>string</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>HString</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>char*</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
 </div>
-<p class="pardesc">Fitted parameter values, ordered like ParamNames.</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="rss" class="parname"><b><code><span data-if="hdevelop" style="display:inline">rss</span><span data-if="c" style="display:none">rss</span><span data-if="cpp" style="display:none">rss</span><span data-if="dotnet" style="display:none">rss</span><span data-if="python" style="display:none">rss</span></code></b> (output_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
-</div>
-<p class="pardesc">Residual sum of squares (-1 on failure).</p>
+<p class="pardesc">模型类型：explicit（y=f(x)）/ implicit（F(x,y)=0），大小写不敏感，也接受 0/1</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="rank" class="parname"><b><code><span data-if="hdevelop" style="display:inline">rank</span><span data-if="c" style="display:none">rank</span><span data-if="cpp" style="display:none">rank</span><span data-if="dotnet" style="display:none">rank</span><span data-if="python" style="display:none">rank</span></code></b> (output_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
+<span id="ResidualType" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ResidualType</span><span data-if="c" style="display:none">ResidualType</span><span data-if="cpp" style="display:none">ResidualType</span><span data-if="dotnet" style="display:none">residualType</span><span data-if="python" style="display:none">residual_type</span></code></b> (input_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[str, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>string</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>HString</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>char*</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
 </div>
-<p class="pardesc">Rank of the design matrix.</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="success" class="parname"><b><code><span data-if="hdevelop" style="display:inline">success</span><span data-if="c" style="display:none">success</span><span data-if="cpp" style="display:none">success</span><span data-if="dotnet" style="display:none">success</span><span data-if="python" style="display:none">success</span></code></b> (output_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
-</div>
-<p class="pardesc">1 if the fit succeeded, 0 otherwise.</p>
+<p class="pardesc">残差类型：vertical（|y-f(x)|，仅显式）/ geometric（几何距离，推荐），大小写不敏感，也接受 0/1</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="statusMessage" class="parname"><b><code><span data-if="hdevelop" style="display:inline">statusMessage</span><span data-if="c" style="display:none">statusMessage</span><span data-if="cpp" style="display:none">statusMessage</span><span data-if="dotnet" style="display:none">statusMessage</span><span data-if="python" style="display:none">status_message</span></code></b> (output_control)  </span><span>string <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">str</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (string)</span><span data-if="dotnet" style="display:none"> (<i>string</i>)</span><span data-if="cpp" style="display:none"> (<i>HString</i>)</span><span data-if="c" style="display:none"> (<i>char*</i>)</span></span>
+<span id="ModelHandle" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ModelHandle</span><span data-if="c" style="display:none">ModelHandle</span><span data-if="cpp" style="display:none">ModelHandle</span><span data-if="dotnet" style="display:none">modelHandle</span><span data-if="python" style="display:none">model_handle</span></code></b> (output_control)  </span><span>handle <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">HHandle</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (handle)</span><span data-if="dotnet" style="display:none"> (<i>IntPtr</i>)</span><span data-if="cpp" style="display:none"> (<i>HHandle</i>)</span><span data-if="c" style="display:none"> (<i>handle</i>)</span></span>
 </div>
-<p class="pardesc">Status text of the result.</p>
+<p class="pardesc">几何拟合模型句柄（cv_geom_fit 输入，cv_fit_clear 释放）</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

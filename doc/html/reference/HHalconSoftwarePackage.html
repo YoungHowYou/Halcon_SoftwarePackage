@@ -1185,9 +1185,14 @@ toggleLanguage(new_lang,1);return;}
 <td>圆度（4πA/C²），对应 HALCON circularity。</td>
 </tr>
         <tr>
-<td><code><a href="cv_closing.html">CvClosing</a></code></td>
+<td><code><a href="cv_closing_circle.html">CvClosingCircle</a></code></td>
 <td>  </td>
-<td>region 闭运算：先膨胀后腐蚀，填补细小暗孔洞。对应 HALCON closing。</td>
+<td>圆形结构元闭运算（先膨胀后腐蚀），对应 HALCON closing_circle。Radius 为半径（可小数）</td>
+</tr>
+        <tr>
+<td><code><a href="cv_closing_rectangle1.html">CvClosingRectangle1</a></code></td>
+<td>  </td>
+<td>矩形结构元闭运算（先膨胀后腐蚀），对应 HALCON closing_rectangle1。Width/Height 为核宽高</td>
 </tr>
         <tr>
 <td><code><a href="cv_compactness.html">CvCompactness</a></code></td>
@@ -1205,6 +1210,11 @@ toggleLanguage(new_lang,1);return;}
 <td>连通域标记（8 连通），对应 HALCON connection。输出连通域元组。按行并查集 + 双指针实现。</td>
 </tr>
         <tr>
+<td><code><a href="cv_connection_ex.html">CvConnectionEx</a></code></td>
+<td>  </td>
+<td>连通域标记（同 cv_connection，8 连通），并可按 CacheFeatures 预先计算指定形状特征。算出的特征按 region 内容指纹缓存，后续 cv_select_shape / cv_region_features / 单值特征算子对同一 region 直接查表，不再重复计算。CacheFeatures 为特征名元组，可用名称与 cv_region_features 一致（area/row/column/bbox/width/height/rect2/circle/contlength/convexity/circularity/compactness/rectangularity/moments/elliptic_axis/anisometry/bulkiness/structure_factor 等），另支持组合名 none/basic/cheap/hull/all，元素内可用 '|' 拼接（如 'area|bbox'）；'none' 或不传时行为与 cv_connection 完全一致。选型提示：预计算只对“同一批 region 被反复取特征”有利；若下游对每个成分只查一次（如一次 select_shape 加一次 region_features），直接用 cv_connection 更快——select_shape 的 and 分支会短路，且只需为选中的区域计算。</td>
+</tr>
+        <tr>
 <td><code><a href="cv_contlength.html">CvContlength</a></code></td>
 <td>  </td>
 <td>轮廓长度（含对角 sqrt(2) 修正），对应 HALCON contlength。</td>
@@ -1218,11 +1228,6 @@ toggleLanguage(new_lang,1);return;}
 <td><code><a href="cv_difference.html">CvDifference</a></code></td>
 <td>  </td>
 <td>两个 region 求差集（R1 − R2），对应 HALCON difference。</td>
-</tr>
-        <tr>
-<td><code><a href="cv_dilation1.html">CvDilation1</a></code></td>
-<td>  </td>
-<td>region 膨胀（自定义结构元），对应 HALCON dilation1。SE 参考点=质心四舍五入，用居中+反射 SE 做 Minkowski 和；按行 O(n×SE行数) 实现。</td>
 </tr>
         <tr>
 <td><code><a href="cv_dilation_circle.html">CvDilationCircle</a></code></td>
@@ -1248,11 +1253,6 @@ toggleLanguage(new_lang,1);return;}
 <td><code><a href="cv_elliptic_axis.html">CvEllipticAxis</a></code></td>
 <td>  </td>
 <td>等效椭圆轴（长半轴 Ra、短半轴 Rb、主轴角 Phi），对应 HALCON elliptic_axis。</td>
-</tr>
-        <tr>
-<td><code><a href="cv_erosion1.html">CvErosion1</a></code></td>
-<td>  </td>
-<td>region 腐蚀（自定义结构元），对应 HALCON erosion1。SE 参考点=质心四舍五入；按行 O(n×SE行数) 实现。</td>
 </tr>
         <tr>
 <td><code><a href="cv_erosion_circle.html">CvErosionCircle</a></code></td>
@@ -1290,6 +1290,11 @@ toggleLanguage(new_lang,1);return;}
 <td>图像卷积，对应 cv::filter2D。卷积核经 real 单通道图像传入；Ddepth 支持字符串枚举（same/s16/f32/f64）或整数（-1=保持原深度）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数。</td>
 </tr>
         <tr>
+<td><code><a href="cv_fit_clear.html">CvFitClear</a></code></td>
+<td>  </td>
+<td>显式释放拟合模型句柄占用的原生资源（表达式编译产物等）。句柄随后不可再用于拟合；模型内存立即释放，句柄壳由 HALCON 句柄 GC 回收。</td>
+</tr>
+        <tr>
 <td><code><a href="cv_gen_circle.html">CvGenCircle</a></code></td>
 <td>  </td>
 <td>生成圆形 region，对应 HALCON gen_circle。负坐标按 HALCON 语义裁剪。</td>
@@ -1302,7 +1307,17 @@ toggleLanguage(new_lang,1);return;}
         <tr>
 <td><code><a href="cv_gen_rectangle2.html">CvGenRectangle2</a></code></td>
 <td>  </td>
-<td>生成旋转矩形 region，对应 HALCON gen_rectangle2。Row/Column 为中心坐标，Phi 为主轴与列轴夹角（弧度，HALCON 约定），Length1/Length2 为两个方向的半边长（Length1 沿主轴，均 ≥0）。栅格化口径为「像素方格与矩形相交即取」（像素 (r,c) 覆盖 [r-0.5,r+0.5]×[c-0.5,c+0.5]）：实测轴对齐、Phi=π/2、负中心裁剪三档与 HALCON gen_rectangle2 逐像素一致，倾斜档面积差约 2%。注意 Phi 与 cv_smallest_rectangle2 / cv_elliptic_axis 返回的 phi 反号（既有约定偏差）；口径也与 shape_trans 'rectangle2' 不同（后者面积可差约 5%）。参数为标量，不支持原生那样的元组批量。</td>
+<td>生成旋转矩形 region，对应 HALCON gen_rectangle2。Row/Column 为中心坐标，Phi 为主轴与列轴夹角（弧度，cv/OpenCV 口径；与 HALCON gen_rectangle2 的 phi 反号，同参数为镜像矩形，phi=0 与 +-pi/2 不受影响），Length1/Length2 为两个方向的半边长（Length1 沿主轴，均 ≥0）。栅格化口径为「像素方格与矩形相交即取」（像素 (r,c) 覆盖 [r-0.5,r+0.5]×[c-0.5,c+0.5]）：实测轴对齐、Phi=π/2、负中心裁剪三档与 HALCON gen_rectangle2 逐像素一致，倾斜档面积差约 2%。注意 Phi 与 cv_smallest_rectangle2 / cv_elliptic_axis 返回的 phi 反号（既有约定偏差）；口径也与 shape_trans 'rectangle2' 不同（后者面积可差约 5%）。参数为标量，不支持原生那样的元组批量。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_geom_create.html">CvGeomCreate</a></code></td>
+<td>  </td>
+<td>构建 RANSAC 几何拟合模型：表达式白名单校验 + 预编译 + 最小采样数自动推导（只解析一次），返回可复用句柄。配合 cv_geom_fit 反复拟合、cv_fit_clear 释放。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_geom_fit.html">CvGeomFit</a></code></td>
+<td>  </td>
+<td>用 cv_geom_create 构建的模型句柄做 RANSAC 几何拟合（动态迭代 + LM 精化，零表达式解析开销）。</td>
 </tr>
         <tr>
 <td><code><a href="cv_gray_closing_circle.html">CvGrayClosingCircle</a></code></td>
@@ -1335,6 +1350,11 @@ toggleLanguage(new_lang,1);return;}
 <td>灰度腐蚀（矩形核），对应 cv::morphologyEx MORPH_ERODE。核尺寸 Width×Height；支持 byte/uint2/real，输出同类型。</td>
 </tr>
         <tr>
+<td><code><a href="cv_gray_features.html">CvGrayFeatures</a></code></td>
+<td>  </td>
+<td>按名称计算 region 的灰度特征，对应 HALCON gray_features（当前为 8 个特征的可用子集）。Features 为特征名元组，缺省 mean；支持：area（灰度体积 Σg）/row/column（灰度重心 Σr·g、Σc·g 除以 Σg）/mean/deviation（强度均值与标准差 sqrt(Σ(g-mean)²/F)）/min/max（区域内灰度极值）/median（等价 min_max_gray(Percent=50)）。与 HALCON 原生 gray_features 在 byte 图上实测 24 个值（3 区域 × 8 特征）全部一致，最大相对偏差 2.2e-15，median 完全一致。Image 为单通道灰度图，支持 byte/int1/int2/uint2/int4/int8/real（direction/cyclic 等非数值类型不支持）；只使用传入的 Regions，忽略图像已设 domain（与 HALCON 一致）。Regions 可为元组，输出 Value 平铺为「区域数 × 特征数」，区域优先、同一区域的各特征值相邻。</td>
+</tr>
+        <tr>
 <td><code><a href="cv_gray_opening_circle.html">CvGrayOpeningCircle</a></code></td>
 <td>  </td>
 <td>灰度开运算（圆核）。对应 cv::morphologyEx MORPH_OPEN，核尺寸 2R+1。</td>
@@ -1353,6 +1373,26 @@ toggleLanguage(new_lang,1);return;}
 <td><code><a href="cv_kmeans.html">CvKmeans</a></code></td>
 <td>  </td>
 <td>K 均值聚类，对应 cv::kmeans。样本为 real N×D 图像（N 样本每行 D 维）；输出 Labels（N×1）与 Centers（K×D）。Flags 支持字符串枚举（random/pp/use_initial_labels）或整数，默认 pp。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_linear_create.html">CvLinearCreate</a></code></td>
+<td>  </td>
+<td>构建线性最小二乘拟合模型：一次性校验并编译表达式（只解析一次），返回可复用句柄。XNames 1 个=一维、2 个=二维。配合 cv_linear_fit、cv_fit_clear。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_linear_fit.html">CvLinearFit</a></code></td>
+<td>  </td>
+<td>用 cv_linear_create 构建的模型句柄做线性最小二乘拟合（列主元 QR + 对参数线性校验，零解析开销）。一维传 X,Y（Z 空）；二维传 X,Y,Z。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_lm_create.html">CvLmCreate</a></code></td>
+<td>  </td>
+<td>构建 LM 非线性拟合模型：一次性校验并编译表达式（muparser 整个生命周期只解析这一次），返回可复用的拟合模型句柄。配合 cv_lm_fit 反复拟合、cv_fit_clear 释放。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_lm_fit.html">CvLmFit</a></code></td>
+<td>  </td>
+<td>用 cv_lm_create 构建的模型句柄做 LM 非线性最小二乘拟合（零表达式解析开销）。单输出(K=1)：M=1 传 X+Y、M=2 传 X,Y+Z；多输出(K&gt;1)：X=自变量拉平(点数×M)、Y=观测拉平(点数×K)、Z 传空。</td>
 </tr>
         <tr>
 <td><code><a href="cv_magnitude.html">CvMagnitude</a></code></td>
@@ -1400,19 +1440,19 @@ toggleLanguage(new_lang,1);return;}
 <td>带掩膜的逐元素相乘：掩膜外像素保持 imageA 原值，掩膜内 Out = saturate(Scale * A * B)。Mask 为 byte 单通道图像（尺寸须与输入一致）。其余同 cv_multiply。</td>
 </tr>
         <tr>
-<td><code><a href="cv_opening.html">CvOpening</a></code></td>
+<td><code><a href="cv_opening_circle.html">CvOpeningCircle</a></code></td>
 <td>  </td>
-<td>region 开运算：先腐蚀后膨胀，去除细小亮结构。对应 HALCON opening。</td>
+<td>圆形结构元开运算（先腐蚀后膨胀），对应 HALCON opening_circle。Radius 为半径（可小数）</td>
+</tr>
+        <tr>
+<td><code><a href="cv_opening_rectangle1.html">CvOpeningRectangle1</a></code></td>
+<td>  </td>
+<td>矩形结构元开运算（先腐蚀后膨胀），对应 HALCON opening_rectangle1。Width/Height 为核宽高</td>
 </tr>
         <tr>
 <td><code><a href="cv_orb_detect.html">CvOrbDetect</a></code></td>
 <td>  </td>
 <td>ORB 特征检测与描述子计算，对应 cv::ORB。输入为 8 位单通道图像（以 dict 对象 InputImage 传入）；输出关键点坐标/数量与描述子（byte，32×N）写回同一 dict。检测参数经 dict 键全开放（NFeatures/ScaleFactor/NLevels/EdgeThreshold/FirstLevel/WTA_K/ScoreType/PatchSize/FastThreshold），未设键取 OpenCV 默认。</td>
-</tr>
-        <tr>
-<td><code><a href="cv_ransac_fit.html">CvRansacFit</a></code></td>
-<td>  </td>
-<td>RANSAC generic geometric fitting (cv_region).</td>
 </tr>
         <tr>
 <td><code><a href="cv_rectangularity.html">CvRectangularity</a></code></td>
@@ -1540,29 +1580,9 @@ toggleLanguage(new_lang,1);return;}
 <td>Solve positive-definite linear equations A*x=b using Eigen LLT.</td>
 </tr>
         <tr>
-<td><code><a href="eigen_lm_fit.html">EigenLmFit</a></code></td>
-<td>  </td>
-<td>Fit a user-supplied model expression to data using the Eigen LevenbergMarquardt algorithm.</td>
-</tr>
-        <tr>
-<td><code><a href="eigen_lm_fit_2d.html">EigenLmFit2d</a></code></td>
-<td>  </td>
-<td>Multi-variable multi-output nonlinear least-squares fit with shared parameters using Eigen LevenbergMarquardt.</td>
-</tr>
-        <tr>
 <td><code><a href="eigen_svd.html">EigenSvd</a></code></td>
 <td>  </td>
 <td>Singular value decomposition (JacobiSVD) using Eigen.</td>
-</tr>
-        <tr>
-<td><code><a href="linear_fit.html">LinearFit</a></code></td>
-<td>  </td>
-<td>Fit a linear-in-parameters model expression to data using Eigen ColPivHouseholderQR.</td>
-</tr>
-        <tr>
-<td><code><a href="linear_fit_2d.html">LinearFit2d</a></code></td>
-<td>  </td>
-<td>Fit a linear-in-parameters model with two independent variables using Eigen ColPivHouseholderQR.</td>
 </tr>
         <tr>
 <td><code><a href="modbus_close.html">ModbusClose</a></code></td>

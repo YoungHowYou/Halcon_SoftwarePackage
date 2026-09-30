@@ -1,6 +1,28 @@
 cv_lm_create<- CHcv_lm_create[::Expressions,ParamNames,XNames:ModelHandle]
 short.english
   构建 LM 非线性拟合模型：一次性校验并编译表达式（muparser 整个生命周期只解析这一次），返回可复用的拟合模型句柄。配合 cv_lm_fit 反复拟合、cv_fit_clear 释放。;
+
+short.german
+  Create a reusable Levenberg-Marquardt non-linear fitting model handle (expressions are parsed only once).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Fitting, Lm, NonLinear, Math;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
 parameter
   Expressions:        input_control;
   description.english: 输出表达式元组（1~K 个，共享同一组参数，如畸变场 [dx模型,dy模型]）;
@@ -32,6 +54,28 @@ parameter
 cv_lm_fit<- CHcv_lm_fit[::ModelHandle,X,Y,Z,InitialValues,MaxIter,Eps:ParamValues,RSS,Iterations,Status,StatusMessage]
 short.english
   用 cv_lm_create 构建的模型句柄做 LM 非线性最小二乘拟合（零表达式解析开销）。单输出(K=1)：M=1 传 X+Y、M=2 传 X,Y+Z；多输出(K>1)：X=自变量拉平(点数×M)、Y=观测拉平(点数×K)、Z 传空。;
+
+short.german
+  Fit data with a Levenberg-Marquardt model handle previously created by cv_lm_create (no expression parsing overhead).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Fitting, Lm, NonLinear, Math;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
 parameter
   ModelHandle:        input_control;
   description.english: cv_lm_create 生成的模型句柄;
@@ -87,33 +131,60 @@ parameter
   default_type:       real;
   multivalue:         true;
   sem_type:           real;
+  type_list:          real;
 parameter
   RSS:                output_control;
   description.english: 残差平方和（表达式出错时为 -1）;
   default_type:       real;
   sem_type:           real;
+  type_list:          real;
   multivalue:         false;
 parameter
   Iterations:         output_control;
   description.english: LM 迭代次数;
   default_type:       integer;
   sem_type:           integer;
+  type_list:          integer;
   multivalue:         false;
 parameter
   Status:             output_control;
   description.english: Eigen LM 状态码;
   default_type:       integer;
   sem_type:           integer;
+  type_list:          integer;
   multivalue:         false;
 parameter
   StatusMessage:      output_control;
   description.english: 状态描述文本;
   default_type:       string;
   sem_type:           string;
+  type_list:          string;
   multivalue:         false;
 cv_linear_create<- CHcv_linear_create[::Expression,ParamNames,XNames:ModelHandle]
 short.english
   构建线性最小二乘拟合模型：一次性校验并编译表达式（只解析一次），返回可复用句柄。XNames 1 个=一维、2 个=二维。配合 cv_linear_fit、cv_fit_clear。;
+
+short.german
+  Create a reusable linear least-squares fitting model handle (expressions are parsed only once).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Fitting, Linear, LeastSquares, Math;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
 parameter
   Expression:         input_control;
   description.english: 模型表达式（单输出，对参数必须线性，自变量可非线性）;
@@ -145,6 +216,28 @@ parameter
 cv_linear_fit<- CHcv_linear_fit[::ModelHandle,X,Y,Z,Tolerance:Coefficients,RSS,Rank,Success,Message]
 short.english
   用 cv_linear_create 构建的模型句柄做线性最小二乘拟合（列主元 QR + 对参数线性校验，零解析开销）。一维传 X,Y（Z 空）；二维传 X,Y,Z。;
+
+short.german
+  Fit data with a linear least-squares model handle previously created by cv_linear_create (also validates linearity in the parameters).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Fitting, Linear, LeastSquares, Math;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
 parameter
   ModelHandle:        input_control;
   description.english: cv_linear_create 生成的模型句柄;
@@ -186,33 +279,60 @@ parameter
   default_type:       real;
   multivalue:         true;
   sem_type:           real;
+  type_list:          real;
 parameter
   RSS:                output_control;
   description.english: 残差平方和（失败为 -1）;
   default_type:       real;
   sem_type:           real;
+  type_list:          real;
   multivalue:         false;
 parameter
   Rank:               output_control;
   description.english: 设计矩阵数值秩;
   default_type:       integer;
   sem_type:           integer;
+  type_list:          integer;
   multivalue:         false;
 parameter
   Success:            output_control;
   description.english: 拟合成功标志（1/0）;
   default_type:       integer;
   sem_type:           integer;
+  type_list:          integer;
   multivalue:         false;
 parameter
   Message:            output_control;
   description.english: 结果描述文本;
   default_type:       string;
   sem_type:           string;
+  type_list:          string;
   multivalue:         false;
 cv_fit_clear<- CHcv_fit_clear[::ModelHandle:]
 short.english
   显式释放拟合模型句柄占用的原生资源（表达式编译产物等）。句柄随后不可再用于拟合；模型内存立即释放，句柄壳由 HALCON 句柄 GC 回收。;
+
+short.german
+  Release the native resources (compiled expressions etc.) held by a fitting model handle (do not use the handle for fitting afterwards).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Fitting, Handle, Math;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
 parameter
   ModelHandle:        input_control;
   description.english: cv_lm_create / cv_linear_create / cv_geom_create 生成的句柄;

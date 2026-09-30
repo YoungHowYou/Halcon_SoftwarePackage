@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>cv_select_gray [HALCON Operator Reference / Version 24.11.1.0]</title>
+<title>cv_closing_circle [HALCON Operator Reference / Version 24.11.1.0]</title>
 <style type="text/css">
 
       body {
@@ -1083,29 +1083,31 @@ toggleLanguage(new_lang,1);return;}
 </div>
 <!--OP_REF_HEADER_END-->
 <h1 id="sec_name">
-<span data-if="hdevelop" style="display:inline;">cv_select_gray</span><span data-if="c" style="display:none;">T_cv_select_gray</span><span data-if="cpp" style="display:none;">CvSelectGray</span><span data-if="dotnet" style="display:none;">CvSelectGray</span><span data-if="python" style="display:none;">cv_select_gray</span> (Operator)</h1>
+<span data-if="hdevelop" style="display:inline;">cv_closing_circle</span><span data-if="c" style="display:none;">cv_closing_circle</span><span data-if="cpp" style="display:none;">CvClosingCircle</span><span data-if="dotnet" style="display:none;">CvClosingCircle</span><span data-if="python" style="display:none;">cv_closing_circle</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_select_gray</span><span data-if="c" style="display:none;">T_cv_select_gray</span><span data-if="cpp" style="display:none;">CvSelectGray</span><span data-if="dotnet" style="display:none;">CvSelectGray</span><span data-if="python" style="display:none;">cv_select_gray</span></code> — Select regions by gray value features using OpenCV.</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_closing_circle</span><span data-if="c" style="display:none;">cv_closing_circle</span><span data-if="cpp" style="display:none;">CvClosingCircle</span><span data-if="dotnet" style="display:none;">CvClosingCircle</span><span data-if="python" style="display:none;">cv_closing_circle</span></code> — 圆形结构元闭运算（先膨胀后腐蚀），对应 HALCON closing_circle。Radius 为半径（可小数）</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
-<code><b>cv_select_gray</b>( :  : <a href="#DictHandle"><i>DictHandle</i></a> : )</code></p>
+<code><b>cv_closing_circle</b>(<a href="#Region"><i>Region</i></a> : <a href="#RegionClosing"><i>RegionClosing</i></a> : <a href="#Radius"><i>Radius</i></a> : )</code></p>
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>T_cv_select_gray</b>(const Htuple <a href="#DictHandle"><i>DictHandle</i></a>)</code></p>
+<code>Herror <b>cv_closing_circle</b>(const Hobject <a href="#Region"><i>Region</i></a>, Hobject* <a href="#RegionClosing"><i>RegionClosing</i></a>, double <a href="#Radius"><i>Radius</i></a>)</code></p>
+<p>
+<code>Herror <b>T_cv_closing_circle</b>(const Hobject <a href="#Region"><i>Region</i></a>, Hobject* <a href="#RegionClosing"><i>RegionClosing</i></a>, const Htuple <a href="#Radius"><i>Radius</i></a>)</code></p>
 </div>
 <div data-if="cpp" style="display:none;">
 <p>
-<code>void <b>CvSelectGray</b>(const HTuple&amp; <a href="#DictHandle"><i>DictHandle</i></a>)</code></p>
+<code>void <b>CvClosingCircle</b>(const HObject&amp; <a href="#Region"><i>Region</i></a>, HObject* <a href="#RegionClosing"><i>RegionClosing</i></a>, const HTuple&amp; <a href="#Radius"><i>Radius</i></a>)</code></p>
 </div>
 <div data-if="dotnet" style="display:none;">
 <p>
-<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvSelectGray</b>(<a href="HTuple.html">HTuple</a> <a href="#DictHandle"><i>dictHandle</i></a>)</code></p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvClosingCircle</b>(<a href="HObject.html">HObject</a> <a href="#Region"><i>region</i></a>, out <a href="HObject.html">HObject</a> <a href="#RegionClosing"><i>regionClosing</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Radius"><i>radius</i></a>)</code></p>
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>cv_select_gray</b>(<a href="#DictHandle"><i>dict_handle</i></a>: HHandle) -&gt; None</code></p>
+<code>def <b>cv_closing_circle</b>(<a href="#Region"><i>region</i></a>: HObject, <a href="#Radius"><i>radius</i></a>: Union[float, int]) -&gt; HObject</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1116,9 +1118,27 @@ toggleLanguage(new_lang,1);return;}
 <h2 id="sec_parameters">Parameters</h2>
   <div class="par">
 <div class="parhead">
-<span id="DictHandle" class="parname"><b><code><span data-if="hdevelop" style="display:inline">DictHandle</span><span data-if="c" style="display:none">DictHandle</span><span data-if="cpp" style="display:none">DictHandle</span><span data-if="dotnet" style="display:none">dictHandle</span><span data-if="python" style="display:none">dict_handle</span></code></b> (input_control)  </span><span>handle <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">HHandle</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (handle)</span><span data-if="dotnet" style="display:none"> (<i>IntPtr</i>)</span><span data-if="cpp" style="display:none"> (<i>HHandle</i>)</span><span data-if="c" style="display:none"> (<i>handle</i>)</span></span>
+<span id="Region" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Region</span><span data-if="c" style="display:none">Region</span><span data-if="cpp" style="display:none">Region</span><span data-if="dotnet" style="display:none">region</span><span data-if="python" style="display:none">region</span></code></b> (input_object)  </span><span>region(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
 </div>
-<p class="pardesc"></p>
+<p class="pardesc">输入 region。</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="RegionClosing" class="parname"><b><code><span data-if="hdevelop" style="display:inline">RegionClosing</span><span data-if="c" style="display:none">RegionClosing</span><span data-if="cpp" style="display:none">RegionClosing</span><span data-if="dotnet" style="display:none">regionClosing</span><span data-if="python" style="display:none">region_closing</span></code></b> (output_object)  </span><span>region(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
+</div>
+<p class="pardesc">输出结果 region。</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="Radius" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Radius</span><span data-if="c" style="display:none">Radius</span><span data-if="cpp" style="display:none">Radius</span><span data-if="dotnet" style="display:none">radius</span><span data-if="python" style="display:none">radius</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
+</div>
+<p class="pardesc">半径（像素，可小数）。</p>
+<p class="pardesc"><span class="parcat">Number of elements:
+
+      </span>RegionClosing == Region</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>3.5</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

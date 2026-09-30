@@ -1,6 +1,28 @@
 cv_geom_create<- CHcv_geom_create[::ModelExpression,XName,YName,ParamNames,ModelType,ResidualType:ModelHandle]
 short.english
   构建 RANSAC 几何拟合模型：表达式白名单校验 + 预编译 + 最小采样数自动推导（只解析一次），返回可复用句柄。配合 cv_geom_fit 反复拟合、cv_fit_clear 释放。;
+
+short.german
+  Create a reusable RANSAC geometric fitting model handle (model expression validated and compiled once, minimum sample size derived automatically).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Ransac, Fitting, Geometry, Model;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
 parameter
   ModelExpression:    input_control;
   description.english: 模型表达式：显式 y=f(x) 或隐式 F(x,y)=0（圆/椭圆/圆锥曲线）;
@@ -53,6 +75,28 @@ parameter
 cv_geom_fit<- CHcv_geom_fit[::ModelHandle,XData,YData,InitialValues,Threshold,MaxIter,OutlierRatio,Confidence,Seed:ParamValues,InlierMask,ResidualSum,Iterations,Status,StatusMessage,InlierRatio]
 short.english
   用 cv_geom_create 构建的模型句柄做 RANSAC 几何拟合（动态迭代 + LM 精化，零表达式解析开销）。;
+
+short.german
+  Fit data with a RANSAC geometric model handle previously created by cv_geom_create (dynamic iteration and LM refinement).;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Ransac, Fitting, Geometry, Model;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
 parameter
   ModelHandle:        input_control;
   description.english: cv_geom_create 生成的模型句柄;
@@ -122,40 +166,47 @@ parameter
   default_type:       real;
   multivalue:         true;
   sem_type:           real;
+  type_list:          real;
 parameter
   InlierMask:         output_control;
   description.english: 内点掩码（1=内点，逐点输出）;
   default_type:       integer;
   multivalue:         true;
   sem_type:           integer;
+  type_list:          integer;
 parameter
   ResidualSum:        output_control;
   description.english: 内点（加权）残差平方和;
   default_type:       real;
   sem_type:           real;
+  type_list:          real;
   multivalue:         false;
 parameter
   Iterations:         output_control;
   description.english: 实际迭代次数;
   default_type:       integer;
   sem_type:           integer;
+  type_list:          integer;
   multivalue:         false;
 parameter
   Status:             output_control;
   description.english: 状态码（0=成功，负值见算子文档）;
   default_type:       integer;
   sem_type:           integer;
+  type_list:          integer;
   multivalue:         false;
 parameter
   StatusMessage:      output_control;
   description.english: 状态描述文本;
   default_type:       string;
   sem_type:           string;
+  type_list:          string;
   multivalue:         false;
 parameter
   InlierRatio:        output_control;
   description.english: 内点比例;
   default_type:       real;
   sem_type:           real;
+  type_list:          real;
   multivalue:         false;
 

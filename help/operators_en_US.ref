@@ -1,6 +1,7 @@
 cv_geom_fit(ModelHandle,XData,YData,InitialValues,Threshold,MaxIter,OutlierRatio,Confidence,Seed,ParamValues,InlierMask,ResidualSum,Iterations,Status,StatusMessage,InlierRatio)
 short.ascii=用 cv_geom_create 构建的模型句柄做 RANSAC 几何拟合（动态迭代 + LM 精化，零表达式解析开销）。
-module=4294967295 Foundation
+keywords=UserExtensionsRansacFittingGeometryModel
+module=0 Foundation
 parameter=ModelHandle
 description.ascii=cv_geom_create 生成的模型句柄
 parameter_class=input_control
@@ -67,48 +68,56 @@ multivalue=false
 parameter=ParamValues
 description.ascii=拟合参数值元组
 parameter_class=output_control
+type_list=real
 default_type=real
 sem_type=real
 multivalue=true
 parameter=InlierMask
 description.ascii=内点掩码（1=内点，逐点输出）
 parameter_class=output_control
+type_list=integer
 default_type=integer
 sem_type=integer
 multivalue=true
 parameter=ResidualSum
 description.ascii=内点（加权）残差平方和
 parameter_class=output_control
+type_list=real
 default_type=real
 sem_type=real
 multivalue=false
 parameter=Iterations
 description.ascii=实际迭代次数
 parameter_class=output_control
+type_list=integer
 default_type=integer
 sem_type=integer
 multivalue=false
 parameter=Status
 description.ascii=状态码（0=成功，负值见算子文档）
 parameter_class=output_control
+type_list=integer
 default_type=integer
 sem_type=integer
 multivalue=false
 parameter=StatusMessage
 description.ascii=状态描述文本
 parameter_class=output_control
+type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 parameter=InlierRatio
 description.ascii=内点比例
 parameter_class=output_control
+type_list=real
 default_type=real
 sem_type=real
 multivalue=false
 cv_geom_create(ModelExpression,XName,YName,ParamNames,ModelType,ResidualType,ModelHandle)
 short.ascii=构建 RANSAC 几何拟合模型：表达式白名单校验 + 预编译 + 最小采样数自动推导（只解析一次），返回可复用句柄。配合 cv_geom_fit 反复拟合、cv_fit_clear 释放。
-module=4294967295 Foundation
+keywords=UserExtensionsRansacFittingGeometryModel
+module=0 Foundation
 parameter=ModelExpression
 description.ascii=模型表达式：显式 y=f(x) 或隐式 F(x,y)=0（圆/椭圆/圆锥曲线）
 parameter_class=input_control
@@ -1037,6 +1046,7 @@ parameter=Features
 description.ascii=特征名元组，缺省 mean。
 parameter_class=input_control
 value_list=arearowcolumnmeandeviationminmaxmedian
+type_list=string
 default_type=string
 sem_type=string
 multivalue=optional
@@ -1321,7 +1331,8 @@ sem_type=number
 multivalue=false
 cv_fit_clear(ModelHandle)
 short.ascii=显式释放拟合模型句柄占用的原生资源（表达式编译产物等）。句柄随后不可再用于拟合；模型内存立即释放，句柄壳由 HALCON 句柄 GC 回收。
-module=4294967295 Foundation
+keywords=UserExtensionsFittingHandleMath
+module=0 Foundation
 parameter=ModelHandle
 description.ascii=cv_lm_create / cv_linear_create / cv_geom_create 生成的句柄
 parameter_class=input_control
@@ -1331,7 +1342,8 @@ sem_type=handle
 multivalue=false
 cv_linear_fit(ModelHandle,X,Y,Z,Tolerance,Coefficients,RSS,Rank,Success,Message)
 short.ascii=用 cv_linear_create 构建的模型句柄做线性最小二乘拟合（列主元 QR + 对参数线性校验，零解析开销）。一维传 X,Y（Z 空）；二维传 X,Y,Z。
-module=4294967295 Foundation
+keywords=UserExtensionsFittingLinearLeastSquaresMath
+module=0 Foundation
 parameter=ModelHandle
 description.ascii=cv_linear_create 生成的模型句柄
 parameter_class=input_control
@@ -1370,36 +1382,42 @@ multivalue=false
 parameter=Coefficients
 description.ascii=拟合系数元组（与 ParamNames 同序）
 parameter_class=output_control
+type_list=real
 default_type=real
 sem_type=real
 multivalue=true
 parameter=RSS
 description.ascii=残差平方和（失败为 -1）
 parameter_class=output_control
+type_list=real
 default_type=real
 sem_type=real
 multivalue=false
 parameter=Rank
 description.ascii=设计矩阵数值秩
 parameter_class=output_control
+type_list=integer
 default_type=integer
 sem_type=integer
 multivalue=false
 parameter=Success
 description.ascii=拟合成功标志（1/0）
 parameter_class=output_control
+type_list=integer
 default_type=integer
 sem_type=integer
 multivalue=false
 parameter=Message
 description.ascii=结果描述文本
 parameter_class=output_control
+type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 cv_linear_create(Expression,ParamNames,XNames,ModelHandle)
 short.ascii=构建线性最小二乘拟合模型：一次性校验并编译表达式（只解析一次），返回可复用句柄。XNames 1 个=一维、2 个=二维。配合 cv_linear_fit、cv_fit_clear。
-module=4294967295 Foundation
+keywords=UserExtensionsFittingLinearLeastSquaresMath
+module=0 Foundation
 parameter=Expression
 description.ascii=模型表达式（单输出，对参数必须线性，自变量可非线性）
 parameter_class=input_control
@@ -1430,7 +1448,8 @@ sem_type=handle
 multivalue=false
 cv_lm_fit(ModelHandle,X,Y,Z,InitialValues,MaxIter,Eps,ParamValues,RSS,Iterations,Status,StatusMessage)
 short.ascii=用 cv_lm_create 构建的模型句柄做 LM 非线性最小二乘拟合（零表达式解析开销）。单输出(K=1)：M=1 传 X+Y、M=2 传 X,Y+Z；多输出(K>1)：X=自变量拉平(点数×M)、Y=观测拉平(点数×K)、Z 传空。
-module=4294967295 Foundation
+keywords=UserExtensionsFittingLmNonLinearMath
+module=0 Foundation
 parameter=ModelHandle
 description.ascii=cv_lm_create 生成的模型句柄
 parameter_class=input_control
@@ -1483,36 +1502,42 @@ multivalue=false
 parameter=ParamValues
 description.ascii=拟合后的参数值元组
 parameter_class=output_control
+type_list=real
 default_type=real
 sem_type=real
 multivalue=true
 parameter=RSS
 description.ascii=残差平方和（表达式出错时为 -1）
 parameter_class=output_control
+type_list=real
 default_type=real
 sem_type=real
 multivalue=false
 parameter=Iterations
 description.ascii=LM 迭代次数
 parameter_class=output_control
+type_list=integer
 default_type=integer
 sem_type=integer
 multivalue=false
 parameter=Status
 description.ascii=Eigen LM 状态码
 parameter_class=output_control
+type_list=integer
 default_type=integer
 sem_type=integer
 multivalue=false
 parameter=StatusMessage
 description.ascii=状态描述文本
 parameter_class=output_control
+type_list=string
 default_type=string
 sem_type=string
 multivalue=false
 cv_lm_create(Expressions,ParamNames,XNames,ModelHandle)
 short.ascii=构建 LM 非线性拟合模型：一次性校验并编译表达式（muparser 整个生命周期只解析这一次），返回可复用的拟合模型句柄。配合 cv_lm_fit 反复拟合、cv_fit_clear 释放。
-module=4294967295 Foundation
+keywords=UserExtensionsFittingLmNonLinearMath
+module=0 Foundation
 parameter=Expressions
 description.ascii=输出表达式元组（1~K 个，共享同一组参数，如畸变场 [dx模型,dy模型]）
 parameter_class=input_control
