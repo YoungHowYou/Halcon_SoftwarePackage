@@ -45,7 +45,6 @@ add_library(cv_flow STATIC
   src/imgstr.cpp
   src/fit.cpp
   ${_cvflow_headers}
-  src/parallel_for.hpp
 )
 
 target_include_directories(cv_flow

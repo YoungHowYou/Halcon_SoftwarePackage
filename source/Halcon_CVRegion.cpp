@@ -25,8 +25,13 @@
 #include "Halcon_SoftwarePackage.h"
 
 #include "cvr/cvr.hpp"
+#include "cvflow/parallel_for.hpp"
+
+#include <thread>
 
 #include <cstdio>
+#include <cstdlib>
+#include <chrono>
 #include <cstddef>
 #include <cstring>
 #include <cmath>
@@ -103,9 +108,13 @@ inline FeatureCacheKey feature_key_of(const cvr::CvrRun* runs, size_t n,
     return k;
 }
 
-/* 分片 + 每片 FIFO 上限（防长跑会话无限增长）；条目仅特征值（~300B/region） */
+/* 分片 + 每片 FIFO 上限（防长跑会话无限增长）；条目仅特征值（~300B/region）。
+ * 注意上限的选取：实测 connection→select_shape→region_features 流水线会在一次
+ * 调用内写入 20 万+ 唯一 key，512 的 per-shard 上限会让同一次调用把 97% 的条目
+ * 挤掉、下一次调用基本全 miss（缓存形同虚设）。改 65536/分片（合计 ~100 万条，
+ * 极端峰值 ~350MB 随 FIFO 回收），覆盖该量级并保留防泄漏上限。 */
 struct FeatureCacheShard {
-    static constexpr size_t kCap = 512;
+    static constexpr size_t kCap = 65536;
     std::mutex                                     mtx;
     std::unordered_map<FeatureCacheKey, cvr::CvrFeature, FeatureCacheKeyHash> map;
     std::deque<FeatureCacheKey>                    fifo;
@@ -128,8 +137,23 @@ inline bool feature_cache_lookup(const FeatureCacheKey& k, cvr::CvrFeature& out)
     return true;
 }
 
+/* 只缓存"计算代价高"的特征：实测（28 万唯一内容 region）全量回写时 store 占
+ * 算子耗时 ~40%（~70ms），远超重新计算便宜特征的成本。判据：只要含任一非
+ * 平凡特征（hull/Welzl/卡壳/矩/轮廓类）就回写；只含 center_area（面积/重心）
+ * 或 bbox（rectangle1）这类 O(runs) 秒算的则跳过——它们重算比回写还快。 */
+inline bool feature_worth_caching(const cvr::CvrFeature& f) noexcept {
+    return f.flags.circularity        || f.flags.compactness       ||
+           f.flags.contlength         || f.flags.convexity         ||
+           f.flags.phi                || f.flags.elliptic_axis     ||
+           f.flags.elliptic_shape     || f.flags.excentricity      ||
+           f.flags.moments            || f.flags.smallest_rectangle2 ||
+           f.flags.smallest_circle    || f.flags.min_max_chord     ||
+           f.flags.min_max_chord_gap  || f.flags.rectangularity    ||
+           f.flags.is_convex;
+}
+
 inline void feature_cache_store(const FeatureCacheKey& k, const cvr::CvrFeature& f) {
-    if (!f.flags.any()) return;
+    if (!f.flags.any() || !feature_worth_caching(f)) return;
     FeatureCacheShard& sh = feature_cache()[static_cast<size_t>(k.h1 % kFeatureCacheShards)];
     std::lock_guard<std::mutex> lk(sh.mtx);
     const auto r = sh.map.emplace(k, f);
@@ -667,18 +691,31 @@ Herror Hcv_select_shape(Hproc_handle proc_handle)
     }
 
     /* 全部输入 region -> CvrRegion 数组（保持原 C API 的索引+引用语义） */
+    static const bool sel_prof = std::getenv("CVR_SEL_PROFILE") != nullptr;  // DIAG
+    auto ptick = [&]() { return std::chrono::steady_clock::now(); };          // DIAG
+    double ms_r = 0, ms_c = 0;                                                // DIAG
+
     std::vector<CvrRegion> regs(static_cast<size_t>(n));
     std::vector<Hkey>      obj_keys(static_cast<size_t>(n));
     std::vector<FeatureCacheKey> keys(static_cast<size_t>(n));
+    auto _t0 = ptick();                                                      // DIAG
     for (INT4_8 i = 1; i <= n; ++i) {
         HGetObj(proc_handle, 1, i, &obj_keys[static_cast<size_t>(i - 1)]);
+        /* select_shape 是缓存的"生产者"：实测大批量唯一 key 时，lookup+水合
+         * （~300B 拷贝/region）远超跳过它重算的成本——水合收益属于后续算子
+         * （region_features 自己的 read_region 会水合）。故此处只算 key 存着，
+         * 不做 lookup；store 仍照常回写。 */
+        FeatureCacheKey& k = keys[static_cast<size_t>(i - 1)];
         if (!read_region(proc_handle, obj_keys[static_cast<size_t>(i - 1)],
-                         regs[static_cast<size_t>(i - 1)],
-                         &keys[static_cast<size_t>(i - 1)])) {
+                         regs[static_cast<size_t>(i - 1)], nullptr)) {
             HSetErrText(const_cast<char*>("cv_select_shape: failed to read region"));
             return CVR_ERR_PARAM;
         }
+        k = feature_key_of(regs[static_cast<size_t>(i - 1)].runs.data(),
+                           regs[static_cast<size_t>(i - 1)].runs.size(),
+                           regs[static_cast<size_t>(i - 1)].is_compl);
     }
+    ms_r = std::chrono::duration<double, std::milli>(ptick() - _t0).count(); // DIAG
 
     std::vector<std::string> feats(static_cast<size_t>(n_feat));
     for (INT4_8 f = 0; f < n_feat; ++f)
@@ -687,29 +724,66 @@ Herror Hcv_select_shape(Hproc_handle proc_handle)
     const char* op_str = op_par.par.s ? op_par.par.s : "and";
     const bool is_or = (std::strcmp(op_str, "or") == 0);
 
-    for (INT4_8 i = 1; i <= n; ++i) {
-        bool pass = !is_or;
+    /* 预校验特征名（并行区里拿不到主线程错误串；这里顺便让首个 region 的水合生效） */
+    if (n > 0) {
         for (INT4_8 f = 0; f < n_feat; ++f) {
             double v = 0.0;
-            if (!cvr::cvr_get_feature(regs[static_cast<size_t>(i - 1)],
-                                      feats[static_cast<size_t>(f)], v)) {
+            if (!cvr::cvr_get_feature(regs[0], feats[static_cast<size_t>(f)], v)) {
                 HSetErrText(const_cast<char*>(cvr::cvr_last_error()));
                 return CVR_ERR_OP;
             }
-            const bool ok = (v >= vmin[static_cast<size_t>(f)] &&
-                             v <= vmax[static_cast<size_t>(f)]);
-            if (is_or) { if (ok) { pass = true; break; } }
-            else       { if (!ok) { pass = false; break; } }
         }
-        /* 本次算出的特征按内容指纹回写，供后续算子（如 region_features）直接命中 */
-        feature_cache_store(keys[static_cast<size_t>(i - 1)],
-                            regs[static_cast<size_t>(i - 1)].feature);
-        if (pass) {
+    }
+
+    /* feat+store 按 region 并行（cvr_get_feature 纯 per-region 无副作用；
+     * feature_cache_store 用分片互斥锁，线程安全；passed[] 每 region 独立槽位）。
+     * HCopyObj 必须按输入序且串行（HALCON API）。小 n 保持串行。 */
+    std::vector<char> passed(static_cast<size_t>(n), 0);
+
+    auto feat_range = [&](INT4_8 beg, INT4_8 end) {
+        for (INT4_8 i = beg; i < end; ++i) {
+            const CvrRegion& r = regs[static_cast<size_t>(i - 1)];
+            bool pass = !is_or;
+            for (INT4_8 f = 0; f < n_feat; ++f) {
+                double v = 0.0;
+                cvr::cvr_get_feature(r, feats[static_cast<size_t>(f)], v);  // 已预校验，不会失败
+                const bool ok = (v >= vmin[static_cast<size_t>(f)] &&
+                                 v <= vmax[static_cast<size_t>(f)]);
+                if (is_or) { if (ok) { pass = true; break; } }
+                else       { if (!ok) { pass = false; break; } }
+            }
+            feature_cache_store(keys[static_cast<size_t>(i - 1)], r.feature);
+            passed[static_cast<size_t>(i - 1)] = pass ? 1 : 0;
+        }
+    };
+
+    if (n >= 2048) {
+        const INT4_8 nT = (INT4_8)cvflow::par::Pool::get().executors();
+        std::vector<std::thread> ths;
+        ths.reserve((size_t)(nT > 0 ? nT - 1 : 0));
+        for (INT4_8 t = 1; t < nT; ++t) {
+            const INT4_8 beg = 1 + (INT4_8)(((long long)(t - 1) * n) / nT);
+            const INT4_8 end = 1 + (INT4_8)(((long long)t * n) / nT);
+            ths.emplace_back([&, beg, end] { feat_range(beg, end); });
+        }
+        feat_range(1, 1 + (INT4_8)((long long)n / nT));
+        for (auto& t : ths) if (t.joinable()) t.join();
+    } else {
+        feat_range(1, n + 1);
+    }
+
+    for (INT4_8 i = 1; i <= n; ++i) {
+        if (passed[static_cast<size_t>(i - 1)]) {
+            auto _tc = ptick();                                              // DIAG
             Hkey out_key;
             HCopyObj(proc_handle, obj_keys[static_cast<size_t>(i - 1)], 1,
                      &out_key);
+            ms_c += std::chrono::duration<double, std::milli>(ptick() - _tc).count(); // DIAG
         }
     }
+    if (sel_prof)                                                            // DIAG
+        std::fprintf(stderr, "[sel_prof] n=%lld read=%.1f feat+store(par) copy=%.1f ms\n",
+                     n, ms_r, ms_c);
     return H_MSG_TRUE;
 }
 

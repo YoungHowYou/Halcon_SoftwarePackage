@@ -5,7 +5,7 @@
  *===========================================================================*/
 
 #include "cvflow/measure.hpp"
-#include "parallel_for.hpp"
+#include "cvflow/parallel_for.hpp"
 
 #include <cmath>
 #include <vector>
