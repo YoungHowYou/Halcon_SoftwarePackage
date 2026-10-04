@@ -7,13 +7,13 @@
 <c>* cv_blur — OpenCV 均值滤波（归一化盒式滤波）</c>
 <c>*   支持 8 位(byte) / 16 位(uint2) / 浮点(real) 单通道图像</c>
 <c>*   kwidth/kheight 必须为 ≥1 的奇数；anchor=-1,-1 表核中心</c>
-<c>*   BorderType 支持字符串枚举（'border_default'）或整数（4）</c>
+<c>*   BorderType 由接口传入：枚举字符串（'border_default'）或 OpenCV 整数常量</c>
 <c>* =============================================================</c>
 <c>* ---- 1) 8 位图像，3×3 核，字符串 BorderType ----</c>
 <l>gen_image_const (ImageByte, 'byte', 5, 5)</l>
 <l>set_grayval (ImageByte, 2, 2, 255)</l>
 <l>cv_blur (ImageByte, ImageByteOut, 3, 3, -1, -1, 'border_default')</l>
-<c>* ---- 2) 16 位图像，5×3 核，整数 BorderType（向后兼容） ----</c>
+<c>* ---- 2) 16 位图像，5×3 核，整数 BorderType ----</c>
 <l>gen_image_const (ImageUint2, 'uint2', 5, 5)</l>
 <l>set_grayval (ImageUint2, 2, 2, 65535)</l>
 <l>cv_blur (ImageUint2, ImageUint2Out, 5, 3, -1, -1, 4)</l>

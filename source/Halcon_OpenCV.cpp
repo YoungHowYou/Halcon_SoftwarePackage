@@ -151,6 +151,19 @@ static const CvEnumEntry kDdepthTable[] = {
 };
 static const size_t kDdepthN = sizeof(kDdepthTable) / sizeof(kDdepthTable[0]);
 
+/* 图像类型 / 深度映射助手（定义在「四则运算族」一节，多个算子共用） */
+static int   arith_cv_type_of_kind(int kind);
+static void* arith_pixels_of_kind(int kind, Himage img);
+static int   arith_kind_of_depth(int depth);
+
+/* 滤波类（filter2D / sepFilter2D）的 Ddepth 白名单：-1/'same' 或 u8/u16/f32。
+ * 实测 OpenCV 4.12 这两个函数不支持 CV_32S/CV_16S/CV_64F 输出深度，
+ * 且 s16/f64 也没有 HALCON 图像类型可对应 → 超出白名单直接报参数错。 */
+static bool filter_ddepth_ok(int ddepth)
+{
+    return ddepth == -1 || ddepth == CV_8U || ddepth == CV_16U || ddepth == CV_32F;
+}
+
 static const CvEnumEntry kMatchMethodTable[] = {
     { "sqdiff", 0 }, { "sqdiff_normed", 1 },
     { "ccorr", 2 },  { "ccorr_normed", 3 },
@@ -1662,6 +1675,15 @@ if (!read_enum_param(proc_handle, 1, kDdepthTable, kDdepthN, &ddepth))
         "cv_filter2d: unknown Ddepth (e.g. \"same\",\"s16\",\"f32\" or integer)"));
     return 30004;
 }
+/* Ddepth 白名单：-1/'same' 保持输入类型，u8/u16/f32 → byte/uint2/real。
+ * 输出图像按映射后的类型分配：若仍按输入类型分配，OpenCV 会另分配自己的缓冲，
+ * 真实 HALCON 图像内存里会留下未初始化数据（旧实现的静默错误结果）。 */
+if (!filter_ddepth_ok(ddepth))
+{
+    HSetErrText(const_cast<char*>(
+        "cv_filter2d: Ddepth must be -1/same/u8/u16/f32"));
+    return 30006;
+}
 int borderType = cv::BORDER_DEFAULT;
 if (!read_enum_param(proc_handle, 5, kBorderTypeTable, kBorderTypeN, &borderType))
 {
@@ -1670,15 +1692,11 @@ if (!read_enum_param(proc_handle, 5, kBorderTypeTable, kBorderTypeN, &borderType
     return 30003;
 }
 
-    HCkP(HNewImage(proc_handle, &outimage, inimage.kind, inimage.width, inimage.height));
-    void* outPixels;
-    switch (inimage.kind)
-    {
-    case BYTE_IMAGE:  outPixels = (void*)outimage.pixel.b;   break;
-    case UINT2_IMAGE: outPixels = (void*)outimage.pixel.u.p; break;
-    default:          outPixels = (void*)outimage.pixel.f;   break;
-    }
-    cv::Mat imageOut(outimage.height, outimage.width, cvType, outPixels);
+    const int outKind = (ddepth == -1) ? inimage.kind : arith_kind_of_depth(ddepth);
+
+    HCkP(HNewImage(proc_handle, &outimage, outKind, inimage.width, inimage.height));
+    cv::Mat imageOut(outimage.height, outimage.width, arith_cv_type_of_kind(outKind),
+                     arith_pixels_of_kind(outKind, outimage));
 
     try
     {
@@ -1778,7 +1796,7 @@ Herror HCcv_measure_pos(Hproc_handle proc_handle)
  *===========================================================================*/
 Herror HCcv_blur(Hproc_handle proc_handle)
 {
-    HAllocStringMem(proc_handle, 1024);  // 枚举字符串读取统一在此分配一次（多次分配会泄漏 temp memory）
+    HAllocStringMem(proc_handle, 1024);  // 字符串枚举参数读取需在此分配一次 temp 内存
     Hkey   in_obj_key, out_obj_key, out_image_key;
     Himage inimage, outimage;
     Hcpar  k_width, k_height;
@@ -1793,7 +1811,8 @@ Herror HCcv_blur(Hproc_handle proc_handle)
     if (kw < 1 || (kw % 2) == 0 || kh < 1 || (kh % 2) == 0)
         return 30001;   // 滤波核宽/高必须为 ≥1 的奇数
 
-    /* 全开放参数：anchor / borderType（borderType 支持字符串枚举或整数） */
+    /* 全开放参数：anchor / borderType
+     * borderType 值由接口传入：可为 OpenCV 整数常量，也可为枚举字符串（如 'border_default'） */
     Hcpar anchorX, anchorY;
     HGetSPar(proc_handle, 3, LONG_PAR, &anchorX, 1);
     HGetSPar(proc_handle, 4, LONG_PAR, &anchorY, 1);
@@ -3069,4 +3088,144 @@ Herror HCcv_morphology_ex(Hproc_handle proc_handle)
     if (iterations < 1) iterations = 1;
 
     return gray_morph_run(proc_handle, op, shape, kw, kh, iterations);
+}
+
+/*=============================================================================
+ * cv_gaussian_kernel — 生成高斯核（real / float32 单通道图像）
+ *   1:1 封装 cv::getGaussianKernel：输出 ksize×1 列向量（CV_32F，元素和=1），
+ *   与库函数返回值完全一致，可直接作 cv_sep_filter2d 的 kernelX/kernelY。
+ *   本算子不加形状参数/不做外积（保持与原接口一致）。
+ *===========================================================================*/
+Herror HCcv_gaussian_kernel(Hproc_handle proc_handle)
+{
+    Hkey   out_obj_key, out_image_key;
+    Himage outimage;
+
+    Hcpar ksize_par, sigma_par;
+    HGetSPar(proc_handle, 1, LONG_PAR, &ksize_par, 1);
+    HGetSPar(proc_handle, 2, DOUBLE_PAR, &sigma_par, 1);
+
+    const int ksize = (int)ksize_par.par.l;
+    if (ksize < 1)
+    {
+        HSetErrText(const_cast<char*>("cv_gaussian_kernel: ksize must be >= 1"));
+        return 30001;
+    }
+
+    cv::Mat kernel;
+    try
+    {
+        /* 与 cv::getGaussianKernel 完全一致：ksize×1、CV_32F、元素和归一化为 1 */
+        kernel = cv::getGaussianKernel(ksize, sigma_par.par.d, CV_32F);
+    }
+    catch (const cv::Exception&)
+    {
+        HSetErrText(const_cast<char*>
+            ("cv_gaussian_kernel: cv::getGaussianKernel failed"));
+        return 30002;
+    }
+
+    if (kernel.type() != CV_32F || !kernel.isContinuous() ||
+        kernel.rows != ksize || kernel.cols != 1)
+    {
+        HSetErrText(const_cast<char*>
+            ("cv_gaussian_kernel: unexpected kernel layout (OpenCV behavior changed?)"));
+        return 30002;
+    }
+
+    HCkP(HNewImage(proc_handle, &outimage, FLOAT_IMAGE, 1, ksize));
+    memcpy(outimage.pixel.f, kernel.ptr<float>(0), sizeof(float) * (size_t)ksize);
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_sep_filter2d — 可分离线性滤波（cv::sepFilter2D）
+ *   kernelX（1×N 行向量）逐行卷积 + kernelY（N×1 列向量）逐列卷积：
+ *   与二维卷积结果等价，但每像素运算量为 O(kx+ky) 而非 O(kx*ky)。
+ *   典型搭配：cv_gaussian_kernel 的 'row'/'col' 形状生成可分离高斯核。
+ *   输出类型由 Ddepth 决定（-1/'same' = 输入类型）。
+ *===========================================================================*/
+Herror HCcv_sep_filter2d(Hproc_handle proc_handle)
+{
+    HAllocStringMem(proc_handle, 1024);  // 枚举字符串读取统一在此分配一次（多次分配会泄漏 temp memory）
+    Hkey   in_obj_key, kx_obj_key, ky_obj_key, out_obj_key, out_image_key;
+    Himage inimage, kximage, kyimage, outimage;
+
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+    HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+    HGetObj(proc_handle, 2, 1, &kx_obj_key);
+    HGetDImage(proc_handle, kx_obj_key, 1, &kximage);
+    HGetObj(proc_handle, 3, 1, &ky_obj_key);
+    HGetDImage(proc_handle, ky_obj_key, 1, &kyimage);
+
+    if (kximage.kind != FLOAT_IMAGE || kyimage.kind != FLOAT_IMAGE)
+        return 30001;   // 两个核都必须为 real 单通道图像
+    /* 两个核都必须是一维核（行向量 1×N 或列向量 N×1）。OpenCV 惯用法是两个参数
+     * 传同一个核（rows+cols-1 = N 同样成立），此处不限定朝向，只拦二维核误用 */
+    if ((kximage.height != 1 && kximage.width != 1) ||
+        (kyimage.height != 1 && kyimage.width != 1))
+        return 30002;   // 传了二维核（sepFilter2D 只接受可分离的一维核）
+
+    const int inType = arith_cv_type_of_kind(inimage.kind);
+    if (inType < 0)
+        return 30004;   // 仅支持 byte / uint2 / real 单通道图像
+
+    Hcpar anchorX, anchorY, delta;
+    HGetSPar(proc_handle, 2, LONG_PAR, &anchorX, 1);
+    HGetSPar(proc_handle, 3, LONG_PAR, &anchorY, 1);
+    HGetSPar(proc_handle, 4, DOUBLE_PAR, &delta, 1);
+
+    int ddepth = -1;
+    if (!read_enum_param(proc_handle, 1, kDdepthTable, kDdepthN, &ddepth))
+    {
+        HSetErrText(const_cast<char*>(
+            "cv_sep_filter2d: unknown Ddepth (e.g. \"same\",\"u8\",\"f32\" or integer)"));
+        return 30005;
+    }
+    if (!filter_ddepth_ok(ddepth))
+    {
+        HSetErrText(const_cast<char*>(
+            "cv_sep_filter2d: Ddepth must be -1/same/u8/u16/f32"));
+        return 30006;
+    }
+    int borderType = cv::BORDER_DEFAULT;
+    if (!read_enum_param(proc_handle, 5, kBorderTypeTable, kBorderTypeN, &borderType))
+    {
+        HSetErrText(const_cast<char*>(
+            "cv_sep_filter2d: unknown BorderType (string or integer expected)"));
+        return 30005;
+    }
+
+    const int outKind = (ddepth == -1) ? inimage.kind : arith_kind_of_depth(ddepth);
+
+    cv::Mat imageIn(inimage.height, inimage.width, inType,
+                    arith_pixels_of_kind(inimage.kind, inimage));
+    cv::Mat kernelX((int)kximage.height, (int)kximage.width, CV_32FC1, kximage.pixel.f);
+    cv::Mat kernelY((int)kyimage.height, (int)kyimage.width, CV_32FC1, kyimage.pixel.f);
+
+    HCkP(HNewImage(proc_handle, &outimage, outKind, inimage.width, inimage.height));
+    cv::Mat imageOut(outimage.height, outimage.width, arith_cv_type_of_kind(outKind),
+                     arith_pixels_of_kind(outKind, outimage));
+
+    try
+    {
+        cv::sepFilter2D(imageIn, imageOut, ddepth, kernelX, kernelY,
+                        cv::Point((int)anchorX.par.l, (int)anchorY.par.l),
+                        delta.par.d, borderType);
+    }
+    catch (const cv::Exception&)
+    {
+        return 30003;
+    }
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
 }

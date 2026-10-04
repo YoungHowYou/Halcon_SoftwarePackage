@@ -1,3 +1,146 @@
+cv_sep_filter2d<- Ccv_sep_filter2d[image,kernelX,kernelY:imageOut:ddepth,anchorX,anchorY,delta,borderType:]
+short.german
+  Separable linear filtering of an image with two 1D kernels (OpenCV).;
+
+short.english
+  可分离线性滤波，对应 cv::sepFilter2D：先按 kernelX 逐行卷积、再按 kernelY 逐列卷积，等效于一次二维卷积但每像素运算量为 O(kx+ky) 而非 O(kx*ky)。两个核都是一维核（行向量 1×N 或列向量 N×1，real 单通道图像）；OpenCV 的惯用法是两个参数传同一个核（如 cv_gaussian_kernel 的输出列向量），此处不限定朝向。Ddepth 支持字符串枚举（same/u8/u16/f32）或整数：-1/'same' 保持输入类型，'u8'/'u16'/'f32' 分别输出 byte/uint2/real（'s16'/'s32'/'f64' 无 HALCON 对应类型或 OpenCV 不支持，报 30006）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数；Delta 为结果叠加偏移量。支持 byte / uint2 / real 单通道，输出尺寸与输入一致。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Filter, Convolution, Separable, Gaussian, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  description.english: 单通道 byte / uint2 / real;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  kernelX:           input_object;
+  description.english: 行方向一维核（real 单通道，1×N 或 N×1；可直接用 cv_gaussian_kernel 的输出）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  kernelY:           input_object;
+  description.english: 列方向一维核（real 单通道，1×N 或 N×1；惯用法是与 kernelX 传同一个核）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 与输入同尺寸；类型由 Ddepth 决定（默认与输入同类型）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  ddepth:            input_control;
+  description.english: 输出深度（'same'=-1 / 'u8' / 'u16' / 'f32' 或整数）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:         string,integer;
+  default_value:      -1;
+
+parameter
+  anchorX:           input_control;
+  description.english: 锚点 X（-1=核中心）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:          integer;
+  default_value:      -1;
+
+parameter
+  anchorY:           input_control;
+  description.english: 锚点 Y（-1=核中心）;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:          integer;
+  default_value:      -1;
+
+parameter
+  delta:             input_control;
+  description.english: 结果叠加偏移量;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:          real,integer;
+  default_value:      0.0;
+
+parameter
+  borderType:        input_control;
+  description.english: 边界模式：枚举字符串 constant(0)/replicate(1)/reflect(2)/wrap(3)/reflect101(4)/default(4)/transparent(5)/isolated(16)，大小写不敏感且 border_ 前缀可省；也可直接传整数，默认 4=BORDER_DEFAULT。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:          number;
+  type_list:         string,integer;
+  default_value:      4;
+
+cv_gaussian_kernel<- Ccv_gaussian_kernel[:Kernel:ksize,sigma:]
+short.german
+  Generate a Gaussian kernel as a single-channel real (float32) image (cv::getGaussianKernel).;
+
+short.english
+  生成高斯核（real 单通道图像 = float32），1:1 封装 cv::getGaussianKernel：输出 ksize×1 列向量（元素和归一化为 1），与库函数返回值完全一致，可直接作 cv_sep_filter2d 的 kernelX/kernelY。ksize 为核长度（>=1，建议奇数）；sigma<=0 时按 OpenCV 规则自动推算：奇数 ksize<=7 用 OpenCV 内建小核表（ksize=3 → [0.25,0.5,0.25]），其余 sigma=0.3*((ksize-1)*0.5-1)+0.8。输出为全图域单通道 real 图像。本算子不加形状参数（与库接口保持一致）；需要行向量核时对输出调 cv_reshape(Kernel, 1, KernelRow)。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Gaussian, Kernel, Convolution, Filter, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Kernel:            output_object;
+  description.english: 高斯核图像（real 单通道 float32，ksize×1 列向量，与 cv::getGaussianKernel 返回值一致）;
+  sem_type:          image;
+  multivalue:        false;
+
+parameter
+  ksize:             input_control;
+  description.english: 核长度（>=1，建议奇数；偶数时核关于半整数中心对称，与 cv::getGaussianKernel 一致）;
+  default_type:      integer;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         integer;
+  default_value:     5;
+
+parameter
+  sigma:             input_control;
+  description.english: 标准差；<=0 时按 OpenCV 规则自动推算（见算子说明）;
+  default_type:      real;
+  multivalue:        false;
+  sem_type:          number;
+  type_list:         real,integer;
+  default_value:     0.0;
+
 cv_add<- Ccv_add[imageA,imageB:imageOut:dtype:]
 short.german
   Compute the per-element sum of two images (OpenCV).;
@@ -1569,7 +1712,7 @@ short.german
   Convolve an image with a kernel using OpenCV.;
 
 short.english
-  图像卷积，对应 cv::filter2D。卷积核经 real 单通道图像传入；Ddepth 支持字符串枚举（same/s16/f32/f64）或整数（-1=保持原深度）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数。;
+  图像卷积，对应 cv::filter2D。卷积核经 real 单通道图像传入；Ddepth 支持字符串枚举（same/u8/u16/f32）或整数（-1=保持原深度，'u8'/'u16'/'f32' 分别输出 byte/uint2/real）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数。;
 
 module
   foundation;
@@ -1609,7 +1752,7 @@ parameter
 
 parameter
   ddepth:            input_control;
-  description.english: 输出深度（'same'=-1 / 's16' / 'f32' / 'f64' 或整数）;
+  description.english: 输出深度（'same'=-1 / 'u8' / 'u16' / 'f32' 或整数）;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -1645,7 +1788,7 @@ parameter
 
 parameter
   borderType:        input_control;
-  description.english: 边界模式（字符串枚举或整数）;
+  description.english: 边界模式：枚举字符串 constant(0)/replicate(1)/reflect(2)/wrap(3)/reflect101(4)/default(4)/transparent(5)/isolated(16)，大小写不敏感且 border_ 前缀可省；也可直接传整数，默认 4=BORDER_DEFAULT。;
   default_type:       integer;
   multivalue:         false;
   sem_type:           number;
@@ -1784,7 +1927,7 @@ short.german
   Smooth an image using a normalized box filter (OpenCV).;
 
 short.english
-  对图像做归一化盒式滤波（均值滤波），对应 cv::blur；输出与输入同类型同尺寸的单通道图像，支持 byte / uint2 / real。AnchorX/AnchorY 指定核锚点（-1=核中心）；BorderType 为边界模式，支持字符串枚举（如 'border_default'，大小写不敏感）或整数；核宽/高须为 ≥1 的奇数。;
+  对图像做归一化盒式滤波（均值滤波），对应 cv::blur；输出与输入同类型同尺寸的单通道图像，支持 byte / uint2 / real。AnchorX/AnchorY 指定核锚点（-1=核中心）；BorderType 由接口传入，可传枚举字符串（如 border_default，大小写不敏感）或 OpenCV 整数常量（默认 4=BORDER_DEFAULT）；核宽/高须为 ≥1 的奇数。;
 
 
 
@@ -1854,7 +1997,7 @@ parameter
 
 parameter
   borderType:        input_control;
-  description.english: 边界模式，支持字符串枚举（如 border_default）或整数，默认 4。;
+  description.english: 边界模式：枚举字符串 constant(0)/replicate(1)/reflect(2)/wrap(3)/reflect101(4)/default(4)/transparent(5)/isolated(16)，大小写不敏感且 border_ 前缀可省；也可直接传整数，默认 4=BORDER_DEFAULT。;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
@@ -2591,12 +2734,12 @@ parameter
 
 parameter
   Ddepth:            input_control;
-  description.english: 输出深度（-1 / 3=CV_16S / 5=CV_32F / 6=CV_64F），默认 6;
+  description.english: 输出深度：'same'(-1)/'s16'(3)/'f32'(5)/'f64'(6) 或对应整数（其余深度 OpenCV 不支持或 HALCON 无对应类型），默认 -1=同输入（与 cv::Sobel 一致）。;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
   type_list:         string,integer;
-  default_value:     6;
+  default_value:     -1;
 
 parameter
   Scale:             input_control;
@@ -2618,12 +2761,12 @@ parameter
 
 parameter
   BorderType:        input_control;
-  description.english: OpenCV 边界模式（1=REPLICATE 等），默认 1;
+  description.english: 边界模式：枚举字符串 constant(0)/replicate(1)/reflect(2)/wrap(3)/reflect101(4)/default(4)/transparent(5)/isolated(16)，大小写不敏感且 border_ 前缀可省；也可直接传整数，默认 4=BORDER_DEFAULT。;
   default_type:      integer;
   multivalue:        false;
   sem_type:          number;
   type_list:         string,integer;
-  default_value:     1;
+  default_value:     4;
 
 cv_magnitude<- Ccv_magnitude[X,Y:Magnitude::]
 short.german

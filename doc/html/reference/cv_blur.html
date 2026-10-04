@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_blur</span><span data-if="c" style="display:none;">cv_blur</span><span data-if="cpp" style="display:none;">CvBlur</span><span data-if="dotnet" style="display:none;">CvBlur</span><span data-if="python" style="display:none;">cv_blur</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_blur</span><span data-if="c" style="display:none;">cv_blur</span><span data-if="cpp" style="display:none;">CvBlur</span><span data-if="dotnet" style="display:none;">CvBlur</span><span data-if="python" style="display:none;">cv_blur</span></code> — 对图像做归一化盒式滤波（均值滤波），对应 cv::blur；输出与输入同类型同尺寸的单通道图像，支持 byte / uint2 / real。AnchorX/AnchorY 指定核锚点（-1=核中心）；BorderType 为边界模式，支持字符串枚举（如 'border_default'，大小写不敏感）或整数；核宽/高须为 ≥1 的奇数。</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_blur</span><span data-if="c" style="display:none;">cv_blur</span><span data-if="cpp" style="display:none;">CvBlur</span><span data-if="dotnet" style="display:none;">CvBlur</span><span data-if="python" style="display:none;">cv_blur</span></code> — 对图像做归一化盒式滤波（均值滤波），对应 cv::blur；输出与输入同类型同尺寸的单通道图像，支持 byte / uint2 / real。AnchorX/AnchorY 指定核锚点（-1=核中心）；BorderType 由接口传入，可传枚举字符串（如 border_default，大小写不敏感）或 OpenCV 整数常量（默认 4=BORDER_DEFAULT）；核宽/高须为 ≥1 的奇数。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1168,7 +1168,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="borderType" class="parname"><b><code><span data-if="hdevelop" style="display:inline">borderType</span><span data-if="c" style="display:none">borderType</span><span data-if="cpp" style="display:none">borderType</span><span data-if="dotnet" style="display:none">borderType</span><span data-if="python" style="display:none">border_type</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[str, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer / </span><span data-if="hdevelop" style="display:inline">string)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long / </span><span data-if="dotnet" style="display:none">string)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i> / </span><span data-if="cpp" style="display:none">HString)</span><span data-if="c" style="display:none"> (<i>Hlong</i> / </span><span data-if="c" style="display:none">char*)</span></span>
 </div>
-<p class="pardesc">边界模式，支持字符串枚举（如 border_default）或整数，默认 4。</p>
+<p class="pardesc">边界模式：枚举字符串 constant(0)/replicate(1)/reflect(2)/wrap(3)/reflect101(4)/default(4)/transparent(5)/isolated(16)，大小写不敏感且 border_ 前缀可省；也可直接传整数，默认 4=BORDER_DEFAULT。</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>4</p>

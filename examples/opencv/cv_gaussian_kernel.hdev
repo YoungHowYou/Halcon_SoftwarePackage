@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_gaussian_kernel — 高斯核生成（real/float32 单通道图像）</c>
+<c>*   1:1 封装 cv::getGaussianKernel：参数 ksize/sigma，输出 ksize×1 列向量</c>
+<c>*   sigma&lt;=0 走 OpenCV 自动推算：奇数 ksize&lt;=7 用内建小核表，其余用公式</c>
+<c>* =============================================================</c>
+<c>* ---- 1) ksize=3、sigma&lt;=0 → OpenCV 内建小核表 [0.25,0.5,0.25] ----</c>
+<l>E3 := [0.25,0.5,0.25]</l>
+<l>cv_gaussian_kernel (K3, 3, 0.0)</l>
+<l>get_image_size (K3, W3, H3)</l>
+<l>if (W3 != 1 or H3 != 3)</l>
+<l>  throw ('cv_gaussian_kernel shape: ' + W3 + 'x' + H3 + ' (expect 1x3 column)')</l>
+<l>endif</l>
+<l>Sum3 := 0.0</l>
+<l>for I := 0 to 2 by 1</l>
+<l>  get_grayval (K3, I, 0, V3)</l>
+<l>  if (abs(V3 - E3[I]) &gt; 1.0e-6)</l>
+<l>    throw ('cv_gaussian_kernel ksize=3 wrong at ' + I + ': ' + V3)</l>
+<l>  endif</l>
+<l>  Sum3 := Sum3 + V3</l>
+<l>endfor</l>
+<l>if (abs(Sum3 - 1.0) &gt; 1.0e-6)</l>
+<l>  throw ('cv_gaussian_kernel ksize=3 not normalized: ' + Sum3)</l>
+<l>endif</l>
+<c>* ---- 2) ksize=5、sigma=1.0（公式路径）→ 对称、和为 1、边界值已知 ----</c>
+<l>cv_gaussian_kernel (K5, 5, 1.0)</l>
+<l>Sum5 := 0.0</l>
+<l>for I := 0 to 4 by 1</l>
+<l>  get_grayval (K5, I, 0, V5)</l>
+<l>  get_grayval (K5, 4 - I, 0, V5R)</l>
+<l>  if (abs(V5 - V5R) &gt; 1.0e-12)</l>
+<l>    throw ('cv_gaussian_kernel ksize=5 asymmetric at ' + I)</l>
+<l>  endif</l>
+<l>  Sum5 := Sum5 + V5</l>
+<l>endfor</l>
+<l>if (abs(Sum5 - 1.0) &gt; 1.0e-6)</l>
+<l>  throw ('cv_gaussian_kernel ksize=5 not normalized: ' + Sum5)</l>
+<l>endif</l>
+<l>get_grayval (K5, 0, 0, VEdge)</l>
+<l>if (abs(VEdge - 0.05448868) &gt; 1.0e-6)</l>
+<l>  throw ('cv_gaussian_kernel sigma=1 edge wrong: ' + VEdge)</l>
+<l>endif</l>
+<c>* ---- 3) 与 cv_sep_filter2d 串联（OpenCV 惯用法：同一个列向量传两次） ----</c>
+<l>gen_image_const (ImgR, 'real', 9, 9)</l>
+<l>set_grayval (ImgR, 4, 4, 100.0)</l>
+<l>cv_sep_filter2d (ImgR, K3, K3, OutSep, 'same', -1, -1, 0.0, 'border_default')</l>
+<l>get_grayval (OutSep, 4, 4, VCtr)</l>
+<l>get_grayval (OutSep, 4, 3, VSide)</l>
+<l>get_grayval (OutSep, 3, 3, VDiag)</l>
+<l>if (abs(VCtr - 25.0) &gt; 1.0e-3 or abs(VSide - 12.5) &gt; 1.0e-3 or abs(VDiag - 6.25) &gt; 1.0e-3)</l>
+<l>  throw ('gaussian + sep_filter2d wrong: ' + VCtr + ' / ' + VSide + ' / ' + VDiag)</l>
+<l>endif</l>
+<c>* ---- 4) 需要行向量核时用 cv_reshape（本算子不加形状参数） ----</c>
+<l>cv_reshape (K3, K3Row, 1)</l>
+<l>get_image_size (K3Row, WR, HR)</l>
+<l>if (WR != 3 or HR != 1)</l>
+<l>  throw ('cv_reshape row shape wrong: ' + WR + 'x' + HR)</l>
+<l>endif</l>
+<l>cv_sep_filter2d (ImgR, K3Row, K3, OutSepRow, 'same', -1, -1, 0.0, 'border_default')</l>
+<l>get_grayval (OutSepRow, 4, 4, VCtrRow)</l>
+<l>if (abs(VCtrRow - VCtr) &gt; 1.0e-4)</l>
+<l>  throw ('row/col orientation mismatch: ' + VCtrRow + ' vs ' + VCtr)</l>
+<l>endif</l>
+<c>* ---- 5) ksize=9、sigma&lt;=0（奇数 &gt;7 走公式路径）→ 归一化且对称 ----</c>
+<l>cv_gaussian_kernel (K9, 9, 0.0)</l>
+<l>Sum9 := 0.0</l>
+<l>for I := 0 to 8 by 1</l>
+<l>  get_grayval (K9, I, 0, V9)</l>
+<l>  get_grayval (K9, 8 - I, 0, V9R)</l>
+<l>  if (abs(V9 - V9R) &gt; 1.0e-12)</l>
+<l>    throw ('cv_gaussian_kernel ksize=9 asymmetric at ' + I)</l>
+<l>  endif</l>
+<l>  Sum9 := Sum9 + V9</l>
+<l>endfor</l>
+<l>if (abs(Sum9 - 1.0) &gt; 1.0e-6)</l>
+<l>  throw ('cv_gaussian_kernel ksize=9 not normalized: ' + Sum9)</l>
+<l>endif</l>
+<c>* ---- 6) 错误路径：ksize=0 必须报错（否则说明静默跳过） ----</c>
+<l>IsErr := 0</l>
+<l>try</l>
+<l>  cv_gaussian_kernel (KBad, 0, 0.0)</l>
+<l>catch (Exception)</l>
+<l>  IsErr := 1</l>
+<l>endtry</l>
+<l>if (IsErr != 1)</l>
+<l>  throw ('cv_gaussian_kernel ksize=0 did not raise')</l>
+<l>endif</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

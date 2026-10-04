@@ -1,6 +1,6 @@
 ---
 name: halcon-extension-package
-description: 'HALCON 扩展包算子开发与排错指南：覆盖新算子分流（有流程/多步算法先做进 cv_region 静态库再封装，该库已是单头 cvr.hpp + 单 cpp、非必要不新增文件；无流程的薄单算子直接写 supply 层）、DEF 语法规则、参数声明顺序、supply 层 C/C++ 约定（region/图像/tuple/混合 tuple/handle/dict 的输入输出读写配方）、CH<op> 包装与三层命名、hcomp、CMake 整包构建、help 签名数据库同步、hrun/.hdev 例程测试。当创建、修改、调试、测试 HALCON 扩展包算子（.def 文件、supply 层、Halcon_SoftwarePackage、cv_region 静态库）时使用；当 HALCON 算子加载不上、被静默跳过、崩溃、返回空值或错误结果时使用；当 hrun/hdev 例程行为异常、hcomp 报错、扩展包构建失败（LNK1104）、DEF 解析报错时使用。'
+description: 'HALCON 扩展包算子开发与排错指南：覆盖新算子分流（有流程/多步算法先做进 cv_region 静态库再封装，该库已是单头 cvr.hpp + 单 cpp、非必要不新增文件；无流程的薄单算子直接写 supply 层；**薄封装算子一律按原库接口 1:1 照抄**：参数名/个数/顺序/默认语义跟原库一致，不发明新模式与别名、不做额外收紧，见 §1）、DEF 语法规则、参数声明顺序、supply 层 C/C++ 约定（region/图像/tuple/混合 tuple/handle/dict 的输入输出读写配方）、CH<op> 包装与三层命名、hcomp、CMake 整包构建、help 签名数据库同步、hrun/.hdev 例程测试。当创建、修改、调试、测试 HALCON 扩展包算子（.def 文件、supply 层、Halcon_SoftwarePackage、cv_region 静态库）时使用；当 HALCON 算子加载不上、被静默跳过、崩溃、返回空值或错误结果时使用；当 hrun/hdev 例程行为异常、hcomp 报错、扩展包构建失败（LNK1104）、DEF 解析报错时使用。'
 ---
 
 # HALCON Extension Package — 项目专用技能
@@ -60,6 +60,13 @@ Halcon_SoftwarePackage/             → 扩展包（沿用现有包，勿新建�
 **三层命名**（缺一不可，名字必须对应）：DEF 物理名 `CHcv_union2`（`cv_union2<- CHcv_union2[...]`）→ 包装函数 `CHcv_union2`（.c 中 `return Hcv_union2(ph);`）→ 实现函数 `Hcv_union2`（模块 cpp；OpenCV 模块实现函数带 C 前缀 `HCcv_xxx`，对应 `Ccv_xxx`）。
 
 **参数全开放约定**：算子可调参数尽量全开放（默认值与底层库一致）。图像/滤波/矩阵类用控制参数按位传满；特征检测/匹配/变换估计类（orb/sift/akaze/bf_knn/affine_partial/rigid）**参数多（≥5 个可选）时用 dict 键传入**，未设键取默认（写法见 §3「dict 输入输出约定」）。
+
+**基础算子一律「原本原封装」（1:1，2026-10 起强制）**：只要算子是一个库函数/原生算子的**薄封装**（`cv::sepFilter2D`、`cv::getGaussianKernel`、`cv::threshold` 这类单调用算法），就**照抄原接口**，不要自由发挥：
+- 参数**名字、个数、顺序、默认语义跟原库一致**（OpenCV 模块用 OpenCV 的名字：`ksize`/`sigma`/`ddepth`/`kernelX`/`kernelY`/`delta`/`borderType`；HALCON 域算子用 HALCON 的名字，如 `measure_pos` 的 `Sigma`/`Transition`）。把 Point 按包内既有惯例拆成 `anchorX`/`anchorY` 是允许的（一致性优先）。
+- **不发明新模式/枚举/别名**：别给 `getGaussianKernel` 加 `KernelShape='row'|'col'|'2d'`，别内置外积/镜像/归一化等"顺手增强"；库没有的取值就不要编进 `value_list`。
+- **不额外收紧**：库接受的合法用法就要能跑（例：`sepFilter2D` 两个核可以都传同一个列向量——这是 OpenCV 惯用法，别加"kernelX 必须 1×N"的限制）。只保留两类校验：① HALCON 类型系统强制的映射（核只能以 `real` 图像传入、深度要映射到 HALCON 图像类型）；② 库会**静默出错**的误用（如给 sepFilter2D 传二维核）。报错取值范围也要跟库一致。
+- 想要更强能力（行向量核、二维核、预计算……）就用**包内已有算子组合**（如 `cv_reshape`）或另开新算子，不要在原算子里加开关；要改已有算子的行为必须先问用户。
+- 一句话判据：**读 OpenCV/HALCON 官方文档的人能 1:1 对上参数**；对不上就是自由发挥，要重做。
 
 ## 2. DEF 文件规则（出错率最高的地方）
    > **value_list 不要写双引号**：`value_list: a,b,c;`（带引号虽能过 hcomp，但 HDevelop 的建议值提示会带上引号，也与 HALCON 官方 .ref 写法不一致）。

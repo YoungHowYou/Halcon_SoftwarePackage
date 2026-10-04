@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>cv_sobel [HALCON Operator Reference / Version 24.11.1.0]</title>
+<title>cv_sep_filter2d [HALCON Operator Reference / Version 24.11.1.0]</title>
 <style type="text/css">
 
       body {
@@ -1083,31 +1083,31 @@ toggleLanguage(new_lang,1);return;}
 </div>
 <!--OP_REF_HEADER_END-->
 <h1 id="sec_name">
-<span data-if="hdevelop" style="display:inline;">cv_sobel</span><span data-if="c" style="display:none;">cv_sobel</span><span data-if="cpp" style="display:none;">CvSobel</span><span data-if="dotnet" style="display:none;">CvSobel</span><span data-if="python" style="display:none;">cv_sobel</span> (Operator)</h1>
+<span data-if="hdevelop" style="display:inline;">cv_sep_filter2d</span><span data-if="c" style="display:none;">cv_sep_filter2d</span><span data-if="cpp" style="display:none;">CvSepFilter2d</span><span data-if="dotnet" style="display:none;">CvSepFilter2d</span><span data-if="python" style="display:none;">cv_sep_filter2d</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_sobel</span><span data-if="c" style="display:none;">cv_sobel</span><span data-if="cpp" style="display:none;">CvSobel</span><span data-if="dotnet" style="display:none;">CvSobel</span><span data-if="python" style="display:none;">cv_sobel</span></code> — Sobel 一阶导数边缘检测，对应 cv::Sobel。输入 byte/uint2/real，输出 real 梯度；Dx/Dy 为求导阶数（0/1，和≥1），Ksize 为核尺寸（1/3/5/7），Ddepth 支持字符串枚举（same/s16/f32/f64），BorderType 支持字符串枚举或整数。</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_sep_filter2d</span><span data-if="c" style="display:none;">cv_sep_filter2d</span><span data-if="cpp" style="display:none;">CvSepFilter2d</span><span data-if="dotnet" style="display:none;">CvSepFilter2d</span><span data-if="python" style="display:none;">cv_sep_filter2d</span></code> — 可分离线性滤波，对应 cv::sepFilter2D：先按 kernelX 逐行卷积、再按 kernelY 逐列卷积，等效于一次二维卷积但每像素运算量为 O(kx+ky) 而非 O(kx*ky)。两个核都是一维核（行向量 1×N 或列向量 N×1，real 单通道图像）；OpenCV 的惯用法是两个参数传同一个核（如 cv_gaussian_kernel 的输出列向量），此处不限定朝向。Ddepth 支持字符串枚举（same/u8/u16/f32）或整数：-1/'same' 保持输入类型，'u8'/'u16'/'f32' 分别输出 byte/uint2/real（'s16'/'s32'/'f64' 无 HALCON 对应类型或 OpenCV 不支持，报 30006）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数；Delta 为结果叠加偏移量。支持 byte / uint2 / real 单通道，输出尺寸与输入一致。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
-<code><b>cv_sobel</b>(<a href="#image"><i>image</i></a> : <a href="#imageOut"><i>imageOut</i></a> : <a href="#Dx"><i>Dx</i></a>, <a href="#Dy"><i>Dy</i></a>, <a href="#Ksize"><i>Ksize</i></a>, <a href="#Ddepth"><i>Ddepth</i></a>, <a href="#Scale"><i>Scale</i></a>, <a href="#Delta"><i>Delta</i></a>, <a href="#BorderType"><i>BorderType</i></a> : )</code></p>
+<code><b>cv_sep_filter2d</b>(<a href="#image"><i>image</i></a>, <a href="#kernelX"><i>kernelX</i></a>, <a href="#kernelY"><i>kernelY</i></a> : <a href="#imageOut"><i>imageOut</i></a> : <a href="#ddepth"><i>ddepth</i></a>, <a href="#anchorX"><i>anchorX</i></a>, <a href="#anchorY"><i>anchorY</i></a>, <a href="#delta"><i>delta</i></a>, <a href="#borderType"><i>borderType</i></a> : )</code></p>
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>cv_sobel</b>(const Hobject <a href="#image"><i>image</i></a>, Hobject* <a href="#imageOut"><i>imageOut</i></a>, const Hlong <a href="#Dx"><i>Dx</i></a>, const Hlong <a href="#Dy"><i>Dy</i></a>, const Hlong <a href="#Ksize"><i>Ksize</i></a>, const Hlong <a href="#Ddepth"><i>Ddepth</i></a>, double <a href="#Scale"><i>Scale</i></a>, double <a href="#Delta"><i>Delta</i></a>, const Hlong <a href="#BorderType"><i>BorderType</i></a>)</code></p>
+<code>Herror <b>cv_sep_filter2d</b>(const Hobject <a href="#image"><i>image</i></a>, const Hobject <a href="#kernelX"><i>kernelX</i></a>, const Hobject <a href="#kernelY"><i>kernelY</i></a>, Hobject* <a href="#imageOut"><i>imageOut</i></a>, const Hlong <a href="#ddepth"><i>ddepth</i></a>, const Hlong <a href="#anchorX"><i>anchorX</i></a>, const Hlong <a href="#anchorY"><i>anchorY</i></a>, double <a href="#delta"><i>delta</i></a>, const Hlong <a href="#borderType"><i>borderType</i></a>)</code></p>
 <p>
-<code>Herror <b>T_cv_sobel</b>(const Hobject <a href="#image"><i>image</i></a>, Hobject* <a href="#imageOut"><i>imageOut</i></a>, const Htuple <a href="#Dx"><i>Dx</i></a>, const Htuple <a href="#Dy"><i>Dy</i></a>, const Htuple <a href="#Ksize"><i>Ksize</i></a>, const Htuple <a href="#Ddepth"><i>Ddepth</i></a>, const Htuple <a href="#Scale"><i>Scale</i></a>, const Htuple <a href="#Delta"><i>Delta</i></a>, const Htuple <a href="#BorderType"><i>BorderType</i></a>)</code></p>
+<code>Herror <b>T_cv_sep_filter2d</b>(const Hobject <a href="#image"><i>image</i></a>, const Hobject <a href="#kernelX"><i>kernelX</i></a>, const Hobject <a href="#kernelY"><i>kernelY</i></a>, Hobject* <a href="#imageOut"><i>imageOut</i></a>, const Htuple <a href="#ddepth"><i>ddepth</i></a>, const Htuple <a href="#anchorX"><i>anchorX</i></a>, const Htuple <a href="#anchorY"><i>anchorY</i></a>, const Htuple <a href="#delta"><i>delta</i></a>, const Htuple <a href="#borderType"><i>borderType</i></a>)</code></p>
 </div>
 <div data-if="cpp" style="display:none;">
 <p>
-<code>void <b>CvSobel</b>(const HObject&amp; <a href="#image"><i>image</i></a>, HObject* <a href="#imageOut"><i>imageOut</i></a>, const HTuple&amp; <a href="#Dx"><i>Dx</i></a>, const HTuple&amp; <a href="#Dy"><i>Dy</i></a>, const HTuple&amp; <a href="#Ksize"><i>Ksize</i></a>, const HTuple&amp; <a href="#Ddepth"><i>Ddepth</i></a>, const HTuple&amp; <a href="#Scale"><i>Scale</i></a>, const HTuple&amp; <a href="#Delta"><i>Delta</i></a>, const HTuple&amp; <a href="#BorderType"><i>BorderType</i></a>)</code></p>
+<code>void <b>CvSepFilter2d</b>(const HObject&amp; <a href="#image"><i>image</i></a>, const HObject&amp; <a href="#kernelX"><i>kernelX</i></a>, const HObject&amp; <a href="#kernelY"><i>kernelY</i></a>, HObject* <a href="#imageOut"><i>imageOut</i></a>, const HTuple&amp; <a href="#ddepth"><i>ddepth</i></a>, const HTuple&amp; <a href="#anchorX"><i>anchorX</i></a>, const HTuple&amp; <a href="#anchorY"><i>anchorY</i></a>, const HTuple&amp; <a href="#delta"><i>delta</i></a>, const HTuple&amp; <a href="#borderType"><i>borderType</i></a>)</code></p>
 </div>
 <div data-if="dotnet" style="display:none;">
 <p>
-<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvSobel</b>(<a href="HObject.html">HObject</a> <a href="#image"><i>image</i></a>, out <a href="HObject.html">HObject</a> <a href="#imageOut"><i>imageOut</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Dx"><i>dx</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Dy"><i>dy</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Ksize"><i>ksize</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Ddepth"><i>ddepth</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Scale"><i>scale</i></a>, <a href="HTuple.html">HTuple</a> <a href="#Delta"><i>delta</i></a>, <a href="HTuple.html">HTuple</a> <a href="#BorderType"><i>borderType</i></a>)</code></p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvSepFilter2d</b>(<a href="HObject.html">HObject</a> <a href="#image"><i>image</i></a>, <a href="HObject.html">HObject</a> <a href="#kernelX"><i>kernelX</i></a>, <a href="HObject.html">HObject</a> <a href="#kernelY"><i>kernelY</i></a>, out <a href="HObject.html">HObject</a> <a href="#imageOut"><i>imageOut</i></a>, <a href="HTuple.html">HTuple</a> <a href="#ddepth"><i>ddepth</i></a>, <a href="HTuple.html">HTuple</a> <a href="#anchorX"><i>anchorX</i></a>, <a href="HTuple.html">HTuple</a> <a href="#anchorY"><i>anchorY</i></a>, <a href="HTuple.html">HTuple</a> <a href="#delta"><i>delta</i></a>, <a href="HTuple.html">HTuple</a> <a href="#borderType"><i>borderType</i></a>)</code></p>
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>cv_sobel</b>(<a href="#image"><i>image</i></a>: HObject, <a href="#Dx"><i>dx</i></a>: int, <a href="#Dy"><i>dy</i></a>: int, <a href="#Ksize"><i>ksize</i></a>: int, <a href="#Ddepth"><i>ddepth</i></a>: Union[str, int], <a href="#Scale"><i>scale</i></a>: float, <a href="#Delta"><i>delta</i></a>: float, <a href="#BorderType"><i>border_type</i></a>: Union[str, int]) -&gt; HObject</code></p>
+<code>def <b>cv_sep_filter2d</b>(<a href="#image"><i>image</i></a>: HObject, <a href="#kernelX"><i>kernel_x</i></a>: HObject, <a href="#kernelY"><i>kernel_y</i></a>: HObject, <a href="#ddepth"><i>ddepth</i></a>: Union[str, int], <a href="#anchorX"><i>anchor_x</i></a>: int, <a href="#anchorY"><i>anchor_y</i></a>: int, <a href="#delta"><i>delta</i></a>: Union[float, int], <a href="#borderType"><i>border_type</i></a>: Union[str, int]) -&gt; HObject</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1124,67 +1124,61 @@ toggleLanguage(new_lang,1);return;}
 </div>
   <div class="par">
 <div class="parhead">
+<span id="kernelX" class="parname"><b><code><span data-if="hdevelop" style="display:inline">kernelX</span><span data-if="c" style="display:none">kernelX</span><span data-if="cpp" style="display:none">kernelX</span><span data-if="dotnet" style="display:none">kernelX</span><span data-if="python" style="display:none">kernel_x</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
+</div>
+<p class="pardesc">行方向一维核（real 单通道，1×N 或 N×1；可直接用 cv_gaussian_kernel 的输出）</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="kernelY" class="parname"><b><code><span data-if="hdevelop" style="display:inline">kernelY</span><span data-if="c" style="display:none">kernelY</span><span data-if="cpp" style="display:none">kernelY</span><span data-if="dotnet" style="display:none">kernelY</span><span data-if="python" style="display:none">kernel_y</span></code></b> (input_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
+</div>
+<p class="pardesc">列方向一维核（real 单通道，1×N 或 N×1；惯用法是与 kernelX 传同一个核）</p>
+</div>
+  <div class="par">
+<div class="parhead">
 <span id="imageOut" class="parname"><b><code><span data-if="hdevelop" style="display:inline">imageOut</span><span data-if="c" style="display:none">imageOut</span><span data-if="cpp" style="display:none">imageOut</span><span data-if="dotnet" style="display:none">imageOut</span><span data-if="python" style="display:none">image_out</span></code></b> (output_object)  </span><span>image(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
 </div>
-<p class="pardesc">统一输出 real（CV_32F，梯度含符号）</p>
+<p class="pardesc">与输入同尺寸；类型由 Ddepth 决定（默认与输入同类型）</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="Dx" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Dx</span><span data-if="c" style="display:none">Dx</span><span data-if="cpp" style="display:none">Dx</span><span data-if="dotnet" style="display:none">dx</span><span data-if="python" style="display:none">dx</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
+<span id="ddepth" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ddepth</span><span data-if="c" style="display:none">ddepth</span><span data-if="cpp" style="display:none">ddepth</span><span data-if="dotnet" style="display:none">ddepth</span><span data-if="python" style="display:none">ddepth</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[str, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer / </span><span data-if="hdevelop" style="display:inline">string)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long / </span><span data-if="dotnet" style="display:none">string)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i> / </span><span data-if="cpp" style="display:none">HString)</span><span data-if="c" style="display:none"> (<i>Hlong</i> / </span><span data-if="c" style="display:none">char*)</span></span>
 </div>
-<p class="pardesc">x 方向导数阶数（0 2），默认 1</p>
-<p class="pardesc"><span class="parcat">Default:
-
-      </span>1</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="Dy" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Dy</span><span data-if="c" style="display:none">Dy</span><span data-if="cpp" style="display:none">Dy</span><span data-if="dotnet" style="display:none">dy</span><span data-if="python" style="display:none">dy</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
-</div>
-<p class="pardesc">y 方向导数阶数（0 2），默认 0</p>
-<p class="pardesc"><span class="parcat">Default:
-
-      </span>0</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="Ksize" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Ksize</span><span data-if="c" style="display:none">Ksize</span><span data-if="cpp" style="display:none">Ksize</span><span data-if="dotnet" style="display:none">ksize</span><span data-if="python" style="display:none">ksize</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
-</div>
-<p class="pardesc">核尺寸（1 / 3 / 5 / 7），默认 3</p>
-<p class="pardesc"><span class="parcat">Default:
-
-      </span>3</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="Ddepth" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Ddepth</span><span data-if="c" style="display:none">Ddepth</span><span data-if="cpp" style="display:none">Ddepth</span><span data-if="dotnet" style="display:none">ddepth</span><span data-if="python" style="display:none">ddepth</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[str, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer / </span><span data-if="hdevelop" style="display:inline">string)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long / </span><span data-if="dotnet" style="display:none">string)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i> / </span><span data-if="cpp" style="display:none">HString)</span><span data-if="c" style="display:none"> (<i>Hlong</i> / </span><span data-if="c" style="display:none">char*)</span></span>
-</div>
-<p class="pardesc">输出深度：'same'(-1)/'s16'(3)/'f32'(5)/'f64'(6) 或对应整数（其余深度 OpenCV 不支持或 HALCON 无对应类型），默认 -1=同输入（与 cv::Sobel 一致）。</p>
+<p class="pardesc">输出深度（'same'=-1 / 'u8' / 'u16' / 'f32' 或整数）</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>-1</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="Scale" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Scale</span><span data-if="c" style="display:none">Scale</span><span data-if="cpp" style="display:none">Scale</span><span data-if="dotnet" style="display:none">scale</span><span data-if="python" style="display:none">scale</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
+<span id="anchorX" class="parname"><b><code><span data-if="hdevelop" style="display:inline">anchorX</span><span data-if="c" style="display:none">anchorX</span><span data-if="cpp" style="display:none">anchorX</span><span data-if="dotnet" style="display:none">anchorX</span><span data-if="python" style="display:none">anchor_x</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc">缩放系数，默认 1.0</p>
+<p class="pardesc">锚点 X（-1=核中心）</p>
 <p class="pardesc"><span class="parcat">Default:
 
-      </span>1.0</p>
+      </span>-1</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="Delta" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Delta</span><span data-if="c" style="display:none">Delta</span><span data-if="cpp" style="display:none">Delta</span><span data-if="dotnet" style="display:none">delta</span><span data-if="python" style="display:none">delta</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">float</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real)</span><span data-if="dotnet" style="display:none"> (<i>double</i>)</span><span data-if="cpp" style="display:none"> (<i>double</i>)</span><span data-if="c" style="display:none"> (<i>double</i>)</span></span>
+<span id="anchorY" class="parname"><b><code><span data-if="hdevelop" style="display:inline">anchorY</span><span data-if="c" style="display:none">anchorY</span><span data-if="cpp" style="display:none">anchorY</span><span data-if="dotnet" style="display:none">anchorY</span><span data-if="python" style="display:none">anchor_y</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">int</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i>)</span><span data-if="c" style="display:none"> (<i>Hlong</i>)</span></span>
 </div>
-<p class="pardesc">偏置，默认 0.0</p>
+<p class="pardesc">锚点 Y（-1=核中心）</p>
+<p class="pardesc"><span class="parcat">Default:
+
+      </span>-1</p>
+</div>
+  <div class="par">
+<div class="parhead">
+<span id="delta" class="parname"><b><code><span data-if="hdevelop" style="display:inline">delta</span><span data-if="c" style="display:none">delta</span><span data-if="cpp" style="display:none">delta</span><span data-if="dotnet" style="display:none">delta</span><span data-if="python" style="display:none">delta</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[float, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (real / </span><span data-if="hdevelop" style="display:inline">integer)</span><span data-if="dotnet" style="display:none"> (<i>double</i> / </span><span data-if="dotnet" style="display:none">int / </span><span data-if="dotnet" style="display:none">long)</span><span data-if="cpp" style="display:none"> (<i>double</i> / </span><span data-if="cpp" style="display:none">Hlong)</span><span data-if="c" style="display:none"> (<i>double</i> / </span><span data-if="c" style="display:none">Hlong)</span></span>
+</div>
+<p class="pardesc">结果叠加偏移量</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>0.0</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="BorderType" class="parname"><b><code><span data-if="hdevelop" style="display:inline">BorderType</span><span data-if="c" style="display:none">BorderType</span><span data-if="cpp" style="display:none">BorderType</span><span data-if="dotnet" style="display:none">borderType</span><span data-if="python" style="display:none">border_type</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[str, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer / </span><span data-if="hdevelop" style="display:inline">string)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long / </span><span data-if="dotnet" style="display:none">string)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i> / </span><span data-if="cpp" style="display:none">HString)</span><span data-if="c" style="display:none"> (<i>Hlong</i> / </span><span data-if="c" style="display:none">char*)</span></span>
+<span id="borderType" class="parname"><b><code><span data-if="hdevelop" style="display:inline">borderType</span><span data-if="c" style="display:none">borderType</span><span data-if="cpp" style="display:none">borderType</span><span data-if="dotnet" style="display:none">borderType</span><span data-if="python" style="display:none">border_type</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[str, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer / </span><span data-if="hdevelop" style="display:inline">string)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long / </span><span data-if="dotnet" style="display:none">string)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i> / </span><span data-if="cpp" style="display:none">HString)</span><span data-if="c" style="display:none"> (<i>Hlong</i> / </span><span data-if="c" style="display:none">char*)</span></span>
 </div>
 <p class="pardesc">边界模式：枚举字符串 constant(0)/replicate(1)/reflect(2)/wrap(3)/reflect101(4)/default(4)/transparent(5)/isolated(16)，大小写不敏感且 border_ 前缀可省；也可直接传整数，默认 4=BORDER_DEFAULT。</p>
 <p class="pardesc"><span class="parcat">Default:

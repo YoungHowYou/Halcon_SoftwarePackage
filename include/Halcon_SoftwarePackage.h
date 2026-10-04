@@ -88,6 +88,8 @@ extern EXPORTS_API Herror HCcv_mat_mul(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_median_blur(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_reshape(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_filter2d(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_gaussian_kernel(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_sep_filter2d(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_measure_pos(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_blur(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_subtract(Hproc_handle proc_handle);

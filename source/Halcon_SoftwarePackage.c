@@ -390,6 +390,16 @@ Herror Ccv_filter2d(Hproc_handle proc_handle)
     return HCcv_filter2d(proc_handle);
 }
 
+Herror Ccv_gaussian_kernel(Hproc_handle proc_handle)
+{
+    return HCcv_gaussian_kernel(proc_handle);
+}
+
+Herror Ccv_sep_filter2d(Hproc_handle proc_handle)
+{
+    return HCcv_sep_filter2d(proc_handle);
+}
+
 Herror Ccv_measure_pos(Hproc_handle proc_handle)
 {
     return HCcv_measure_pos(proc_handle);

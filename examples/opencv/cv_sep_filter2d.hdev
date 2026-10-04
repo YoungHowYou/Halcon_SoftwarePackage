@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_sep_filter2d — 可分离线性滤波（cv::sepFilter2D）</c>
+<c>*   1:1 封装：kernelX 逐行 + kernelY 逐列；两者都是"一维核"</c>
+<c>*   惯用法（与 OpenCV 一致）：同一个列向量传两次</c>
+<c>*   参照核用 cv_gaussian_kernel 生成的一维核手工外积得到</c>
+<c>* =============================================================</c>
+<c>* ---- 1) 3 点高斯核（列向量），惯用法 sep(K, K) ----</c>
+<l>cv_gaussian_kernel (K3, 3, 0.0)</l>
+<l>gen_image_const (ImgR, 'real', 9, 9)</l>
+<l>set_grayval (ImgR, 4, 4, 100.0)</l>
+<l>cv_sep_filter2d (ImgR, K3, K3, OutSep, 'same', -1, -1, 0.0, 'border_default')</l>
+<c>* 脉冲响应 = 一维核外积：中心 0.25、边上 0.125、对角 0.0625</c>
+<l>get_grayval (OutSep, 4, 4, VCtr)</l>
+<l>get_grayval (OutSep, 4, 3, VSide)</l>
+<l>get_grayval (OutSep, 3, 3, VDiag)</l>
+<l>if (abs(VCtr - 25.0) &gt; 1.0e-3 or abs(VSide - 12.5) &gt; 1.0e-3 or abs(VDiag - 6.25) &gt; 1.0e-3)</l>
+<l>  throw ('cv_sep_filter2d impulse wrong: ' + VCtr + ' / ' + VSide + ' / ' + VDiag)</l>
+<l>endif</l>
+<c>* ---- 2) 手工按一维核外积构造 3×3 二维核，与 cv_filter2d 对拍 ----</c>
+<l>gen_image_const (K2D, 'real', 3, 3)</l>
+<l>for R := 0 to 2 by 1</l>
+<l>  get_grayval (K3, R, 0, KR)</l>
+<l>  for C := 0 to 2 by 1</l>
+<l>    get_grayval (K3, C, 0, KC)</l>
+<l>    set_grayval (K2D, R, C, KR * KC)</l>
+<l>  endfor</l>
+<l>endfor</l>
+<l>cv_filter2d (ImgR, K2D, Out2D, 'same', -1, -1, 0.0, 'border_default')</l>
+<l>MaxDiff := 0.0</l>
+<l>for R := 3 to 5 by 1</l>
+<l>  for C := 3 to 5 by 1</l>
+<l>    get_grayval (OutSep, R, C, VS)</l>
+<l>    get_grayval (Out2D, R, C, VD)</l>
+<l>    if (abs(VS - VD) &gt; MaxDiff)</l>
+<l>      MaxDiff := abs(VS - VD)</l>
+<l>    endif</l>
+<l>  endfor</l>
+<l>endfor</l>
+<l>if (MaxDiff &gt; 1.0e-4)</l>
+<l>  throw ('cv_sep_filter2d != cv_filter2d(2d): maxdiff=' + MaxDiff)</l>
+<l>endif</l>
+<c>* ---- 3) 行向量核（cv_reshape）+ 列向量核 → 结果相同 ----</c>
+<l>cv_reshape (K3, K3Row, 1)</l>
+<l>cv_sep_filter2d (ImgR, K3Row, K3, OutSepRow, 'same', -1, -1, 0.0, 'border_default')</l>
+<l>get_grayval (OutSepRow, 4, 4, VCtrRow)</l>
+<l>get_grayval (OutSepRow, 3, 3, VDiagRow)</l>
+<l>if (abs(VCtrRow - VCtr) &gt; 1.0e-4 or abs(VDiagRow - VDiag) &gt; 1.0e-4)</l>
+<l>  throw ('row/col orientation mismatch: ' + VCtrRow + ' / ' + VDiagRow)</l>
+<l>endif</l>
+<c>* ---- 4) 全参数：anchor=(0,0) 时脉冲响应位移（中心 6.25、左上 25） ----</c>
+<l>cv_sep_filter2d (ImgR, K3, K3, OutA, 'same', 0, 0, 0.0, 'border_default')</l>
+<l>get_grayval (OutA, 4, 4, VA44)</l>
+<l>get_grayval (OutA, 3, 3, VA33)</l>
+<l>if (abs(VA44 - 6.25) &gt; 1.0e-3 or abs(VA33 - 25.0) &gt; 1.0e-3)</l>
+<l>  throw ('cv_sep_filter2d anchor(0,0) wrong: ' + VA44 + ' / ' + VA33)</l>
+<l>endif</l>
+<c>* ---- 5) byte 图脉冲 255 → 中心 ≈ 64（8 位路径逐趟取整） ----</c>
+<l>gen_image_const (ImgB, 'byte', 5, 5)</l>
+<l>set_grayval (ImgB, 2, 2, 255)</l>
+<l>cv_sep_filter2d (ImgB, K3, K3, OutB, 'same', -1, -1, 0.0, 'border_default')</l>
+<l>get_grayval (OutB, 2, 2, VB)</l>
+<l>if (abs(VB - 64) &gt; 2)</l>
+<l>  throw ('cv_sep_filter2d byte center wrong: ' + VB)</l>
+<l>endif</l>
+<c>* ---- 6) uint2 图脉冲 65535 → 中心 ≈ 16384 ----</c>
+<l>gen_image_const (ImgU, 'uint2', 5, 5)</l>
+<l>set_grayval (ImgU, 2, 2, 65535)</l>
+<l>cv_sep_filter2d (ImgU, K3, K3, OutU, 'same', -1, -1, 0.0, 'border_default')</l>
+<l>get_grayval (OutU, 2, 2, VU)</l>
+<l>if (abs(VU - 16384) &gt; 3)</l>
+<l>  throw ('cv_sep_filter2d uint2 center wrong: ' + VU)</l>
+<l>endif</l>
+<c>* ---- 7) Ddepth='f32'：byte 输入 → real 输出，精确浮点结果 63.75 ----</c>
+<l>cv_sep_filter2d (ImgB, K3, K3, OutF, 'f32', -1, -1, 0.0, 'border_default')</l>
+<l>get_image_type (OutF, TOut)</l>
+<l>get_grayval (OutF, 2, 2, VF)</l>
+<l>if (TOut != 'real')</l>
+<l>  throw ('cv_sep_filter2d Ddepth f32 type wrong: ' + TOut)</l>
+<l>endif</l>
+<l>if (abs(VF - 63.75) &gt; 1.0e-3)</l>
+<l>  throw ('cv_sep_filter2d Ddepth f32 value wrong: ' + VF)</l>
+<l>endif</l>
+<c>* ---- 8) 5 点 sigma=1：sep 与 filter2D（手工外积核）逐点一致 ----</c>
+<l>cv_gaussian_kernel (K5, 5, 1.0)</l>
+<l>gen_image_const (K2D5, 'real', 5, 5)</l>
+<l>for R := 0 to 4 by 1</l>
+<l>  get_grayval (K5, R, 0, KR5)</l>
+<l>  for C := 0 to 4 by 1</l>
+<l>    get_grayval (K5, C, 0, KC5)</l>
+<l>    set_grayval (K2D5, R, C, KR5 * KC5)</l>
+<l>  endfor</l>
+<l>endfor</l>
+<l>cv_sep_filter2d (ImgR, K5, K5, OutSep5, 'same', -1, -1, 0.0, 'border_default')</l>
+<l>cv_filter2d (ImgR, K2D5, Out2D5, 'same', -1, -1, 0.0, 'border_default')</l>
+<l>MaxDiff5 := 0.0</l>
+<l>for R := 2 to 6 by 1</l>
+<l>  for C := 2 to 6 by 1</l>
+<l>    get_grayval (OutSep5, R, C, VS5)</l>
+<l>    get_grayval (Out2D5, R, C, VD5)</l>
+<l>    if (abs(VS5 - VD5) &gt; MaxDiff5)</l>
+<l>      MaxDiff5 := abs(VS5 - VD5)</l>
+<l>    endif</l>
+<l>  endfor</l>
+<l>endfor</l>
+<l>if (MaxDiff5 &gt; 1.0e-4)</l>
+<l>  throw ('cv_sep_filter2d 5tap != cv_filter2d(2d): maxdiff=' + MaxDiff5)</l>
+<l>endif</l>
+<c>* ---- 9) 错误路径：核类型错 / 传了二维核 / borderType 非法 ----</c>
+<l>Err := 0</l>
+<l>try</l>
+<l>  cv_sep_filter2d (ImgR, OutB, K3, KBad1, 'same', -1, -1, 0.0, 'border_default')</l>
+<l>catch (Exception)</l>
+<l>  Err := Err + 1</l>
+<l>endtry</l>
+<l>try</l>
+<l>  cv_sep_filter2d (ImgR, K2D, K3, KBad2, 'same', -1, -1, 0.0, 'border_default')</l>
+<l>catch (Exception)</l>
+<l>  Err := Err + 1</l>
+<l>endtry</l>
+<l>try</l>
+<l>  cv_sep_filter2d (ImgR, K3, K3, KBad3, 'same', -1, -1, 0.0, 'diagonal')</l>
+<l>catch (Exception)</l>
+<l>  Err := Err + 1</l>
+<l>endtry</l>
+<l>if (Err != 3)</l>
+<l>  throw ('cv_sep_filter2d error paths: only ' + Err + '/3 raised')</l>
+<l>endif</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

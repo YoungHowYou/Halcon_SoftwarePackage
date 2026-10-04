@@ -118,6 +118,7 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 - **图像/滤波/矩阵类**：以**控制参数**直接传递（如 `cv_blur` 的 `AnchorX, AnchorY, BorderType`，`cv_mat_mul` 的 `Alpha, Beta, Flags`），按位置传满全部参数。
 - **特征检测/匹配/变换估计类**（`cv_orb_detect`、`cv_sift_detect`、`cv_akaze_detect`、`cv_bf_knn_match`、`cv_estimate_affine_partial2d`、`cv_estimate_rigid_2d`）：设置项通过 **dict 键**传入（`set_dict_tuple` 写入后传 `DictHandle`），未设键取默认；输入图像/描述子/点集也以 dict 对象传，结果写回同一 dict。
 - **枚举/宏参数**：均可**字符串或整数**两种写法——如 `cv_blur` 的 `BorderType` 传 'border_default' 或 `4`、`cv_threshold` 的 `Type` 传 'binary|otsu'（"|" 组合）、`cv_morphology_ex` 的 `Op/Shape` 传 'open'/'ellipse'。字符串不区分大小写，内部映射为 OpenCV 常量；旧脚本的整数写法完全兼容。
+- **`BorderType` 的字符串取值**（`cv_blur` / `cv_filter2d` / `cv_sep_filter2d` / `cv_sobel`，大小写不敏感，`border_` 前缀可省）：'constant'=0、'replicate'=1、'reflect'=2、'wrap'=3、'reflect101'=4、'default'=4、'transparent'=5、'isolated'=16；这些整数也可直接传。
 
 ### 图像类型说明
 
@@ -147,7 +148,7 @@ cv_blur(Image : ImageOut : Kwidth, Kheight, AnchorX, AnchorY, BorderType)
 | Kheight | 整数 | 输入 | 滤波核高度，≥1 的奇数，默认 3 |
 | AnchorX | 整数 | 输入 | 锚点 X（-1=核中心），默认 -1 |
 | AnchorY | 整数 | 输入 | 锚点 Y（-1=核中心），默认 -1 |
-| BorderType | 字符串/整数 | 输入 | 边界模式（如 'border_default'，大小写不敏感，或整数） |
+| BorderType | 字符串/整数 | 输入 | 边界模式：枚举字符串或整数（取值见上方「`BorderType` 的字符串取值」），默认 4=`BORDER_DEFAULT` |
 
 错误码：
 
@@ -189,7 +190,7 @@ cv_median_blur(Image : ImageOut : Ksize)
 
 #### cv_filter2d
 
-图像卷积，对应 `cv::filter2D`。Ddepth/BorderType 支持字符串枚举（'same'/'s16'、'border_default' 等）或整数。
+图像卷积，对应 `cv::filter2D`。Ddepth/BorderType 支持字符串枚举（'same'/'f32'、'border_default' 等）或整数；`Ddepth` 非 -1/'same' 时按映射后的类型分配输出图（`'u8'`/`'u16'`/`'f32'` → byte/uint2/real）。
 
 ```
 cv_filter2d(Image, Kernel : ImageOut : Ddepth, AnchorX, AnchorY, Delta, BorderType)
@@ -199,12 +200,12 @@ cv_filter2d(Image, Kernel : ImageOut : Ddepth, AnchorX, AnchorY, Delta, BorderTy
 |---|---|---|---|
 | Image | 图像 | 输入 | 单通道 `byte` / `uint2` / `real` |
 | Kernel | 图像 | 输入 | 卷积核，必须为 `real` 单通道，任意宽高 |
-| ImageOut | 图像 | 输出 | 与输入同类型同尺寸 |
-| Ddepth | 字符串/整数 | 输入 | 输出深度（'same'=-1 / 's16' / 'f32' / 'f64' 或整数） |
+| ImageOut | 图像 | 输出 | 与输入同尺寸；类型由 `Ddepth` 决定（默认同输入） |
+| Ddepth | 字符串/整数 | 输入 | 输出深度：`'same'`/-1 保持输入类型，`'u8'`/`'u16'`/`'f32'` 分别输出 `byte`/`uint2`/`real` |
 | AnchorX | 整数 | 输入 | 锚点 X（-1=核中心） |
 | AnchorY | 整数 | 输入 | 锚点 Y（-1=核中心） |
 | Delta | 实数 | 输入 | 结果叠加偏移量 |
-| BorderType | 字符串/整数 | 输入 | 边界模式（字符串枚举或整数） |
+| BorderType | 字符串/整数 | 输入 | 边界模式：枚举字符串或整数（取值见上方「`BorderType` 的字符串取值」），默认 4=`BORDER_DEFAULT` |
 
 错误码：
 
@@ -213,6 +214,81 @@ cv_filter2d(Image, Kernel : ImageOut : Ddepth, AnchorX, AnchorY, Delta, BorderTy
 | 30001 | Kernel 非 `real` 单通道 |
 | 30002 | 输入图像类型不支持 |
 | 30003 | OpenCV 执行异常 |
+| 30006 | Ddepth 取值不支持（`'s16'`/`'s32'`/`'f64'` 无 HALCON 对应类型或 OpenCV 不支持） |
+
+---
+
+#### cv_gaussian_kernel
+
+生成高斯核，**1:1 封装** `cv::getGaussianKernel`（参数名与语义跟 OpenCV 一致）：输出 **`real` 单通道图像（float32）** 的 **`ksize`×1 列向量**（元素和归一化为 1），可直接作 `cv_sep_filter2d` 的 `KernelX`/`KernelY`。
+
+```
+cv_gaussian_kernel(Kernel : : ksize, sigma :)
+```
+
+HDevelop 调用（**只有输出对象的算子，实参里输出对象在最前**）：
+
+```
+cv_gaussian_kernel (Kernel, 5, 1.0)      * 5×1 列向量
+cv_sep_filter2d (Image, Kernel, Kernel, ImageOut, 'same', -1, -1, 0.0, 'border_default')
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| Kernel | 图像 | 输出 | `real`（float32）单通道，`ksize`×1 列向量（与 `cv::getGaussianKernel` 返回值一致） |
+| ksize | 整数 | 输入 | 核长度（>=1，建议奇数） |
+| sigma | 实数 | 输入 | 标准差；<=0 时按 OpenCV 规则自动推算 |
+
+- `sigma <= 0` 的推算规则与 OpenCV 完全一致：奇数 `ksize <= 7` 用 OpenCV 内建小核表（`ksize=3` → `[0.25,0.5,0.25]`、`ksize=5` → `[0.0625,0.25,0.375,0.25,0.0625]`），其余用 $\sigma = 0.3\left(\frac{ksize-1}{2}-1\right)+0.8$。核已归一化（元素和 = 1）。
+- 输出为**全图域**、单通道 `real` 图像；HALCON 的 `real` 即 32 位浮点（`FLOAT_IMAGE` ↔ `CV_32FC1`），取值精度与 OpenCV `CV_32F` 一致。
+- **不加形状参数**（本包约定：基础算子照原库接口封装，不自行扩展模式）：需要 1×`ksize` 行向量核时对输出调 `cv_reshape (Kernel, KernelRow, 1)`。
+
+错误码：
+
+| 错误码 | 含义 |
+|---|---|
+| 30001 | ksize < 1 |
+| 30002 | OpenCV 执行失败（`getGaussianKernel` 抛异常 / 输出核布局异常） |
+
+例程：`examples/opencv/cv_gaussian_kernel.hdev`（列向量形状与已知值、小核表/公式两条 sigma 路径、与 `cv_sep_filter2d` 串联、`cv_reshape` 行核、错误路径）
+
+---
+
+#### cv_sep_filter2d
+
+可分离线性滤波，**1:1 封装** `cv::sepFilter2D`：先按 `KernelX` 逐行卷积、再按 `KernelY` 逐列卷积。与「一个二维核 + `cv_filter2d`」结果等价，但每像素运算量是 $O(k_x+k_y)$ 而非 $O(k_x k_y)$。
+
+```
+cv_sep_filter2d(Image, KernelX, KernelY : ImageOut : Ddepth, AnchorX, AnchorY, Delta, BorderType :)
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| Image | 图像 | 输入 | 单通道 `byte` / `uint2` / `real` |
+| KernelX | 图像 | 输入 | 行方向一维核：`real` 单通道，1×N 或 N×1（可直接用 `cv_gaussian_kernel` 的输出） |
+| KernelY | 图像 | 输入 | 列方向一维核：`real` 单通道，1×N 或 N×1（惯用法与 KernelX 传同一个核） |
+| ImageOut | 图像 | 输出 | 与输入同尺寸；类型由 `Ddepth` 决定（默认同输入） |
+| Ddepth | 字符串/整数 | 输入 | `'same'`/-1 保持输入类型；`'u8'`/`'u16'`/`'f32'` → `byte`/`uint2`/`real` |
+| AnchorX / AnchorY | 整数 | 输入 | 锚点（-1=核中心） |
+| Delta | 实数 | 输入 | 结果叠加偏移量 |
+| BorderType | 字符串/整数 | 输入 | 边界模式：枚举字符串或整数（取值见上方「`BorderType` 的字符串取值」），默认 4=`BORDER_DEFAULT` |
+
+- **惯用法（与 OpenCV 一致）**：两个参数传同一个核（如 `cv_gaussian_kernel` 的输出列向量）；传行向量/列向量结果一致（实测逐点差 < 1e-4）。
+- 传了真正的二维核（宽高都 >1）报 30002，不会当一维核照用。
+- 运算量：每像素从二维核的 $O(k^2)$ 降到 $O(k)$（$k$=核长度），核越大优势越明显。
+
+错误码：
+
+| 错误码 | 含义 |
+|---|---|
+| 30001 | 核不是 `real` 单通道 |
+| 30002 | 核不是一维（KernelX / KernelY 须为 1×N 或 N×1） |
+| 30003 | OpenCV 执行异常 |
+| 30004 | 输入图像类型不支持 |
+| 30005 | Ddepth / BorderType 无法识别 |
+| 30006 | Ddepth 取值不支持（`'s16'`/`'s32'`/`'f64'`） |
+
+例程：`examples/opencv/cv_sep_filter2d.hdev`（`cv_gaussian_kernel` 列向量核的 OpenCV 惯用法 + `cv_reshape` 行核、与 `cv_filter2d`（手工外积 2D 核）逐点对拍、anchor 全参数、byte/uint2/f32、错误路径）
 
 ---
 
@@ -231,12 +307,13 @@ cv_sobel(Image : ImageOut : Dx, Dy, Ksize, Ddepth, Scale, Delta, BorderType)
 | Dx | 整数 | 输入 | x 方向导数阶数（0~2），默认 1 |
 | Dy | 整数 | 输入 | y 方向导数阶数（0~2），默认 0 |
 | Ksize | 整数 | 输入 | 核尺寸（1 / 3 / 5 / 7），默认 3 |
-| Ddepth | 整数 | 输入 | 输出深度（-1 / 3=CV_16S / 5=CV_32F / 6=CV_64F），默认 6 |
+| Ddepth | 字符串/整数 | 输入 | 输出深度：`'same'`(-1) / `'s16'`(3) / `'f32'`(5) / `'f64'`(6)，默认 -1（同输入，与 `cv::Sobel` 一致） |
 | Scale | 实数 | 输入 | 缩放系数，默认 1.0 |
 | Delta | 实数 | 输入 | 偏置，默认 0.0 |
-| BorderType | 整数 | 输入 | OpenCV 边界模式（1=REPLICATE 等），默认 1 |
+| BorderType | 字符串/整数 | 输入 | 边界模式：枚举字符串（如 'replicate'）或整数（取值见上方「`BorderType` 的字符串取值」），默认 4=`BORDER_DEFAULT` |
 
 > 输出统一为 `real`：Ddepth 计算后统一 `convertTo` CV_32F，因为 HALCON 无 64 位浮点图。
+> ⚠️ Ddepth 默认 -1 表示中间缓冲与输入同深度（与 `cv::Sobel` 一致）：`byte` 输入时负梯度会被截断成 0，需要带符号精度请传 `'s16'`/`'f32'`/`'f64'`。
 
 错误码：
 
@@ -981,6 +1058,7 @@ cv_morphology_ex(Image : ImageOut : Op, Shape, Kwidth, Kheight, Iterations :)
 | cv_blur | ✅ | ✅ | ✅ | ❌ |
 | cv_median_blur | ✅ | ✅(3/5) | ✅(3/5) | ❌ |
 | cv_filter2d | ✅ | ✅ | ✅ | ❌ |
+| cv_sep_filter2d | ✅ | ✅ | ✅ | ❌ |
 | CLAHE_image | ✅ | ✅ | ❌ | ❌ |
 | cv_add_weighted | ✅ | ✅ | ✅ | ❌ |
 | cv_add / cv_subtract / cv_multiply / cv_divide（含 `_masked`） | ✅ | ✅ | ✅ | ❌（另支持 `int4`） |

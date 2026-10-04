@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_filter2d</span><span data-if="c" style="display:none;">cv_filter2d</span><span data-if="cpp" style="display:none;">CvFilter2d</span><span data-if="dotnet" style="display:none;">CvFilter2d</span><span data-if="python" style="display:none;">cv_filter2d</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_filter2d</span><span data-if="c" style="display:none;">cv_filter2d</span><span data-if="cpp" style="display:none;">CvFilter2d</span><span data-if="dotnet" style="display:none;">CvFilter2d</span><span data-if="python" style="display:none;">cv_filter2d</span></code> — 图像卷积，对应 cv::filter2D。卷积核经 real 单通道图像传入；Ddepth 支持字符串枚举（same/s16/f32/f64）或整数（-1=保持原深度）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数。</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_filter2d</span><span data-if="c" style="display:none;">cv_filter2d</span><span data-if="cpp" style="display:none;">CvFilter2d</span><span data-if="dotnet" style="display:none;">CvFilter2d</span><span data-if="python" style="display:none;">cv_filter2d</span></code> — 图像卷积，对应 cv::filter2D。卷积核经 real 单通道图像传入；Ddepth 支持字符串枚举（same/u8/u16/f32）或整数（-1=保持原深度，'u8'/'u16'/'f32' 分别输出 byte/uint2/real）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1138,7 +1138,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="ddepth" class="parname"><b><code><span data-if="hdevelop" style="display:inline">ddepth</span><span data-if="c" style="display:none">ddepth</span><span data-if="cpp" style="display:none">ddepth</span><span data-if="dotnet" style="display:none">ddepth</span><span data-if="python" style="display:none">ddepth</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[str, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer / </span><span data-if="hdevelop" style="display:inline">string)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long / </span><span data-if="dotnet" style="display:none">string)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i> / </span><span data-if="cpp" style="display:none">HString)</span><span data-if="c" style="display:none"> (<i>Hlong</i> / </span><span data-if="c" style="display:none">char*)</span></span>
 </div>
-<p class="pardesc">输出深度（'same'=-1 / 's16' / 'f32' / 'f64' 或整数）</p>
+<p class="pardesc">输出深度（'same'=-1 / 'u8' / 'u16' / 'f32' 或整数）</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>-1</p>
@@ -1174,7 +1174,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="borderType" class="parname"><b><code><span data-if="hdevelop" style="display:inline">borderType</span><span data-if="c" style="display:none">borderType</span><span data-if="cpp" style="display:none">borderType</span><span data-if="dotnet" style="display:none">borderType</span><span data-if="python" style="display:none">border_type</span></code></b> (input_control)  </span><span>number <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">Union[str, int]</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (integer / </span><span data-if="hdevelop" style="display:inline">string)</span><span data-if="dotnet" style="display:none"> (<i>int</i> / </span><span data-if="dotnet" style="display:none">long / </span><span data-if="dotnet" style="display:none">string)</span><span data-if="cpp" style="display:none"> (<i>Hlong</i> / </span><span data-if="cpp" style="display:none">HString)</span><span data-if="c" style="display:none"> (<i>Hlong</i> / </span><span data-if="c" style="display:none">char*)</span></span>
 </div>
-<p class="pardesc">边界模式（字符串枚举或整数）</p>
+<p class="pardesc">边界模式：枚举字符串 constant(0)/replicate(1)/reflect(2)/wrap(3)/reflect101(4)/default(4)/transparent(5)/isolated(16)，大小写不敏感且 border_ 前缀可省；也可直接传整数，默认 4=BORDER_DEFAULT。</p>
 <p class="pardesc"><span class="parcat">Default:
 
       </span>4</p>

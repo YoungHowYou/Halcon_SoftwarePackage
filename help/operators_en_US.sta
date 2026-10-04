@@ -103,6 +103,8 @@ imageA,imageB,imageOut,scale,dtype:userextensions:UserExtensions:
 imageA,imageB,mask,imageOut,dtype:userextensions:UserExtensions:
 imageA,imageB,mask,imageOut,dtype:userextensions:UserExtensions:
 imageA,imageB,imageOut,dtype:userextensions:UserExtensions:
+Kernel,ksize,sigma:userextensions:UserExtensions:
+image,kernelX,kernelY,imageOut,ddepth,anchorX,anchorY,delta,borderType:userextensions:UserExtensions:
 handle,result:userextensions:UserExtensions:
 handle,sql,errmsg:userextensions:UserExtensions:
 host,user,passwd,db,port,unix_socket,client_flag,handle,errmsg:userextensions:UserExtensions:

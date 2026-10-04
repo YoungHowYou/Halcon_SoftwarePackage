@@ -1167,7 +1167,7 @@ toggleLanguage(new_lang,1);return;}
         <tr>
 <td><code><a href="cv_blur.html">CvBlur</a></code></td>
 <td>  </td>
-<td>对图像做归一化盒式滤波（均值滤波），对应 cv::blur；输出与输入同类型同尺寸的单通道图像，支持 byte / uint2 / real。AnchorX/AnchorY 指定核锚点（-1=核中心）；BorderType 为边界模式，支持字符串枚举（如 'border_default'，大小写不敏感）或整数；核宽/高须为 ≥1 的奇数。</td>
+<td>对图像做归一化盒式滤波（均值滤波），对应 cv::blur；输出与输入同类型同尺寸的单通道图像，支持 byte / uint2 / real。AnchorX/AnchorY 指定核锚点（-1=核中心）；BorderType 由接口传入，可传枚举字符串（如 border_default，大小写不敏感）或 OpenCV 整数常量（默认 4=BORDER_DEFAULT）；核宽/高须为 ≥1 的奇数。</td>
 </tr>
         <tr>
 <td><code><a href="cv_bulkiness.html">CvBulkiness</a></code></td>
@@ -1287,12 +1287,17 @@ toggleLanguage(new_lang,1);return;}
         <tr>
 <td><code><a href="cv_filter2d.html">CvFilter2d</a></code></td>
 <td>  </td>
-<td>图像卷积，对应 cv::filter2D。卷积核经 real 单通道图像传入；Ddepth 支持字符串枚举（same/s16/f32/f64）或整数（-1=保持原深度）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数。</td>
+<td>图像卷积，对应 cv::filter2D。卷积核经 real 单通道图像传入；Ddepth 支持字符串枚举（same/u8/u16/f32）或整数（-1=保持原深度，'u8'/'u16'/'f32' 分别输出 byte/uint2/real）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数。</td>
 </tr>
         <tr>
 <td><code><a href="cv_fit_clear.html">CvFitClear</a></code></td>
 <td>  </td>
 <td>显式释放拟合模型句柄占用的原生资源（表达式编译产物等）。句柄随后不可再用于拟合；模型内存立即释放，句柄壳由 HALCON 句柄 GC 回收。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_gaussian_kernel.html">CvGaussianKernel</a></code></td>
+<td>  </td>
+<td>生成高斯核（real 单通道图像 = float32），1:1 封装 cv::getGaussianKernel：输出 ksize×1 列向量（元素和归一化为 1），与库函数返回值完全一致，可直接作 cv_sep_filter2d 的 kernelX/kernelY。ksize 为核长度（&gt;=1，建议奇数）；sigma&lt;=0 时按 OpenCV 规则自动推算：奇数 ksize&lt;=7 用 OpenCV 内建小核表（ksize=3 → [0.25,0.5,0.25]），其余 sigma=0.3*((ksize-1)*0.5-1)+0.8。输出为全图域单通道 real 图像。本算子不加形状参数（与库接口保持一致）；需要行向量核时对输出调 cv_reshape(Kernel, 1, KernelRow)。</td>
 </tr>
         <tr>
 <td><code><a href="cv_gen_circle.html">CvGenCircle</a></code></td>
@@ -1478,6 +1483,11 @@ toggleLanguage(new_lang,1);return;}
 <td><code><a href="cv_select_shape.html">CvSelectShape</a></code></td>
 <td>  </td>
 <td>按形状特征筛选 region 子集，对应 HALCON select_shape。Features 为多特征名元组（可用名称与 cv_region_features 完全一致，含 ratio/outer_radius/dist_mean/max_diameter/connect_num/holes_num/area_holes/euler_number/rect2_phi/rect2_len1/rect2_len2 与 moments_* 系列），Operation 为 and/or，Min/Max 为阈值范围；输出保持引用语义。</td>
+</tr>
+        <tr>
+<td><code><a href="cv_sep_filter2d.html">CvSepFilter2d</a></code></td>
+<td>  </td>
+<td>可分离线性滤波，对应 cv::sepFilter2D：先按 kernelX 逐行卷积、再按 kernelY 逐列卷积，等效于一次二维卷积但每像素运算量为 O(kx+ky) 而非 O(kx*ky)。两个核都是一维核（行向量 1×N 或列向量 N×1，real 单通道图像）；OpenCV 的惯用法是两个参数传同一个核（如 cv_gaussian_kernel 的输出列向量），此处不限定朝向。Ddepth 支持字符串枚举（same/u8/u16/f32）或整数：-1/'same' 保持输入类型，'u8'/'u16'/'f32' 分别输出 byte/uint2/real（'s16'/'s32'/'f64' 无 HALCON 对应类型或 OpenCV 不支持，报 30006）；Anchor 指定锚点（-1=核中心）；BorderType 支持字符串枚举或整数；Delta 为结果叠加偏移量。支持 byte / uint2 / real 单通道，输出尺寸与输入一致。</td>
 </tr>
         <tr>
 <td><code><a href="cv_shape_trans.html">CvShapeTrans</a></code></td>
