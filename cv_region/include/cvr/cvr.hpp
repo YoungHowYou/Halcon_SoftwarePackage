@@ -343,7 +343,10 @@ bool cvr_feature_moments(const CvrRegion& r,
 bool cvr_feature_elliptic_axis(const CvrRegion& r,
                                double& ra, double& rb, double& phi);
 
-// 轮廓长度（含 sqrt(2) 对角修正）
+// 轮廓长度 —— HALCON contlength 口径：轮廓点 = 边界像素中心，相邻轮廓点沿坐标轴
+// 方向距离计 1、对角方向计 sqrt(2)；孔洞轮廓不计；空区域为 0。
+// ⇒ 实心 W x H 矩形 = 2*((W-1)+(H-1))（51x81 → 260 与 HALCON 一致；8x8 → 28；
+//   单像素 → 0）。实现见 cvr.cpp 的 contlength_compute（Moore 边界跟踪）。
 bool cvr_feature_contlength(const CvrRegion& r, double& contlength);
 
 // 凸包 + 凸度

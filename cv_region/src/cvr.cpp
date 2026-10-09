@@ -1848,7 +1848,141 @@ bool cvr_feature_contlength(const CvrRegion& r, double& contlength)
     return true;
 }
 
+namespace {
+
+// 8 邻域方向（顺时针）：0=上 1=右上 2=右 3=右下 4=下 5=左下 6=左 7=左上
+const int kDr8[8] = {-1, -1, 0, 1, 1, 1, 0, -1};
+const int kDc8[8] = { 0,  1, 1, 1, 0, -1, -1, -1};
+const double kSqrt2 = 1.41421356237309504880;
+
+//! 游程前景索引：fg(r,c) = 该像素是否在前景（先按行二分、再按行内 run 二分）
+//! 步进式跟踪绝大多数查询落在相邻两行，故带一个「上一行区间」缓存。
+struct CvrRunFg {
+    const std::vector<CvrRun>* R = nullptr;
+    std::vector<std::pair<CvrCoord, size_t>> rows;   // (行号, 该行首条 run 下标)
+    mutable CvrCoord cacheRow = 0;
+    mutable size_t   cacheB = 0, cacheE = 0;
+    mutable bool     cacheOk = false;
+
+    void build(const std::vector<CvrRun>& runs) {
+        R = &runs;
+        rows.clear();
+        rows.reserve(runs.size());
+        for (size_t i = 0; i < runs.size(); ++i)
+            if (rows.empty() || rows.back().first != runs[i].r)
+                rows.push_back({runs[i].r, i});
+        cacheOk = false;
+    }
+
+    //! 包含 (r,c) 的 run 下标；无前景返回 SIZE_MAX
+    size_t find_run(CvrCoord r, CvrCoord c) const {
+        size_t b = 0, e = 0;
+        if (cacheOk && cacheRow == r) {
+            b = cacheB; e = cacheE;
+        } else {
+            auto it = std::lower_bound(rows.begin(), rows.end(), r,
+                                       [](const std::pair<CvrCoord, size_t>& a, CvrCoord v) {
+                                           return a.first < v;
+                                       });
+            if (it == rows.end() || it->first != r) return SIZE_MAX;
+            b = it->second;
+            e = (it + 1 == rows.end()) ? R->size() : (it + 1)->second;
+            cacheRow = r; cacheB = b; cacheE = e; cacheOk = true;
+        }
+        auto jt = std::upper_bound(R->begin() + (ptrdiff_t)b, R->begin() + (ptrdiff_t)e, c,
+                                   [](CvrCoord v, const CvrRun& a) { return v < a.cb; });
+        if (jt == R->begin() + (ptrdiff_t)b) return SIZE_MAX;
+        --jt;
+        return (c <= jt->ce) ? (size_t)(jt - R->begin()) : SIZE_MAX;
+    }
+
+    bool fg(CvrCoord r, CvrCoord c) const { return find_run(r, c) != SIZE_MAX; }
+};
+
+//! Moore 邻域边界跟踪一圈（一个轮廓环）。
+//! 起点须为「该环最上最左」的轮廓像素；跟踪经过的 run 起点在 visitedRun 上打标。
+//! length = 加权长度（水平/垂直步 1、对角步 sqrt(2)）；signed_area = 鞋带和
+//! （外轮廓与孔洞符号相反，用于排除孔洞）。
+//! 超过 guardMax 步仍未闭合则返回 false（未 normalize 输入的保护）。
+bool cvr_trace_cycle(const CvrRunFg& fg, CvrCoord sr, CvrCoord sc,
+                     std::vector<char>& visitedRun, size_t guardMax,
+                     double& length, double& signed_area)
+{
+    length = 0.0;
+    signed_area = 0.0;
+
+    auto mark = [&](CvrCoord r, CvrCoord c) {
+        const size_t k = fg.find_run(r, c);
+        if (k != SIZE_MAX && (*fg.R)[k].cb == c) visitedRun[k] = 1;   // (r,c) 是该 run 起点
+    };
+
+    // 初始：b = 起点，c = 起点左侧像素（起点是 run 左端 ⇒ 必为背景）
+    int d1 = -1;
+    for (int k = 0; k < 8; ++k) {
+        const int d = (6 + k) & 7;                    // 从「左」开始顺时针扫
+        if (fg.fg(sr + kDr8[d], sc + kDc8[d])) { d1 = d; break; }
+    }
+    mark(sr, sc);
+    if (d1 < 0) return true;                          // 孤立像素：轮廓退化为一点，长 0
+
+    const CvrCoord b1r = sr + kDr8[d1];              // 第一个后继（Jacob 判据用）
+    const CvrCoord b1c = sc + kDc8[d1];
+    CvrCoord pr = b1r, pc = b1c;
+    int cd = (d1 + 6) & 7;                            // 当前状态下「上一个坑位」的方向
+    // 起点 -> b1 这一步也要计入；b1 本身也要打标记（否则它若是 run 起点，
+    // 会被当成「新环的起点」再跟踪一遍 —— 1 像素宽的竖条曾因此算出双倍长度）
+    length += (kDr8[d1] != 0 && kDc8[d1] != 0) ? kSqrt2 : 1.0;
+    signed_area += (double)sc * (double)b1r - (double)b1c * (double)sr;
+    mark(b1r, b1c);
+
+    size_t steps = 0;
+    for (;;) {
+        int dn = -1;
+        for (int k = 0; k < 8; ++k) {
+            const int d = (cd + k) & 7;
+            if (fg.fg(pr + kDr8[d], pc + kDc8[d])) { dn = d; break; }
+        }
+        if (dn < 0) return false;                     // 理论上不可达
+
+        const int dr = kDr8[dn], dc = kDc8[dn];
+        length += (dr != 0 && dc != 0) ? kSqrt2 : 1.0;
+        signed_area += (double)pc * (double)(pr + dr) - (double)(pc + dc) * (double)pr;
+
+        pr += dr;
+        pc += dc;
+        cd = (dn + 6) & 7;
+        mark(pr, pc);
+
+        if (pr == sr && pc == sc) {
+            // Jacob 停止判据：回到起点、且下一步仍走向 b1 ⇒ 环闭合（避免在
+            // 「夹点」处提前停）
+            for (int k = 0; k < 8; ++k) {
+                const int d = (cd + k) & 7;
+                if (fg.fg(pr + kDr8[d], pc + kDc8[d])) {
+                    if (pr + kDr8[d] == b1r && pc + kDc8[d] == b1c) return true;
+                    break;
+                }
+            }
+        }
+        if (++steps > guardMax) return false;
+    }
+}
+
+} // namespace
+
 // 内部计算（不写缓存）
+//
+// contlength —— HALCON 口径（HALCON Operator Reference / contlength）：
+//   「轮廓点链」的总长：轮廓点 = 边界像素中心，相邻轮廓点沿坐标轴方向距离计 1、
+//   对角方向计 sqrt(2)；**孔洞轮廓不计**；空区域为 0。
+//   等价口径：实心 W x H 矩形 = 2*((W-1)+(H-1))（= 沿像素中心的轮廓周长；
+//   51x81 实心矩形 = 260，与 HALCON 实测一致；8x8 = 28；单像素 = 0）。
+//
+//   实现：Moore 邻域边界跟踪 + Jacob 停止判据
+//     * 起点按行序取 run 左端像素（run 起点必在轮廓上），跟踪时把经过的 run 起点
+//       标记掉 ⇒ 每个环恰好跟踪一次；8 连通分量各自成环，互不重复；
+//     * 鞋带公式算环的着色面积：外轮廓与孔洞的朝向相反 ⇒ 反向环（孔洞）不计；
+//     * 复杂度 O(边界像素 · log runs)，只依赖 runs（不需要定义域 w/h）。
 static bool contlength_compute(const CvrRegion& r, double& contlength)
 {
     cvr_clear_last_error();
@@ -1856,57 +1990,25 @@ static bool contlength_compute(const CvrRegion& r, double& contlength)
     const auto& R = r.runs;
     const size_t n = R.size();
     if (n == 0) return true;
-    const double SQ2M1 = std::sqrt(2.0) - 1.0;
 
-    // r.runs 已按 (r, cb) 有序（调用方保证）：单遍扫描，去掉原先的 map 索引。
-    size_t rowStart = 0;
-    while (rowStart < n) {
-        const CvrCoord row = R[rowStart].r;
-        size_t rowEnd = rowStart;
-        while (rowEnd < n && R[rowEnd].r == row) ++rowEnd;
+    CvrRunFg fg;
+    fg.build(R);
 
-        // 上一行 = 紧邻的、r == row-1 的一段
-        size_t prevStart = rowStart, prevEnd = rowStart;
-        if (rowStart > 0 && R[rowStart - 1].r == row - 1) {
-            prevStart = rowStart;
-            while (prevStart > 0 && R[prevStart - 1].r == row - 1) --prevStart;
-            prevEnd = rowStart;
+    // 步数上限（异常 / 未 normalize 输入的保护）：轮廓步数不超过 4*像素数 量级
+    CvrChords area = 0;
+    for (const auto& rr : R) area += (CvrChords)(rr.ce - rr.cb + 1);
+    const size_t guardMax = (size_t)(8 * (area + (CvrChords)n) + 64);
+
+    std::vector<char> visitedRun(n, 0);
+    for (size_t k = 0; k < n; ++k) {
+        if (visitedRun[k]) continue;
+        double len = 0.0, sarea = 0.0;
+        if (!cvr_trace_cycle(fg, R[k].r, R[k].cb, visitedRun, guardMax, len, sarea)) {
+            cvr_set_last_error("cvr_feature_contlength: boundary trace did not close "
+                               "(region runs must be sorted & normalized)");
+            return false;
         }
-        const bool hasPrev = (prevStart < prevEnd);
-
-        // 当前行与上一行的 runs 均按 cb 有序：双指针 sweep 一趟算完每个当前 run
-        // 与上一行的重叠像素数（原先对每个 run 全扫上一行，最坏 O(nA×nB)）。
-        // 重叠计数是整数加法，与累加顺序无关，逐 run 结果位级等价。
-        std::vector<int> over((size_t)(rowEnd - rowStart), 0);
-        if (hasPrev) {
-            size_t i = rowStart, p = prevStart;
-            while (i < rowEnd && p < prevEnd) {
-                const CvrRun& a = R[i];
-                const CvrRun& b = R[p];
-                const CvrCoord ovCb = std::max(a.cb, b.cb);
-                const CvrCoord ovCe = std::min(a.ce, b.ce);
-                if (ovCb <= ovCe) over[i - rowStart] += ovCe - ovCb + 1;
-                if (a.ce < b.ce) ++i; else ++p;
-            }
-        }
-
-        for (size_t k = rowStart; k < rowEnd; ++k) {
-            const auto& rr = R[k];
-            // 左侧边界和右侧边界各贡献 1
-            contlength += 2.0;
-            const int len = rr.ce - rr.cb + 1;
-            if (!hasPrev) {
-                // 上一行无前景：整段上边界都是垂直边
-                contlength += (double)len;
-                continue;
-            }
-            const int non_over = len - over[k - rowStart];
-            if (non_over > 0) {
-                // 非重叠部分与上一行边界形成对角/垂直边
-                contlength += non_over * SQ2M1;
-            }
-        }
-        rowStart = rowEnd;
+        if (sarea >= 0.0) contlength += len;   // 外轮廓；孔洞朝向相反 ⇒ 不计
     }
     return true;
 }
@@ -3769,27 +3871,11 @@ bool cvr_shape_trans(const CvrRegion& r, const std::string& shape, CvrRegion& ou
         hull = lower;
         hull.insert(hull.end(), upper.begin(), upper.end());
 
-        // 扫描线填充凸多边形
-        if (!hull.empty()) {
-            double min_r = hull[0].first, max_r = hull[0].first;
-            for (auto& p : hull) { if (p.first < min_r) min_r = p.first; if (p.first > max_r) max_r = p.first; }
-            for (CvrCoord row = (CvrCoord)std::floor(min_r); row <= (CvrCoord)std::ceil(max_r); ++row) {
-                std::vector<double> xs;
-                for (size_t i = 0; i < hull.size(); ++i) {
-                    size_t j = (i + 1) % hull.size();
-                    double r1 = hull[i].first, r2 = hull[j].first;
-                    double c1 = hull[i].second, c2 = hull[j].second;
-                    if ((r1 <= row && r2 > row) || (r2 <= row && r1 > row)) {
-                        double t = (row - r1) / (r2 - r1);
-                        xs.push_back(c1 + t * (c2 - c1));
-                    }
-                }
-                if (xs.size() >= 2) {
-                    std::sort(xs.begin(), xs.end());
-                    out.runs.push_back({row, (CvrCoord)std::floor(xs.front()), (CvrCoord)std::ceil(xs.back())});
-                }
-            }
-        }
+        // 栅格化交给「与 HALCON shape_trans 口径一致」的凸多边形扫描线（见
+        // runs_from_convex_polygon 注释：行/列取 floor，并对只与顶点/水平边相切的行
+        // 做兜底）。原先这里内联了一套自己的扫描线，缺那条兜底 ⇒ 凸包底边所在行
+        // 被整行丢掉，输出不再包含原区域（4x4 方块只给 12 像素、2x8 长方形只给 8）。
+        runs_from_convex_polygon(hull, out);
     }
     else {
         cvr_set_last_error("cvr_shape_trans: unknown shape type: " + shape);

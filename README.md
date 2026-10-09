@@ -1096,6 +1096,23 @@ cv_morphology_ex(Image : ImageOut : Op, Shape, Kwidth, Kheight, Iterations :)
 - 特征：cv_area_center / cv_smallest_rectangle1 / cv_smallest_rectangle2 / cv_smallest_circle / cv_elliptic_axis / cv_contlength / cv_circularity / cv_compactness / cv_convexity / cv_rectangularity / cv_anisometry / cv_bulkiness / cv_structure_factor
 - 互转：cv_region_to_bin / cv_bin_to_region（cv_bin_to_region 支持 byte/int1/int2/uint2/int4/int8/real 单通道，Threshold 为 real/integer）
 
+### Python 绑定（PyPI 包 `cv-region`）
+
+同一份 C++ 源码（`include/cvr/cvr.hpp` + `src/cvr.cpp`）另做了 Python 绑定，全部放在
+`cv_region/python/` 下（`pip install ./cv_region/python` → `import cv_region`）。
+它是**纯 STL + C++17 的独立扩展模块，不需要 HALCON、也不需要 license**，与扩展包共用同一个
+`cvr.cpp`，所以两边数值口径完全一致。
+
+- 模块级函数与 C++ 头逐条同名（`cvr_union2` / `cvr_connection` / `cvr_select_shape` / `cvr_feature_*` …），
+  单区域算子另挂一层 `Region` 方法（`Region.area_center()` / `.connection()` / `.normalize()` …）；
+- 与 numpy 走 buffer 协议互转：`Region.from_mask` / `.to_mask` / `.from_image` / `.to_image`
+  （核心功能不依赖 numpy，没装也能用）；
+- 构建：`pip install ./cv_region/python`（scikit-build-core + pybind11，编译器用本机 MSVC/GCC/Clang）；
+  测试：`python -m pytest cv_region/python/tests`（41 项，期望值取 C++ 侧同一套口径）；
+- 数值口径与扩展包算子同源（同一份 `cvr.cpp`）；`contlength` 与 `shape_trans('convex')`
+  已于 2026-10-09 修到与 HALCON 一致（详见 `cv_region/python/README.md` 的
+  「与 HALCON 的一致性」一节）。
+
 #### cv_connection_ex
 
 带**形状特征预计算缓存**的连通域标记。标记语义与 `cv_connection` 完全一致（8 连通、RLE chord 编码、并查集），额外可在标记时把指定形状特征算好并写入**跨算子内容指纹缓存**，供后续 `cv_region_features` / `cv_select_shape` / `cv_area_center` / `cv_smallest_rectangle1` / `cv_smallest_rectangle2` / `cv_smallest_circle` / `cv_elliptic_axis` / `cv_contlength` / `cv_circularity` / `cv_compactness` / `cv_convexity` / `cv_rectangularity` 直接命中，免重复扫描 region。
@@ -1184,7 +1201,9 @@ cv_region_features(Regions : : Features : Values)
 
 > **phi 系符号**：`phi` / `rect2_phi` / `orientation` 的绝对值与 HALCON 一致但**符号相反**（核心库既有 phi 约定：我们的 phi = −HALCON phi），例程用构造旋转矩形做了确定性验证。
 
-> **已知偏差（核心库既有，非本算子引入）**：`contlength` / `circularity` / `compactness` / `convexity` / `rectangularity` / `phi` / `struct_factor` 与 HALCON 原生数值不一致（如 51×81 实心矩形：`contlength` 260 → 183，因核心库漏计最后一行下边界）。`cv_contlength` / `cv_circularity` / `cv_compactness` / `cv_structure_factor` 等专用算子同样受影响，`cv_region_features` 只是原样继承。`area` / `row` / `column` / `width` / `height` / `row1`–`column2` / `ra` / `rb` / `anisometry` / `bulkiness` 已与 HALCON 1e-9 一致。
+> **与 HALCON 的一致性（2026-10-09 更新）**：`contlength` 已修好 —— 现按 HALCON 的 `'center'` 轮廓口径（轮廓点 = 边界像素中心，沿轴 1 / 对角 √2，孔洞不计；依据 HALCON Operator Reference 的 `contlength` / `gen_contour_region_xld`），51×81 实心矩形从 183 变为 **260**，与 HALCON 实测一致；`cv_contlength` / `cv_region_features` 同源受益。
+> 仍与 HALCON 不一致的是**公式本身不同**的几个（与本条修复无关）：`circularity`（HALCON 用 `F/(π·maxdist²)`，本实现用 `1/max(1, contlength²/(4πF))`）、`rectangularity`（HALCON 用「同阶矩矩形与区域的差集面积」归一，本实现用 `area / smallest_rectangle2 面积`）、`convexity`（凸包面积按像素数 vs 本实现的多边形面积）、`compactness`（同式但缺 `max(1,·)` 裁剪）、`phi` / `struct_factor`（未逐个核对）。
+> `area` / `row` / `column` / `width` / `height` / `row1`–`column2` / `ra` / `rb` / `anisometry` / `bulkiness` 已与 HALCON 1e-9 一致。
 > `rect2_len1` / `rect2_len2` 在**极小区域**（面积 ≤ 10 px 的退化形状）与 HALCON 有算法固有差异（HALCON 取到更小的等价解）。
 > 顺带修掉核心库两处既有缺陷：① `smallest_circle` 的启发式迭代会发散（非凸区域半径偏大，实测 area=1490 的 blob 67.66 → 修后与 HALCON 一致 47.07；已换成精确的增量式最小外接圆算法），② 孔洞统计漏了**连通性对偶**（背景必须用 4 邻域，否则对角夹缝被误判成孔洞）。两者都影响 `cv_smallest_circle` / `cv_region_features` 等既有算子。
 
@@ -1204,13 +1223,14 @@ cv_shape_trans(Region : RegionTrans : Type :)
 | `rectangle2` | 最小外接旋转矩形 | ✅ 轴对齐档逐像素一致；倾斜档面积差 ≤5%、对称差 ≈3%（HALCON 边界栅格化略宽松） |
 | `ellipse` | 等效椭圆 | ⚠️ 面积约为 HALCON 的 1/4.5 |
 | `outer_circle` | 最小外接圆 | ⚠️ 面积明显偏小 |
-| `convex` | 凸包 | ⚠️ 面积略大于 HALCON（对称差 ≈3%） |
+| `convex` | 凸包 | ✅ 轴对齐档逐像素一致；倾斜档与 `rectangle2` 同口径（面积 +2~3%，HALCON 边界栅格化略宽松）；输出恒包含原区域 |
 
 - 未实现 `inner_circle` / `inner_rectangle1`。
 - 生成 region 的栅格化口径：像素 `(r,c)` 视为方格 `[r,r+1)×[c,c+1)`，行取 `floor(min_row)..floor(max_row)`，每行在 `y = row` 处求多边形列跨度后取 `floor`。实测该口径在轴对齐图形上可逐像素复现 HALCON。
 - 例程：`examples/cv_region_all.hdev`（`rectangle2` 倾斜档 + 90° 轴对齐档与 HALCON 原生对照）。
 
-> **已知偏差（核心库既有）**：`ellipse` / `outer_circle` 共用 `cvr_shape::add_ellipse_runs`——它只**采样边界点**再逐行取 min/max，采样稀疏的行会退化成 1 像素宽甚至整行丢失，故圆/椭圆都填不满；`ellipse` 还在 `elliptic_axis` 的 `Ra/Rb` 上又乘了 0.5，面积再小 4 倍。`convex` 用 `floor/ceil` 填充，比 HALCON 略大。
+> **已知偏差（核心库既有）**：`ellipse` / `outer_circle` 共用 `cvr_shape::add_ellipse_runs`——它只**采样边界点**再逐行取 min/max，采样稀疏的行会退化成 1 像素宽甚至整行丢失，故圆/椭圆都填不满；`ellipse` 还在 `elliptic_axis` 的 `Ra/Rb` 上又乘了 0.5，面积再小 4 倍。
+> `convex` 已于 2026-10-09 修复：原先是本分支自己内联的一套扫描线（缺“只与顶点/水平边相切的行”的兜底、且上界用 `ceil`）⇒ 轴对齐时丢掉底部一行（4x4 → 12、2x8 → 8），输出甚至不再包含原区域；现改走与 HALCON 一致的 `runs_from_convex_polygon`。
 > `rectangle2` 已于本次修复：原实现用 `u = 0.5*w*cos(t); v = 0.5*h*sin(t)` 沿半宽/半高采样一圈——那是**内切椭圆**，所以输出成椭圆/圆。同时修掉 `cvr_feature_smallest_rectangle2` 的一处主轴错误（`length1` 取长边却恒用 `u` 轴角作 `phi`，当 `h > w` 时 `phi` 差 90°，轴对齐矩形两种候选面积打平时会命中，表现为 `rectangle2` 生成旋转 90° 的矩形）。该修正同时影响 `cv_smallest_rectangle2` 在同等情形下的 `Phi` 输出（原先错误，现与 HALCON 的 `±π/2` 语义一致）。
 
 #### cv_gen_rectangle2

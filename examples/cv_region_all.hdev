@@ -246,9 +246,9 @@
 <l>if (NReg &lt; 10)</l>
 <l>  throw ('cv_region_features needs a multi-region input, got ' + NReg)</l>
 <l>endif</l>
-<l>* 几何类特征（area/row/column/bbox/ra/rb）需与 HALCON 原生 region_features 1e-9 一致；</l>
+<l>* 几何类特征（area/row/column/bbox/ra/rb）与 contlength 需与 HALCON 原生 region_features 1e-9 一致；</l>
 <l>* 同时校验 N_regions × N_features 的行优先布局与顺序</l>
-<l>HNames := ['area','row','column','width','height','row1','column1','row2','column2','ra','rb']</l>
+<l>HNames := ['area','row','column','width','height','row1','column1','row2','column2','contlength','ra','rb']</l>
 <l>* 新增 HALCON 对齐特征（已实测与 HALCON region_features ≤1e-13）：</l>
 <l>*   ratio / outer_radius / max_diameter / connect_num / holes_num / area_holes /</l>
 <l>*   euler_number / 18 个 moments_*（rect2_len1/2 在极小区域有算法固有差异，</l>
@@ -291,7 +291,7 @@
 <l>endif</l>
 <c></c>
 <l>* 其余特征与包内专用算子逐位一致（同走 cvr_get_feature，保证封装本身无偏差）</l>
-<l>* 注：contlength/circularity/compactness/convexity/rectangularity/phi/structure_factor 目前与 HALCON 原生有偏差，属核心库既有问题，不在本算子范围</l>
+<l>* 注：contlength 已按 HALCON 'center' 轮廓口径修复（2026-10-09），已列入上方与原生 1e-9 的对拍；circularity/compactness/convexity/rectangularity/phi/structure_factor 仍与 HALCON 有偏差（公式本身不同），不在本算子范围</l>
 <l>cv_region_features (ConnH, 'contlength', FCvnCL)</l>
 <l>cv_contlength (ConnH, FOpCL)</l>
 <l>cv_region_features (ConnH, 'circularity', FCvnCi)</l>

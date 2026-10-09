@@ -42,8 +42,8 @@ int main() {
 
     double cl;
     CVR_CHECK(cvr_feature_contlength(r, cl));
-    // 8x8 正方形轮廓 = 32
-    assert(std::abs(cl - 32.0) < 1.0);
+    // 8x8 实心方块 = 2*((W-1)+(H-1)) = 28（HALCON 'center' 轮廓口径，见 cvr.cpp）
+    assert(std::abs(cl - 28.0) < 1e-9);
 
     double conv;
     bool isconv;
