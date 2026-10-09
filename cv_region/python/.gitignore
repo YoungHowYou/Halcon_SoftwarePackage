@@ -1,0 +1,12 @@
+# scikit-build-core 构建产物（build-dir = build/{wheel_tag}）
+build/
+dist/
+_skbuild/
+*.egg-info/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/

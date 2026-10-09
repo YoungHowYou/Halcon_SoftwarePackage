@@ -1,0 +1,65 @@
+#=============================================================================
+#  cv_region/python/pyproject.toml — cv-region（PyPI 包）打包元数据
+#=============================================================================
+#  dist 名 = cv-region，import 名 = cv_region（两者不同是 PyPI 常规做法）。
+#  构建后端用 scikit-build-core：直接复用上级目录的 C++ 源码
+#  （../include/cvr/cvr.hpp + ../src/cvr.cpp），不复制、不重复。
+#
+#  本地构建/安装：
+#      pip install ./cv_region/python
+#      pip wheel  ./cv_region/python -w dist        # 出 wheel
+#  ⚠️ 不要从别处拷贝本目录单独发布：sdist 不含上级 C++ 源码，
+#     发布请用 wheel（多平台 wheel 由 cibuildwheel 在本仓库根目录构建）。
+#=============================================================================
+
+[build-system]
+requires = ["scikit-build-core>=0.10", "pybind11>=2.12"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "cv-region"
+# 与 cv_region/CMakeLists.txt 的 project(VERSION) 保持一致
+version = "0.2.0"
+description = "HALCON 语义的游程(RLE) region 库 cvr_core 的 Python 绑定：集合运算/形态学/形状特征/select_shape"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "GPL-3.0-or-later" }
+authors = [{ name = "YoungHowYou" }]
+keywords = [
+  "halcon", "region", "runs", "rle", "machine-vision",
+  "computer-vision", "morphology", "connected-components", "select_shape",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Programming Language :: C++",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Image Processing",
+]
+
+[project.urls]
+Homepage = "https://github.com/YoungHowYou/Halcon_SoftwarePackage"
+Repository = "https://github.com/YoungHowYou/Halcon_SoftwarePackage"
+"Bug Tracker" = "https://github.com/YoungHowYou/Halcon_SoftwarePackage/issues"
+
+[project.optional-dependencies]
+test = ["pytest", "numpy"]
+
+[tool.scikit-build]
+minimum-version = "0.10"
+# 构建产物留在本目录（默认是临时目录），便于排查/直接装
+build-dir = "build/{wheel_tag}"
+# 纯 Python 包层（cv_region/__init__.py）；扩展模块由 CMake install() 放进同一个包
+wheel.packages = ["cv_region"]
+cmake.version = ">=3.21"
+
+[tool.scikit-build.cmake.define]
+CMAKE_CXX_STANDARD = "17"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
