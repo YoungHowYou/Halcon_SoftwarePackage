@@ -1,6 +1,6 @@
 ---
 name: halcon-extension-package
-description: 'HALCON 扩展包算子开发与排错指南：覆盖新算子分流（有流程/多步算法先做进 cv_region 静态库再封装，该库已是单头 cvr.hpp + 单 cpp、非必要不新增文件；无流程的薄单算子直接写 supply 层；**薄封装算子一律按原库接口 1:1 照抄**：参数名/个数/顺序/默认语义跟原库一致，不发明新模式与别名、不做额外收紧，见 §1）、DEF 语法规则、参数声明顺序、supply 层 C/C++ 约定（region/图像/tuple/混合 tuple/handle/dict 的输入输出读写配方）、CH<op> 包装与三层命名、hcomp、CMake 整包构建、help 签名数据库同步、hrun/.hdev 例程测试。当创建、修改、调试、测试 HALCON 扩展包算子（.def 文件、supply 层、Halcon_SoftwarePackage、cv_region 静态库）时使用；当 HALCON 算子加载不上、被静默跳过、崩溃、返回空值或错误结果时使用；当 hrun/hdev 例程行为异常、hcomp 报错、扩展包构建失败（LNK1104）、DEF 解析报错时使用。'
+description: 'HALCON 扩展包算子开发与排错指南：覆盖新算子分流（有流程/多步算法先做进 cv_region 静态库再封装，该库已是单头 cvr.hpp + 单 cpp、非必要不新增文件；无流程的薄单算子直接写 supply 层；**薄封装算子一律按原库接口 1:1 照抄**：参数名/个数/顺序/默认语义跟原库一致，不发明新模式与别名、不做额外收紧，见 §1）、DEF 语法规则、参数声明顺序、supply 层 C/C++ 约定（region/图像/tuple/混合 tuple/handle/dict 的输入输出读写配方）、CH<op> 包装与三层命名、hcomp、CMake 整包构建、help 签名数据库同步、hrun/.hdev 例程测试。当创建、修改、调试、测试 HALCON 扩展包算子（.def 文件、supply 层、Halcon_SoftwarePackage、cv_region / hdict_core / hparams_core 静态库）时使用；当 HALCON 算子加载不上、被静默跳过、崩溃、返回空值或错误结果时使用；当 hrun/hdev 例程行为异常、hcomp 报错、扩展包构建失败（LNK1104）、DEF 解析报错时使用。'
 ---
 
 # HALCON Extension Package — 项目专用技能
@@ -35,7 +35,9 @@ Halcon_SoftwarePackage/             → 扩展包（沿用现有包，勿新建�
   ├── def/Halcon_<Module>.def       → 算子注册（每模块一个文件）
   ├── source/Halcon_<Module>.cpp    → supply 层（参数读取 + 调核心/第三方库 + 输出）
   ├── source/Halcon_SoftwarePackage.c → CH<op> 包装函数（H<op> → supply）
-  └── include/Halcon_SoftwarePackage.h → H<op> 声明
+  ├── include/Halcon_SoftwarePackage.h → H<op> 声明
+  ├── HDict/                        → 独立静态库 hdict_core（dict 句柄容器，见本节末）
+  └── Params/                       → 独立静态库 hparams_core（hdev LoadParams 复刻，见本节末）
 ```
 
 **模块 ↔ 实现位置（现状，新增算子时照此对齐；分流判据见 §7）**：
@@ -46,6 +48,7 @@ Halcon_SoftwarePackage/             → 扩展包（沿用现有包，勿新建�
 | `Halcon_Ransac.def` | 1 | 算法在 `cvr_core`（`ransac::ransac_run`） |
 | `Halcon_OpenCV.def` | 43 | 直接写在 supply（`cv::`）；唯一例外 `cv_measure_*` 复用 `cvr::cvr_measure_pos` |
 | `Halcon_Math` / `Sqlite` / `Modbus` / `Spdlog` / `Mysql` | 11/5/14/20/3 | 直接写在 supply（muparser+Eigen+armadillo / sqlite3 / libmodbus / spdlog / libmysql） |
+| `Halcon_Dict.def` | 12 | `hdict_core`（HDict 句柄）+ `hparams_core`（HParam 句柄），supply 只做参数搬运；例程 `examples/hdict_demo.hdev` |
 
 **「cv_region 合并成单头 + 单 cpp」——已于 2026-09-27 执行完成（实测数据存档，勿重复测量）**：
 
@@ -57,6 +60,12 @@ Halcon_SoftwarePackage/             → 扩展包（沿用现有包，勿新建�
   2. 内部头（`optimizer.h` 等）里的 `#include "cvr/..."` 必须删掉，否则指向已不存在的小头。
   3. 判定「条件编译里的 include 是否安全」要按 `#if` 嵌套深度处理，不能把所有 `#include <...>` 都提到文件头（`<opencv2/core.hpp>` 一旦被提出 `#ifdef` 就破坏可选依赖）。
 
+**同一份 `cvr.cpp`/`cvr.hpp` 还编了一个 Python 包（`cv_region/python/`，pybind11 + scikit-build-core，`import cv_region`）** ⇒ **改核心库后两边都要验**：
+
+- `python -m pytest cv_region/python/tests`（42 项，关键数值与 C++ 侧同一套口径；`contlength` / `shape_trans('convex')` 的口径变更都钉在这里，跑在仓库根目录）
+- 重出 wheel：`pip wheel --no-build-isolation -w cv_region/python/dist ./cv_region/python`（本机已装：工作区 `.venv`、系统 Python 3.10/3.14）
+- 该包**与 HALCON 无关**（不需要 license、不需要 HALCON 安装），是本仓库里唯一能在命令行完整跑通测试的消费方 —— 核心库改动后先靠它回归。翻译场景的用法见 skill `halcon-extension-operators` §3.5。
+
 **三层命名**（缺一不可，名字必须对应）：DEF 物理名 `CHcv_union2`（`cv_union2<- CHcv_union2[...]`）→ 包装函数 `CHcv_union2`（.c 中 `return Hcv_union2(ph);`）→ 实现函数 `Hcv_union2`（模块 cpp；OpenCV 模块实现函数带 C 前缀 `HCcv_xxx`，对应 `Ccv_xxx`）。
 
 **参数全开放约定**：算子可调参数尽量全开放（默认值与底层库一致）。图像/滤波/矩阵类用控制参数按位传满；特征检测/匹配/变换估计类（orb/sift/akaze/bf_knn/affine_partial/rigid）**参数多（≥5 个可选）时用 dict 键传入**，未设键取默认（写法见 §3「dict 输入输出约定」）。
@@ -67,6 +76,30 @@ Halcon_SoftwarePackage/             → 扩展包（沿用现有包，勿新建�
 - **不额外收紧**：库接受的合法用法就要能跑（例：`sepFilter2D` 两个核可以都传同一个列向量——这是 OpenCV 惯用法，别加"kernelX 必须 1×N"的限制）。只保留两类校验：① HALCON 类型系统强制的映射（核只能以 `real` 图像传入、深度要映射到 HALCON 图像类型）；② 库会**静默出错**的误用（如给 sepFilter2D 传二维核）。报错取值范围也要跟库一致。
 - 想要更强能力（行向量核、二维核、预计算……）就用**包内已有算子组合**（如 `cv_reshape`）或另开新算子，不要在原算子里加开关；要改已有算子的行为必须先问用户。
 - 一句话判据：**读 OpenCV/HALCON 官方文档的人能 1:1 对上参数**；对不上就是自由发挥，要重做。
+
+### 复用积木：`hdict_core` / `hparams_core`（2026-10-10 接入，**完全脱离 HALCON 可独立用**）
+
+两块纯 C++17 静态库，只依赖 STL / nlohmann，**已 `target_link_libraries` 进扩展包** ⇒ supply 层直接 `#include` 就能用，
+不必绕任何 `cv_*` 算子；同时各自是独立子项目（根 `CMakeLists.txt` 里 `add_subdirectory`），可单独构建 + `install`，
+外部工程 `find_package` 复用。
+
+| 库（ALIAS） | 目录 | 头 | 干什么 | 单测 |
+|---|---|---|---|---|
+| `hdict_core`（`hdict::hdict_core`） | `HDict/` | `hdict_core.h` | 复刻 HALCON `dict` 的**句柄语义**键值容器：`DictPtr`、`set/get_dict_tuple`、`set/get_dict_object`（对象走 `std::any`）、子 dict、`key_exists` / `get_dict_param_keys`。`Dict` 内嵌 `std::shared_mutex`（写 `unique_lock` / 读 `shared_lock`）**天然线程安全** | `HDict/tests/test_hdict.cpp` |
+| `hparams_core`（`hparams::hparams_core`） | `Params/` | `hparams_core.h` | 复刻 hdev `LoadParams` 的**递归 JSON 参数装载**：`LoadParam(parmSetting, level, defaultValue, competence, type, limit)` ——「查不到就写默认值并自注册」，含 bool 纠偏、`int[]/float[]/string[]` 切分与 dict 展平 | `Params/tests/test_params.cpp` |
+
+- **选型**：要「dict 句柄 / 线程安全键值容器」→ `hdict_core`；要「hdev 那套参数装载语义」→ `hparams_core`。
+- **零拷贝要点（hdict_core）**：大对象一律装 `std::shared_ptr<T>`（写 `set_dict_object_shared`，读回 `get_dict_object_as<std::shared_ptr<T>>`），set/get 只动引用计数；手上有右值就用 `nlohmann::json&&` / `std::any&&` 重载 move 进去；`take_dict_object` 可零拷贝取走所有权。⚠️ **`Dict` 含 mutex 不可拷贝**，值拷贝必须走 `copy_dict()`；`get_dict_tuple` 遇「子 dict 当 tuple 取」**抛异常**（不再静默返回空 json）。
+- **并发边界**：单次调用是线程安全的，但「先 `key_exists` 再 `set`」这类**组合**仍有 TOCTOU，需要调用方自己再加锁。
+- **产物**：整包构建时一并编出 `bin/hdict_core.lib` / `bin/hparams_core.lib`（跟 `cvr_core` 一样随包走）。
+- **整包跑测试**：根工程默认 `HALCON_PACKAGE_LIB_TESTS=ON`（顶层 `enable_testing()`）⇒ 整包构建会连带编出 `bin/test_hdict.exe` / `bin/test_params.exe`，直接 `ctest --test-dir build -C Release`（实测 2/2 passed）。不想要就 `cmake -DHALCON_PACKAGE_LIB_TESTS=OFF`。
+- **单独验证 / 复用到别的工程**：`cmake -S HDict -B <tmp> -DHDICT_BUILD_TESTS=ON`（`Params` 用 `-DHPARAMS_BUILD_TESTS=ON`）→ 跑 `test_hdict` / `test_params`；`cmake --install <build> --prefix <pfx>` 后外部 `find_package(hdict_core CONFIG REQUIRED)` / `find_package(hparams_core CONFIG REQUIRED)`，头在 `include/hdict/hdict_core.h`、`include/hparams/hparams_core.h`（`json.hpp` 随库一起装）。
+- 铁律适用：**新增独立库才新建目录**；这两块的改动**不要**塞进 `cvr.cpp`（与 `cvr_core` 无依赖关系）。
+- **已在扩展包里封装为算子**（2026-10-10，模块 `Dict`：`def/Halcon_Dict.def` + `source/Halcon_Dict.cpp`，共 12 个）：
+  `hdict_create/copy/set_tuple/get_tuple/set_subdict/get_keys/key_exists/key_kind/remove_key`（`HDict` 句柄，TAG `0xC0FFEEE0`）
+  + `param_create/load_param/param_to_json`（`HParam` 句柄 = json 参数树，TAG `0xC0FFEEF0`）；例程 `examples/hdict_demo.hdev`（`hrun -P` 通过）。
+  两个句柄持有的容器（`Dict` / `ParamTree`）都内嵌 `std::shared_mutex` ⇒ **多线程共享同一句柄安全**（但"先查后写"这类复合操作仍非原子）。
+  `hparams_core` 提供了两个入口：无状态纯函数 `LoadParam(json&, ...)`（调用方保证 json 独占）与带锁的 `ParamTree`（`load` 写锁 / `snapshot`·`to_json` 读锁）。
 
 ## 2. DEF 文件规则（出错率最高的地方）
    > **value_list 不要写双引号**：`value_list: a,b,c;`（带引号虽能过 hcomp，但 HDevelop 的建议值提示会带上引号，也与 HALCON 官方 .ref 写法不一致）。
@@ -166,10 +199,14 @@ GenImage1(&ho_Desc, "byte", w, n, (Hlong)desc.data); SetDictObject(ho_Desc, hv_D
 | 无效行「传染」 | 一个变量被非法使用后，所有赋值/使用它的行都判无效，故障面远大于一行 | 先 `hrun -P` 拿到完整无效行清单，再回头改源头那一行 |
 | 核心库单测用 Release（MSVC `/DNDEBUG`）编译 | `assert` 全部被编掉 → 测试只打印不校验，`M5 ALL PASS` 之类是**假通过** | 别只信单测结论；关键数值改用 `hrun` 与 HALCON 原生算子逐值对照 |
 | supply 里 `HGetPElemD` 的 ELEM 形参类型写错 | C2664「无法将 `double **` 转换为 `const double *__restrict *`」 | 指针声明为 `double const*`（照抄 `Halcon_Ransac.cpp` 的 `double const* init_vals = nullptr;`） |
+| **HALCON 自带 `HDict.h`**（`halconcpp/HDict.h`，类 `HalconCpp::HDict`） | 自建头也叫 `HDict.h` 时 `#include "HDict.h"` 先命中 HALCON 那个 → 一堆 `C2504 HHandle 未定义` / `C2143` | 自建库头**别用 HALCON 已有的 `H*.h` 名**；本包统一用 `<库名>.h`（`hdict_core.h` / `hparams_core.h`） |
+| 输出控制参数索引当成"接在输入后面" | `HPutElem` 报 `Wrong index for output control parameter`（HRUN #7000） | HALCON 的**输出控制参数独立编号（从 1 起）**；`Def_OUT*Object` 宏里 `HAllocOutputHandle(proc_handle, 1, ...)` 也是写死 1 |
+| 把 `HGetSPar` / `HGetPElemS` / `HGetPElemD` 用在返回 `std::string`/`bool` 的 helper 里 | 莫名错误：`C2440 无法从 Herror 转换` / `C2059 语法错误:"do"` | 这三个是**宏**（内部带 `return`），只能用在返回 `Herror` 的函数；要写 helper 就用非宏的 `HPGetPPar`（拿原始 `Hcpar` 数组自行按 `type` 转换）/ `HPGetElemS` / `HPGetElemD` |
 
 ## 5. 构建
 
 - **cv_region 静态库随整包一起编**（顶层 `add_subdirectory(cv_region)` → `cvr_core`，包 `target_link_libraries(... cvr_core ...)`）：改核心库只需整包重建，不用单独构建。核心库现在是**单 TU**（`src/cvr.cpp`），改任何一行都会重编整个 TU（约 14s，整包 17s）——这是单文件的既定代价。
+- **`hdict_core` / `hparams_core` 同样随整包编**（`add_subdirectory(HDict)` / `add_subdirectory(Params)` + 包 `target_link_libraries(... hdict_core hparams_core ...)`），产物 `bin/hdict_core.lib` / `bin/hparams_core.lib`；两者都是小 TU，基本不影响整包耗时。
 - **CMake 版本必须与既有 build 树一致**：`cv_region/build` 是用 `C:/cmake-3.30.5-windows-x86_64` 配置的，用 PATH 上的 cmake 4.4.3 去 `--build` 会触发重新配置并报 `No preprocessor test for "Renesas"`（3.30 模块被 4.4 读取），**看起来像构建失败、实际是版本混用**（`ctest` 随后会拿旧二进制"通过"= 假通过）。一律用固定路径：`C:/cmake-3.30.5-windows-x86_64/bin/cmake.exe`（与 `cv_region/.vscode/settings.json` 的 `cmake.cmakePath` 一致）。
 - 要跑核心库单测才需独立配置一次。**必须带 vcpkg 工具链**：`cv_region/` 下没有 vcpkg.json，裸跑 `cmake -B cv_region/build -S cv_region` 会在 `find_package(muparser/Eigen3)` 处直接失败（实测 exit=1）；要复用父工程 `build/vcpkg_installed` 那棵树：
   ```powershell

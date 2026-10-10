@@ -1,0 +1,515 @@
+hdict_create<- CHhdict_create[:::HDict]
+short.english
+  创建空的字典句柄（hdict_core 的 create_dict）。该句柄是扩展包自带的键值容器，与 HALCON 原生字典句柄相互独立；可存数值/字符串元组与子字典，内部读写线程安全。;
+short.german
+  Creates an empty dictionary handle (hdict_core create_dict).;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  hdict, dict, dictionary, create;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  HDict:              output_control;
+  description.english: 新建的字典句柄，供其它 hdict_* 算子使用。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+
+hdict_copy<- CHhdict_copy[::HDict:HDictCopy]
+short.english
+  复制字典（hdict_core 的 copy_dict）。键值做值拷贝，子字典按共享处理（副本与原字典指向同一子字典）。源字典保持不变。;
+short.german
+  Kopiert ein Dictionary (hdict_core copy_dict).;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  hdict, dict, copy;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  HDict:              input_control;
+  description.english: 源字典句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  HDictCopy:          output_control;
+  description.english: 复制出的新字典句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+
+hdict_set_tuple<- CHhdict_set_tuple[::HDict,Key,Value:]
+short.english
+  写入元组值（hdict_core 的 set_dict_tuple）。键不存在则新建，已存在则覆盖旧值。数值与字符串都接受，多元素按数组整体存入。;
+short.german
+  Schreibt einen Tupel-Wert in das Dictionary (hdict_core set_dict_tuple).;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  hdict, dict, set, tuple;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  HDict:              input_control;
+  description.english: 目标字典句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  Key:                input_control;
+  description.english: 键名。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         false;
+
+parameter
+  Value:              input_control;
+  description.english: 值：数值或字符串，多元素按数组存入。;
+  sem_type:           number;
+  type_list:          real,integer,string;
+  default_type:       real;
+  multivalue:         true;
+
+
+hdict_get_tuple<- CHhdict_get_tuple[::HDict,Key:Value]
+short.english
+  读出元组值（hdict_core 的 get_dict_tuple）。键不存在、或该键存的不是元组（是子字典）时抛错。;
+short.german
+  Liest einen Tupel-Wert aus dem Dictionary (hdict_core get_dict_tuple).;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  hdict, dict, get, tuple;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  HDict:              input_control;
+  description.english: 源字典句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  Key:                input_control;
+  description.english: 键名。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         false;
+
+parameter
+  Value:              output_control;
+  description.english: 取出的值元组。;
+  sem_type:           number;
+  type_list:          real,integer,string;
+  default_type:       real;
+  multivalue:         true;
+
+
+hdict_set_subdict<- CHhdict_set_subdict[::HDict,Key,SubHDict:]
+short.english
+  把一个字典作为子字典写入指定键（hdict_core 的 set_dict_tuple 子字典重载）。键不存在则新建，已存在则覆盖。;
+short.german
+  Schreibt ein Unter-Dictionary unter dem angegebenen Schluessel.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  hdict, dict, set, subdict;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  HDict:              input_control;
+  description.english: 目标字典句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  Key:                input_control;
+  description.english: 键名。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         false;
+
+parameter
+  SubHDict:           input_control;
+  description.english: 作为子字典写入的字典句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+
+hdict_get_keys<- CHhdict_get_keys[::HDict:Keys]
+short.english
+  取出全部键名（hdict_core 的 get_dict_param_keys），按字典序排列。;
+short.german
+  Liefert alle Schluesselnamen des Dictionarys.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  hdict, dict, keys;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  HDict:              input_control;
+  description.english: 源字典句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  Keys:               output_control;
+  description.english: 全部键名（字典序）。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         true;
+
+
+hdict_key_exists<- CHhdict_key_exists[::HDict,Key:Exists]
+short.english
+  判断键是否存在（hdict_core 的 key_exists）。;
+short.german
+  Prueft, ob ein Schluessel im Dictionary vorhanden ist.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  hdict, dict, key, exists, contains;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  HDict:              input_control;
+  description.english: 源字典句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  Key:                input_control;
+  description.english: 键名。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         false;
+
+parameter
+  Exists:             output_control;
+  description.english: 1=键存在，0=键不存在。;
+  sem_type:           number;
+  type_list:          integer;
+  default_type:       integer;
+  multivalue:         false;
+
+
+hdict_key_kind<- CHhdict_key_kind[::HDict,Key:Kind]
+short.english
+  取出键的类型名（hdict_core 的 key_kind_name）：'tuple' / 'object' / 'dict' / 'empty'（键不存在）。;
+short.german
+  Liefert die Art des Wertes zu einem Schluessel.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  hdict, dict, key, kind;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  HDict:              input_control;
+  description.english: 源字典句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  Key:                input_control;
+  description.english: 键名。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         false;
+
+parameter
+  Kind:               output_control;
+  description.english: 类型名：tuple / object / dict / empty。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         false;
+
+
+hdict_remove_key<- CHhdict_remove_key[::HDict,Key:Removed]
+short.english
+  删除指定键（hdict_core 的 remove_dict_key）。;
+short.german
+  Entfernt einen Schluessel aus dem Dictionary.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  hdict, dict, remove, delete, key;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  HDict:              input_control;
+  description.english: 目标字典句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  Key:                input_control;
+  description.english: 键名。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         false;
+
+parameter
+  Removed:            output_control;
+  description.english: 1=确实删除了该键，0=键原本就不存在。;
+  sem_type:           number;
+  type_list:          integer;
+  default_type:       integer;
+  multivalue:         false;
+
+
+load_param<- CHload_param[::HParam,Level,DefaultValue,Competence,Type,Limit:Value]
+short.english
+  递归参数装载（hparams_core 的 LoadParam，1:1 对齐 hdev 过程 LoadParams）：按 Level 逐级下钻，节点不存在就写入 Competence/Type/Limit/Value 并返回默认值，已存在则直接返回其 Value（不覆盖）。Level 是路径，如 ['检测参数','背面','面积筛选']；Type 为 'int'/'float'/'bool'/'string'/'int[]'/'float[]'/'string[]' 等，'bool' 会把非法默认值纠成 'TRUE'，数组类型会把字符串按逗号切分、把子字典展平。;
+short.german
+  Rekursive Parameterladung (hparams_core LoadParam).;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  param, load, json, dict, settings;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  HParam:             input_control;
+  description.english: 参数树句柄（json），会被就地补全。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  Level:              input_control;
+  description.english: 参数路径（一级目录、二级目录、标签……）。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         true;
+
+parameter
+  DefaultValue:       input_control;
+  description.english: 缺键时写入的默认值。;
+  sem_type:           number;
+  type_list:          real,integer,string;
+  default_type:       real;
+  multivalue:         true;
+
+parameter
+  Competence:         input_control;
+  description.english: 权限等级（写进节点的 Competence）。;
+  sem_type:           number;
+  type_list:          integer;
+  default_type:       integer;
+  default_value:      1;
+  multivalue:         false;
+
+parameter
+  Type:               input_control;
+  description.english: 参数类型标识，如 int / float / bool / string / int[] / float[] / string[]。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         false;
+
+parameter
+  Limit:              input_control;
+  description.english: 取值限制（写进节点的 Limit，原样保存）。;
+  sem_type:           number;
+  type_list:          real,integer,string;
+  default_type:       real;
+  multivalue:         true;
+
+parameter
+  Value:              output_control;
+  description.english: 取到的值（缺键时为写入的默认值）。;
+  sem_type:           number;
+  type_list:          real,integer,string;
+  default_type:       real;
+  multivalue:         true;
+
+
+param_create<- CHparam_create[:::HParam]
+short.english
+  创建空的参数树句柄（json 对象），供 load_param 就地补全；参数以 HParam 句柄在算子之间传递，与 HALCON 原生字典句柄相互独立。;
+short.german
+  Creates an empty parameter tree handle (json object).;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  param, json, create, settings;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  HParam:             output_control;
+  description.english: 新建的参数树句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+
+param_to_json<- CHparam_to_json[::HParam:Json]
+short.english
+  把参数树导出为紧凑 JSON 字符串（UTF-8 无 BOM，键按字典序），便于落盘或与参考结果对拍。;
+short.german
+  Exports the parameter tree as a compact JSON string.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  param, json, export, dump;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  HParam:             input_control;
+  description.english: 参数树句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  Json:               output_control;
+  description.english: 紧凑 JSON 字符串。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         false;

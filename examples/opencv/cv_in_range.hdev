@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* =============================================================</c>
+<c>* cv_in_range — 范围阈值分割（cv::inRange）</c>
+<c>*   逐通道判断像素是否落在 [Lowerb, Upperb] 闭区间内，输出 byte 掩膜图</c>
+<c>*   与 HALCON 原生 threshold（同为闭区间）逐像素对照</c>
+<c>* =============================================================</c>
+<l>read_image (Image, 'printer_chip/printer_chip_01')</l>
+<c>* ---- 1) byte 单通道：基本范围 + 与原生 threshold 对拍 ----</c>
+<l>cv_in_range (Image, Mask, [100], [200])</l>
+<l>get_image_type (Mask, MaskType)</l>
+<l>if (MaskType != 'byte')</l>
+<l>  throw ('cv_in_range: output type != byte: ' + MaskType)</l>
+<l>endif</l>
+<l>get_image_size (Mask, Width, Height)</l>
+<l>get_image_size (Image, IW, IH)</l>
+<l>if (Width != IW or Height != IH)</l>
+<l>  throw ('cv_in_range: output size mismatch')</l>
+<l>endif</l>
+<l>threshold (Mask, MaskRegion, 1, 255)</l>
+<l>threshold (Image, Region, 100, 200)</l>
+<c>* 参照区域必须非空，否则上面的对称差比较没有意义</c>
+<l>area_center (Region, RefArea, _, _)</l>
+<l>if (sum(RefArea) &lt;= 0)</l>
+<l>  throw ('cv_in_range: reference threshold region is empty')</l>
+<l>endif</l>
+<l>difference (Region, MaskRegion, Diff1)</l>
+<l>difference (MaskRegion, Region, Diff2)</l>
+<l>area_center (Diff1, Area1, _, _)</l>
+<l>area_center (Diff2, Area2, _, _)</l>
+<l>if (Area1 != 0 or Area2 != 0)</l>
+<l>  throw ('cv_in_range vs threshold mismatch: ' + Area1 + ' / ' + Area2)</l>
+<l>endif</l>
+<c>* ---- 2) 其它像素类型：结果应与 byte 完全一致 ----</c>
+<l>convert_image_type (Image, ImageU16, 'uint2')</l>
+<l>cv_in_range (ImageU16, MaskU16, [100], [200])</l>
+<l>threshold (MaskU16, RU16, 1, 255)</l>
+<l>difference (MaskRegion, RU16, DU1)</l>
+<l>difference (RU16, MaskRegion, DU2)</l>
+<l>area_center (DU1, AU1, _, _)</l>
+<l>area_center (DU2, AU2, _, _)</l>
+<l>if (AU1 != 0 or AU2 != 0)</l>
+<l>  throw ('cv_in_range uint2 mismatch: ' + AU1 + ' / ' + AU2)</l>
+<l>endif</l>
+<l>convert_image_type (Image, ImageI4, 'int4')</l>
+<l>cv_in_range (ImageI4, MaskI4, [100], [200])</l>
+<l>threshold (MaskI4, RI4, 1, 255)</l>
+<l>difference (MaskRegion, RI4, DI1)</l>
+<l>difference (RI4, MaskRegion, DI2)</l>
+<l>area_center (DI1, AI1, _, _)</l>
+<l>area_center (DI2, AI2, _, _)</l>
+<l>if (AI1 != 0 or AI2 != 0)</l>
+<l>  throw ('cv_in_range int4 mismatch: ' + AI1 + ' / ' + AI2)</l>
+<l>endif</l>
+<l>convert_image_type (Image, ImageI2, 'int2')</l>
+<l>cv_in_range (ImageI2, MaskI2, [100], [200])</l>
+<l>threshold (MaskI2, RI2, 1, 255)</l>
+<l>difference (MaskRegion, RI2, DS1)</l>
+<l>difference (RI2, MaskRegion, DS2)</l>
+<l>area_center (DS1, AS1, _, _)</l>
+<l>area_center (DS2, AS2, _, _)</l>
+<l>if (AS1 != 0 or AS2 != 0)</l>
+<l>  throw ('cv_in_range int2 mismatch: ' + AS1 + ' / ' + AS2)</l>
+<l>endif</l>
+<l>convert_image_type (Image, ImageReal, 'real')</l>
+<l>cv_in_range (ImageReal, MaskReal, [100], [200])</l>
+<l>threshold (MaskReal, RReal, 1, 255)</l>
+<l>difference (MaskRegion, RReal, DF1)</l>
+<l>difference (RReal, MaskRegion, DF2)</l>
+<l>area_center (DF1, AF1, _, _)</l>
+<l>area_center (DF2, AF2, _, _)</l>
+<l>if (AF1 != 0 or AF2 != 0)</l>
+<l>  throw ('cv_in_range real mismatch: ' + AF1 + ' / ' + AF2)</l>
+<l>endif</l>
+<c>* ---- 3) 多通道：三通道都给 [100,200] 与单通道一致 ----</c>
+<l>compose3 (Image, Image, Image, ImageRGB)</l>
+<l>cv_in_range (ImageRGB, MaskRGB, [100, 100, 100], [200, 200, 200])</l>
+<l>threshold (MaskRGB, RRGB, 1, 255)</l>
+<l>difference (MaskRegion, RRGB, DC1)</l>
+<l>difference (RRGB, MaskRegion, DC2)</l>
+<l>area_center (DC1, AC1, _, _)</l>
+<l>area_center (DC2, AC2, _, _)</l>
+<l>if (AC1 != 0 or AC2 != 0)</l>
+<l>  throw ('cv_in_range 3-channel mismatch: ' + AC1 + ' / ' + AC2)</l>
+<l>endif</l>
+<c>* 通道 1 受限、通道 2/3 全通：结果仍与单通道一致</c>
+<l>cv_in_range (ImageRGB, MaskRGB2, [100, 0, 0], [200, 255, 255])</l>
+<l>threshold (MaskRGB2, RRGB2, 1, 255)</l>
+<l>difference (MaskRegion, RRGB2, DP1)</l>
+<l>difference (RRGB2, MaskRegion, DP2)</l>
+<l>area_center (DP1, AP1, _, _)</l>
+<l>area_center (DP2, AP2, _, _)</l>
+<l>if (AP1 != 0 or AP2 != 0)</l>
+<l>  throw ('cv_in_range per-channel mismatch: ' + AP1 + ' / ' + AP2)</l>
+<l>endif</l>
+<c>* ---- 4) 错误路径：分量数 &gt; 4 / 不支持的类型（complex） ----</c>
+<l>Err := 0</l>
+<l>try</l>
+<l>  cv_in_range (Image, MaskBad, [1, 2, 3, 4, 5], [200])</l>
+<l>catch (Exception)</l>
+<l>  Err := Err + 1</l>
+<l>endtry</l>
+<l>convert_image_type (Image, ImageCplx, 'complex')</l>
+<l>try</l>
+<l>  cv_in_range (ImageCplx, MaskCplx, [0], [200])</l>
+<l>catch (Exception)</l>
+<l>  Err := Err + 1</l>
+<l>endtry</l>
+<l>if (Err != 2)</l>
+<l>  throw ('cv_in_range error paths: expected 2 exceptions, got ' + Err)</l>
+<l>endif</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

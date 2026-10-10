@@ -14,6 +14,8 @@
 #include "spdlog/sinks/daily_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "mysql.h"
+#include "hdict_core.h"     // 扩展包内启用 hdict_core（字典算子，见 §HDict region）
+#include "hparams_core.h"   // 扩展包内启用 hparams_core（参数树算子，见 §HParam region）
 #include <memory>
 
 #pragma region Sqlite
@@ -209,6 +211,121 @@ extern "C"
     HCkP(HAllocOutputHandle(proc_handle, 1, &(pUserData), &MysqlHandleTypeUser)); \
     HCkP(HAlloc(proc_handle, sizeof(MysqlHUserHandleData), (void **)(pUserData)))
 #define OUTMysqlObject(pUserData) (*(pUserData))
+#pragma endregion
+
+#pragma region HDict
+// TAG 分配见 README.md「句柄 TAG 分配表」：0xC0FFEEE0（HDict 字典句柄，2026-10-10）
+// 句柄持有 hdict_core 的 DictPtr（shared_ptr<Dict>）；Dict 内含 std::shared_mutex ⇒ 不可拷贝，
+// 故这里存 shared_ptr 的指针（与 Spdlog 存 shared_ptr<logger> 同一套路），析构时 delete。
+#define H_HDict_TAG 0xC0FFEEE0
+#define H_HDict_SEM_TYPE "HDict"
+extern "C"
+{
+    typedef struct
+    {
+        void *dictPtr;   // std::shared_ptr<MLIQMetrics::hdict::Dict>*
+    } HDictHUserHandleData;
+
+    static Herror HDictHUserHandleDestructor(Hproc_handle ph, HDictHUserHandleData *data)
+    {
+        if (data->dictPtr)
+        {
+            delete static_cast<std::shared_ptr<MLIQMetrics::hdict::Dict> *>(data->dictPtr);
+            data->dictPtr = NULL;
+        }
+        return HFree(ph, data);
+    }
+    const HHandleInfo HDictHandleTypeUser = HANDLE_INFO_INITIALIZER_NOSER(H_HDict_TAG, H_HDict_SEM_TYPE, HDictHUserHandleDestructor, NULL, NULL);
+}
+#define Def_INHDictObject(pos, pUserData) \
+    HDictHUserHandleData *(pUserData);    \
+    HGetCElemH1(proc_handle, (pos), &HDictHandleTypeUser, &(pUserData))
+
+#define Def_OUTHDictObject(pos, pUserData)                                        \
+    HDictHUserHandleData **(pUserData);                                           \
+    HCkP(HAllocOutputHandle(proc_handle, 1, &(pUserData), &HDictHandleTypeUser)); \
+    HCkP(HAlloc(proc_handle, sizeof(HDictHUserHandleData), (void **)(pUserData))); \
+    (*(pUserData))->dictPtr = NULL
+#define OUTHDictObject(pUserData) (*(pUserData))
+
+// Helper：从 handle data 取出 DictPtr（共享句柄；生命周期由 handle data 管理）
+inline MLIQMetrics::hdict::DictPtr HDictGetDict(HDictHUserHandleData *data)
+{
+    if (data && data->dictPtr)
+    {
+        return *static_cast<std::shared_ptr<MLIQMetrics::hdict::Dict> *>(data->dictPtr);
+    }
+    return nullptr;
+}
+
+// Helper：把 DictPtr 存进 handle data（先释放旧值，支持重复赋值）
+inline void HDictSetDict(HDictHUserHandleData *data, MLIQMetrics::hdict::DictPtr dict)
+{
+    if (data->dictPtr)
+    {
+        delete static_cast<std::shared_ptr<MLIQMetrics::hdict::Dict> *>(data->dictPtr);
+        data->dictPtr = NULL;
+    }
+    data->dictPtr = new std::shared_ptr<MLIQMetrics::hdict::Dict>(std::move(dict));
+}
+#pragma endregion
+
+#pragma region HParam
+// TAG 分配见 README.md「句柄 TAG 分配表」：0xC0FFEEF0（json 参数树句柄，2026-10-10）
+// 句柄持有 hparams_core 的 ParamTreePtr（shared_ptr<ParamTree>）—— ParamTree 内嵌 shared_mutex，
+// 所以**多线程共享同一句柄也是线程安全的**（load 写锁 / to_json 读锁）。
+// 之所以不复用 HDict 句柄：LoadParam 是 json 值语义，塞进 Dict 需要双向转换。
+#define H_HParam_TAG 0xC0FFEEF0
+#define H_HParam_SEM_TYPE "HParam"
+extern "C"
+{
+    typedef struct
+    {
+        void *treePtr;   // std::shared_ptr<MLIQMetrics::ParamTree>*
+    } HParamHUserHandleData;
+
+    static Herror HParamHUserHandleDestructor(Hproc_handle ph, HParamHUserHandleData *data)
+    {
+        if (data->treePtr)
+        {
+            delete static_cast<std::shared_ptr<MLIQMetrics::ParamTree> *>(data->treePtr);
+            data->treePtr = NULL;
+        }
+        return HFree(ph, data);
+    }
+    const HHandleInfo HParamHandleTypeUser = HANDLE_INFO_INITIALIZER_NOSER(H_HParam_TAG, H_HParam_SEM_TYPE, HParamHUserHandleDestructor, NULL, NULL);
+}
+#define Def_INHParamObject(pos, pUserData) \
+    HParamHUserHandleData *(pUserData);    \
+    HGetCElemH1(proc_handle, (pos), &HParamHandleTypeUser, &(pUserData))
+
+#define Def_OUTHParamObject(pos, pUserData)                                        \
+    HParamHUserHandleData **(pUserData);                                           \
+    HCkP(HAllocOutputHandle(proc_handle, 1, &(pUserData), &HParamHandleTypeUser)); \
+    HCkP(HAlloc(proc_handle, sizeof(HParamHUserHandleData), (void **)(pUserData))); \
+    (*(pUserData))->treePtr = NULL
+#define OUTHParamObject(pUserData) (*(pUserData))
+
+// Helper：取参数树（未初始化返回 nullptr）
+inline MLIQMetrics::ParamTreePtr HParamGetTree(HParamHUserHandleData *data)
+{
+    if (data && data->treePtr)
+    {
+        return *static_cast<std::shared_ptr<MLIQMetrics::ParamTree> *>(data->treePtr);
+    }
+    return nullptr;
+}
+
+// Helper：把参数树存进 handle data（先释放旧值，支持重复赋值）
+inline void HParamSetTree(HParamHUserHandleData *data, MLIQMetrics::ParamTreePtr tree)
+{
+    if (data->treePtr)
+    {
+        delete static_cast<std::shared_ptr<MLIQMetrics::ParamTree> *>(data->treePtr);
+        data->treePtr = NULL;
+    }
+    data->treePtr = new std::shared_ptr<MLIQMetrics::ParamTree>(std::move(tree));
+}
 #pragma endregion
 
 // #pragma region IUP

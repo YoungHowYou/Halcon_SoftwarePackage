@@ -1,3 +1,57 @@
+cv_in_range<- Ccv_in_range[image:imageOut:lowerb,upperb:]
+short.german
+  Segmentieren eines Bildes nach Wertebereich mit OpenCV (cv::inRange).;
+
+short.english
+  范围阈值分割，对应 cv::inRange：逐通道判断像素值是否落在 [Lowerb, Upperb] 闭区间内，所有通道都满足的像素输出 255、否则 0，得到单通道 byte 掩膜图（配合 cv_bin_to_region 可转成区域）。Lowerb / Upperb 为长度 1~4 的实数元组，语义与 cv::Scalar 相同（分量按通道序号对应，未给出的分量按 0 处理，故通道数须 <=4）。支持 byte/int1/uint2/int2/int4/real 图像，输出恒为 byte。注意与 HALCON 原生 in_range 的差异：原生算子直接输出 Region，本算子输出掩膜图像。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Threshold, Range, Mask, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  image:             input_object;
+  description.english: 输入图像，支持 byte/int1/uint2/int2/int4/real，可多通道（<=4）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  imageOut:           output_object;
+  description.english: 掩膜图（byte 单通道，255=在范围内 / 0=范围外），尺寸与输入一致;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  lowerb:            input_control;
+  description.english: 下限（实数元组，1~4 个分量，按通道顺序对应，语义同 cv::Scalar）;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real,integer;
+
+parameter
+  upperb:            input_control;
+  description.english: 上限（实数元组，1~4 个分量，按通道顺序对应，语义同 cv::Scalar）;
+  default_type:       real;
+  multivalue:         true;
+  sem_type:           number;
+  type_list:          real,integer;
+
+
 cv_sep_filter2d<- Ccv_sep_filter2d[image,kernelX,kernelY:imageOut:ddepth,anchorX,anchorY,delta,borderType:]
 short.german
   Separable linear filtering of an image with two 1D kernels (OpenCV).;
@@ -1494,6 +1548,69 @@ parameter
   multivalue:         false;
   sem_type:           handle;
   type_list:          handle;
+
+cv_affine_trans_image<- Ccv_affine_trans_image[Image:ImageAffineTrans:HomMat2D,Interpolation,AdaptImageSize:]
+short.german
+  Apply an affine transformation to an image using OpenCV (cv::warpAffine).;
+
+short.english
+  对图像做仿射变换（缩放/旋转/平移/斜切），内部走 cv::warpAffine。HomMat2D 为 6 元素 hom_mat2d（口径与 hom_mat2d_* 一致，可直接用 cv_estimate_affine_partial2d / cv_estimate_affine_2d / vector_to_hom_mat2d 的结果）。Interpolation 收 'nearest_neighbor' / 'bilinear' / 'constant' / 'weighted' / 'bicubic'（默认 'constant'；其中 'bilinear' / 'constant' / 'weighted' 都映射到 cv::INTER_LINEAR）。AdaptImageSize 收 'true' / 'false'（默认 'false'）——'false' 输出与输入同尺寸，'true' 输出尺寸按变换后图像的包围盒自适应。图像外区域填 0。支持 byte / uint2 / real 单通道。;
+
+module
+  foundation;
+
+chapter.german
+  BenutzerErweiterungen;
+
+chapter.english
+  UserExtensions;
+
+keywords.english
+  UserExtensions, Affine, Transform, Warp, OpenCV;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Image:             input_object;
+  description.english: 单通道 byte / uint2 / real;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  ImageAffineTrans:   output_object;
+  description.english: 变换后的图像（与输入同类型；AdaptImageSize='false' 时与输入同尺寸）;
+  sem_type:           image;
+  multivalue:         optional;
+
+parameter
+  HomMat2D:          input_control;
+  description.english: 6 元素 hom_mat2d（HALCON 口径，可直接用 hom_mat2d_* / vector_to_hom_mat2d / cv_estimate_affine_partial2d / cv_estimate_affine_2d 的输出）;
+  default_type:      real;
+  multivalue:        true;
+  sem_type:          number;
+  type_list:         real,integer;
+
+parameter
+  Interpolation:     input_control;
+  description.english: 插值方式：nearest_neighbor / bilinear / constant（默认） / weighted / bicubic;
+  default_type:      string;
+  multivalue:        false;
+  sem_type:          string;
+  type_list:         string,integer;
+  default_value:     "constant";
+
+parameter
+  AdaptImageSize:    input_control;
+  description.english: 输出尺寸是否自适应：true / false（默认 false）;
+  default_type:      string;
+  multivalue:        false;
+  sem_type:          string;
+  type_list:         string,integer;
+  default_value:     "false";
 
 cv_write_image<- Ccv_write_image[inimage::filename,compression:]
 short.german

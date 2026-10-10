@@ -83,6 +83,7 @@ extern EXPORTS_API Herror HCcv_sift_detect(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_bf_knn_match(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_estimate_affine_partial2d(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_estimate_rigid_2d(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_affine_trans_image(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_write_image(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_mat_mul(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_median_blur(Hproc_handle proc_handle);
@@ -105,6 +106,7 @@ extern EXPORTS_API Herror HCcv_solve(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_estimate_affine_2d(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_threshold_triangle(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_threshold(Hproc_handle proc_handle);
+extern EXPORTS_API Herror HCcv_in_range(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_morphology_ex(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_gray_erosion_rect(Hproc_handle proc_handle);
 extern EXPORTS_API Herror HCcv_gray_dilation_rect(Hproc_handle proc_handle);
@@ -179,6 +181,20 @@ extern EXPORTS_API Herror Hcv_lm_fit(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_linear_create(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_linear_fit(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_fit_clear(Hproc_handle proc_handle);
+
+/* ---- Dict 模块：hdict_core（字典句柄） + hparams_core（json 参数树） ---- */
+extern EXPORTS_API Herror Hhdict_create(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hhdict_copy(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hhdict_set_tuple(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hhdict_get_tuple(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hhdict_set_subdict(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hhdict_get_keys(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hhdict_key_exists(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hhdict_key_kind(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hhdict_remove_key(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hparam_create(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hload_param(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hparam_to_json(Hproc_handle proc_handle);
 #pragma endregion
 
 

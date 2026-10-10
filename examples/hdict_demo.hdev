@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* ===== Dict 模块例程：hdict_core（字典句柄） + hparams_core（json 参数树） =====</c>
+<c>* 算子：hdict_create/copy/set_tuple/get_tuple/set_subdict/get_keys/key_exists/key_kind/remove_key</c>
+<c>*       param_create / load_param / param_to_json</c>
+<c></c>
+<c>* --- 1) 建句柄并写入三类值（数值 / 字符串 / 元组）---</c>
+<l>hdict_create (HD)</l>
+<l>hdict_set_tuple (HD, 'area', 123)</l>
+<l>hdict_set_tuple (HD, 'name', 'scratch')</l>
+<l>hdict_set_tuple (HD, 'arr', [1,2,3])</l>
+<l>hdict_get_tuple (HD, 'area', V1)</l>
+<l>hdict_get_tuple (HD, 'name', V2)</l>
+<l>hdict_get_tuple (HD, 'arr', V3)</l>
+<l>if (V1 != 123 or V2 != 'scratch' or V3 != [1,2,3])</l>
+<l>  throw ('hdict basic read/write failed: ' + V1 + ',' + V2 + ',' + V3)</l>
+<l>endif</l>
+<c></c>
+<c>* --- 2) 键查询与类型 ---</c>
+<l>hdict_key_exists (HD, 'area', Ex1)</l>
+<l>hdict_key_exists (HD, 'nope', Ex2)</l>
+<l>hdict_key_kind (HD, 'area', K1)</l>
+<l>hdict_get_keys (HD, Keys)</l>
+<l>count_keys := |Keys|</l>
+<l>if (Ex1 != 1 or Ex2 != 0 or K1 != 'tuple' or count_keys != 3)</l>
+<l>  throw ('hdict key query failed: ' + Ex1 + ',' + Ex2 + ',' + K1 + ',' + count_keys)</l>
+<l>endif</l>
+<c></c>
+<c>* --- 3) 子字典 ---</c>
+<l>hdict_create (Sub)</l>
+<l>hdict_set_tuple (Sub, 'v', 7)</l>
+<l>hdict_set_subdict (HD, 'child', Sub)</l>
+<l>hdict_key_kind (HD, 'child', K2)</l>
+<l>if (K2 != 'dict')</l>
+<l>  throw ('hdict_set_subdict failed, kind=' + K2)</l>
+<l>endif</l>
+<c></c>
+<c>* --- 4) 复制 / 删除：改副本不影响源 ---</c>
+<l>hdict_copy (HD, HDC)</l>
+<l>hdict_remove_key (HDC, 'area', R1)</l>
+<l>hdict_remove_key (HDC, 'area', R2)</l>
+<l>hdict_key_exists (HD, 'area', Ex3)</l>
+<l>if (R1 != 1 or R2 != 0 or Ex3 != 1)</l>
+<l>  throw ('hdict copy/remove failed: ' + R1 + ',' + R2 + ',' + Ex3)</l>
+<l>endif</l>
+<c></c>
+<c>* --- 5) 与 HALCON 原生字典对拍 ---</c>
+<l>create_dict (NativeDict)</l>
+<l>set_dict_tuple (NativeDict, 'area', 123)</l>
+<l>get_dict_tuple (NativeDict, 'area', NV)</l>
+<l>if (NV != V1)</l>
+<l>  throw ('hdict vs native dict mismatch: ' + NV + ' vs ' + V1)</l>
+<l>endif</l>
+<c></c>
+<c>* --- 6) 参数树：缺键写默认值并自注册；已存在则不覆盖 ---</c>
+<l>param_create (PTree)</l>
+<l>load_param (PTree, ['检测参数','背面','面积筛选'], 100, 1, 'int', [], P1)</l>
+<l>load_param (PTree, ['检测参数','背面','面积筛选'], 999, 7, 'int', [], P2)</l>
+<l>if (P1 != 100 or P2 != 100)</l>
+<l>  throw ('load_param register/readback failed: ' + P1 + ',' + P2)</l>
+<l>endif</l>
+<c></c>
+<c>* --- 7) bool 默认值纠偏 + 数组字符串切分 ---</c>
+<l>load_param (PTree, ['flags','enabled'], 1, 1, 'bool', [], PB)</l>
+<l>load_param (PTree, ['lists','names'], 'a,b,c', 1, 'string[]', [], PS)</l>
+<l>load_param (PTree, ['lists','nums'], '1,2,3', 1, 'int[]', [], PI)</l>
+<l>if (PB != 'TRUE')</l>
+<l>  throw ('load_param bool fixup failed: ' + PB)</l>
+<l>endif</l>
+<l>if (PS != ['a','b','c'] or PI != [1,2,3])</l>
+<l>  throw ('load_param array split failed: ' + PS + ' / ' + PI)</l>
+<l>endif</l>
+<c></c>
+<c>* --- 8) 导出参数树 JSON（键按字典序、UTF-8 原文）---</c>
+<l>param_to_json (PTree, Json)</l>
+<l>json_to_dict (Json, [], [], DictHandle)</l>
+<l>tuple_strstr (Json, '面积筛选', Pos)</l>
+<l>if (Pos == -1)</l>
+<l>  throw ('param_to_json missing key, json=' + Json)</l>
+<l>endif</l>
+<c></c>
+<c>* --- 9) 错误路径：缺键读元组必须抛错 ---</c>
+<l>Fail := 0</l>
+<l>try</l>
+<l>  hdict_get_tuple (HD, 'not_exist', Dummy)</l>
+<l>catch (Exception)</l>
+<l>  Fail := 1</l>
+<l>endtry</l>
+<l>if (Fail != 1)</l>
+<l>  throw ('hdict_get_tuple should have raised on missing key')</l>
+<l>endif</l>
+<c></c>
+<l>Message := 'hdict/param example passed'</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

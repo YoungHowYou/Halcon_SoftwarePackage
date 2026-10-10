@@ -1,6 +1,6 @@
 ﻿---
 name: halcon-hdev-to-cpp
-description: '把 HALCON/HDevelop 过程（.hdev）翻译成纯 C++、不使用任何 HALCON 算子 的指南：列算子清单 → 先跑原脚本取基准 → 逐算子映射到 cvr 核心库/OpenCV → 坑清单 → 编译通过（数值对拍作为可选后续）。重点含 图像↔region 互转（cv_bin_to_region / cv_region_to_bin）在 C++ 里该怎么写（cvr 只有 OpenCV 门控的 0/1 mask 版，阈值版要自己补接口）、phi 角度约定（HALCON 与 OpenCV/cvr 反号、minAreaRect 的 180°/宽高交换等价）、cv_subtract 的 f32 输出不饱和、cv_shape_trans 元组语义、递归扫目录自吞输出等。当用户要求"把某个 .hdev 函数翻成 C++"、"这个 HALCON 算子在 C++ 里对应什么/怎么写"、"不用 HALCON 算子实现这段流程"时使用。'
+description: '把 HALCON/HDevelop 过程（.hdev）翻译成纯 C++、不使用任何 HALCON 算子 的指南：列算子清单 → 先跑原脚本取基准 → 逐算子映射到 cvr 核心库/OpenCV → 坑清单 → 编译通过（数值对拍作为可选后续）。重点含 图像↔region 互转（cv_bin_to_region / cv_region_to_bin）在 C++ 里该怎么写（cvr 只有 OpenCV 门控的 0/1 mask 版，阈值版要自己补接口）、phi 角度约定（HALCON 与 OpenCV/cvr 反号、minAreaRect 的 180°/宽高交换等价）、cv_subtract 的 f32 输出不饱和、cv_shape_trans 元组语义、递归扫目录自吞输出等。当用户要求"把某个 .hdev 函数翻成 C++"、"这个 HALCON 算子在 C++ 里对应什么/怎么写"、"不用 HALCON 算子实现这段流程"时使用；参数装载类过程（`LoadParams`/`LoadParam`）已有现成 C++ 实现 `hparams_core`，见 §2/§6，不要重写。'
 ---
 
 # HALCON/HDevelop → 纯 C++ 翻译指南
@@ -8,6 +8,8 @@ description: '把 HALCON/HDevelop 过程（.hdev）翻译成纯 C++、不使用�
 > 目标读者：AI agent 或工程师，需要把一段 .hdev（HALCON 过程或脚本）**在没有 HALCON 的环境里**跑起来。
 > 本项目里 `cvr`（`Halcon_SoftwarePackage/cv_region`，单头 `cvr.hpp` + 单 cpp）就是扩展包 `cv_*` 算子的**同一份底层实现**，
 > 所以"翻译"多数时候不是重新发明，而是**换一层调用**。
+>
+> **目标语言是 Python 时**：region 族（`cv_*` 的 region 运算/形态学/连通/生成/形状变换/特征/筛选共 39 个）已有现成包 **`cv_region`**（同一份 `cvr.cpp` 编成 pybind11 扩展，`import cv_region`）——**直接用，不要手写 numpy/scipy**；用法与命名见 `cv_region/python/README.md`，逐算子映射见 skill `halcon-extension-operators` §3.5。本 skill 余下部分都以 C++ 为目标。
 
 ## 0. 铁律（踩过的坑换来的）
 
@@ -52,6 +54,7 @@ description: '把 HALCON/HDevelop 过程（.hdev）翻译成纯 C++、不使用�
 | `get_image_size` | `img.cols / img.rows`（OpenCV） |
 | `read_image` | `cv::imread(path, cv::IMREAD_GRAYSCALE)` |
 | `list_files(..., 'recursive')` | `std::filesystem::recursive_directory_iterator` —— **注意排除输出目录**（见 §4） |
+| 过程 `LoadParam(Parmsetting, level, DefaultValue, Competence, Type, Limit)`（1:1 对齐 `BackLightCracks.hdev`；LoadParams 是其递归本体） | **已有现成 C++ 实现，不要重写**：链 `hparams_core`，`#include "hparams_core.h"` → `MLIQMetrics::LoadParam(parmSetting, level, defaultValue, competence, type, limit)`（源码 `Halcon_SoftwarePackage/Params/`） |
 
 ## 3. 图像 ↔ region 互转在 C++ 里怎么写（重点）
 
@@ -194,3 +197,8 @@ cmake --build build --config Release     :: 要求 0 个 error C#### / error LNK
 - 语义权威：`README.md`（每个 `cv_*` 算子的签名、参数、已知偏差）；**更权威的是供给层** `source/Halcon_CVRegion.cpp`、`source/Halcon_OpenCV.cpp`。
 - 核心库：`cv_region/include/cvr/cvr.hpp` + `cv_region/src/cvr.cpp`（单头单 cpp，段落映射见文件头）。
 - 对照装置范式：独立 C++ 工程 `add_subdirectory(cv_region)` + OpenCV + vcpkg 工具链；同一份 dump 程序编两遍（改动前/后）逐值对比。
+- **Python 目标**：`cv_region/python/`（pybind11 + scikit-build-core；`pip install ./cv_region/python` 或装 `dist/` 里的 wheel，模块名 `cv_region`，函数 `cvr_*` ↔ 算子 `cv_*`）。回归：`python -m pytest cv_region/python/tests`（42 项，含已与 HALCON 对齐的 `contlength` / `shape_trans('convex')` 口径）。
+- **已翻好的 hdev 过程（直接用，别重写）**：
+  - `Halcon_SoftwarePackage/Params/`（静态库 **`hparams_core`**）—— hdev 的 `LoadParams` 递归参数装载 1:1 翻成 `LoadParam`（「查不到就写默认值并自注册」+ bool 纠偏 + `int[]/float[]/string[]` 切分/dict 展平）；头 `include/hparams/hparams_core.h` 或仓库内直接 `#include "hparams_core.h"`。
+  - `Halcon_SoftwarePackage/HDict/`（静态库 **`hdict_core`**）—— 复刻 HALCON `dict` 的句柄语义键值容器（`DictPtr`，`std::any` 装对象，线程安全）；hdev 里用 dict 传句柄/缓存时可直接复用。
+  - 两者都与 HALCON 无关，可独立 `find_package(hdict_core|hparams_core CONFIG REQUIRED)`。

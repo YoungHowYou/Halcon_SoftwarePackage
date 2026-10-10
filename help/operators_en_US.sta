@@ -1,3 +1,15 @@
+HParam,Json:userextensions:UserExtensions:
+HParam:userextensions:UserExtensions:
+HParam,Level,DefaultValue,Competence,Type,Limit,Value:userextensions:UserExtensions:
+HDict,Key,Removed:userextensions:UserExtensions:
+HDict,Key,Kind:userextensions:UserExtensions:
+HDict,Key,Exists:userextensions:UserExtensions:
+HDict,Keys:userextensions:UserExtensions:
+HDict,Key,SubHDict:userextensions:UserExtensions:
+HDict,Key,Value:userextensions:UserExtensions:
+HDict,Key,Value:userextensions:UserExtensions:
+HDict,HDictCopy:userextensions:UserExtensions:
+HDict:userextensions:UserExtensions:
 ModelHandle,XData,YData,InitialValues,Threshold,MaxIter,OutlierRatio,Confidence,Seed,ParamValues,InlierMask,ResidualSum,Iterations,Status,StatusMessage,InlierRatio:userextensions:UserExtensions:
 ModelExpression,XName,YName,ParamNames,ModelType,ResidualType,ModelHandle:userextensions:UserExtensions:
 Region,RegionDilation,Width,Height:userextensions:UserExtensions:
@@ -79,6 +91,7 @@ image,imageOut,rows:userextensions:UserExtensions:
 image,imageOut,ksize:userextensions:UserExtensions:
 imageA,imageB,outimage,alpha,beta,flags:userextensions:UserExtensions:
 inimage,filename,compression:userextensions:UserExtensions:
+Image,ImageAffineTrans,HomMat2D,Interpolation,AdaptImageSize:userextensions:UserExtensions:
 DictHandle:userextensions:UserExtensions:
 DictHandle:userextensions:UserExtensions:
 DictHandle:userextensions:UserExtensions:
@@ -105,6 +118,7 @@ imageA,imageB,mask,imageOut,dtype:userextensions:UserExtensions:
 imageA,imageB,imageOut,dtype:userextensions:UserExtensions:
 Kernel,ksize,sigma:userextensions:UserExtensions:
 image,kernelX,kernelY,imageOut,ddepth,anchorX,anchorY,delta,borderType:userextensions:UserExtensions:
+image,imageOut,lowerb,upperb:userextensions:UserExtensions:
 handle,result:userextensions:UserExtensions:
 handle,sql,errmsg:userextensions:UserExtensions:
 host,user,passwd,db,port,unix_socket,client_flag,handle,errmsg:userextensions:UserExtensions:

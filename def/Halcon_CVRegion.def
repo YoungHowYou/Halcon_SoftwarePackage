@@ -1601,7 +1601,7 @@ short.german
   Formtransformation einer Region (cv_region).;
 
 short.english
-  region 形状变换，对应 HALCON shape_trans。Type 支持 rectangle1 / rectangle2 / ellipse / outer_circle / convex，未实现 inner_circle 与 inner_rectangle1。生成的 region 以像素方格 [r,r+1)x[c,c+1) 为口径（行取 floor(min_row)..floor(max_row)）。rectangle2 为最小外接旋转矩形：轴对齐档与 HALCON 逐像素一致，倾斜档面积差 ≤5%（HALCON 边界栅格化略宽松）。注意 ellipse / outer_circle / convex 与 HALCON 的原生输出存在明显面积偏差（见 README 的 cv_shape_trans 说明）。;
+  region 形状变换，对应 HALCON shape_trans。Type 支持 rectangle1 / rectangle2 / ellipse / outer_circle / convex，未实现 inner_circle 与 inner_rectangle1。生成的 region 以像素方格 [r,r+1)x[c,c+1) 为口径（行取 floor(min_row)..floor(max_row)）。rectangle2 为最小外接旋转矩形：轴对齐档与 HALCON 逐像素一致，倾斜档面积差 ≤5%（HALCON 边界栅格化略宽松）。convex 已于 2026-10-09 对齐 HALCON（轴对齐逐像素一致，倾斜档与 rectangle2 同口径，输出恒包含原区域）。ellipse / outer_circle 与 HALCON 的原生输出仍有明显面积偏差（见 README 的 cv_shape_trans 说明）。;
 
 module
   foundation;

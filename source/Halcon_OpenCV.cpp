@@ -1357,6 +1357,148 @@ Herror HCcv_estimate_rigid_2d(Hproc_handle proc_handle)
 }
 
 /*=============================================================================
+ * cv_affine_trans_image — 图像仿射变换（内部 cv::warpAffine）
+ *   HomMat2D 为 HALCON hom_mat2d 口径的 6 元素 tuple：
+ *     Row' = h0*Row + h1*Col + h2   、   Col' = h3*Row + h4*Col + h5
+ *   换成 cv 的 (x=Col, y=Row) 正向矩阵 M = [[h4,h3,h5],[h1,h0,h2]]；
+ *   warpAffine 默认语义 dst(x,y) = src(M^-1 (x,y)) 正好是"把源图变换到目标帧"。
+ *   Interpolation 只能映射到 cv 的 INTER_NEAREST / INTER_LINEAR / INTER_CUBIC；
+ *   AdaptImageSize='true' 时按变换后图像包围盒取输出尺寸（floor/ceil 取整）。
+ *   错误码：30001 HomMat2D 长度不足 / 30002 枚举字符串非法 /
+ *           30003 图像类型不支持 / 30005 尺寸非法 / 30004 OpenCV 抛异常
+ *===========================================================================*/
+static const CvEnumEntry kAffineInterpTable[] = {
+    { "nearest_neighbor", cv::INTER_NEAREST },
+    { "nearest",          cv::INTER_NEAREST },
+    { "bilinear",         cv::INTER_LINEAR  },
+    { "constant",         cv::INTER_LINEAR  },
+    { "weighted",         cv::INTER_LINEAR  },
+    { "bicubic",          cv::INTER_CUBIC   },
+};
+static const size_t kAffineInterpN =
+    sizeof(kAffineInterpTable) / sizeof(kAffineInterpTable[0]);
+
+Herror HCcv_affine_trans_image(Hproc_handle proc_handle)
+{
+    HAllocStringMem(proc_handle, 1024);  // 字符串枚举参数读取需在此分配一次 temp 内存
+    Hkey   in_obj_key, out_obj_key, out_image_key;
+    Himage inimage, outimage;
+
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+    HGetDImage(proc_handle, in_obj_key, 1, &inimage);
+
+    /* ---- HomMat2D：real tuple，至少 6 个元素 ---- */
+    double const* hom = nullptr;
+    INT4_8 nHom = 0;
+    HGetPElemD(proc_handle, 1, CONV_NONE, &hom, &nHom);
+    if (!hom || nHom < 6) return 30001;
+
+    /* ---- Interpolation / AdaptImageSize ---- */
+    std::string interpStr, adaptStr;
+    fetch_str(proc_handle, 2, interpStr);
+    fetch_str(proc_handle, 3, adaptStr);
+
+    int interpFlag = cv::INTER_LINEAR;
+    if (!interpStr.empty() &&
+        !enum_from_string(kAffineInterpTable, kAffineInterpN, interpStr.c_str(), interpFlag))
+    {
+        HSetErrText(const_cast<char*>(
+            "cv_affine_trans_image: unknown Interpolation "
+            "(nearest_neighbor/bilinear/constant/weighted/bicubic expected)"));
+        return 30002;
+    }
+
+    bool adaptSize = false;
+    if (adaptStr.empty() || adaptStr == "false" || adaptStr == "0")
+        adaptSize = false;
+    else if (adaptStr == "true" || adaptStr == "1")
+        adaptSize = true;
+    else
+    {
+        HSetErrText(const_cast<char*>(
+            "cv_affine_trans_image: AdaptImageSize must be 'true' or 'false'"));
+        return 30002;
+    }
+
+    /* ---- 输入图像 -> cv::Mat（零拷贝包装）---- */
+    int   cvType;
+    void* inPixels;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:  cvType = CV_8UC1;  inPixels = (void*)inimage.pixel.b;   break;
+    case UINT2_IMAGE: cvType = CV_16UC1; inPixels = (void*)inimage.pixel.u.p; break;
+    case FLOAT_IMAGE: cvType = CV_32FC1; inPixels = (void*)inimage.pixel.f;   break;
+    default: return 30003;   // 仅支持 byte / uint2 / real 单通道
+    }
+    cv::Mat src(inimage.height, inimage.width, cvType, inPixels);
+
+    /* ---- HALCON hom -> cv 正向矩阵 M（x = Col, y = Row）---- */
+    const double h0 = hom[0], h1 = hom[1], h2 = hom[2];
+    const double h3 = hom[3], h4 = hom[4], h5 = hom[5];
+    cv::Mat M = (cv::Mat_<double>(2, 3) << h4, h3, h5,
+                                            h1, h0, h2);
+
+    /* ---- 输出尺寸 ---- */
+    /* AdaptImageSize='true' 的口径与原生 affine_trans_image 一致：只保证
+     * "右/下边不被裁掉"，原点仍锚在 (0,0)（左/上越界部分会被裁）。实测
+     * （平移 100 / 100.25 / 100.5 / 100.9、缩放、旋转共 6 组）尺寸规则为
+     * round(变换后四角最大 x/y) + 1，即 floor(max + 0.5) + 1。 */
+    int outW = (int)inimage.width, outH = (int)inimage.height;
+    if (adaptSize)
+    {
+        const double xw = (double)(inimage.width  > 0 ? inimage.width  - 1 : 0);
+        const double yh = (double)(inimage.height > 0 ? inimage.height - 1 : 0);
+        const double xs[4] = { 0.0, xw, 0.0, xw };
+        const double ys[4] = { 0.0, 0.0, yh, yh };
+        double maxX = 0, maxY = 0;
+        for (int i = 0; i < 4; ++i)
+        {
+            const double X = h4 * xs[i] + h3 * ys[i] + h5;
+            const double Y = h1 * xs[i] + h0 * ys[i] + h2;
+            if (i == 0) { maxX = X; maxY = Y; }
+            else
+            {
+                maxX = std::max(maxX, X);
+                maxY = std::max(maxY, Y);
+            }
+        }
+        outW = (int)std::floor(maxX + 0.5) + 1;
+        outH = (int)std::floor(maxY + 0.5) + 1;
+        if (outW < 1) outW = 1;
+        if (outH < 1) outH = 1;
+    }
+    if (outW > 1000000 || outH > 1000000)
+        return 30005;   // 变换后退化或尺寸过大
+
+    HCkP(HNewImage(proc_handle, &outimage, inimage.kind,
+                   (INT4_8)outW, (INT4_8)outH));
+    void* outPixels;
+    switch (inimage.kind)
+    {
+    case BYTE_IMAGE:  outPixels = (void*)outimage.pixel.b;   break;
+    case UINT2_IMAGE: outPixels = (void*)outimage.pixel.u.p; break;
+    default:          outPixels = (void*)outimage.pixel.f;   break;
+    }
+    cv::Mat dst(outH, outW, cvType, outPixels);
+
+    try
+    {
+        cv::warpAffine(src, dst, M, cv::Size(outW, outH), interpFlag,
+                       cv::BORDER_CONSTANT, cv::Scalar(0));
+    }
+    catch (const cv::Exception&)
+    {
+        return 30004;
+    }
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
  * cv_write_image — 将图像保存为 PNG 文件
  *   支持 8/16 位、单/三通道 图像
  *===========================================================================*/
@@ -2441,6 +2583,105 @@ Herror HCcv_threshold(Hproc_handle proc_handle)
     HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
 
     HPutElem(proc_handle, 1, &used, 1, DOUBLE_PAR);
+
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
+ * cv_in_range — 范围阈值（cv::inRange）
+ *   逐通道判断像素值是否落在 [Lowerb, Upperb] 闭区间内，所有通道都满足的
+ *   像素输出 255、否则 0，输出单通道 byte 掩膜图。
+ *
+ *   Lowerb / Upperb：实数 tuple，语义同 cv::Scalar（1..4 个分量，按通道序号
+ *   对应，未给出的分量按 0 处理）；通道数须 <= 4（OpenCV Scalar 限制）。
+ *   支持 byte/int1/uint2/int2/int4/real，其余类型返回 30004。
+ *
+ *   错误码：30001 分量数不在 1..4 / 30002 通道数不在 1..4 /
+ *           30003 各通道尺寸不一致 / 30004 图像类型不支持 / 30005 OpenCV 异常
+ *===========================================================================*/
+Herror HCcv_in_range(Hproc_handle proc_handle)
+{
+    Hkey   in_obj_key, out_obj_key, out_image_key;
+    Himage outimage;
+
+    /* Lowerb / Upperb：实数 tuple（cv::Scalar 语义） */
+    double const* lowerbPtr = nullptr;
+    double const* upperbPtr = nullptr;
+    INT4_8 nLowerb = 0, nUpperb = 0;
+    HGetPElemD(proc_handle, 1, CONV_CAST, &lowerbPtr, &nLowerb);
+    HGetPElemD(proc_handle, 2, CONV_CAST, &upperbPtr, &nUpperb);
+
+    if (nLowerb < 1 || nLowerb > 4 || nUpperb < 1 || nUpperb > 4)
+    {
+        HSetErrText(const_cast<char*>("cv_in_range: Lowerb/Upperb need 1..4 values"));
+        return 30001;
+    }
+
+    HGetObj(proc_handle, 1, 1, &in_obj_key);
+
+    int nch = 1;
+    HNumOfChannels(proc_handle, 1, &nch);
+    if (nch < 1 || nch > 4)
+    {
+        HSetErrText(const_cast<char*>("cv_in_range: channel count must be 1..4"));
+        return 30002;
+    }
+
+    /* cv::Scalar 语义：未给出的分量按 0 */
+    double lowerb[4] = { 0.0, 0.0, 0.0, 0.0 };
+    double upperb[4] = { 0.0, 0.0, 0.0, 0.0 };
+    for (INT4_8 i = 0; i < nLowerb; ++i) lowerb[i] = lowerbPtr[i];
+    for (INT4_8 i = 0; i < nUpperb; ++i) upperb[i] = upperbPtr[i];
+
+    Himage ch1;
+    HGetDImage(proc_handle, in_obj_key, 1, &ch1);
+    HCkP(HNewImage(proc_handle, &outimage, BYTE_IMAGE, ch1.width, ch1.height));
+    cv::Mat maskOut(outimage.height, outimage.width, CV_8UC1, outimage.pixel.b);
+
+    for (INT4_8 c = 1; c <= nch; ++c)
+    {
+        Himage ch;
+        HCkP(HPGetDImage(proc_handle, in_obj_key, c, &ch));
+
+        if (ch.width != ch1.width || ch.height != ch1.height)
+        {
+            HSetErrText(const_cast<char*>("cv_in_range: channels have different sizes"));
+            return 30003;
+        }
+
+        int   cvType = -1;
+        void* pixels = nullptr;
+        switch (ch.kind)
+        {
+        case BYTE_IMAGE:  cvType = CV_8UC1;  pixels = (void*)ch.pixel.b;   break;
+        case INT1_IMAGE:  cvType = CV_8SC1;  pixels = (void*)ch.pixel.i;   break;
+        case UINT2_IMAGE: cvType = CV_16UC1; pixels = (void*)ch.pixel.u.p; break;
+        case INT2_IMAGE:  cvType = CV_16SC1; pixels = (void*)ch.pixel.s.p; break;
+        case INT4_IMAGE:  cvType = CV_32SC1; pixels = (void*)ch.pixel.l;   break;
+        case FLOAT_IMAGE: cvType = CV_32FC1; pixels = (void*)ch.pixel.f;   break;
+        default:
+            HSetErrText(const_cast<char*>("cv_in_range: unsupported image type"));
+            return 30004;
+        }
+
+        cv::Mat imageIn(ch.height, ch.width, cvType, pixels);
+        cv::Mat mask;
+        try
+        {
+            cv::inRange(imageIn, cv::Scalar(lowerb[c - 1]), cv::Scalar(upperb[c - 1]), mask);
+            if (c == 1) mask.copyTo(maskOut);
+            else        cv::bitwise_and(maskOut, mask, maskOut);
+        }
+        catch (const cv::Exception&)
+        {
+            HSetErrText(const_cast<char*>("cv_in_range: cv::inRange failed"));
+            return 30005;
+        }
+    }
+
+    HCrObj(proc_handle, 1, &out_obj_key);
+    HPutDImage(proc_handle, out_obj_key, 1, &outimage, FALSE, &out_image_key);
+    HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
 
     return H_MSG_TRUE;
 }

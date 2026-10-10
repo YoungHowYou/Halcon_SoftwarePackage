@@ -1,3 +1,283 @@
+param_to_json(HParam,Json)
+short.ascii=把参数树导出为紧凑 JSON 字符串（UTF-8 无 BOM，键按字典序），便于落盘或与参考结果对拍。
+keywords=paramjsonexportdump
+module=0 Foundation
+parameter=HParam
+description.ascii=参数树句柄。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=Json
+description.ascii=紧凑 JSON 字符串。
+parameter_class=output_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+param_create(HParam)
+short.ascii=创建空的参数树句柄（json 对象），供 load_param 就地补全；参数以 HParam 句柄在算子之间传递，与 HALCON 原生字典句柄相互独立。
+keywords=paramjsoncreatesettings
+module=0 Foundation
+parameter=HParam
+description.ascii=新建的参数树句柄。
+parameter_class=output_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+load_param(HParam,Level,DefaultValue,Competence,Type,Limit,Value)
+short.ascii=递归参数装载（hparams_core 的 LoadParam，1:1 对齐 hdev 过程 LoadParams）：按 Level 逐级下钻，节点不存在就写入 Competence/Type/Limit/Value 并返回默认值，已存在则直接返回其 Value（不覆盖）。Level 是路径，如 ['检测参数','背面','面积筛选']；Type 为 'int'/'float'/'bool'/'string'/'int[]'/'float[]'/'string[]' 等，'bool' 会把非法默认值纠成 'TRUE'，数组类型会把字符串按逗号切分、把子字典展平。
+keywords=paramloadjsondictsettings
+module=0 Foundation
+parameter=HParam
+description.ascii=参数树句柄（json），会被就地补全。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=Level
+description.ascii=参数路径（一级目录、二级目录、标签……）。
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+parameter=DefaultValue
+description.ascii=缺键时写入的默认值。
+parameter_class=input_control
+type_list=realintegerstring
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Competence
+description.ascii=权限等级（写进节点的 Competence）。
+parameter_class=input_control
+type_list=integer
+default_value=1
+default_type=integer
+sem_type=number
+multivalue=false
+parameter=Type
+description.ascii=参数类型标识，如 int / float / bool / string / int[] / float[] / string[]。
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=Limit
+description.ascii=取值限制（写进节点的 Limit，原样保存）。
+parameter_class=input_control
+type_list=realintegerstring
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Value
+description.ascii=取到的值（缺键时为写入的默认值）。
+parameter_class=output_control
+type_list=realintegerstring
+default_type=real
+sem_type=number
+multivalue=true
+hdict_remove_key(HDict,Key,Removed)
+short.ascii=删除指定键（hdict_core 的 remove_dict_key）。
+keywords=hdictdictremovedeletekey
+module=0 Foundation
+parameter=HDict
+description.ascii=目标字典句柄。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=Key
+description.ascii=键名。
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=Removed
+description.ascii=1=确实删除了该键，0=键原本就不存在。
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+hdict_key_kind(HDict,Key,Kind)
+short.ascii=取出键的类型名（hdict_core 的 key_kind_name）：'tuple' / 'object' / 'dict' / 'empty'（键不存在）。
+keywords=hdictdictkeykind
+module=0 Foundation
+parameter=HDict
+description.ascii=源字典句柄。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=Key
+description.ascii=键名。
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=Kind
+description.ascii=类型名：tuple / object / dict / empty。
+parameter_class=output_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+hdict_key_exists(HDict,Key,Exists)
+short.ascii=判断键是否存在（hdict_core 的 key_exists）。
+keywords=hdictdictkeyexistscontains
+module=0 Foundation
+parameter=HDict
+description.ascii=源字典句柄。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=Key
+description.ascii=键名。
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=Exists
+description.ascii=1=键存在，0=键不存在。
+parameter_class=output_control
+type_list=integer
+default_type=integer
+sem_type=number
+multivalue=false
+hdict_get_keys(HDict,Keys)
+short.ascii=取出全部键名（hdict_core 的 get_dict_param_keys），按字典序排列。
+keywords=hdictdictkeys
+module=0 Foundation
+parameter=HDict
+description.ascii=源字典句柄。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=Keys
+description.ascii=全部键名（字典序）。
+parameter_class=output_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=true
+hdict_set_subdict(HDict,Key,SubHDict)
+short.ascii=把一个字典作为子字典写入指定键（hdict_core 的 set_dict_tuple 子字典重载）。键不存在则新建，已存在则覆盖。
+keywords=hdictdictsetsubdict
+module=0 Foundation
+parameter=HDict
+description.ascii=目标字典句柄。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=Key
+description.ascii=键名。
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=SubHDict
+description.ascii=作为子字典写入的字典句柄。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+hdict_get_tuple(HDict,Key,Value)
+short.ascii=读出元组值（hdict_core 的 get_dict_tuple）。键不存在、或该键存的不是元组（是子字典）时抛错。
+keywords=hdictdictgettuple
+module=0 Foundation
+parameter=HDict
+description.ascii=源字典句柄。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=Key
+description.ascii=键名。
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=Value
+description.ascii=取出的值元组。
+parameter_class=output_control
+type_list=realintegerstring
+default_type=real
+sem_type=number
+multivalue=true
+hdict_set_tuple(HDict,Key,Value)
+short.ascii=写入元组值（hdict_core 的 set_dict_tuple）。键不存在则新建，已存在则覆盖旧值。数值与字符串都接受，多元素按数组整体存入。
+keywords=hdictdictsettuple
+module=0 Foundation
+parameter=HDict
+description.ascii=目标字典句柄。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=Key
+description.ascii=键名。
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+parameter=Value
+description.ascii=值：数值或字符串，多元素按数组存入。
+parameter_class=input_control
+type_list=realintegerstring
+default_type=real
+sem_type=number
+multivalue=true
+hdict_copy(HDict,HDictCopy)
+short.ascii=复制字典（hdict_core 的 copy_dict）。键值做值拷贝，子字典按共享处理（副本与原字典指向同一子字典）。源字典保持不变。
+keywords=hdictdictcopy
+module=0 Foundation
+parameter=HDict
+description.ascii=源字典句柄。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=HDictCopy
+description.ascii=复制出的新字典句柄。
+parameter_class=output_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+hdict_create(HDict)
+short.ascii=创建空的字典句柄（hdict_core 的 create_dict）。该句柄是扩展包自带的键值容器，与 HALCON 原生字典句柄相互独立；可存数值/字符串元组与子字典，内部读写线程安全。
+keywords=hdictdictdictionarycreate
+module=0 Foundation
+parameter=HDict
+description.ascii=新建的字典句柄，供其它 hdict_* 算子使用。
+parameter_class=output_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
 cv_geom_fit(ModelHandle,XData,YData,InitialValues,Threshold,MaxIter,OutlierRatio,Confidence,Seed,ParamValues,InlierMask,ResidualSum,Iterations,Status,StatusMessage,InlierRatio)
 short.ascii=用 cv_geom_create 构建的模型句柄做 RANSAC 几何拟合（动态迭代 + LM 精化，零表达式解析开销）。
 keywords=UserExtensionsRansacFittingGeometryModel
@@ -346,7 +626,7 @@ sem_type=number
 multivalue=false
 value_number=BinImage == Region
 cv_shape_trans(Region,RegionTrans,Type)
-short.ascii=region 形状变换，对应 HALCON shape_trans。Type 支持 rectangle1 / rectangle2 / ellipse / outer_circle / convex，未实现 inner_circle 与 inner_rectangle1。生成的 region 以像素方格 [r,r+1)x[c,c+1) 为口径（行取 floor(min_row)..floor(max_row)）。rectangle2 为最小外接旋转矩形：轴对齐档与 HALCON 逐像素一致，倾斜档面积差 ≤5%（HALCON 边界栅格化略宽松）。注意 ellipse / outer_circle / convex 与 HALCON 的原生输出存在明显面积偏差（见 README 的 cv_shape_trans 说明）。
+short.ascii=region 形状变换，对应 HALCON shape_trans。Type 支持 rectangle1 / rectangle2 / ellipse / outer_circle / convex，未实现 inner_circle 与 inner_rectangle1。生成的 region 以像素方格 [r,r+1)x[c,c+1) 为口径（行取 floor(min_row)..floor(max_row)）。rectangle2 为最小外接旋转矩形：轴对齐档与 HALCON 逐像素一致，倾斜档面积差 ≤5%（HALCON 边界栅格化略宽松）。convex 已于 2026-10-09 对齐 HALCON（轴对齐逐像素一致，倾斜档与 rectangle2 同口径，输出恒包含原区域）。ellipse / outer_circle 与 HALCON 的原生输出仍有明显面积偏差（见 README 的 cv_shape_trans 说明）。
 keywords=UserExtensionsCVRegionShapeTrans
 module=0 Foundation
 parameter=Region
@@ -2633,6 +2913,43 @@ default_value=3
 default_type=integer
 sem_type=number
 multivalue=false
+cv_affine_trans_image(Image,ImageAffineTrans,HomMat2D,Interpolation,AdaptImageSize)
+short.ascii=对图像做仿射变换（缩放/旋转/平移/斜切），内部走 cv::warpAffine。HomMat2D 为 6 元素 hom_mat2d（口径与 hom_mat2d_* 一致，可直接用 cv_estimate_affine_partial2d / cv_estimate_affine_2d / vector_to_hom_mat2d 的结果）。Interpolation 收 'nearest_neighbor' / 'bilinear' / 'constant' / 'weighted' / 'bicubic'（默认 'constant'；其中 'bilinear' / 'constant' / 'weighted' 都映射到 cv::INTER_LINEAR）。AdaptImageSize 收 'true' / 'false'（默认 'false'）——'false' 输出与输入同尺寸，'true' 输出尺寸按变换后图像的包围盒自适应。图像外区域填 0。支持 byte / uint2 / real 单通道。
+keywords=UserExtensionsAffineTransformWarpOpenCV
+module=0 Foundation
+parameter=Image
+description.ascii=单通道 byte / uint2 / real
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=ImageAffineTrans
+description.ascii=变换后的图像（与输入同类型；AdaptImageSize='false' 时与输入同尺寸）
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=HomMat2D
+description.ascii=6 元素 hom_mat2d（HALCON 口径，可直接用 hom_mat2d_* / vector_to_hom_mat2d / cv_estimate_affine_partial2d / cv_estimate_affine_2d 的输出）
+parameter_class=input_control
+type_list=realinteger
+default_type=real
+sem_type=number
+multivalue=true
+parameter=Interpolation
+description.ascii=插值方式：nearest_neighbor / bilinear / constant（默认） / weighted / bicubic
+parameter_class=input_control
+type_list=stringinteger
+default_value="constant"
+default_type=string
+sem_type=string
+multivalue=false
+parameter=AdaptImageSize
+description.ascii=输出尺寸是否自适应：true / false（默认 false）
+parameter_class=input_control
+type_list=stringinteger
+default_value="false"
+default_type=string
+sem_type=string
+multivalue=false
 cv_estimate_rigid_2d(DictHandle)
 short.ascii=刚体变换估计（平移+旋转，无缩放），自实现 RANSAC：每轮采样 2 点对闭式解 cos/sin+平移，统计内点取最优。点集经 dict 传入，MaxIter/Seed 可调；结果 HomMat2D/角度/平移写回 dict，Scale 恒为 1.0。
 keywords=UserExtensionsRigidRotationTranslationRANSACOpenCV
@@ -3453,6 +3770,34 @@ default_value=4
 default_type=integer
 sem_type=number
 multivalue=false
+cv_in_range(image,imageOut,lowerb,upperb)
+short.ascii=范围阈值分割，对应 cv::inRange：逐通道判断像素值是否落在 [Lowerb, Upperb] 闭区间内，所有通道都满足的像素输出 255、否则 0，得到单通道 byte 掩膜图（配合 cv_bin_to_region 可转成区域）。Lowerb / Upperb 为长度 1~4 的实数元组，语义与 cv::Scalar 相同（分量按通道序号对应，未给出的分量按 0 处理，故通道数须 <=4）。支持 byte/int1/uint2/int2/int4/real 图像，输出恒为 byte。注意与 HALCON 原生 in_range 的差异：原生算子直接输出 Region，本算子输出掩膜图像。
+keywords=UserExtensionsThresholdRangeMaskOpenCV
+module=0 Foundation
+parameter=image
+description.ascii=输入图像，支持 byte/int1/uint2/int2/int4/real，可多通道（<=4）
+parameter_class=input_object
+sem_type=image
+multivalue=optional
+parameter=imageOut
+description.ascii=掩膜图（byte 单通道，255=在范围内 / 0=范围外），尺寸与输入一致
+parameter_class=output_object
+sem_type=image
+multivalue=optional
+parameter=lowerb
+description.ascii=下限（实数元组，1~4 个分量，按通道顺序对应，语义同 cv::Scalar）
+parameter_class=input_control
+type_list=realinteger
+default_type=real
+sem_type=number
+multivalue=true
+parameter=upperb
+description.ascii=上限（实数元组，1~4 个分量，按通道顺序对应，语义同 cv::Scalar）
+parameter_class=input_control
+type_list=realinteger
+default_type=real
+sem_type=number
+multivalue=true
 mysql_store_result(handle,result)
 short.ascii=读取上一条 mysql_query 的结果集，按行优先顺序展开为字符串元组。无数据时返回 NoData。
 keywords=mysqlresult

@@ -366,6 +366,11 @@ Herror Ccv_estimate_rigid_2d(Hproc_handle proc_handle)
     return HCcv_estimate_rigid_2d(proc_handle);
 }
 
+Herror Ccv_affine_trans_image(Hproc_handle proc_handle)
+{
+    return HCcv_affine_trans_image(proc_handle);
+}
+
 Herror Ccv_write_image(Hproc_handle proc_handle)
 {
     return HCcv_write_image(proc_handle);
@@ -473,6 +478,11 @@ Herror Ccv_threshold_triangle(Hproc_handle proc_handle)
 Herror Ccv_threshold(Hproc_handle proc_handle)
 {
     return HCcv_threshold(proc_handle);
+}
+
+Herror Ccv_in_range(Hproc_handle proc_handle)
+{
+    return HCcv_in_range(proc_handle);
 }
 
 Herror Ccv_calc_hist(Hproc_handle proc_handle)
@@ -824,4 +834,67 @@ Herror CHcv_geom_create(Hproc_handle proc_handle)
 Herror CHcv_geom_fit(Hproc_handle proc_handle)
 {
     return Hcv_geom_fit(proc_handle);
+}
+
+/* ============================================================
+   Dict 模块：hdict_core（字典句柄） + hparams_core（json 参数树）
+   ============================================================ */
+Herror CHhdict_create(Hproc_handle proc_handle)
+{
+    return Hhdict_create(proc_handle);
+}
+
+Herror CHhdict_copy(Hproc_handle proc_handle)
+{
+    return Hhdict_copy(proc_handle);
+}
+
+Herror CHhdict_set_tuple(Hproc_handle proc_handle)
+{
+    return Hhdict_set_tuple(proc_handle);
+}
+
+Herror CHhdict_get_tuple(Hproc_handle proc_handle)
+{
+    return Hhdict_get_tuple(proc_handle);
+}
+
+Herror CHhdict_set_subdict(Hproc_handle proc_handle)
+{
+    return Hhdict_set_subdict(proc_handle);
+}
+
+Herror CHhdict_get_keys(Hproc_handle proc_handle)
+{
+    return Hhdict_get_keys(proc_handle);
+}
+
+Herror CHhdict_key_exists(Hproc_handle proc_handle)
+{
+    return Hhdict_key_exists(proc_handle);
+}
+
+Herror CHhdict_key_kind(Hproc_handle proc_handle)
+{
+    return Hhdict_key_kind(proc_handle);
+}
+
+Herror CHhdict_remove_key(Hproc_handle proc_handle)
+{
+    return Hhdict_remove_key(proc_handle);
+}
+
+Herror CHparam_create(Hproc_handle proc_handle)
+{
+    return Hparam_create(proc_handle);
+}
+
+Herror CHload_param(Hproc_handle proc_handle)
+{
+    return Hload_param(proc_handle);
+}
+
+Herror CHparam_to_json(Hproc_handle proc_handle)
+{
+    return Hparam_to_json(proc_handle);
 }

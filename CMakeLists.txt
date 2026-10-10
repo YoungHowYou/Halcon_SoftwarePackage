@@ -138,6 +138,7 @@ set(EXT_SOURCES
   source/Halcon_Math.cpp
   source/Halcon_CVRegion.cpp
   source/Halcon_Ransac.cpp
+  source/Halcon_Dict.cpp
 )
 
 #----------------------------------------------------------------------
@@ -146,6 +147,32 @@ set(EXT_SOURCES
 #----------------------------------------------------------------------
 add_subdirectory(cv_region)
 add_subdirectory(cv_flow)
+
+#----------------------------------------------------------------------
+#  子库单元测试开关（hdict_core / hparams_core）
+#    打开（默认）：整包构建会一并编出 test_hdict / test_params，可直接
+#        ctest --test-dir build -C Release
+#    关闭：cmake -DHALCON_PACKAGE_LIB_TESTS=OFF
+#  注：enable_testing() 必须在顶层调用，ctest 才能在 build 根目录递归发现测试
+#----------------------------------------------------------------------
+option(HALCON_PACKAGE_LIB_TESTS "Build hdict_core / hparams_core unit tests" ON)
+if(HALCON_PACKAGE_LIB_TESTS)
+  enable_testing()
+  set(HDICT_BUILD_TESTS   ON)
+  set(HPARAMS_BUILD_TESTS ON)
+endif()
+
+#----------------------------------------------------------------------
+#  HDict：HALCON dict 复刻（tuple / 对象句柄 / 子 dict，shared_mutex 线程安全）
+#  静态库 hdict_core，供 supply 层 / 其它库复用（纯 STL，无三方链接依赖）
+#----------------------------------------------------------------------
+add_subdirectory(HDict)
+
+#----------------------------------------------------------------------
+#  Params：复刻 hdev 的 LoadParams（递归 JSON 参数解析，查不到就注册默认值）
+#  静态库 hparams_core（纯 nlohmann::json，header-only 依赖）
+#----------------------------------------------------------------------
+add_subdirectory(Params)
 
 #----------------------------------------------------------------------
 #  核心：创建 HALCON 扩展包目标
@@ -160,6 +187,7 @@ HALCON_AddExtensionPackage(${ProjectName}
     def/Halcon_Math.def
     def/Halcon_CVRegion.def
     def/Halcon_Ransac.def
+    def/Halcon_Dict.def
   SOURCES
     ${EXT_SOURCES}
   CHAPTERS
@@ -244,6 +272,8 @@ target_include_directories(${ProjectName}
     $<BUILD_INTERFACE:${HALCON_INCLUDE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/cv_region/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/HDict>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Params>
     $<BUILD_INTERFACE:${OpenCV_INCLUDE_DIRS}>
 )
 
@@ -267,6 +297,8 @@ if(WIN32)
     ws2_32.lib
     cvr_core
     cv_flow
+    hdict_core
+    hparams_core
     ${OpenCV_LIBS}
     exiv2lib
     ${SPDLOG_LIBS}
@@ -283,6 +315,8 @@ else()
     ${HALCON_LIB_DIR}/libhalconcpp${HALCON_SHARED_SUFFIX}
     cvr_core
     cv_flow
+    hdict_core
+    hparams_core
     ${OpenCV_LIBS}
     exiv2lib
     ${SPDLOG_LIBS}

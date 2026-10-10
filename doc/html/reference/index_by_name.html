@@ -2195,6 +2195,10 @@ toggleLanguage(new_lang,1);return;}
 <dd>两图加权相加：Out = alpha*Src1 + beta*Src2 + gamma，对应 cv::addWeighted。支持 byte/uint2/real 单通道。</dd>
 </dl>
 <dl>
+<dt><a href="cv_affine_trans_image.html"><code><span data-if="hdevelop" style="display:inline;">cv_affine_trans_image</span><span data-if="dotnet" style="display:none;">CvAffineTransImage</span><span data-if="python" style="display:none;">cv_affine_trans_image</span><span data-if="cpp" style="display:none;">CvAffineTransImage</span><span data-if="c" style="display:none;">cv_affine_trans_image</span></code></a></dt>
+<dd>对图像做仿射变换（缩放/旋转/平移/斜切），内部走 cv::warpAffine。HomMat2D 为 6 元素 hom_mat2d（口径与 hom_mat2d_* 一致，可直接用 cv_estimate_affine_partial2d / cv_estimate_affine_2d / vector_to_hom_mat2d 的结果）。Interpolation 收 'nearest_neighbor' / 'bilinear' / 'constant' / 'weighted' / 'bicubic'（默认 'constant'；其中 'bilinear' / 'constant' / 'weighted' 都映射到 cv::INTER_LINEAR）。AdaptImageSize 收 'true' / 'false'（默认 'false'）——'false' 输出与输入同尺寸，'true' 输出尺寸按变换后图像的包围盒自适应。图像外区域填 0。支持 byte / uint2 / real 单通道。</dd>
+</dl>
+<dl>
 <dt><a href="cv_akaze_detect.html"><code><span data-if="hdevelop" style="display:inline;">cv_akaze_detect</span><span data-if="dotnet" style="display:none;">CvAkazeDetect</span><span data-if="python" style="display:none;">cv_akaze_detect</span><span data-if="cpp" style="display:none;">CvAkazeDetect</span><span data-if="c" style="display:none;">cv_akaze_detect</span></code></a></dt>
 <dd>AKAZE 特征检测与描述子计算，对应 cv::AKAZE。输入 8 位单通道图像，输出关键点与描述子写回 dict。参数经 dict 键全开放（DescriptorType/Threshold/NOctaves/NOctaveLayers/Diffusivity 等），未设取默认。</dd>
 </dl>
@@ -2379,6 +2383,10 @@ toggleLanguage(new_lang,1);return;}
 <dd>灰度开运算（矩形核）：先腐蚀后膨胀，去亮噪点。对应 cv::morphologyEx MORPH_OPEN。</dd>
 </dl>
 <dl>
+<dt><a href="cv_in_range.html"><code><span data-if="hdevelop" style="display:inline;">cv_in_range</span><span data-if="dotnet" style="display:none;">CvInRange</span><span data-if="python" style="display:none;">cv_in_range</span><span data-if="cpp" style="display:none;">CvInRange</span><span data-if="c" style="display:none;">cv_in_range</span></code></a></dt>
+<dd>范围阈值分割，对应 cv::inRange：逐通道判断像素值是否落在 [Lowerb, Upperb] 闭区间内，所有通道都满足的像素输出 255、否则 0，得到单通道 byte 掩膜图（配合 cv_bin_to_region 可转成区域）。Lowerb / Upperb 为长度 1 4 的实数元组，语义与 cv::Scalar 相同（分量按通道序号对应，未给出的分量按 0 处理，故通道数须 &lt;=4）。支持 byte/int1/uint2/int2/int4/real 图像，输出恒为 byte。注意与 HALCON 原生 in_range 的差异：原生算子直接输出 Region，本算子输出掩膜图像。</dd>
+</dl>
+<dl>
 <dt><a href="cv_intersection.html"><code><span data-if="hdevelop" style="display:inline;">cv_intersection</span><span data-if="dotnet" style="display:none;">CvIntersection</span><span data-if="python" style="display:none;">cv_intersection</span><span data-if="cpp" style="display:none;">CvIntersection</span><span data-if="c" style="display:none;">cv_intersection</span></code></a></dt>
 <dd>两个 region 求交集，对应 HALCON intersection（RLE 双指针归并）。</dd>
 </dl>
@@ -2476,7 +2484,7 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="cv_shape_trans.html"><code><span data-if="hdevelop" style="display:inline;">cv_shape_trans</span><span data-if="dotnet" style="display:none;">CvShapeTrans</span><span data-if="python" style="display:none;">cv_shape_trans</span><span data-if="cpp" style="display:none;">CvShapeTrans</span><span data-if="c" style="display:none;">cv_shape_trans</span></code></a></dt>
-<dd>region 形状变换，对应 HALCON shape_trans。Type 支持 rectangle1 / rectangle2 / ellipse / outer_circle / convex，未实现 inner_circle 与 inner_rectangle1。生成的 region 以像素方格 [r,r+1)x[c,c+1) 为口径（行取 floor(min_row)..floor(max_row)）。rectangle2 为最小外接旋转矩形：轴对齐档与 HALCON 逐像素一致，倾斜档面积差 ≤5%（HALCON 边界栅格化略宽松）。注意 ellipse / outer_circle / convex 与 HALCON 的原生输出存在明显面积偏差（见 README 的 cv_shape_trans 说明）。</dd>
+<dd>region 形状变换，对应 HALCON shape_trans。Type 支持 rectangle1 / rectangle2 / ellipse / outer_circle / convex，未实现 inner_circle 与 inner_rectangle1。生成的 region 以像素方格 [r,r+1)x[c,c+1) 为口径（行取 floor(min_row)..floor(max_row)）。rectangle2 为最小外接旋转矩形：轴对齐档与 HALCON 逐像素一致，倾斜档面积差 ≤5%（HALCON 边界栅格化略宽松）。convex 已于 2026-10-09 对齐 HALCON（轴对齐逐像素一致，倾斜档与 rectangle2 同口径，输出恒包含原区域）。ellipse / outer_circle 与 HALCON 的原生输出仍有明显面积偏差（见 README 的 cv_shape_trans 说明）。</dd>
 </dl>
 <dl>
 <dt><a href="cv_sift_detect.html"><code><span data-if="hdevelop" style="display:inline;">cv_sift_detect</span><span data-if="dotnet" style="display:none;">CvSiftDetect</span><span data-if="python" style="display:none;">cv_sift_detect</span><span data-if="cpp" style="display:none;">CvSiftDetect</span><span data-if="c" style="display:none;">cv_sift_detect</span></code></a></dt>

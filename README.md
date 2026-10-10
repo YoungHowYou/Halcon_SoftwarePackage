@@ -106,6 +106,13 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 | `string_to_image` | 将字符串编码到 HALCON 图像中 |
 | `image_to_string` | 从图像中解码字符串 |
 
+### 字典与参数（`hdict_core` / `hparams_core`）
+
+* `HDict` 句柄类算子（`hdict_create` / `hdict_set_tuple` / `hdict_get_tuple` / `hdict_copy` / `hdict_set_subdict` / `hdict_get_keys` / `hdict_key_exists` / `hdict_key_kind` / `hdict_remove_key`）—— 扩展包自带的键值字典容器（纯 STL、`shared_mutex` 线程安全）。
+* `HParam` 句柄 + `load_param` / `param_to_json` —— hdev `LoadParams` 的 C++ 复刻（递归参数装载）。
+
+详细文档见下文「Dict 扩展算子」；例程 `examples/hdict_demo.hdev`。
+
 ## OpenCV & Exiv2 扩展算子
 
 本扩展包中所有 OpenCV 相关算子（定义于 `def/Halcon_OpenCV.def`，实现于 `source/Halcon_OpenCV.cpp`）。
@@ -628,6 +635,8 @@ cv_multi_frame_median(Images : ImageMedian : :)
 
 以下四个算子均使用字典接口（`DictHandle`）。
 
+> 例程：`examples/opencv/cv_feature_match_affine.hdev` —— ORB / AKAZE / SIFT **三种方式各一条流程**（`examples/69.tif` 作模板、`examples/95.tif` 作目标），每条流程三步：`feature_create` **制作模板**（`cv_*_detect` 检测模板图）→ `feature_find` **匹配**（目标图 `cv_*_detect` → `cv_bf_knn_match` knnMatch+Lowe 比值 → `cv_estimate_affine_partial2d` RANSAC 部分仿射）→ `cv_affine_trans_image` **变换对齐**；返回的 `HomMat2D`（目标图→模板图）可直接用于 `cv_affine_trans_image` / 原生 `affine_trans_image`（HALCON hom_mat2d 的 (Row, Col) 口径）。
+
 #### cv_orb_detect
 
 ORB 特征检测与描述子计算，对应 `cv::ORB`。
@@ -914,7 +923,72 @@ cv_estimate_affine_2d(:: MethodId, RansacThreshold, SrcRow, SrcCol, DstRow, DstC
 
 ---
 
+### 图像几何变换类
+
+#### cv_affine_trans_image
+
+图像仿射变换（缩放 / 旋转 / 平移 / 斜切），内部 `cv::warpAffine`。`HomMat2D` 与 HALCON `hom_mat2d` 同口径，可直接用 `cv_estimate_affine_partial2d` / `cv_estimate_affine_2d` / `hom_mat2d_*` / `vector_to_hom_mat2d` 的输出。
+
+```
+cv_affine_trans_image(Image : ImageAffineTrans : HomMat2D, Interpolation, AdaptImageSize)
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| Image | 图像 | 输入 | 单通道 byte / uint2 / real |
+| ImageAffineTrans | 图像 | 输出 | 变换后的图像，类型同输入 |
+| HomMat2D | 实数元组 | 输入 | 6 元素 `hom_mat2d`（HALCON 口径） |
+| Interpolation | 字符串 | 输入 | `'nearest_neighbor'` / `'bilinear'` / `'constant'`（默认） / `'weighted'` / `'bicubic'`；其中 `'bilinear'` / `'constant'` / `'weighted'` 都映射到 `cv::INTER_LINEAR` |
+| AdaptImageSize | 字符串 | 输入 | `'false'`（默认，输出与输入同尺寸）/ `'true'`（尺寸自适应，见下） |
+
+| 错误码 | 含义 |
+|---|---|
+| 30001 | HomMat2D 元素少于 6 个 |
+| 30002 | Interpolation / AdaptImageSize 取值非法 |
+| 30003 | 图像类型不支持（仅 byte / uint2 / real 单通道） |
+| 30004 | OpenCV 执行异常 |
+| 30005 | 变换后尺寸退化或过大 |
+
+> **与原生 `affine_trans_image` 的一致性（已逐像素对拍）**：几何口径完全一致——整数/小数平移时**内部像素逐像素相同**（差异只在图像边界一圈）；`AdaptImageSize='true'` 的输出尺寸在 8 组测试（平移 `0 / ±100 / ±0.4 / 100.25 / 100.5 / 100.9`、旋转+缩放）中与原生**全部相同**（规则 = `round(变换后四角最大 x/y) + 1`，只保证右下边不被裁，原点仍锚在 (0,0)）。差异只在插值细节：旋转档平均差 0.29 灰阶、99.84% 像素差 ≤2、硬边缘孤立像素最多 ±61（原生与 OpenCV 的亚像素插值实现不同；原生自己的 `'weighted'` 与 `'bilinear'` 差异同量级）。原生还支持 `int2`、多通道 / 图像数组，本算子只支持单通道 byte / uint2 / real。
+
+例程：`examples/opencv/cv_feature_match_affine.hdev`（匹配得到的 HomMat2D 直接用于变换对齐）。
+
+---
+
 ### 阈值与直方图类
+
+#### cv_in_range
+
+范围阈值分割，对应 `cv::inRange`：**逐通道**判断像素值是否落在 `[Lowerb, Upperb]` **闭区间**内，所有通道都满足的像素输出 255、否则 0，得到单通道 byte 掩膜图。
+
+```
+cv_in_range(Image : ImageOut : Lowerb, Upperb)
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| Image | 图像 | 输入 | `byte` / `int1` / `uint2` / `int2` / `int4` / `real`，可多通道（≤4） |
+| ImageOut | 图像 | 输出 | 掩膜图：`byte` 单通道，255=在范围内 / 0=范围外，尺寸与输入一致 |
+| Lowerb | 实数元组 | 输入 | 下限（1~4 个分量，按通道序号对应） |
+| Upperb | 实数元组 | 输入 | 上限（1~4 个分量，按通道序号对应） |
+
+- `Lowerb` / `Upperb` 语义同 `cv::Scalar`：未给出的分量按 0 处理，故通道数须 ≤4；单通道图只取第 1 个分量。
+- 与 HALCON 原生 `in_range` 的差异：原生算子直接输出 **Region**，本算子输出**掩膜图像**（配合 `cv_bin_to_region` 可转成区域）。
+- 掩膜图 → 区域后与原生 `threshold(Image, Region, Lowerb, Upperb)` **逐像素一致**（同为闭区间；例程已对拍）。
+
+错误码：
+
+| 错误码 | 含义 |
+|---|---|
+| 30001 | Lowerb / Upperb 分量数不在 1~4 |
+| 30002 | 通道数不在 1~4 |
+| 30003 | 各通道尺寸不一致 |
+| 30004 | 图像类型不支持 |
+| 30005 | OpenCV 执行异常 |
+
+例程：`examples/opencv/cv_in_range.hdev`（byte/uint2/int2/int4/real 五种类型、3 通道逐通道范围、与原生 `threshold` 对拍、错误路径）
+
+---
 
 #### cv_threshold_triangle
 
@@ -1085,6 +1159,107 @@ cv_morphology_ex(Image : ImageOut : Op, Shape, Kwidth, Kheight, Iterations :)
 | cv_magnitude | ✅ | ✅ | ✅ | ❌ |
 
 ---
+
+## Dict 扩展算子（hdict_core / hparams_core）
+
+两个**与 HALCON 无关**的 C++17 静态库在扩展包里的算子封装（模块 `Dict`，定义文件 `def/Halcon_Dict.def`）：
+
+| 库 | 句柄类型 | 说明 |
+|---|---|---|
+| `hdict_core`（`HDict/`，纯 STL） | `HDict` | 复刻 HALCON `dict` 的键值容器：`DictPtr` + `std::any` 装对象 + 子字典；内含 `std::shared_mutex`，**读写线程安全** |
+| `hparams_core`（`Params/`，纯 nlohmann） | `HParam` | 复刻 hdev `LoadParams` 的递归 JSON 参数装载；句柄持 `ParamTree`（内嵌 `shared_mutex`，**线程安全**） |
+
+> **线程安全**：两个句柄持有的容器（`Dict` / `ParamTree`）都内嵌 `std::shared_mutex`——读走共享锁、写走独占锁，**多线程共享同一句柄是安全的**。但「先查后写」这类**复合操作仍非原子**（如 `hdict_key_exists` + `hdict_set_tuple`），需要调用方自己串行化。
+> 库的用法差异：`hdict_core` 一律通过 `DictPtr` 共享；`hparams_core` 另有**无状态纯函数** `LoadParam(json&, ...)`（调用方保证 json 独占）与带锁的 `ParamTree` 两种入口。
+
+> 例程：`examples/hdict_demo.hdev`（`hrun -P` 通过；含与原生 `create_dict` / `set_dict_tuple` 的对拍）
+> 句柄 TAG：`HDict` = `0xC0FFEEE0`、`HParam` = `0xC0FFEEF0`（见「句柄 TAG 分配表」）
+
+### hdict_create
+```
+hdict_create ( : : : HDict)
+```
+创建空字典句柄。**参数**：`HDict` 输出，字典句柄。
+
+### hdict_copy
+```
+hdict_copy ( : : HDict : HDictCopy)
+```
+复制字典（键值做值拷贝，子字典共享）。**参数**：`HDict` 源句柄；`HDictCopy` 输出新句柄。
+
+### hdict_set_tuple
+```
+hdict_set_tuple ( : : HDict, Key, Value : )
+```
+写入元组值（键不存在则新建，已存在则覆盖）。**参数**：`HDict` 目标句柄；`Key` 键名（string）；`Value` 数值或字符串，多元素按数组整体存入。
+
+### hdict_get_tuple
+```
+hdict_get_tuple ( : : HDict, Key : Value)
+```
+读出元组值。**参数**：`HDict` 源句柄；`Key` 键名；`Value` 输出值。**错误码**：缺键、键存的不是元组（是子字典）、句柄为空时抛错。
+
+### hdict_set_subdict
+```
+hdict_set_subdict ( : : HDict, Key, SubHDict : )
+```
+把一个字典作为子字典写入指定键（键不存在则新建，已存在则覆盖）。
+
+### hdict_get_keys
+```
+hdict_get_keys ( : : HDict : Keys)
+```
+取出全部键名（**字典序**）。**参数**：`Keys` 输出字符串元组。
+
+### hdict_key_exists
+```
+hdict_key_exists ( : : HDict, Key : Exists)
+```
+判断键是否存在。**参数**：`Exists` 输出 1=存在 / 0=不存在。
+
+### hdict_key_kind
+```
+hdict_key_kind ( : : HDict, Key : Kind)
+```
+取出键的类型名。**参数**：`Kind` ∈ `'tuple'` / `'object'` / `'dict'` / `'empty'`（键不存在）。
+
+### hdict_remove_key
+```
+hdict_remove_key ( : : HDict, Key : Removed)
+```
+删除指定键。**参数**：`Removed` 输出 1=确实删除 / 0=键原本就不存在。
+
+### param_create
+```
+param_create ( : : : HParam)
+```
+创建空的 json 参数树句柄，供 `load_param` 就地补全。
+
+### load_param
+```
+load_param ( : : HParam, Level, DefaultValue, Competence, Type, Limit : Value)
+```
+递归参数装载（1:1 对齐 hdev 过程 `LoadParams`）：按 `Level` 逐级下钻，节点不存在就写入 `Competence`/`Type`/`Limit`/`Value` 并返回默认值，已存在则直接返回其 `Value`（**不覆盖**）。
+
+| 参数 | 类型 | 说明 |
+|---|---|---|
+| `HParam` | handle | 参数树句柄（会被**就地补全**） |
+| `Level` | string 元组 | 路径，如 `['检测参数','背面','面积筛选']` |
+| `DefaultValue` | 数值 / 字符串 | 缺键时写入的默认值 |
+| `Competence` | integer | 权限等级（写入节点） |
+| `Type` | string | `int` / `float` / `bool` / `string` / `int[]` / `float[]` / `string[]` 等 |
+| `Limit` | 数值元组 | 取值限制（原样写入节点） |
+| `Value` | 输出 | 取到的值（缺键时为写入的默认值） |
+
+**语义细节**（与 hdev 一致）：`bool` 类型会把非 `'TRUE'`/`'FALSE'` 的默认值纠成 `'TRUE'`；数组类型把字符串按 `,` 切分（`int[]`/`float[]` 再转数值），子字典按值顺序展平。
+
+### param_to_json
+```
+param_to_json ( : : HParam : Json)
+```
+把参数树导出为紧凑 JSON 字符串（UTF-8 无 BOM、键按字典序），便于落盘或与参考结果对拍。
+
+**错误码约定**：句柄为空 / 内部异常（含 `load_param` 的路径类型错误）→ `H__LINE__ * 10000`，错误文本由 `HSetErrText` 带出。
 
 ## Region 扩展算子（cv_region）
 
@@ -2056,8 +2231,8 @@ hrun -v examples\cv_region.hdev      # 跑通即部署成功（退出码 0）
 | 0xC0FFEEB0 | MYSQL | 已占用（Halcon_Def.h） |
 | 0xC0FFEEC0 | Modbus | 已占用（Halcon_Def.h） |
 | 0xC0FFEED0 | 拟合模型（FitModel，LM/Linear/Geom 三族两步式拟合共用） | 已占用（Halcon_Def.h） |
-| 0xC0FFEEE0 | — | 空 |
-| 0xC0FFEEF0 | — | 空 |
+| 0xC0FFEEE0 | 字典（HDict，HDict 库的 dict 句柄） | 已占用（Halcon_Def.h，2026-10-10） |
+| 0xC0FFEEF0 | json 参数树（HParam，hparams_core 的 LoadParam 树） | 已占用（Halcon_Def.h，2026-10-10） |
 | 0xC0FFEF00 | — | 空 |
 
 ### 备用区段（全空，主区段用满后再启用）
