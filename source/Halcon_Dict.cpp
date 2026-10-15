@@ -91,7 +91,21 @@ Herror writeJsonValue(Hproc_handle ph, INT4_8 pos, const nlohmann::json &v)
         HPutElem(ph, pos, &b, 1, LONG_PAR);
         return H_MSG_TRUE;
     }
-    if (v.is_number())
+    // 整数必须仍以整数返回：JSON 的 int 若写成 real，会与 hdev 的 LoadParams 语义不符，
+    // 也会让下游 dict 算子（用 .L() 读整数键，如 cv_orb_detect 的 NFeatures）抛异常。
+    if (v.is_number_unsigned())
+    {
+        INT4_8 l = (INT4_8)v.get<unsigned long long>();
+        HPutElem(ph, pos, &l, 1, LONG_PAR);
+        return H_MSG_TRUE;
+    }
+    if (v.is_number_integer())
+    {
+        INT4_8 l = (INT4_8)v.get<long long>();
+        HPutElem(ph, pos, &l, 1, LONG_PAR);
+        return H_MSG_TRUE;
+    }
+    if (v.is_number_float())
     {
         double d = v.get<double>();
         HPutElem(ph, pos, &d, 1, DOUBLE_PAR);
@@ -365,6 +379,7 @@ Herror Hload_param(Hproc_handle proc_handle)
 //   输入：JSON 串；输出：新建的 HParam 句柄（可继续 load_param 就地补全）
 // ---------------------------------------------------------------------------
 Herror Hjson_to_param(Hproc_handle proc_handle)
+try
 {
     HCkNoObj(proc_handle);
     HAllocStringMem(proc_handle, 1024);
@@ -394,6 +409,17 @@ Herror Hjson_to_param(Hproc_handle proc_handle)
     HParamSetTree(OUTHParamObject(pUserData),
                   std::make_shared<MLIQMetrics::ParamTree>(std::move(parsed)));
     return H_MSG_TRUE;
+}
+catch (const std::exception &e)
+{
+    // 不让 C++ 异常穿出 supply（否则 HDevelop 会 fail-fast 崩溃）
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("json_to_param: unknown C++ exception"));
+    return 30052;
 }
 
 Herror Hparam_to_json(Hproc_handle proc_handle)

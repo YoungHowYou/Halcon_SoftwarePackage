@@ -33,6 +33,7 @@
 #include <cmath>
 #include <cstring>
 #include <cstdint>
+#include <exception>   // std::exception（supply 异常守卫的 catch 分支）
 #include <limits>   // std::numeric_limits（cv_divide 的除零 / 非有限值保护）
 #include <exiv2/exiv2.hpp>
 #include "Halcon_SoftwarePackage.h"
@@ -212,6 +213,7 @@ static const size_t kMorphShapeN = sizeof(kMorphShapeTable) / sizeof(kMorphShape
  * remap 算子
  *===========================================================================*/
 Herror HCremap(Hproc_handle proc_handle)
+try
 {
     const Hcpar* dict;
     INT4_8 num;
@@ -243,15 +245,35 @@ Herror HCremap(Hproc_handle proc_handle)
     HTuple  Mapyhv_Pointer, Mapyhv_Type, Mapyhv_Width, Mapyhv_Height;
     GetImagePointer1(MapYiMAGE, &Mapyhv_Pointer, &Mapyhv_Type, &Mapyhv_Width, &Mapyhv_Height);
 
-    cv::Mat srcImage((int)hv_Height.L(), (int)hv_Width.L(), CV_16UC1, (char*)hv_Pointer.L());
-    cv::Mat dstImage((int)dsthv_Height.L(), (int)dsthv_Width.L(), CV_16UC1, (char*)dsthv_Pointer.L());
+    cv::Mat srcImage((int)hv_Height.D(), (int)hv_Width.D(), CV_16UC1, (char*)hv_Pointer.L());
+    cv::Mat dstImage((int)dsthv_Height.D(), (int)dsthv_Width.D(), CV_16UC1, (char*)dsthv_Pointer.L());
 
-    cv::Mat xMapArra((int)Mapxhv_Height.L(), (int)Mapxhv_Width.L(), CV_32FC1, (char*)Mapxhv_Pointer.L());
-    cv::Mat yMapArra((int)Mapyhv_Height.L(), (int)Mapyhv_Width.L(), CV_32FC1, (char*)Mapyhv_Pointer.L());
+    cv::Mat xMapArra((int)Mapxhv_Height.D(), (int)Mapxhv_Width.D(), CV_32FC1, (char*)Mapxhv_Pointer.L());
+    cv::Mat yMapArra((int)Mapyhv_Height.D(), (int)Mapyhv_Width.D(), CV_32FC1, (char*)Mapyhv_Pointer.L());
 
     cv::remap(srcImage, dstImage, xMapArra, yMapArra, cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(0));
 
     return H_MSG_TRUE;
+}
+catch (HalconCpp::HException &e)
+{
+    // HALCON/C++ 的低层错误：直接沿用其错误码（get_error_text 可读）。
+    // 绝不能让 C++ 异常穿出 supply —— HDevelop 会 fail-fast 崩溃（0xe06d7363 / 0xc0000409）。
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCremap: unknown C++ exception"));
+    return 30052;
 }
 
 /*=============================================================================
@@ -920,6 +942,7 @@ Herror HCWriteImageExif(Hproc_handle proc_handle)
  * cv_orb_detect — ORB 特征检测
  *===========================================================================*/
 Herror HCcv_orb_detect(Hproc_handle proc_handle)
+try
 {
     const Hcpar *dict;
     INT4_8 num;
@@ -933,13 +956,13 @@ Herror HCcv_orb_detect(Hproc_handle proc_handle)
     HTuple hv_Pointer, hv_Type, hv_Width, hv_Height;
     GetImagePointer1(ho_InputImage, &hv_Pointer, &hv_Type, &hv_Width, &hv_Height);
 
-    cv::Mat img((int)hv_Height.L(), (int)hv_Width.L(), CV_8UC1,
+    cv::Mat img((int)hv_Height.D(), (int)hv_Width.D(), CV_8UC1,
                 (uchar *)hv_Pointer.L());
 
     HTuple hv_NFeatures;
     try { GetDictTuple(hv_DictHandle, "NFeatures", &hv_NFeatures); }
     catch (...) { hv_NFeatures = 3000; }
-    int nFeatures = (int)hv_NFeatures.L();
+    int nFeatures = (int)hv_NFeatures.D();
 
     /* ---- ORB 全开放参数（从 dict 键读取，带默认值） ---- */
     HTuple t;
@@ -952,13 +975,13 @@ Herror HCcv_orb_detect(Hproc_handle proc_handle)
     int    patchSize    = 31;
     int    fastThreshold = 20;
     try { GetDictTuple(hv_DictHandle, "ScaleFactor", &t);   scaleFactor   = t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "NLevels", &t);       nlevels       = (int)t.L(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "EdgeThreshold", &t); edgeThreshold = (int)t.L(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "FirstLevel", &t);    firstLevel    = (int)t.L(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "WTA_K", &t);         WTA_K         = (int)t.L(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "ScoreType", &t);     scoreType     = (int)t.L(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "PatchSize", &t);     patchSize     = (int)t.L(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "FastThreshold", &t); fastThreshold = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "NLevels", &t);       nlevels       = (int)t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "EdgeThreshold", &t); edgeThreshold = (int)t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "FirstLevel", &t);    firstLevel    = (int)t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "WTA_K", &t);         WTA_K         = (int)t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "ScoreType", &t);     scoreType     = (int)t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "PatchSize", &t);     patchSize     = (int)t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "FastThreshold", &t); fastThreshold = (int)t.D(); } catch (...) {}
 
     cvflow::OrbParams op;
     op.nFeatures = nFeatures; op.scaleFactor = scaleFactor; op.nlevels = nlevels;
@@ -990,11 +1013,32 @@ Herror HCcv_orb_detect(Hproc_handle proc_handle)
 
     return H_MSG_TRUE;
 }
+catch (HalconCpp::HException &e)
+{
+    // HALCON/C++ 的低层错误：直接沿用其错误码（get_error_text 可读）。
+    // 绝不能让 C++ 异常穿出 supply —— HDevelop 会 fail-fast 崩溃（0xe06d7363 / 0xc0000409）。
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCcv_orb_detect: unknown C++ exception"));
+    return 30052;
+}
 
 /*=============================================================================
  * cv_akaze_detect — AKAZE 特征检测
  *===========================================================================*/
 Herror HCcv_akaze_detect(Hproc_handle proc_handle)
+try
 {
     const Hcpar *dict;
     INT4_8 num;
@@ -1008,7 +1052,7 @@ Herror HCcv_akaze_detect(Hproc_handle proc_handle)
     HTuple hv_Pointer, hv_Type, hv_Width, hv_Height;
     GetImagePointer1(ho_InputImage, &hv_Pointer, &hv_Type, &hv_Width, &hv_Height);
 
-    cv::Mat img((int)hv_Height.L(), (int)hv_Width.L(), CV_8UC1,
+    cv::Mat img((int)hv_Height.D(), (int)hv_Width.D(), CV_8UC1,
                 (uchar *)hv_Pointer.L());
 
     /* ---- AKAZE 全开放参数（从 dict 键读取，带默认值） ---- */
@@ -1020,13 +1064,13 @@ Herror HCcv_akaze_detect(Hproc_handle proc_handle)
     int    nOctaves           = 4;
     int    nOctaveLayers      = 4;
     int    diffusivity        = 1;    // 1=PM_G2；0=PM_G1,2=WEICKERT,3=CHARBONNIER
-    try { GetDictTuple(hv_DictHandle, "DescriptorType", &t);     descriptorType     = (int)t.L(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "DescriptorSize", &t);     descriptorSize     = (int)t.L(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "DescriptorChannels", &t); descriptorChannels = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "DescriptorType", &t);     descriptorType     = (int)t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "DescriptorSize", &t);     descriptorSize     = (int)t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "DescriptorChannels", &t); descriptorChannels = (int)t.D(); } catch (...) {}
     try { GetDictTuple(hv_DictHandle, "Threshold", &t);          threshold          = t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "NOctaves", &t);           nOctaves           = (int)t.L(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "NOctaveLayers", &t);      nOctaveLayers      = (int)t.L(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "Diffusivity", &t);        diffusivity        = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "NOctaves", &t);           nOctaves           = (int)t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "NOctaveLayers", &t);      nOctaveLayers      = (int)t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "Diffusivity", &t);        diffusivity        = (int)t.D(); } catch (...) {}
 
     cvflow::AkazeParams ap;
     ap.descriptorType = descriptorType; ap.descriptorSize = descriptorSize;
@@ -1060,11 +1104,32 @@ Herror HCcv_akaze_detect(Hproc_handle proc_handle)
 
     return H_MSG_TRUE;
 }
+catch (HalconCpp::HException &e)
+{
+    // HALCON/C++ 的低层错误：直接沿用其错误码（get_error_text 可读）。
+    // 绝不能让 C++ 异常穿出 supply —— HDevelop 会 fail-fast 崩溃（0xe06d7363 / 0xc0000409）。
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCcv_akaze_detect: unknown C++ exception"));
+    return 30052;
+}
 
 /*=============================================================================
  * cv_sift_detect — SIFT 特征检测
  *===========================================================================*/
 Herror HCcv_sift_detect(Hproc_handle proc_handle)
+try
 {
     const Hcpar *dict;
     INT4_8 num;
@@ -1078,13 +1143,13 @@ Herror HCcv_sift_detect(Hproc_handle proc_handle)
     HTuple hv_Pointer, hv_Type, hv_Width, hv_Height;
     GetImagePointer1(ho_InputImage, &hv_Pointer, &hv_Type, &hv_Width, &hv_Height);
 
-    cv::Mat img((int)hv_Height.L(), (int)hv_Width.L(), CV_8UC1,
+    cv::Mat img((int)hv_Height.D(), (int)hv_Width.D(), CV_8UC1,
                 (uchar *)hv_Pointer.L());
 
     HTuple hv_NFeatures;
     try { GetDictTuple(hv_DictHandle, "NFeatures", &hv_NFeatures); }
     catch (...) { hv_NFeatures = 0; }
-    int nFeatures = (int)hv_NFeatures.L();
+    int nFeatures = (int)hv_NFeatures.D();
 
     /* ---- SIFT 全开放参数（从 dict 键读取，带默认值） ---- */
     HTuple t;
@@ -1092,7 +1157,7 @@ Herror HCcv_sift_detect(Hproc_handle proc_handle)
     double contrastThreshold = 0.04;
     double edgeThreshold     = 10.0;
     double sigma             = 1.6;
-    try { GetDictTuple(hv_DictHandle, "NOctaveLayers", &t);     nOctaveLayers     = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "NOctaveLayers", &t);     nOctaveLayers     = (int)t.D(); } catch (...) {}
     try { GetDictTuple(hv_DictHandle, "ContrastThreshold", &t); contrastThreshold = t.D(); } catch (...) {}
     try { GetDictTuple(hv_DictHandle, "EdgeThreshold", &t);     edgeThreshold     = t.D(); } catch (...) {}
     try { GetDictTuple(hv_DictHandle, "Sigma", &t);             sigma             = t.D(); } catch (...) {}
@@ -1129,11 +1194,32 @@ Herror HCcv_sift_detect(Hproc_handle proc_handle)
 
     return H_MSG_TRUE;
 }
+catch (HalconCpp::HException &e)
+{
+    // HALCON/C++ 的低层错误：直接沿用其错误码（get_error_text 可读）。
+    // 绝不能让 C++ 异常穿出 supply —— HDevelop 会 fail-fast 崩溃（0xe06d7363 / 0xc0000409）。
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCcv_sift_detect: unknown C++ exception"));
+    return 30052;
+}
 
 /*=============================================================================
  * cv_bf_knn_match — BF 暴力匹配 + Lowe's Ratio Test
  *===========================================================================*/
 Herror HCcv_bf_knn_match(Hproc_handle proc_handle)
+try
 {
     const Hcpar *dict;
     INT4_8 num;
@@ -1154,7 +1240,7 @@ Herror HCcv_bf_knn_match(Hproc_handle proc_handle)
     HTuple hv_DescWidth;
     try { GetDictTuple(hv_DictHandle, "DescWidth", &hv_DescWidth); }
     catch (...) { hv_DescWidth = 32; }
-    int descWidth = (int)hv_DescWidth.L();
+    int descWidth = (int)hv_DescWidth.D();
 
     HTuple hv_RatioThresh;
     try { GetDictTuple(hv_DictHandle, "RatioThresh", &hv_RatioThresh); }
@@ -1166,12 +1252,12 @@ Herror HCcv_bf_knn_match(Hproc_handle proc_handle)
     int normType  = 4;   // 4=NORM_HAMMING；1=L1,2=L2,6=NORM_HAMMING2
     int crossCheck = 0;  // 0=否，1=是（此时忽略 ratio 过滤，返回最佳匹配）
     int knnK      = 2;   // knnMatch 的 k（ratio 过滤需要 >= 2）
-    try { GetDictTuple(hv_DictHandle, "NormType", &t);   normType   = (int)t.L(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "CrossCheck", &t); crossCheck = (int)t.L(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "K", &t);          knnK       = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "NormType", &t);   normType   = (int)t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "CrossCheck", &t); crossCheck = (int)t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "K", &t);          knnK       = (int)t.D(); } catch (...) {}
 
-    int nRef = (int)hRef.L();
-    int nTarget = (int)hTarget.L();
+    int nRef = (int)hRef.D();
+    int nTarget = (int)hTarget.D();
 
     cv::Mat matRef(nRef, descWidth, CV_8UC1, (uchar *)ptrRef.L());
     cv::Mat matTarget(nTarget, descWidth, CV_8UC1, (uchar *)ptrTarget.L());
@@ -1197,11 +1283,32 @@ Herror HCcv_bf_knn_match(Hproc_handle proc_handle)
 
     return H_MSG_TRUE;
 }
+catch (HalconCpp::HException &e)
+{
+    // HALCON/C++ 的低层错误：直接沿用其错误码（get_error_text 可读）。
+    // 绝不能让 C++ 异常穿出 supply —— HDevelop 会 fail-fast 崩溃（0xe06d7363 / 0xc0000409）。
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCcv_bf_knn_match: unknown C++ exception"));
+    return 30052;
+}
 
 /*=============================================================================
  * cv_estimate_affine_partial2d — RANSAC 部分仿射估计
  *===========================================================================*/
 Herror HCcv_estimate_affine_partial2d(Hproc_handle proc_handle)
+try
 {
     const Hcpar *dict;
     INT4_8 num;
@@ -1234,10 +1341,10 @@ Herror HCcv_estimate_affine_partial2d(Hproc_handle proc_handle)
     int    maxIters   = 2000;
     double confidence = 0.99;
     int    refineIters = 10;
-    try { GetDictTuple(hv_DictHandle, "Method", &t);      method      = (int)t.L(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "MaxIters", &t);    maxIters    = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "Method", &t);      method      = (int)t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "MaxIters", &t);    maxIters    = (int)t.D(); } catch (...) {}
     try { GetDictTuple(hv_DictHandle, "Confidence", &t);  confidence  = t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "RefineIters", &t); refineIters = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "RefineIters", &t); refineIters = (int)t.D(); } catch (...) {}
 
     std::vector<double> srcRow(nPts), srcCol(nPts), dstRow(nPts), dstCol(nPts);
     for (int i = 0; i < nPts; i++)
@@ -1278,6 +1385,26 @@ Herror HCcv_estimate_affine_partial2d(Hproc_handle proc_handle)
 
     return H_MSG_TRUE;
 }
+catch (HalconCpp::HException &e)
+{
+    // HALCON/C++ 的低层错误：直接沿用其错误码（get_error_text 可读）。
+    // 绝不能让 C++ 异常穿出 supply —— HDevelop 会 fail-fast 崩溃（0xe06d7363 / 0xc0000409）。
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCcv_estimate_affine_partial2d: unknown C++ exception"));
+    return 30052;
+}
 
 /*=============================================================================
  * cv_estimate_rigid_2d — RANSAC 刚体变换估计（平移 + 旋转，无缩放）
@@ -1285,6 +1412,7 @@ Herror HCcv_estimate_affine_partial2d(Hproc_handle proc_handle)
  *   SIFT/ORB 匹配后的图像配准（尺度一致的场景）。
  *===========================================================================*/
 Herror HCcv_estimate_rigid_2d(Hproc_handle proc_handle)
+try
 {
     const Hcpar *dict;
     INT4_8 num;
@@ -1315,8 +1443,8 @@ Herror HCcv_estimate_rigid_2d(Hproc_handle proc_handle)
     HTuple t;
     int maxIter = 500;
     int seed    = 12345;
-    try { GetDictTuple(hv_DictHandle, "MaxIter", &t); maxIter = (int)t.L(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "Seed", &t);    seed    = (int)t.L(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "MaxIter", &t); maxIter = (int)t.D(); } catch (...) {}
+    try { GetDictTuple(hv_DictHandle, "Seed", &t);    seed    = (int)t.D(); } catch (...) {}
 
     std::vector<double> srcRow(nPts), srcCol(nPts), dstRow(nPts), dstCol(nPts);
     for (int i = 0; i < nPts; i++)
@@ -1355,6 +1483,26 @@ Herror HCcv_estimate_rigid_2d(Hproc_handle proc_handle)
     SetDictTuple(hv_DictHandle, "Scale", 1.0);
 
     return H_MSG_TRUE;
+}
+catch (HalconCpp::HException &e)
+{
+    // HALCON/C++ 的低层错误：直接沿用其错误码（get_error_text 可读）。
+    // 绝不能让 C++ 异常穿出 supply —— HDevelop 会 fail-fast 崩溃（0xe06d7363 / 0xc0000409）。
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCcv_estimate_rigid_2d: unknown C++ exception"));
+    return 30052;
 }
 
 /*=============================================================================

@@ -168,8 +168,16 @@ Halcon_SoftwarePackage/             → 扩展包（沿用现有包，勿新建�
 12. **HCkP 宏族别再包 HCkP**（手册对每个接口都有警告）：`HGetObj/HGetComp/HGetImage/HGetRL/HNewRegion/HCopyObj/HCrObj/HDefObj/HPutDRL/HDupObj/HGetPElemX/HGetCPar/HGetSPar/HGetCParNum/HGetObjNum/HAllocStringMem` 宏内部已查错；**例外**：`HCrImage/HRLDecomp/HIncrRL/HP*` 裸函数必须自己 `HCkP`。
 13. **HCkP 中途退出不释放 `HAlloc`（永久）内存**（手册 §5.6.1 警告）——大缓冲一律用 `HAllocTmp`/`HAllocLocal`，出错也自动回收。
 14. tuple 输入对象循环可用宏（手册 §5.3/6.1）：`HAllObj(ph, par, obj_key, i){...}`（按参数号遍历对象）/`HAllReg(ph, &rl, i){...}`（region-only）/`HAllSegm`（region+通道）；select 类「原样转发选中对象」用 `HDupObj(ph, i)`（只加引用计数，几乎零成本，优于 HCopyObj）。图像输出类算子（滤波等）用 `HAllFilter` + `HCrImage`（自动建输出矩阵并与输入对象去重关联）。
-15. 包级初始化：可选 `extern HUserExport Herror HXPkgMain(Hproc_handle)`（手册 §3.4）——包加载时被 HALCON 调用一次，用于建 mutex、初始化第三方库（OpenCL 等扩展也要求在其中做加载期初始化）。
-
+15. 包级初始化：可选 `extern HUserExport Herror HXPkgMain(Hproc_handle)`（手册 §3.4）——包加载时被 HALCON 调用一次，用于建 mutex、初始化第三方库（OpenCL 等扩展也要求在其中做加载期初始化）。16. **supply 绝不能让 C++ 异常穿出 C ABI**：只要用了 halconcpp（`GetDictObject` / `SetDictTuple` / `GetImagePointer1` / `GenImage1` / `SetDictObject` …）或任何会抛的库，就给整个算子加 **function-try-block**（`Herror f(...)\ntry { … } catch (…)`；**不改函数体缩进、diff 极小**）：
+    ```cpp
+    catch (HalconCpp::HException &e) { const Herror c = e.ErrorCode(); return (c == H_MSG_TRUE) ? 30050 : c; }
+    catch (const std::exception &e) { HSetErrText(const_cast<char *>(e.what())); return 30051; }
+    catch (...)                       { HSetErrText(const_cast<char *>("<op>: unknown C++ exception")); return 30052; }
+    ```
+    **原因（2026-10-15 实测血泪）**：`cv_orb_detect` 裸调 halconcpp，输入不对时抛 `HException`（`_ThrowInfo` 在 halconcpp.dll）；
+    **hrun/CLI 宿主兜得住**（12 条错误输入全不崩），但 **HDevelop 下异常会逃到 GUI 层 → `std::terminate` → `abort()` → 闪退**
+    （事件日志 `0xe06d7363` + `0xc0000409`，故障模块是 hcanvas.dll / halcon.dll，**根本不是我们的 DLL，极易误判**）。
+    已按此加固：`Halcon_OpenCV.cpp` 的 remap / orb / akaze / sift / bf_knn / affine_partial2d / rigid_2d + `Halcon_Dict.cpp` 的 json_to_param。
 **dict 输入输出约定**（本项目自创模式，样例 `source/Halcon_OpenCV.cpp` 的 `HCcv_orb_detect` / `HCremap`）：
 
 DEF 侧：算子退化为**只有一个 handle 控制参数** `[::DictHandle:]`（`default_type: handle; sem_type: handle; type_list: handle; multivalue: false;`），键清单不写进签名。
@@ -222,6 +230,9 @@ GenImage1(&ho_Desc, "byte", w, n, (Hlong)desc.data); SetDictObject(ho_Desc, hv_D
 | `BFMatcher(crossCheck=true)` 仍调 `knnMatch` | 匹配数恒为 0 | crossCheck 必须走 `bf.match()` |
 | 对 object 用 `\|Conn\|` 求长度（`\|...\|` 只对 tuple 有效） | **该变量涉及的所有行**（含赋值它的那行）一并判为无效行、静默 no-op；`hrun -v` 只报「Control variable is not instantiated」，看不出真凶 | 数对象用 `count_obj(Conn, N)`；用 `hrun -P` 列出全部无效行 |
 | 用了 24.11 里不存在的 `tuple_strstr` | 该行判无效行（“Error loading … invalid program line”），输出全空 | 字符串查找用 **`strstr(Str, Sub)`**（返回索引 / -1）；HALCON 里并不是所有 `tuple_*` 都有对应名 |
+| supply 里裸调 halconcpp（dict 类算子）而输入不对 | **HDevelop 闪退**（事件日志 `0xe06d7363` / `0xc0000409`，故障模块 hcanvas.dll / halcon.dll）；**hrun 下只报错不崩** ⇒ 极难复现、极易误判 | 给算子加 function-try-block（见 §3 规则 16） |
+| `Halcon_SoftwarePackage_html` 目标在 MSBuild 里报 `Access violation`（error MSB8066 / warning MSB8065） | 整包构建“失败”，但主库与 help 库其实已生成 | **既有问题**（手工跑同一条 `hcomp -u -R` 命令 exit=0）⇒ 手工 `hcomp -u -R -p<包> -len_US <全部 def>` + robocopy 同步 `doc/html` 即可 |
+| dict 里数值类型与算子预期不符（如 `load_param` 返回 **real** 而算子用 `.L()` 读整数） | `cv_orb_detect` 报 `30050` / “unknown extension error”（hrun 下不崩，HDevelop 同样报错） | dict 读整数键统一用 `(int)X.D()`（`L()` 只认整数）；写回时整数必须用 `LONG_PAR`（别用 `is_number()` 一把抓成 `DOUBLE_PAR`，见 §3） |
 | HDevelop 实参顺序写错（把**输出**控制参数放到**输入**控制参数前） | 该行判无效、静默跳过、输出为空 → 断言假性通过 | 线性顺序 = `输入对象, 输出对象, 输入控制, 输出控制`；全控制参数算子 = `(输入对象, 输入控制, 输出控制)`，如 `cv_region_features(Regions, Features, Values)`（`Values` 在最后） |
 | 无效行「传染」 | 一个变量被非法使用后，所有赋值/使用它的行都判无效，故障面远大于一行 | 先 `hrun -P` 拿到完整无效行清单，再回头改源头那一行 |
 | 核心库单测用 Release（MSVC `/DNDEBUG`）编译 | `assert` 全部被编掉 → 测试只打印不校验，`M5 ALL PASS` 之类是**假通过** | 别只信单测结论；关键数值改用 `hrun` 与 HALCON 原生算子逐值对照 |
@@ -234,6 +245,12 @@ GenImage1(&ho_Desc, "byte", w, n, (Hlong)desc.data); SetDictObject(ho_Desc, hv_D
 
 - **cv_region 静态库随整包一起编**（顶层 `add_subdirectory(cv_region)` → `cvr_core`，包 `target_link_libraries(... cvr_core ...)`）：改核心库只需整包重建，不用单独构建。核心库现在是**单 TU**（`src/cvr.cpp`），改任何一行都会重编整个 TU（约 14s，整包 17s）——这是单文件的既定代价。
 - **`hdict_core` / `hparams_core` 同样随整包编**（`add_subdirectory(HDict)` / `add_subdirectory(Params)` + 包 `target_link_libraries(... hdict_core hparams_core ...)`），产物 `bin/hdict_core.lib` / `bin/hparams_core.lib`；两者都是小 TU，基本不影响整包耗时。
+- **HTML 文档走手工**：`Halcon_SoftwarePackage_html` 目标崩时会让**整个构建**以 `error MSB8066` 失败
+  （手工跑同一条 `hcomp -u -R` 命令却 exit=0）；DEF 没改就不必重生成，改了就在
+  `build/doc/html/reference` 下手工跑 `hcomp -u -R -p<包名> -len_US <全部 def>` 再 robocopy 到 `doc/html`。
+- **DLL 被 `hdevelop` 占用时没法链接**（LNK1104）：至少验证编译层用
+  `msbuild build\<包名>.vcxproj /t:ClCompile /p:Configuration=Release /p:Platform=x64 /p:BuildProjectReferences=false`
+  （html / help 都是独立 vcxproj、被主库以项目引用方式依赖，该开关可跳过）。
 - **`parm_ui`（`parmsetting/`）也随整包编**（`add_subdirectory(parmsetting)` + 链接 `parm_ui`）：
   父工程里先设 `PARM_UI_FETCH_DEPS/PARM_UI_BUILD_DEMO/PARM_UI_BUILD_TESTS = OFF`（普通变量，CMP0077 NEW ⇒ 子目录 `option()` 不覆盖）
   与 `PARM_UI_DEPS_DIR = <包根>/parmsetting/third_party`（**离线**放 `glfw/`、`imgui/` 源码，本机 GitHub 不通；联网构建改成 FETCH_DEPS=ON）。
@@ -284,6 +301,14 @@ hrun -P script.hdev    # pedantic：列出「无效程序行」行号——定�
   3. `hrun -d` → 确认变量有真值，不要只看退出码。
 - **`hrun -P` 的 `invalid program line N` = 文件行号 − 5**（`<body>` 之后第一行算 1，`<c>` 注释也计入）。
   实测：报 `3` → 文件第 8 行（`<l>P := tuple_strstr (A, 'b')</l>`）。先按此偏移映射到文件行，别按「只数 `<l>`」猜（会整体错 5 行）。
+- **HDevelop 闪退但 hrun 复现不了时（崩溃取证套路，无需调试器）**：
+  1. `Get-WinEvent -FilterHashtable @{LogName='Application'; Level=2}` → 异常码（`0xe06d7363` = MSVC C++ 异常；`0xc0000409` + `ExceptionInformation[0]=7` = `abort()`）。
+  2. `C:\ProgramData\Microsoft\Windows\WER\ReportArchive\AppCrash_*\Report.wer` → 故障模块 + **LoadedModule**（确认崩溃时加载了哪些 DLL）。
+  3. `%LOCALAPPDATA%\CrashDumps\hdevelop.exe.<pid>.dmp`（WER 自动留全内存 dump）→ 用 Python 解析 MINIDUMP：
+     `ExceptionInformation[2]` = `_ThrowInfo` 指针，**映射到模块即知异常来自哪个 DLL**（如 `halconcpp.dll` ⇒ `HException`）；
+     `ExceptionInformation[1]` = 异常对象地址（就在崩溃线程栈上）；
+     ⚠️ `MINIDUMP_THREAD` 48 字节（Stack 起点在 **+24**、DataSize +32、Rva +36、ThreadContext +40/+44），x64 `CONTEXT` Rsp@0x68 / Rip@0xC8；
+     再把栈上 8 字节值逐个用 bisect 查模块范围（暴力扫栈），把返回地址**归到导出函数**（解析 PE 导出表 + bisect，如 `+0x65c20` ⇒ `HCcv_orb_detect+0x2e0`）。
 - **HDevelop 实参顺序**（写错即无效行）：线性顺序 = `输入对象, 输出对象, 输入控制, 输出控制`。全控制参数算子写作 `(输入对象, 输入控制, 输出控制)`——如 `cv_region_features(Regions, Features, Values)`（输出 `Values` 在最后）；含输出对象的则如 `cv_bin_to_region(BinImage, Region, Threshold)`。
 - **别对 object 用 `|...|`**：`|Tuple|` 只适用于 control tuple。`|Conn|` 会让所有涉及 `Conn` 的行（包括 `connection`、`count_obj`）一起判为无效并静默跳过。数对象必须用 `count_obj`。
 - 用 WMI `Win32_Process Create` 起全新进程验证环境变量（别用当前 shell 子进程）。
