@@ -1,0 +1,50 @@
+parm_ui_show<- CHparm_ui_show[::Json,Competence:JsonOut,Cancelled]
+short.english
+  弹出参数配置窗口，按 Type 字段自动生成控件（parm_ui 库的 parm_ui_json）。传入 UTF-8 的配置 JSON 串与当前用户权限等级（0 操作员 / 1 产线工程师 / 2 系统工程师 / 3 管理员），窗口是模态的：本算子阻塞到用户点【保存并关闭】或【取消 / 右上角 ×】关窗为止。窗口跑在库自己创建的 UI 线程上，宿主其它线程（图像采集、算法、日志等）不受影响。返回：保存时 JsonOut 为改完的 JSON 且 Cancelled=0。取消时 JsonOut 为原 JSON 的副本且 Cancelled=1。失败返回错误码（用 get_error_text 取原因）。键顺序、未知字段与浮点字面量原样保留，只把编辑过的 Value 写回。;
+short.german
+  Zeigt einen Parameterdialog an, der die Steuerelemente aus dem Feld Type erzeugt (parm_ui_json).;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  parm, ui, parameter, config, json, dialog;
+parallelization
+  process_exclusively: false;
+  process_locally:     true;
+  process_mutual:      true;
+  method:              none;
+
+parameter
+  Json:               input_control;
+  description.english: 配置 JSON 串（UTF-8 无 BOM）必须是对象。含 Type 的节点按末端参数渲染，不含 Type 的节点按分组递归渲染。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         false;
+
+parameter
+  Competence:         input_control;
+  description.english: 当前用户权限等级 0 操作员 / 1 产线工程师 / 2 系统工程师 / 3 管理员。节点 Competence 不大于该值才可编辑，否则置灰只读并在保存时不写回。;
+  sem_type:           number;
+  type_list:          integer;
+  default_type:       integer;
+  multivalue:         false;
+
+parameter
+  JsonOut:            output_control;
+  description.english: 结果 JSON 串：保存时为修改后的内容，取消时为原 JSON 的副本。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         false;
+
+parameter
+  Cancelled:          output_control;
+  description.english: 1 表示用户取消（取消按钮或右上角 ×），0 表示保存关闭。取消时不要用 JsonOut 覆盖原配置文件。;
+  sem_type:           number;
+  type_list:          integer;
+  default_type:       integer;
+  multivalue:         false;

@@ -903,3 +903,11 @@ Herror CHparam_to_json(Hproc_handle proc_handle)
 {
     return Hparam_to_json(proc_handle);
 }
+
+/* ============================================================
+   ParmUI 模块：parm_ui（参数配置窗口，Dear ImGui + GLFW，独立 C 接口）
+   ============================================================ */
+Herror CHparm_ui_show(Hproc_handle proc_handle)
+{
+    return Hparm_ui_show(proc_handle);
+}

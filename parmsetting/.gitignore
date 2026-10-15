@@ -1,0 +1,16 @@
+# 构建产物
+/build/
+/build-*/
+/out/
+/third_party/
+# CMake / IDE 杂项
+CMakeUserPresets.json
+compile_commands.json
+.cache/
+.vs/
+.vscode/settings.json
+*.user
+# 临时/调试文件
+*.bmp
+*.ppm
+out_*.json

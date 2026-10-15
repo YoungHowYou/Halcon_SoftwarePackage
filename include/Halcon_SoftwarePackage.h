@@ -198,6 +198,9 @@ extern EXPORTS_API Herror Hload_param(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hparam_to_json(Hproc_handle proc_handle);
 #pragma endregion
 
+/* ---- ParmUI 模块：parm_ui（参数配置窗口，Dear ImGui + GLFW） ---- */
+extern EXPORTS_API Herror Hparm_ui_show(Hproc_handle proc_handle);
+
 
 #ifdef __cplusplus
 }

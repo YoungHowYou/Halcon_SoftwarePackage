@@ -1,0 +1,44 @@
+{
+  "基础参数": {
+    "整数示例": {"Competence": 1, "Limit": [0, 25000000], "Type": "int", "Value": 1000},
+    "浮点示例": {"Competence": 1, "Limit": [0.0, 1.0], "Type": "float", "Value": 0.5},
+    "布尔示例": {"Competence": 1, "Limit": "", "Type": "bool", "Value": "TRUE"},
+    "字符串示例": {"Competence": 1, "Limit": "", "Type": "string", "Value": "Breakage|Cracks"},
+    "字符串枚举": {"Competence": 2, "Limit": ["CPU", "GPU", "AUTO"], "Type": "string_enum", "Value": "GPU"},
+    "整数枚举": {"Competence": 2, "Limit": [1, 2, 4, 8], "Type": "int_enum", "Value": 4},
+    "浮点枚举": {"Competence": 2, "Limit": [0.5, 1.0, 1.5, 2.0], "Type": "float_enum", "Value": 1.5},
+    "整数数组": {"Competence": 2, "Limit": [10, 100], "Type": "int[]", "Value": [10, 20, 30]},
+    "浮点数组": {"Competence": 2, "Limit": [0.1, 2.5], "Type": "float[]", "Value": [0.5, 1.5, 2.5]},
+    "字符串数组": {"Competence": 2, "Limit": "", "Type": "string[]", "Value": ["A", "B", "C"]}
+  },
+  "路径参数": {
+    "目录示例": {"Competence": 1, "Limit": "", "Type": "directory", "Value": "./json"},
+    "文件示例": {"Competence": 1, "Limit": "", "Type": "path", "Value": ".\\mask.hobj"}
+  },
+  "权限演示": {
+    "操作员可改": {"Competence": 0, "Limit": [0, 100], "Type": "int", "Value": 10},
+    "产线可改": {"Competence": 1, "Limit": [0, 100], "Type": "int", "Value": 20},
+    "系统可改": {"Competence": 2, "Limit": [0, 100], "Type": "int", "Value": 30},
+    "管理员可改": {"Competence": 3, "Limit": [0, 100], "Type": "int", "Value": 40}
+  },
+  "未知字段演示": {
+    "带额外字段": {"Competence": 1, "Limit": [0, 10], "Type": "int", "Value": 5, "Comment": "额外字段保存时原样带回", "Extra": {"x": [1, 2, 3]}}
+  },
+  "异常演示": {
+    "缺Type的节点": {"Competence": 1, "Limit": [0, 10], "Value": 5},
+    "未知类型": {"Competence": 1, "Limit": [0, 10], "Type": "matrix", "Value": 5},
+    "缺Value": {"Competence": 1, "Limit": [0, 10], "Type": "int"},
+    "Limit格式不对": {"Competence": 1, "Limit": "whatever", "Type": "int", "Value": 5},
+    "枚举值不在候选": {"Competence": 2, "Limit": ["A", "B"], "Type": "string_enum", "Value": "C"},
+    "超出范围": {"Competence": 1, "Limit": [0, 10], "Type": "int", "Value": 999}
+  },
+  "嵌套分组": {
+    "二级": {
+      "三级": {
+        "深层参数": {"Competence": 3, "Limit": [0, 1], "Type": "float", "Value": 0.25}
+      },
+      "二级直接挂参数": {"Competence": 1, "Limit": [0, 9], "Type": "int", "Value": 3}
+    }
+  },
+  "T": {"TTT": {"Value": null}}
+}

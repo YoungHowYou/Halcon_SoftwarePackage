@@ -113,6 +113,13 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 
 详细文档见下文「Dict 扩展算子」；例程 `examples/hdict_demo.hdev`。
 
+### 参数配置窗口（`parm_ui`）
+
+* `parm_ui_show` —— 传入参数 JSON 与当前用户权限等级，弹出**模态配置窗口**（按 `Type` 自动生成控件），返回改完的 JSON。
+  界面本体在独立子工程 **`parmsetting/`**（Dear ImGui v1.92.9b + GLFW 3.4 静态链入 `parm_ui.dll`，纯 C 接口、与 HALCON 无关）。
+
+详细文档见下文「参数配置窗口扩展算子」；例程 `examples/parm_ui_show.hdev`。
+
 ## OpenCV & Exiv2 扩展算子
 
 本扩展包中所有 OpenCV 相关算子（定义于 `def/Halcon_OpenCV.def`，实现于 `source/Halcon_OpenCV.cpp`）。
@@ -1261,6 +1268,75 @@ param_to_json ( : : HParam : Json)
 把参数树导出为紧凑 JSON 字符串（UTF-8 无 BOM、键按字典序），便于落盘或与参考结果对拍。
 
 **错误码约定**：句柄为空 / 内部异常（含 `load_param` 的路径类型错误）→ `H__LINE__ * 10000`，错误文本由 `HSetErrText` 带出。
+
+## 参数配置窗口扩展算子（parm_ui）
+
+本模块只有一个算子（定义于 `def/Halcon_ParmUI.def`，实现于 `source/Halcon_ParmUI.cpp`），封装独立子工程
+**`parmsetting/`** 的 **`parm_ui`** 库（Dear ImGui v1.92.9b + GLFW 3.4 静态链入，纯 C 接口，与 HALCON 无关）。
+配置 JSON 规范（12 种 `Type` / `Competence` / `Limit` / `Value`）、权限等级、保真与校验规则见
+[`parmsetting/README.md`](parmsetting/README.md)。
+
+- 产物：整包构建时一并编出 `bin/parm_ui.dll`（GLFW/ImGui 已静态链入该 DLL），POST_BUILD 自动拷到包输出目录。
+- 三方源码走 `parmsetting/third_party/`（离线构建；该目录被 `.gitignore` 忽略，缺失时改用
+  `-DPARM_UI_FETCH_DEPS=ON` 联网拉取，或按 `parmsetting/README.md` §2 把 `glfw/`、`imgui/` 放到那里）。
+- 整包里只编 `parm_ui` 库本身：`PARM_UI_BUILD_DEMO` / `PARM_UI_BUILD_TESTS` 被强制关闭
+  （demo 与无头自测仍可在 `parmsetting/` 里单独构建）。
+- 入口选型：只包了 `parm_ui_json`（内部自建 UI 线程）。`parm_ui_json_inline` 要求调用线程自己跑完整 UI 循环、
+  `parm_ui_json_async` 是回调语义，两者都不适合 HALCON 算子模型。
+
+### parm_ui_show
+```
+parm_ui_show ( : : Json, Competence : JsonOut, Cancelled)
+```
+弹出参数配置窗口（`parm_ui` 库的 `parm_ui_json`），窗口按节点 `Type` 字段自动生成控件。
+
+**参数**：
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| `Json` | string | 输入 | 配置 JSON（UTF-8 无 BOM），必须是对象：含 `Type` 的节点是末端参数，不含的是分组 |
+| `Competence` | integer | 输入 | 当前用户权限等级 0 操作员 / 1 产线工程师 / 2 系统工程师 / 3 管理员 |
+| `JsonOut` | string | 输出 | 结果 JSON：保存时为修改后的内容，取消时为原 JSON 的副本 |
+| `Cancelled` | integer | 输出 | 1 = 用户取消（取消按钮 / 右上角 ×），0 = 保存关闭 |
+
+**语义**：
+
+| 情况 | `JsonOut` | `Cancelled` |
+|---|---|---|
+| 点【保存并关闭】（校验通过） | 修改后的 JSON（缩进风格跟随输入，空白按 JSON 语义规范化） | 0 |
+| 点【取消】/ 右上角 × / 关窗 | 原 JSON 的副本（原文不动，含原始空白） | 1 |
+| 失败（入参非法 / JSON 语法错误 / 无图形环境 / 窗口初始化失败） | — | — |
+
+失败时算子返回错误码，原因用 `get_error_text` 取（来自库的 thread-local `parm_ui_last_error()`）。
+`Cancelled = 1` 时**不要**用 `JsonOut` 覆盖原配置文件。
+
+**权限**：节点 `Competence ≤ 入参 Competence` 才可编辑，否则置灰只读；保存时二次校验，
+越权节点的值**不会**被写回（例程第 3 段用等级 1 走一遍保存路径验证）。
+
+**线程**：算子内部自建 UI 线程（`parm_ui_json`），**只有当前调用线程**阻塞到关窗，宿主其它线程
+（图像采集 / 算法 / 日志）不受影响。同一时刻只允许一个配置窗口，后到的调用排队（DEF 已声明 `process_mutual: true`）。
+
+**错误码**：
+
+| 错误码 | 含义 |
+|---|---|
+| 31000 | 弹窗失败（无图形环境 / 窗口初始化失败 / JSON 语法错误），错误文本为库给出的原因 |
+| 31001 | 入参非法：`Json` 不是恰好一个字符串 |
+
+**示例**（完整例程 `examples/parm_ui_show.hdev`）：
+
+```hdevelop
+Json := '{"基础参数": {"整数示例": {"Competence": 1, "Limit": [0, 100], "Type": "int", "Value": 60}}}'
+parm_ui_show (Json, 3, JsonOut, Cancelled)
+if (Cancelled == 0)
+    * 用户点了【保存并关闭】→ 把 JsonOut 写回配置文件
+endif
+```
+
+**例程测试钩子**（`parm_ui` 自带的环境变量，正常运行完全不受影响）：
+`PARM_UI_SMOKE_MS=1200` 窗口显示 1.2 秒后自动关闭（默认等同取消），`PARM_UI_SMOKE_SAVE=1` 自动关闭时走
+【保存并关闭】分支。例程已按此验证：保存路径（`Cancelled=0`，JSON 保真）、取消路径（`JsonOut` = 原文、`Cancelled=1`）、
+非法 JSON（返回 31000）。
 
 ## Region 扩展算子（cv_region）
 

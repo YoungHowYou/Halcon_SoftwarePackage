@@ -1,0 +1,70 @@
+{
+    // parm_ui —— VS Code 任务（构建 / 自测 / 界面冒烟）
+    //   Windows 走 MSVC，Linux 请用 scripts/build-linux.sh 或下面的 CMake Tools
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "parm_ui: 构建 (MSVC)",
+            "detail": "scripts/build-msvc.ps1 —— vswhere 定位 VS + x64 开发环境 + Ninja",
+            "type": "shell",
+            "command": "powershell.exe",
+            "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/scripts/build-msvc.ps1"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "parm_ui: 自测 (无头)",
+            "detail": "跑 tests/selftest.cpp 的模型层自测，不弹窗",
+            "type": "shell",
+            "command": "powershell.exe",
+            "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/scripts/run-selftest.ps1"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "parm_ui: 界面冒烟 (截图)",
+            "detail": "真弹窗 2 秒 -> 自动取消，并把第 3 帧截图写到 build/smoke.bmp",
+            "type": "shell",
+            "command": "powershell.exe",
+            "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/scripts/smoke.ps1",
+                "-Png"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "group": "test"
+        }
+    ]
+}

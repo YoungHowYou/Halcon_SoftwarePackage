@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* ===== ParmUI 模块例程：parm_ui_show（参数配置窗口） =====</c>
+<c>* 库：parm_ui（parmsetting/，Dear ImGui + GLFW 静态链入），接口 parm_ui_json</c>
+<c>* 窗口是模态的：算子阻塞到用户点【保存并关闭】或【取消 / 右上角 x】关窗为止。</c>
+<c>* 例程用库自带的测试钩子环境变量自动关窗（不设就真的弹窗等着用户点）：</c>
+<c>*   PARM_UI_SMOKE_MS=1500   窗口显示 1.5 秒后自动关闭</c>
+<c>*   PARM_UI_SMOKE_SAVE=1    自动关闭时走【保存并关闭】分支；不设则等同【取消】</c>
+<c>* 运行（PowerShell）：</c>
+<c>*   $env:PARM_UI_SMOKE_MS='1500'; $env:PARM_UI_SMOKE_SAVE='1'</c>
+<c>*   hrun -v -P examples\parm_ui_show.hdev</c>
+<c></c>
+<c>* --- 1) 正常路径：保存关闭（JsonOut = 改完的 JSON，Cancelled = 0）---</c>
+<l>Json := '{"基础参数": {"整数示例": {"Competence": 1, "Limit": [0, 100], "Type": "int", "Value": 60}, "枚举示例": {"Competence": 2, "Limit": ["CPU", "GPU"], "Type": "string_enum", "Value": "GPU"}, "数组示例": {"Competence": 2, "Limit": [0, 10], "Type": "int[]", "Value": [1, 2, 3]}}, "未知字段演示": {"Competence": 1, "Limit": "", "Type": "string", "Value": "A", "Extra": 123}}'</l>
+<l>parm_ui_show (Json, 3, JsonOut, Cancelled)</l>
+<l>if (Cancelled != 0 or |JsonOut| == 0)</l>
+<l>  throw ('parm_ui_show save path failed: cancelled=' + Cancelled)</l>
+<l>endif</l>
+<c></c>
+<c>* --- 2) 保真：键顺序 / 未知字段 / 未编辑的值都原样保留 ---</c>
+<c>* 注：库按 JSON 语义重排空白（同一个缩进风格内空格会被规范化），值与键顺序不变</c>
+<l>LenOut := |JsonOut|</l>
+<l>P1 := strstr (JsonOut, '基础参数')</l>
+<l>P2 := strstr (JsonOut, '未知字段演示')</l>
+<l>P3 := strstr (JsonOut, 'Extra')</l>
+<l>P4 := strstr (JsonOut, 'Value":60')</l>
+<l>if (LenOut == 0 or P1 == -1 or P2 == -1 or P3 == -1 or P4 == -1 or P1 &gt; P2)</l>
+<l>  throw ('parm_ui_show fidelity check failed: ' + P1 + ',' + P2 + ',' + P3 + ',' + P4)</l>
+<l>endif</l>
+<c></c>
+<c>* --- 3) 权限：等级 1 也能打开窗口（高权限节点置灰只读，保存时不写回）---</c>
+<l>parm_ui_show (Json, 1, JsonOut1, Cancelled1)</l>
+<l>if (Cancelled1 != 0 or |JsonOut1| != LenOut or strstr (JsonOut1, 'Extra') == -1)</l>
+<l>  throw ('parm_ui_show with competence=1 failed: cancelled=' + Cancelled1 + ' len=' + |JsonOut1|)</l>
+<l>endif</l>
+<c></c>
+<c>* --- 4) 错误路径：JSON 语法错误 → 返回错误码（不弹窗）---</c>
+<l>ErrCaught := 0</l>
+<l>try</l>
+<l>  parm_ui_show ('{ this is not json', 3, BadOut, BadCancelled)</l>
+<l>catch (Ex)</l>
+<l>  ErrCaught := 1</l>
+<l>endtry</l>
+<l>if (ErrCaught != 1)</l>
+<l>  throw ('parm_ui_show should report an error for invalid JSON')</l>
+<l>endif</l>
+<c></c>
+<l>Message := 'parm_ui_show example passed'</l>
+</body>
+</procedure>
+</hdevelop>

@@ -139,6 +139,7 @@ set(EXT_SOURCES
   source/Halcon_CVRegion.cpp
   source/Halcon_Ransac.cpp
   source/Halcon_Dict.cpp
+  source/Halcon_ParmUI.cpp
 )
 
 #----------------------------------------------------------------------
@@ -175,6 +176,19 @@ add_subdirectory(HDict)
 add_subdirectory(Params)
 
 #----------------------------------------------------------------------
+#  parm_ui：参数配置窗口（Dear ImGui v1.92.9b + GLFW 3.4，独立 C 接口库，
+#  子工程 parmsetting/；它自己会静态编入 GLFW/ImGui，对外只出 parm_ui.dll）
+#    * 三方源码走本地目录 parmsetting/third_party/（离线构建，本机 GitHub 不通）；
+#      想联网拉取就改成 PARM_UI_FETCH_DEPS ON 并去掉 PARM_UI_DEPS_DIR
+#    * 只编 parm_ui 库本身：不编它的 demo / 无头自测（那个在 parmsetting/ 里单独构建）
+#----------------------------------------------------------------------
+set(PARM_UI_FETCH_DEPS  OFF)
+set(PARM_UI_BUILD_DEMO  OFF)
+set(PARM_UI_BUILD_TESTS OFF)
+set(PARM_UI_DEPS_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/parmsetting/third_party")
+add_subdirectory(parmsetting)
+
+#----------------------------------------------------------------------
 #  核心：创建 HALCON 扩展包目标
 #----------------------------------------------------------------------
 HALCON_AddExtensionPackage(${ProjectName}
@@ -188,6 +202,7 @@ HALCON_AddExtensionPackage(${ProjectName}
     def/Halcon_CVRegion.def
     def/Halcon_Ransac.def
     def/Halcon_Dict.def
+    def/Halcon_ParmUI.def
   SOURCES
     ${EXT_SOURCES}
   CHAPTERS
@@ -274,6 +289,7 @@ target_include_directories(${ProjectName}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/cv_region/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/HDict>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Params>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/parmsetting/include>
     $<BUILD_INTERFACE:${OpenCV_INCLUDE_DIRS}>
 )
 
@@ -299,6 +315,7 @@ if(WIN32)
     cv_flow
     hdict_core
     hparams_core
+    parm_ui
     ${OpenCV_LIBS}
     exiv2lib
     ${SPDLOG_LIBS}
@@ -317,6 +334,7 @@ else()
     cv_flow
     hdict_core
     hparams_core
+    parm_ui
     ${OpenCV_LIBS}
     exiv2lib
     ${SPDLOG_LIBS}
@@ -347,6 +365,14 @@ if(WIN32)
       "$<TARGET_FILE:muparser::muparser>"
       "$<TARGET_FILE_DIR:${ProjectName}>/muparser.dll"
     COMMENT "Copying muparser.dll → output"
+  )
+  # parm_ui 为 SHARED 库（GLFW/ImGui 已静态链入它自己），把 DLL 拷到包输出目录，
+  # 与其它 vcpkg 运行库同样落在 bin/（HALCON 加载扩展包时按包目录找依赖）
+  add_custom_command(TARGET ${ProjectName} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "$<TARGET_FILE:parm_ui>"
+      "$<TARGET_FILE_DIR:${ProjectName}>/parm_ui.dll"
+    COMMENT "Copying parm_ui.dll → output"
   )
   # 同步生成的算子签名数据库 → 包 help/。
   # HALCON 从 help/operators_en_US.num 读取各算子签名做调用校验；

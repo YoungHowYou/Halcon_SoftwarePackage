@@ -1,6 +1,6 @@
 ---
 name: halcon-extension-package
-description: 'HALCON 扩展包算子开发与排错指南：覆盖新算子分流（有流程/多步算法先做进 cv_region 静态库再封装，该库已是单头 cvr.hpp + 单 cpp、非必要不新增文件；无流程的薄单算子直接写 supply 层；**薄封装算子一律按原库接口 1:1 照抄**：参数名/个数/顺序/默认语义跟原库一致，不发明新模式与别名、不做额外收紧，见 §1）、DEF 语法规则、参数声明顺序、supply 层 C/C++ 约定（region/图像/tuple/混合 tuple/handle/dict 的输入输出读写配方）、CH<op> 包装与三层命名、hcomp、CMake 整包构建、help 签名数据库同步、hrun/.hdev 例程测试。当创建、修改、调试、测试 HALCON 扩展包算子（.def 文件、supply 层、Halcon_SoftwarePackage、cv_region / hdict_core / hparams_core 静态库）时使用；当 HALCON 算子加载不上、被静默跳过、崩溃、返回空值或错误结果时使用；当 hrun/hdev 例程行为异常、hcomp 报错、扩展包构建失败（LNK1104）、DEF 解析报错时使用。'
+description: 'HALCON 扩展包算子开发与排错指南：覆盖新算子分流（有流程/多步算法先做进 cv_region 静态库再封装，该库已是单头 cvr.hpp + 单 cpp、非必要不新增文件；无流程的薄单算子直接写 supply 层；**薄封装算子一律按原库接口 1:1 照抄**：参数名/个数/顺序/默认语义跟原库一致，不发明新模式与别名、不做额外收紧，见 §1）、DEF 语法规则、参数声明顺序、supply 层 C/C++ 约定（region/图像/tuple/混合 tuple/handle/dict 的输入输出读写配方）、CH 包装与三层命名、hcomp、CMake 整包构建、help 签名数据库同步、hrun/.hdev 例程测试。当创建、修改、调试、测试 HALCON 扩展包算子（.def 文件、supply 层、Halcon_SoftwarePackage、cv_region / hdict_core / hparams_core / parm_ui 静态库与子工程）时使用；当 HALCON 算子加载不上、被静默跳过、崩溃、返回空值或错误结果时使用；当 hrun/hdev 例程行为异常、参数配置窗口（parm_ui / parmsetting）接入异常、hcomp 报错、扩展包构建失败（LNK1104）、DEF 解析报错时使用。'
 ---
 
 # HALCON Extension Package — 项目专用技能
@@ -42,7 +42,8 @@ Halcon_SoftwarePackage/             → 扩展包（沿用现有包，勿新建�
   ├── source/Halcon_SoftwarePackage.c → CH<op> 包装函数（H<op> → supply）
   ├── include/Halcon_SoftwarePackage.h → H<op> 声明
   ├── HDict/                        → 独立静态库 hdict_core（dict 句柄容器，见本节末）
-  └── Params/                       → 独立静态库 hparams_core（hdev LoadParams 复刻，见本节末）
+  ├── Params/                       → 独立静态库 hparams_core（hdev LoadParams 复刻，见本节末）
+  └── parmsetting/                  → 独立子工程 parm_ui（ImGui+GLFW 参数配置窗口，见本节末）
 ```
 
 **模块 ↔ 实现位置（现状，新增算子时照此对齐；分流判据见 §7）**：
@@ -54,6 +55,7 @@ Halcon_SoftwarePackage/             → 扩展包（沿用现有包，勿新建�
 | `Halcon_OpenCV.def` | 43 | 直接写在 supply（`cv::`）；唯一例外 `cv_measure_*` 复用 `cvr::cvr_measure_pos` |
 | `Halcon_Math` / `Sqlite` / `Modbus` / `Spdlog` / `Mysql` | 11/5/14/20/3 | 直接写在 supply（muparser+Eigen+armadillo / sqlite3 / libmodbus / spdlog / libmysql） |
 | `Halcon_Dict.def` | 12 | `hdict_core`（HDict 句柄）+ `hparams_core`（HParam 句柄），supply 只做参数搬运；例程 `examples/hdict_demo.hdev` |
+| `Halcon_ParmUI.def` | 1 | `parm_ui`（`parmsetting/` 子工程：ImGui+GLFW 参数配置模态窗口），直接写在 supply（`Hparm_ui_show` 只包 `parm_ui_json()`）；例程 `examples/parm_ui_show.hdev` |
 
 **「cv_region 合并成单头 + 单 cpp」——已于 2026-09-27 执行完成（实测数据存档，勿重复测量）**：
 
@@ -105,6 +107,25 @@ Halcon_SoftwarePackage/             → 扩展包（沿用现有包，勿新建�
   + `param_create/load_param/param_to_json`（`HParam` 句柄 = json 参数树，TAG `0xC0FFEEF0`）；例程 `examples/hdict_demo.hdev`（`hrun -P` 通过）。
   两个句柄持有的容器（`Dict` / `ParamTree`）都内嵌 `std::shared_mutex` ⇒ **多线程共享同一句柄安全**（但"先查后写"这类复合操作仍非原子）。
   `hparams_core` 提供了两个入口：无状态纯函数 `LoadParam(json&, ...)`（调用方保证 json 独占）与带锁的 `ParamTree`（`load` 写锁 / `snapshot`·`to_json` 读锁）。
+
+### 子工程：`parm_ui`（`parmsetting/`，参数配置窗口）
+
+独立 CMake 子工程（Dear ImGui v1.92.9b + GLFW 3.4 静态链入，纯 C 接口 `include/parm_ui.h`，**与 HALCON 无关**）：
+传一份参数 JSON + 当前权限等级 → 弹**模态配置窗口**（按节点 `Type` 自动生成控件）→ 返回改完的 JSON。
+
+- **接入主包**：根 `CMakeLists.txt` 里 `set(PARM_UI_FETCH_DEPS/PARM_UI_BUILD_DEMO/PARM_UI_BUILD_TESTS OFF)`
+  + `set(PARM_UI_DEPS_DIR <包根>/parmsetting/third_party)` + `add_subdirectory(parmsetting)`；
+  include 加 `parmsetting/include`、链 `parm_ui`、POST_BUILD 拷 `parm_ui.dll` 到包输出目录。
+  三方源码离线放 `parmsetting/third_party/`（`glfw/`+`imgui/`，被它的 `.gitignore` 忽略；离线来源 = `parmsetting/build/msvc/_deps/{glfw,imgui}-src`）。
+- **选入口**：只包 `parm_ui_json()`（内部自建 UI 线程 / 任意线程可调 / 只有当前线程阻塞到关窗）。
+  `parm_ui_json_inline()` 要求调用线程自己跑完整 UI 循环、`parm_ui_json_async()` 是回调语义 ⇒ 都不适合算子。
+- **算子** `parm_ui_show (::Json,Competence:JsonOut,Cancelled)`（薄封装 1:1：`in_json`→`Json`、`competence`→`Competence`、
+  返回串→`JsonOut`、`*cancelled`→`Cancelled`）：`Json` 走 `HGetPElemS(CONV_NONE)` **零拷贝**读（长 JSON 别用 HGetSPar 的定长拷贝路径）；
+  错误码 `31000`（失败，文本取 `parm_ui_last_error()`）/ `31001`（Json 非单串）；DEF `process_mutual: true`。
+- **行为（实测）**：保存 → `JsonOut` 是改完的 JSON（**空白按 JSON 语义规范化**，值与键顺序不变）、`Cancelled=0`；
+  取消 / × → `JsonOut` 是**输入原文副本**（原文空白保留）、`Cancelled=1`（别写回文件）。
+- **无人值守测试**：库自带环境变量 `PARM_UI_SMOKE_MS=1200`（窗口 N ms 后自动关闭，默认等同取消）、
+  `PARM_UI_SMOKE_SAVE=1`（自动关闭时走【保存并关闭】）⇒ `hrun` 里能跑通全流程。
 
 ## 2. DEF 文件规则（出错率最高的地方）
    > **value_list 不要写双引号**：`value_list: a,b,c;`（带引号虽能过 hcomp，但 HDevelop 的建议值提示会带上引号，也与 HALCON 官方 .ref 写法不一致）。
@@ -200,6 +221,7 @@ GenImage1(&ho_Desc, "byte", w, n, (Hlong)desc.data); SetDictObject(ho_Desc, hv_D
 | `cv::kmeans` 传 flags=1 (PP_CENTERS) | OpenCV 4.12 内部断言 | flags=0 (RANDOM_CENTERS) 稳定；PP 在该版本有此问题 |
 | `BFMatcher(crossCheck=true)` 仍调 `knnMatch` | 匹配数恒为 0 | crossCheck 必须走 `bf.match()` |
 | 对 object 用 `\|Conn\|` 求长度（`\|...\|` 只对 tuple 有效） | **该变量涉及的所有行**（含赋值它的那行）一并判为无效行、静默 no-op；`hrun -v` 只报「Control variable is not instantiated」，看不出真凶 | 数对象用 `count_obj(Conn, N)`；用 `hrun -P` 列出全部无效行 |
+| 用了 24.11 里不存在的 `tuple_strstr` | 该行判无效行（“Error loading … invalid program line”），输出全空 | 字符串查找用 **`strstr(Str, Sub)`**（返回索引 / -1）；HALCON 里并不是所有 `tuple_*` 都有对应名 |
 | HDevelop 实参顺序写错（把**输出**控制参数放到**输入**控制参数前） | 该行判无效、静默跳过、输出为空 → 断言假性通过 | 线性顺序 = `输入对象, 输出对象, 输入控制, 输出控制`；全控制参数算子 = `(输入对象, 输入控制, 输出控制)`，如 `cv_region_features(Regions, Features, Values)`（`Values` 在最后） |
 | 无效行「传染」 | 一个变量被非法使用后，所有赋值/使用它的行都判无效，故障面远大于一行 | 先 `hrun -P` 拿到完整无效行清单，再回头改源头那一行 |
 | 核心库单测用 Release（MSVC `/DNDEBUG`）编译 | `assert` 全部被编掉 → 测试只打印不校验，`M5 ALL PASS` 之类是**假通过** | 别只信单测结论；关键数值改用 `hrun` 与 HALCON 原生算子逐值对照 |
@@ -212,6 +234,12 @@ GenImage1(&ho_Desc, "byte", w, n, (Hlong)desc.data); SetDictObject(ho_Desc, hv_D
 
 - **cv_region 静态库随整包一起编**（顶层 `add_subdirectory(cv_region)` → `cvr_core`，包 `target_link_libraries(... cvr_core ...)`）：改核心库只需整包重建，不用单独构建。核心库现在是**单 TU**（`src/cvr.cpp`），改任何一行都会重编整个 TU（约 14s，整包 17s）——这是单文件的既定代价。
 - **`hdict_core` / `hparams_core` 同样随整包编**（`add_subdirectory(HDict)` / `add_subdirectory(Params)` + 包 `target_link_libraries(... hdict_core hparams_core ...)`），产物 `bin/hdict_core.lib` / `bin/hparams_core.lib`；两者都是小 TU，基本不影响整包耗时。
+- **`parm_ui`（`parmsetting/`）也随整包编**（`add_subdirectory(parmsetting)` + 链接 `parm_ui`）：
+  父工程里先设 `PARM_UI_FETCH_DEPS/PARM_UI_BUILD_DEMO/PARM_UI_BUILD_TESTS = OFF`（普通变量，CMP0077 NEW ⇒ 子目录 `option()` 不覆盖）
+  与 `PARM_UI_DEPS_DIR = <包根>/parmsetting/third_party`（**离线**放 `glfw/`、`imgui/` 源码，本机 GitHub 不通；联网构建改成 FETCH_DEPS=ON）。
+  产物 `bin/parm_ui.dll`（GLFW/ImGui 已静态链入它自己，约 850KB；子目录的通用 `CMAKE_RUNTIME_OUTPUT_DIRECTORY` 会被父工程的
+  `..._<CONFIG>` 覆盖 ⇒ 直接落 `bin/`），POST_BUILD 再拷一次到包输出目录。要改它的行为请改 `parmsetting/` 里的库，
+  别把逻辑写进 supply。
 - **CMake 版本必须与既有 build 树一致**：`cv_region/build` 是用 `C:/cmake-3.30.5-windows-x86_64` 配置的，用 PATH 上的 cmake 4.4.3 去 `--build` 会触发重新配置并报 `No preprocessor test for "Renesas"`（3.30 模块被 4.4 读取），**看起来像构建失败、实际是版本混用**（`ctest` 随后会拿旧二进制"通过"= 假通过）。一律用固定路径：`C:/cmake-3.30.5-windows-x86_64/bin/cmake.exe`（与 `cv_region/.vscode/settings.json` 的 `cmake.cmakePath` 一致）。
 - 要跑核心库单测才需独立配置一次。**必须带 vcpkg 工具链**：`cv_region/` 下没有 vcpkg.json，裸跑 `cmake -B cv_region/build -S cv_region` 会在 `find_package(muparser/Eigen3)` 处直接失败（实测 exit=1）；要复用父工程 `build/vcpkg_installed` 那棵树：
   ```powershell
@@ -254,6 +282,8 @@ hrun -P script.hdev    # pedantic：列出「无效程序行」行号——定�
   1. `hrun -P` → 直接列出无效行行号（`-v` 只报「变量未实例化」时，必须靠这步找真凶）；
   2. `hrun -v` → 看运行到哪一行炸；
   3. `hrun -d` → 确认变量有真值，不要只看退出码。
+- **`hrun -P` 的 `invalid program line N` = 文件行号 − 5**（`<body>` 之后第一行算 1，`<c>` 注释也计入）。
+  实测：报 `3` → 文件第 8 行（`<l>P := tuple_strstr (A, 'b')</l>`）。先按此偏移映射到文件行，别按「只数 `<l>`」猜（会整体错 5 行）。
 - **HDevelop 实参顺序**（写错即无效行）：线性顺序 = `输入对象, 输出对象, 输入控制, 输出控制`。全控制参数算子写作 `(输入对象, 输入控制, 输出控制)`——如 `cv_region_features(Regions, Features, Values)`（输出 `Values` 在最后）；含输出对象的则如 `cv_bin_to_region(BinImage, Region, Threshold)`。
 - **别对 object 用 `|...|`**：`|Tuple|` 只适用于 control tuple。`|Conn|` 会让所有涉及 `Conn` 的行（包括 `connection`、`count_obj`）一起判为无效并静默跳过。数对象必须用 `count_obj`。
 - 用 WMI `Win32_Process Create` 起全新进程验证环境变量（别用当前 shell 子进程）。

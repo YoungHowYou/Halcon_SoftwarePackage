@@ -1,0 +1,66 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 16,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "windows-msvc",
+            "displayName": "Windows / MSVC (Ninja)",
+            "inherits": "base",
+            "generator": "Ninja",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "linux-gcc",
+            "displayName": "Linux / GCC (Ninja)",
+            "inherits": "base",
+            "generator": "Ninja",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "windows-msvc",
+            "configurePreset": "windows-msvc"
+        },
+        {
+            "name": "linux-gcc",
+            "configurePreset": "linux-gcc"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "windows-msvc",
+            "configurePreset": "windows-msvc",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "linux-gcc",
+            "configurePreset": "linux-gcc",
+            "output": {
+                "outputOnFailure": true
+            }
+        }
+    ]
+}

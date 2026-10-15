@@ -2710,6 +2710,10 @@ toggleLanguage(new_lang,1);return;}
 <dt><a href="param_to_json.html"><code><span data-if="hdevelop" style="display:inline;">param_to_json</span><span data-if="dotnet" style="display:none;">ParamToJson</span><span data-if="python" style="display:none;">param_to_json</span><span data-if="cpp" style="display:none;">ParamToJson</span><span data-if="c" style="display:none;">param_to_json</span></code></a></dt>
 <dd>把参数树导出为紧凑 JSON 字符串（UTF-8 无 BOM，键按字典序），便于落盘或与参考结果对拍。</dd>
 </dl>
+<dl>
+<dt><a href="parm_ui_show.html"><code><span data-if="hdevelop" style="display:inline;">parm_ui_show</span><span data-if="dotnet" style="display:none;">ParmUiShow</span><span data-if="python" style="display:none;">parm_ui_show</span><span data-if="cpp" style="display:none;">ParmUiShow</span><span data-if="c" style="display:none;">parm_ui_show</span></code></a></dt>
+<dd>弹出参数配置窗口，按 Type 字段自动生成控件（parm_ui 库的 parm_ui_json）。传入 UTF-8 的配置 JSON 串与当前用户权限等级（0 操作员 / 1 产线工程师 / 2 系统工程师 / 3 管理员），窗口是模态的：本算子阻塞到用户点【保存并关闭】或【取消 / 右上角 ×】关窗为止。窗口跑在库自己创建的 UI 线程上，宿主其它线程（图像采集、算法、日志等）不受影响。返回：保存时 JsonOut 为改完的 JSON 且 Cancelled=0。取消时 JsonOut 为原 JSON 的副本且 Cancelled=1。失败返回错误码（用 get_error_text 取原因）。键顺序、未知字段与浮点字面量原样保留，只把编辑过的 Value 写回。</dd>
+</dl>
 <h3 id="r">R<a href="#letters"> ↑</a>
 </h3>
 <dl>
