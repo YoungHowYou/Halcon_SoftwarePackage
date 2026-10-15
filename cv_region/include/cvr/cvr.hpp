@@ -22,7 +22,8 @@
  *        find_package(cvr_core CONFIG REQUIRED)
  *        target_link_libraries(app PRIVATE cvr::cvr_core)
  *   2) 源码级：把本文件 + cvr.cpp 两个文件拷走即可，无需本仓库其它东西；
- *   - 语言/标准：C++17；ransac / measure 已迁至 cv_flow，本库**纯 STL、零三方依赖**；
+ *   - 语言/标准：C++17；ransac / measure 已迁去 cv_flow，本库依赖 = STL + **Eigen**
+ *     （仅 cv_shape_trans_ex 段用：2x2 相似变换 SVD + 最小二乘；Eigen 是 header-only，无 .lib/.dll）；
  *   - **不需要 OpenCV**：<opencv2/core.hpp> 在文件末尾 #ifdef CVR_WITH_OPENCV 段内，
  *     要用 region<->mask 互转才定义该宏并补 OpenCV 头/库；
  *   - 本文件与 cvr.cpp 是 UTF-8 **with BOM**（含中文注释），拷到别处请保持；
@@ -503,6 +504,44 @@ bool cvr_shape_trans(const CvrRegion& r, const std::string& shape, CvrRegion& ou
 //  gen_rectangle2 = 4359，shape_trans = 4599）。
 CvrRegion cvr_gen_rectangle2(double row, double col, double phi,
                              double length1, double length2);
+
+// ----------------------------------------------------------------------------
+// cv_shape_trans_ex —— 用「标准形状模板」补全「有缺失的提取形状」（本库自定义，无原生对应）
+//   与 shape_trans（把 region 变成内置几何形状）不同：这里的目标形状由调用方给出。
+//   流程（参考实现 complete_custom_shape）：
+//     ① 两个输入各取**最大面积外轮廓**（Moore 边界跟踪，忽略孔洞）；
+//     ② 各自按弧长均匀重采样 n_samples 个点；
+//     ③ 归一化（去中心 + 单位 RMS 尺度）；
+//     ④ Trimmed 相似 ICP 对齐（含各向同性缩放 x 旋转 x 平移，丢弃缺角处的错配点）；
+//     ⑤ 环形连续段缺失检测（阈值 = dist_ratio x 参考包围盒对角线；连续段短于
+//        min_len 个点的按噪声回填为「已观测」）；
+//     ⑥ 拼接：已观测段用 partial 的真实点，缺失段用对齐后的模板点；
+//     ⑦ 周期三次 B 样条平滑（smooth_s = 残差平方和上限，见下）；
+//     ⑧ 任意简单多边形扫描线栅格化成 region（像素方格 [r,r+1)x[c,c+1)，口径同
+//        shape_trans 家族）。
+//   参数（默认值即参考实现的默认）：
+//     n_samples  >= 8      轮廓重采样点数
+//     trim_ratio (0,1]     每轮 ICP 保留的最远点比例（缺角越大应越小）
+//     dist_ratio > 0       缺失判定阈值系数
+//     min_len    >= 0      最短缺失段长度（点数）
+//     smooth_s   >= 0      周期 B 样条平滑的**残差平方和上限**（语义对齐 scipy
+//                          splprep 的 s；0 = 尽量插值过点）
+//   输出：
+//     out       补全后的 region
+//     coverage  缺失检测后被判定为「已观测」的模板轮廓点占比 [0,1]（诊断用）
+//   约束：两个输入各自必须**恰好一个连通分量**（多连通报错）；轮廓点数须 >= 3；
+//         空区域报错。
+struct CvrShapeTransExOptions {
+    int    n_samples  = 1000;
+    double trim_ratio = 0.65;
+    double dist_ratio = 0.04;
+    int    min_len    = 20;
+    double smooth_s   = 8.0;
+};
+
+bool cvr_shape_trans_ex(const CvrRegion& standard, const CvrRegion& partial,
+                        const CvrShapeTransExOptions& opt,
+                        CvrRegion& out, double& coverage);
 
 } // namespace cvr
 

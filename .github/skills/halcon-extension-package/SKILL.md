@@ -13,7 +13,12 @@ cv_region/                          → 算法本体（C++17）：region 运算 
   │    src/cvr.cpp                  → **全部实现**（含原内部头 model_expression.h /
   │                                     optimizer.h / ransac_core.h 与 OpenCV 桥、遗留 C ABI 段）
   │    include/cvr/cvr.hpp          → **全部声明**（唯一公开头，带 #pragma once）
-  ├─ 依赖：STL + Eigen3::Eigen + muparser（PUBLIC 链出）；
+  ├─ 依赖：STL + **Eigen3::Eigen**（header-only，无 .lib/.dll）。
+  │    Eigen 在 2026-10-13 因 `cv_shape_trans_ex`（2x2 相似变换 SVD + 最小二乘）**重新引入**
+  │    —— 之前 ransac/measure 迁去 cv_flow 时它被移除过；muparser 已不在本库。
+  │    引入连带改 3 处：`cv_region/CMakeLists.txt`（find_package + PUBLIC 链出）、
+  │    install config（`find_dependency(Eigen3 CONFIG)`）、`cv_region/python/CMakeLists.txt`
+  │    （它直接编 `../src/cvr.cpp` ⇒ 构建时要给 `CMAKE_PREFIX_PATH=<包根>/build/vcpkg_installed/x64-windows`）。
   │    OpenCV 桥折在 cvr.hpp/cvr.cpp 末尾的 #ifdef CVR_WITH_OPENCV 段（子项目构建默认 OFF）
   └─ cv_region/tests/test_m1..m9     → 可独立构建跑单测（测试文件另算，不进单头单 cpp）
 ```
@@ -44,7 +49,7 @@ Halcon_SoftwarePackage/             → 扩展包（沿用现有包，勿新建�
 
 | 模块 | 算子数 | 实现位置 |
 |---|---|---|
-| `Halcon_CVRegion.def` | 37 | 算法在 `cvr_core`（`cvr::`，58 处调用），supply 只做参数搬运 |
+| `Halcon_CVRegion.def` | 38 | 算法在 `cvr_core`（`cvr::`，59 处调用），supply 只做参数搬运（2026-10-13 新增 `cv_shape_trans_ex`） |
 | `Halcon_Ransac.def` | 1 | 算法在 `cvr_core`（`ransac::ransac_run`） |
 | `Halcon_OpenCV.def` | 43 | 直接写在 supply（`cv::`）；唯一例外 `cv_measure_*` 复用 `cvr::cvr_measure_pos` |
 | `Halcon_Math` / `Sqlite` / `Modbus` / `Spdlog` / `Mysql` | 11/5/14/20/3 | 直接写在 supply（muparser+Eigen+armadillo / sqlite3 / libmodbus / spdlog / libmysql） |
@@ -263,7 +268,7 @@ hrun -P script.hdev    # pedantic：列出「无效程序行」行号——定�
 | **有流程**：多步算法 / 几何-数值核心、需与 HALCON 口径逐值对齐、会被多个算子复用、需要独立单测 | **先做进 `cv_region` 静态库**（加进 `cvr_core`），再封装 | `cv_shape_trans`（最小外接矩形→角点→栅格化）、`cv_region_features`（特征公式表）、`cv_select_shape`、`cv_gen_rectangle2`、`cv_measure_*`（1D 边缘流水线）、`cv_ransac_fit`（迭代拟合 + LM） |
 | **无流程单算子**：薄映射，一次库调用 | **直接写进扩展包 supply**，不动 `cv_region` | `cv_add`/`cv_subtract`/`cv_multiply`/`cv_divide`（各一次 `cv::`）、`cv_spdlog_*`、`cv_sqlite_*`、`cv_modbus_*`、`cv_mysql_*`、`cv_math_*` |
 
-> ⚠️ 进 `cvr_core` 的代码只能用 **STL + Eigen + muparser**（库的既有依赖，PUBLIC 链出）。依赖 OpenCV 的流程写成 `cvr.hpp`/`cvr.cpp` 末尾 `#ifdef CVR_WITH_OPENCV` 段里的函数（该宏在扩展包构建下默认不开），或留在 supply。
+> ⚠️ 进 `cvr_core` 的代码只能用 **STL + Eigen**（库的既有依赖，PUBLIC 链出；Eigen 是 header-only）。依赖 OpenCV 的流程写成 `cvr.hpp`/`cvr.cpp` 末尾 `#ifdef CVR_WITH_OPENCV` 段里的函数（该宏在扩展包构建下默认不开），或留在 supply。
 
 **A. 有流程算子 → 做进 cv_region 静态库（先做这步，再封装）**
 1. `cv_region/include/cvr/cvr.hpp` 的**对应段落**加声明（注释写清对应的 HALCON 算子 + 已知口径差异）。

@@ -22,7 +22,7 @@
  *   1. 新增算子/函数直接加进本文件对应段落，**非必要不要新建文件**；
  *   2. 不在这里写内部 include：内部依赖已折叠（model_expression.h / optimizer.h /
  *      ransac_core.h 的声明在 cvr.hpp）；
- *   3. 编译依赖：STL + Eigen + muparser（io 段额外需要 OpenCV，见 CVR_WITH_OPENCV）；
+ *   3. 编译依赖：STL + Eigen（cv_shape_trans_ex 段用；io 段额外需要 OpenCV，见 CVR_WITH_OPENCV）；
  *   4. 本 TU 较大，改一处会整文件重编（这是单文件的既定代价）。
  *===========================================================================*/
 
@@ -52,6 +52,10 @@
 #include <condition_variable>
 #include <functional>
 #include <queue>
+
+/* Eigen：仅 cv_shape_trans_ex 段使用（2x2 相似变换 SVD + 最小二乘）。
+   Eigen 是 header-only 库，无 .lib/.dll，依赖声明见 cv_region/CMakeLists.txt。 */
+#include <Eigen/Dense>
 
 /*===========================================================================
  * region 本体
@@ -1903,13 +1907,16 @@ struct CvrRunFg {
 //! 起点须为「该环最上最左」的轮廓像素；跟踪经过的 run 起点在 visitedRun 上打标。
 //! length = 加权长度（水平/垂直步 1、对角步 sqrt(2)）；signed_area = 鞋带和
 //! （外轮廓与孔洞符号相反，用于排除孔洞）。
+//! ptsOut 非空时输出该环的**有序轮廓点序**（边界像素中心，首尾不重复）。
 //! 超过 guardMax 步仍未闭合则返回 false（未 normalize 输入的保护）。
 bool cvr_trace_cycle(const CvrRunFg& fg, CvrCoord sr, CvrCoord sc,
                      std::vector<char>& visitedRun, size_t guardMax,
-                     double& length, double& signed_area)
+                     double& length, double& signed_area,
+                     std::vector<std::pair<double, double>>* ptsOut = nullptr)
 {
     length = 0.0;
     signed_area = 0.0;
+    if (ptsOut) ptsOut->clear();
 
     auto mark = [&](CvrCoord r, CvrCoord c) {
         const size_t k = fg.find_run(r, c);
@@ -1923,6 +1930,7 @@ bool cvr_trace_cycle(const CvrRunFg& fg, CvrCoord sr, CvrCoord sc,
         if (fg.fg(sr + kDr8[d], sc + kDc8[d])) { d1 = d; break; }
     }
     mark(sr, sc);
+    if (ptsOut) ptsOut->push_back({(double)sr, (double)sc});
     if (d1 < 0) return true;                          // 孤立像素：轮廓退化为一点，长 0
 
     const CvrCoord b1r = sr + kDr8[d1];              // 第一个后继（Jacob 判据用）
@@ -1934,6 +1942,7 @@ bool cvr_trace_cycle(const CvrRunFg& fg, CvrCoord sr, CvrCoord sc,
     length += (kDr8[d1] != 0 && kDc8[d1] != 0) ? kSqrt2 : 1.0;
     signed_area += (double)sc * (double)b1r - (double)b1c * (double)sr;
     mark(b1r, b1c);
+    if (ptsOut) ptsOut->push_back({(double)b1r, (double)b1c});
 
     size_t steps = 0;
     for (;;) {
@@ -1952,6 +1961,8 @@ bool cvr_trace_cycle(const CvrRunFg& fg, CvrCoord sr, CvrCoord sc,
         pc += dc;
         cd = (dn + 6) & 7;
         mark(pr, pc);
+        if (ptsOut && !(pr == sr && pc == sc))
+            ptsOut->push_back({(double)pr, (double)pc});
 
         if (pr == sr && pc == sc) {
             // Jacob 停止判据：回到起点、且下一步仍走向 b1 ⇒ 环闭合（避免在
@@ -3882,6 +3893,548 @@ bool cvr_shape_trans(const CvrRegion& r, const std::string& shape, CvrRegion& ou
         return false;
     }
 
+    return cvr_region_normalize(out);
+}
+
+/*===========================================================================
+ * cv_shape_trans_ex —— 用标准形状模板补全有缺失的提取形状（本库自定义算子）
+ *
+ * 算法参考（complete_custom_shape）：
+ *   extract_contour → resample → normalize → trimmed similarity ICP
+ *   → missing-segment detection → stitch → periodic cubic B-spline smoothing
+ * 依赖：仅 Eigen（2x2 相似变换 SVD + 最小二乘），见文件头 include。
+ *=========================================================================*/
+namespace {
+
+using P2 = std::pair<double, double>;   // (row, col)
+
+// ---- 取「最大面积外轮廓」的有序点序（Moore 边界跟踪，忽略孔洞） ----
+//   失败时 cvr_last_error 已写好（空区域 / 多连通 / runs 未 normalize）。
+bool outer_contour_points(const CvrRegion& r, std::vector<P2>& pts)
+{
+    pts.clear();
+    if (r.runs.empty()) {
+        cvr_set_last_error("cv_shape_trans_ex: empty input region");
+        return false;
+    }
+
+    CvrRunFg fg;
+    fg.build(r.runs);
+
+    CvrChords area = 0;
+    for (const auto& rr : r.runs) area += (CvrChords)(rr.ce - rr.cb + 1);
+    const size_t guardMax = (size_t)(8 * (area + (CvrChords)r.runs.size()) + 64);
+
+    std::vector<char> visitedRun(r.runs.size(), 0);
+    int outerCount = 0;
+    double bestArea = -1.0;
+    std::vector<P2> best;
+
+    for (size_t k = 0; k < r.runs.size(); ++k) {
+        if (visitedRun[k]) continue;
+        std::vector<P2> cyc;
+        double len = 0.0, sarea = 0.0;
+        if (!cvr_trace_cycle(fg, r.runs[k].r, r.runs[k].cb, visitedRun, guardMax,
+                             len, sarea, &cyc)) {
+            cvr_set_last_error("cv_shape_trans_ex: boundary trace did not close "
+                               "(region runs must be sorted & normalized)");
+            return false;
+        }
+        if (sarea > 0.0) {                     // 外轮廓（孔洞 sarea < 0）
+            ++outerCount;
+            if (sarea > bestArea) { bestArea = sarea; best.swap(cyc); }
+        }
+    }
+
+    if (outerCount == 0) {
+        cvr_set_last_error("cv_shape_trans_ex: no outer contour found");
+        return false;
+    }
+    if (outerCount > 1) {
+        cvr_set_last_error("cv_shape_trans_ex: input must have exactly one "
+                           "connected component");
+        return false;
+    }
+    pts.swap(best);
+    return true;
+}
+
+// ---- 闭合折线按弧长均匀重采样为 n 点（不含重复的首尾点） ----
+void resample_closed(const std::vector<P2>& pts, int n, std::vector<P2>& out)
+{
+    out.clear();
+    const size_t m = pts.size();
+    if (m == 0 || n <= 0) return;
+    if (m == 1) { out.assign((size_t)n, pts[0]); return; }
+
+    std::vector<double> s(m + 1, 0.0);
+    for (size_t i = 0; i < m; ++i) {
+        const P2& a = pts[i];
+        const P2& b = pts[(i + 1) % m];
+        s[i + 1] = s[i] + std::hypot(b.first - a.first, b.second - a.second);
+    }
+    const double total = s[m];
+    if (!(total > 0.0)) { out.assign((size_t)n, pts[0]); return; }
+
+    out.resize((size_t)n);
+    size_t seg = 0;
+    for (int k = 0; k < n; ++k) {
+        const double t = total * (double)k / (double)n;
+        while (seg + 1 < m && s[seg + 1] < t) ++seg;
+        const double d = s[seg + 1] - s[seg];
+        const double f = (d > 0.0) ? (t - s[seg]) / d : 0.0;
+        const P2& a = pts[seg];
+        const P2& b = pts[(seg + 1) % m];
+        out[(size_t)k] = { a.first + f * (b.first - a.first),
+                           a.second + f * (b.second - a.second) };
+    }
+}
+
+// ---- 去中心 + 单位 RMS 尺度归一化：out = (p - center) / scale ----
+void normalize_pts(const std::vector<P2>& p, std::vector<P2>& out,
+                   P2& center, double& scale)
+{
+    const size_t n = p.size();
+    out.assign(n, P2(0.0, 0.0));
+    center = P2(0.0, 0.0);
+    scale = 1.0;
+    if (n == 0) return;
+
+    double mr = 0.0, mc = 0.0;
+    for (const auto& q : p) { mr += q.first; mc += q.second; }
+    mr /= (double)n; mc /= (double)n;
+    center = P2(mr, mc);
+
+    double ss = 0.0;
+    for (size_t i = 0; i < n; ++i) {
+        const double dr = p[i].first - mr;
+        const double dc = p[i].second - mc;
+        out[i] = { dr, dc };
+        ss += dr * dr + dc * dc;
+    }
+    scale = std::sqrt(ss / (double)n);
+    if (!(scale > 0.0)) { scale = 1.0; return; }
+    for (auto& q : out) { q.first /= scale; q.second /= scale; }
+}
+
+// ---- 相似变换最小二乘（Umeyama 2D）：dst ≈ s * R * src + t（含各向同性缩放） ----
+bool estimate_similarity(const std::vector<P2>& src, const std::vector<P2>& dst,
+                         double& s, Eigen::Matrix2d& R, Eigen::Vector2d& t)
+{
+    const size_t n = src.size();
+    if (n < 2) return false;
+
+    Eigen::Vector2d ms = Eigen::Vector2d::Zero(), md = Eigen::Vector2d::Zero();
+    for (size_t i = 0; i < n; ++i) {
+        ms += Eigen::Vector2d(src[i].first, src[i].second);
+        md += Eigen::Vector2d(dst[i].first, dst[i].second);
+    }
+    ms /= (double)n; md /= (double)n;
+
+    Eigen::Matrix2d cov = Eigen::Matrix2d::Zero();
+    double var = 0.0;
+    for (size_t i = 0; i < n; ++i) {
+        const Eigen::Vector2d a(src[i].first - ms(0), src[i].second - ms(1));
+        const Eigen::Vector2d b(dst[i].first - md(0), dst[i].second - md(1));
+        cov += b * a.transpose();
+        var += a.squaredNorm();
+    }
+    cov /= (double)n;
+    var /= (double)n;
+    if (!(var > 0.0)) return false;
+
+    Eigen::JacobiSVD<Eigen::Matrix2d> svd(cov, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    const Eigen::Matrix2d U = svd.matrixU();
+    const Eigen::Matrix2d V = svd.matrixV();
+    const Eigen::Vector2d D = svd.singularValues();
+    Eigen::Matrix2d S = Eigen::Matrix2d::Identity();
+    if (U.determinant() * V.determinant() < 0.0) S(1, 1) = -1.0;
+    R = U * S * V.transpose();
+    s = (D(0) * S(0, 0) + D(1) * S(1, 1)) / var;
+    t = md - s * R * ms;
+    return true;
+}
+
+// ---- 均匀栅格最近邻（点在闭合曲线上近似均匀 ⇒ 每格点数很少） ----
+class GridNN {
+public:
+    void build(const std::vector<P2>& pts) {
+        m_pts = &pts;
+        const size_t n = pts.size();
+        if (n == 0) {
+            grid.assign(1, {});
+            rows = cols = 1; cell = 1.0; minR = minC = 0.0;
+            return;
+        }
+        minR = minC = 1e30; maxR = maxC = -1e30;
+        for (const auto& p : pts) {
+            if (p.first  < minR) minR = p.first;
+            if (p.first  > maxR) maxR = p.first;
+            if (p.second < minC) minC = p.second;
+            if (p.second > maxC) maxC = p.second;
+        }
+        const double span = std::max(maxR - minR, maxC - minC);
+        cell = span > 0.0 ? span / std::max(1.0, std::sqrt((double)n)) : 1.0;
+        if (!(cell > 0.0)) cell = 1.0;
+        computeDims();
+        while ((int64_t)rows * cols > 4000000) {   // 极端长条兜底：放大格边
+            cell *= 2.0;
+            computeDims();
+        }
+        grid.assign((size_t)rows * (size_t)cols, {});
+        for (size_t i = 0; i < n; ++i)
+            grid[(size_t)cellRow(pts[i].first) * (size_t)cols
+                 + (size_t)cellCol(pts[i].second)].push_back(i);
+    }
+
+    // 最近邻：返回欧氏距离与下标（bestI 保持 SIZE_MAX 表示未找到）
+    void query(double r, double c, double& bestD, size_t& bestI) const {
+        bestD = 1e30;
+        bestI = SIZE_MAX;
+        const int cr = cellRow(r), cc = cellCol(c);
+        const int maxRing = rows + cols;
+        for (int ring = 0; ring <= maxRing; ++ring) {
+            // 环 ring 内最近可能距离 >= (ring-1)*cell（保守）⇒ 可提前停
+            if (bestI != SIZE_MAX && ring >= 2 && (double)(ring - 1) * cell > bestD)
+                break;
+            for (int rr = cr - ring; rr <= cr + ring; ++rr) {
+                if (rr < 0 || rr >= rows) continue;
+                const bool fullRow = (rr != cr - ring) && (rr != cr + ring);
+                for (int ccx = cc - ring; ccx <= cc + ring; ++ccx) {
+                    if (ccx < 0 || ccx >= cols) continue;
+                    if (ring > 0 && fullRow && ccx != cc - ring && ccx != cc + ring)
+                        continue;                   // 只扫环的边界
+                    for (size_t idx : grid[(size_t)rr * (size_t)cols + (size_t)ccx]) {
+                        const P2& p = (*m_pts)[idx];
+                        const double d = std::hypot(p.first - r, p.second - c);
+                        if (d < bestD) { bestD = d; bestI = idx; }
+                    }
+                }
+            }
+        }
+    }
+
+private:
+    void computeDims() {
+        rows = std::max(1, (int)std::floor((maxR - minR) / cell) + 1);
+        cols = std::max(1, (int)std::floor((maxC - minC) / cell) + 1);
+    }
+    int cellRow(double r) const {
+        int v = (int)std::floor((r - minR) / cell);
+        return v < 0 ? 0 : (v >= rows ? rows - 1 : v);
+    }
+    int cellCol(double c) const {
+        int v = (int)std::floor((c - minC) / cell);
+        return v < 0 ? 0 : (v >= cols ? cols - 1 : v);
+    }
+
+    const std::vector<P2>* m_pts = nullptr;
+    std::vector<std::vector<size_t>> grid;
+    int rows = 1, cols = 1;
+    double cell = 1.0, minR = 0.0, minC = 0.0, maxR = 0.0, maxC = 0.0;
+};
+
+// ---- Trimmed 相似 ICP：每轮只用距离最小的 trim_ratio 比例点求变换 ----
+std::vector<P2> trimmed_sim_icp(const std::vector<P2>& src, const GridNN& nnDst,
+                                const std::vector<P2>& dst,
+                                double trim_ratio, int maxIter, double tol)
+{
+    std::vector<P2> cur = src;
+    const size_t n = cur.size();
+    if (n == 0) return cur;
+
+    size_t keepN = (size_t)std::llround((double)n * trim_ratio);
+    if (keepN < 10) keepN = std::min<size_t>(10, n);
+    if (keepN > n)  keepN = n;
+
+    std::vector<double> d(n, 0.0);
+    std::vector<size_t> idx(n, 0), order(n, 0);
+    double prevErr = std::numeric_limits<double>::infinity();
+
+    for (int it = 0; it < maxIter; ++it) {
+        for (size_t i = 0; i < n; ++i)
+            nnDst.query(cur[i].first, cur[i].second, d[i], idx[i]);
+
+        std::iota(order.begin(), order.end(), 0);
+        std::partial_sort(order.begin(), order.begin() + (ptrdiff_t)keepN, order.end(),
+                          [&](size_t a, size_t b) { return d[a] < d[b]; });
+
+        std::vector<P2> a(keepN), b(keepN);
+        double err = 0.0;
+        for (size_t j = 0; j < keepN; ++j) {
+            const size_t i = order[j];
+            a[j] = cur[i];
+            b[j] = dst[idx[i]];
+            err += d[i];
+        }
+        err /= (double)keepN;
+
+        if (std::fabs(prevErr - err) < tol) break;
+        prevErr = err;
+
+        double s;
+        Eigen::Matrix2d R;
+        Eigen::Vector2d t;
+        if (!estimate_similarity(a, b, s, R, t)) break;
+        for (size_t i = 0; i < n; ++i) {
+            const Eigen::Vector2d q =
+                s * (R * Eigen::Vector2d(cur[i].first, cur[i].second)) + t;
+            cur[i] = { q(0), q(1) };
+        }
+    }
+    return cur;
+}
+
+// ---- 环形连续段滤波：把短于 minLen 的「未覆盖」段回填为「已覆盖」----
+void ring_filter_short_gaps(std::vector<char>& covered, int minLen, int passes)
+{
+    const size_t n = covered.size();
+    if (n == 0 || minLen <= 0) return;
+    for (int p = 0; p < passes; ++p) {
+        std::vector<char> nxt = covered;
+        size_t i = 0;
+        while (i < n) {
+            if (covered[i]) { ++i; continue; }
+            size_t len = 0;                              // 环形连续「未覆盖」长度
+            while (len < n && !covered[(i + len) % n]) ++len;
+            if ((int)len < minLen)
+                for (size_t k = 0; k < len; ++k) nxt[(i + k) % n] = 1;
+            i += len;
+        }
+        covered.swap(nxt);
+    }
+}
+
+// ---- 周期三次 B 样条平滑（残差平方和上限语义，对齐 scipy splprep 的 s） ----
+//   控制点数 nc = clamp(m/4, 16, 256)；均匀参数 u_i = i/m、均匀节点间距 1/nc。
+//   最小化 ||A C - P||^2 + lam * ||D C||^2（D = 周期二阶差分），取使 RSS(lam) = s 的 lam；
+//   s <= 0 或最小二乘残差已 >= s（控制点数不足以贴合）时退化为 lam = 0。
+void periodic_spline_smooth(const std::vector<P2>& pts, double s,
+                            std::vector<P2>& out)
+{
+    out = pts;
+    const int m = (int)pts.size();
+    if (m < 12) return;
+
+    int nc = m / 4;
+    if (nc < 16) nc = 16;
+    if (nc > 256) nc = 256;
+
+    const double h = 1.0 / (double)nc;
+    Eigen::MatrixXd A = Eigen::MatrixXd::Zero(m, nc);
+    for (int i = 0; i < m; ++i) {
+        const double x = ((double)i / (double)m) / h;      // 参数 / 节点间距
+        const int j0 = (int)std::floor(x) - 2;
+        for (int j = j0; j <= j0 + 4; ++j) {
+            const double t = x - (double)j;
+            const double at = std::fabs(t);
+            double b = 0.0;                                // 均匀三次 B 样条基
+            if (at < 1.0)      b = (1.0 / 6.0) * (4.0 - 6.0 * at * at + 3.0 * at * at * at);
+            else if (at < 2.0) { const double u = 2.0 - at; b = (1.0 / 6.0) * u * u * u; }
+            if (b != 0.0) A(i, ((j % nc) + nc) % nc) += b;
+        }
+    }
+
+    const Eigen::MatrixXd AtA = A.transpose() * A;
+    Eigen::MatrixXd P(m, 2);
+    for (int i = 0; i < m; ++i) { P(i, 0) = pts[i].first; P(i, 1) = pts[i].second; }
+    const Eigen::MatrixXd AtP = A.transpose() * P;
+
+    Eigen::MatrixXd D = Eigen::MatrixXd::Zero(nc, nc);
+    for (int j = 0; j < nc; ++j) {
+        D(j, j) = -2.0;
+        D(j, (j + 1) % nc) = 1.0;
+        D(j, (j - 1 + nc) % nc) = 1.0;
+    }
+    const Eigen::MatrixXd DtD = D.transpose() * D;
+
+    Eigen::MatrixXd C;
+    auto solveAt = [&](double lam, double& rss) {
+        const Eigen::MatrixXd M = AtA + lam * DtD;
+        C = M.ldlt().solve(AtP);
+        rss = (A * C - P).squaredNorm();
+    };
+
+    double rss0 = 0.0;
+    solveAt(0.0, rss0);
+    if (s > 0.0 && rss0 < s) {
+        double lo = 0.0, hi = 1.0, rssHi = 0.0;
+        solveAt(hi, rssHi);
+        for (int g = 0; g < 60 && rssHi < s; ++g) { hi *= 4.0; solveAt(hi, rssHi); }
+        if (rssHi >= s) {
+            for (int it = 0; it < 50; ++it) {
+                const double mid = 0.5 * (lo + hi);
+                double rssM = 0.0;
+                solveAt(mid, rssM);
+                if (rssM < s) lo = mid; else hi = mid;
+            }
+            double rssF = 0.0;
+            solveAt(hi, rssF);
+        }
+        // rssHi < s（极大 lam 仍贴合）→ 保留最后一次结果（近似常数曲线）
+    }
+
+    const Eigen::MatrixXd F = A * C;
+    for (int i = 0; i < m; ++i) out[(size_t)i] = { F(i, 0), F(i, 1) };
+}
+
+// ---- 任意简单（可非凸）多边形 -> runs ----
+//   口径与 runs_from_convex_polygon 一致：像素方格 [r,r+1)x[c,c+1)，行/列取 floor；
+//   交叉点按偶奇规则成对填充；该行只与顶点/水平边相切时取这些顶点的列跨度。
+void runs_from_simple_polygon(const std::vector<P2>& poly, CvrRegion& out)
+{
+    out.runs.clear();
+    const size_t n = poly.size();
+    if (n < 3) return;
+
+    double minR = poly[0].first, maxR = poly[0].first;
+    for (const auto& p : poly) {
+        if (p.first < minR) minR = p.first;
+        if (p.first > maxR) maxR = p.first;
+    }
+    const CvrCoord rBegin = (CvrCoord)std::floor(minR);
+    const CvrCoord rEnd   = (CvrCoord)std::floor(maxR);
+
+    std::vector<double> xs;
+    for (CvrCoord rr = rBegin; rr <= rEnd; ++rr) {
+        const double y = (double)rr;
+        xs.clear();
+        for (size_t i = 0; i < n; ++i) {
+            const P2& a = poly[i];
+            const P2& b = poly[(i + 1) % n];
+            if ((a.first <= y && b.first > y) || (b.first <= y && a.first > y)) {
+                const double t = (y - a.first) / (b.first - a.first);
+                xs.push_back(a.second + t * (b.second - a.second));
+            }
+        }
+        if (xs.size() < 2) {
+            double lo = 1e30, hi = -1e30;
+            bool hit = false;
+            for (const auto& p : poly) {
+                if (std::fabs(p.first - y) <= 1e-9) {
+                    if (p.second < lo) lo = p.second;
+                    if (p.second > hi) hi = p.second;
+                    hit = true;
+                }
+            }
+            if (!hit) continue;
+            xs.clear();
+            xs.push_back(lo);
+            xs.push_back(hi);
+        }
+        std::sort(xs.begin(), xs.end());
+        for (size_t k = 0; k + 1 < xs.size(); k += 2) {
+            CvrCoord cb = (CvrCoord)std::floor(xs[k]);
+            CvrCoord ce = (CvrCoord)std::floor(xs[k + 1]);
+            if (ce < cb) ce = cb;
+            out.runs.push_back({ rr, cb, ce });
+        }
+    }
+}
+
+} // namespace
+
+bool cvr_shape_trans_ex(const CvrRegion& standard, const CvrRegion& partial,
+                        const CvrShapeTransExOptions& opt,
+                        CvrRegion& out, double& coverage)
+{
+    cvr_clear_last_error();
+    out.runs.clear();
+    out.is_compl = false;
+    coverage = 0.0;
+
+    if (opt.n_samples < 8) {
+        cvr_set_last_error("cv_shape_trans_ex: n_samples must be >= 8");
+        return false;
+    }
+    if (!(opt.trim_ratio > 0.0 && opt.trim_ratio <= 1.0)) {
+        cvr_set_last_error("cv_shape_trans_ex: trim_ratio must be in (0, 1]");
+        return false;
+    }
+    if (!(opt.dist_ratio > 0.0)) {
+        cvr_set_last_error("cv_shape_trans_ex: dist_ratio must be > 0");
+        return false;
+    }
+    if (opt.min_len < 0) {
+        cvr_set_last_error("cv_shape_trans_ex: min_len must be >= 0");
+        return false;
+    }
+    if (opt.smooth_s < 0.0) {
+        cvr_set_last_error("cv_shape_trans_ex: smooth_s must be >= 0");
+        return false;
+    }
+
+    std::vector<P2> cStd, cPar;
+    if (!outer_contour_points(standard, cStd)) return false;
+    if (!outer_contour_points(partial,  cPar)) return false;
+    if (cStd.size() < 3 || cPar.size() < 3) {
+        cvr_set_last_error("cv_shape_trans_ex: contour has fewer than 3 points");
+        return false;
+    }
+
+    const int n = opt.n_samples;
+    std::vector<P2> stdRs, parRs;
+    resample_closed(cStd, n, stdRs);
+    resample_closed(cPar, n, parRs);
+
+    std::vector<P2> stdN, parN;
+    P2 cStdC, cParC;
+    double stdS = 1.0, parS = 1.0;
+    normalize_pts(stdRs, stdN, cStdC, stdS);
+    normalize_pts(parRs, parN, cParC, parS);
+
+    GridNN nnParN;
+    nnParN.build(parN);
+    const std::vector<P2> stdAlignedN =
+        trimmed_sim_icp(stdN, nnParN, parN, opt.trim_ratio, 200, 1e-8);
+
+    // 变换回 partial 的原始坐标系
+    std::vector<P2> stdAligned((size_t)n);
+    for (int i = 0; i < n; ++i)
+        stdAligned[(size_t)i] = { stdAlignedN[(size_t)i].first  * parS + cParC.first,
+                                  stdAlignedN[(size_t)i].second * parS + cParC.second };
+
+
+    // 参考包围盒对角线 → 缺失判定阈值
+    double minR = parRs[0].first,  maxR = parRs[0].first;
+    double minC = parRs[0].second, maxC = parRs[0].second;
+    for (const auto& p : parRs) {
+        if (p.first  < minR) minR = p.first;
+        if (p.first  > maxR) maxR = p.first;
+        if (p.second < minC) minC = p.second;
+        if (p.second > maxC) maxC = p.second;
+    }
+    const double thresh = opt.dist_ratio * std::hypot(maxR - minR, maxC - minC);
+
+    GridNN nnPar;
+    nnPar.build(parRs);
+    std::vector<char> covered((size_t)n, 0);
+    std::vector<size_t> nnIdx((size_t)n, 0);
+    for (int i = 0; i < n; ++i) {
+        double d = 0.0;
+        nnPar.query(stdAligned[(size_t)i].first, stdAligned[(size_t)i].second,
+                    d, nnIdx[(size_t)i]);
+        covered[(size_t)i] = (d < thresh) ? 1 : 0;
+    }
+    ring_filter_short_gaps(covered, opt.min_len, 3);
+
+    size_t nCov = 0;
+    for (int i = 0; i < n; ++i) if (covered[(size_t)i]) ++nCov;
+    coverage = (double)nCov / (double)n;
+
+    // 拼接：已观测段用 partial 的真实点，缺失段用对齐后的模板点
+    std::vector<P2> completed = stdAligned;
+    for (int i = 0; i < n; ++i)
+        if (covered[(size_t)i]) completed[(size_t)i] = parRs[nnIdx[(size_t)i]];
+
+    std::vector<P2> smoothed;
+    periodic_spline_smooth(completed, opt.smooth_s, smoothed);
+
+    runs_from_simple_polygon(smoothed, out);
+    if (out.runs.empty()) {
+        cvr_set_last_error("cv_shape_trans_ex: rasterization produced an empty region");
+        return false;
+    }
     return cvr_region_normalize(out);
 }
 

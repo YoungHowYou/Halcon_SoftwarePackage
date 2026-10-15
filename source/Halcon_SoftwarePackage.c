@@ -704,6 +704,11 @@ Herror CHcv_shape_trans(Hproc_handle proc_handle)
     return Hcv_shape_trans(proc_handle);
 }
 
+Herror CHcv_shape_trans_ex(Hproc_handle proc_handle)
+{
+    return Hcv_shape_trans_ex(proc_handle);
+}
+
 Herror CHcv_region_to_bin(Hproc_handle proc_handle)
 {
     return Hcv_region_to_bin(proc_handle);

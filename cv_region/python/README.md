@@ -58,7 +58,7 @@ pip wheel  ./cv_region/python -w dist
    `cvr_dilation1/erosion1/opening/closing/fill_up`、`cvr_feature_*`、`cvr_get_feature`、
    `cvr_region_features`、`cvr_feature_mask_name/parse`、`cvr_region_precompute_features`、
    `cvr_gray_feature/gray_features`、`cvr_bin_to_region/region_to_bin`、
-   `cvr_shape_trans`、`cvr_select_shape/select_shape_single`、`cvr_last_error`。
+   `cvr_shape_trans`、`cvr_shape_trans_ex`、`cvr_select_shape/select_shape_single`、`cvr_last_error`。
 
 2. **`Region` 方法**：方法名 = 函数名去掉 `cvr_` 以及紧随的 `region_` / `feature_` 前缀
    （它们已经是 `Region` 的方法了）：
@@ -71,7 +71,7 @@ pip wheel  ./cv_region/python -w dist
    `contlength()`、`convexity()`、`smallest_rectangle1/2()`、`smallest_circle()`、
    `compactness()`、`circularity()`、`rectangularity()`、`get_feature(name)`、
    `precompute_features(mask)`、`gray_feature(...)`、`gray_features(...)`、
-   `shape_trans(shape)`、`to_bin(w,h,gray,depth,fg,bg)`。
+   `shape_trans(shape)`、`shape_trans_ex(standard, ...)`、`to_bin(w,h,gray,depth,fg,bg)`。
 
 3. **Pythonic 便捷方法**（非 1:1，纯糖）：
 
@@ -118,6 +118,13 @@ RuntimeError: cvr_get_feature: unknown feature name: no_such_feature
 |---|---|---|
 | `contlength` | HALCON `'center'` 轮廓：轮廓点 = **边界像素中心**，沿轴 1 / 对角 √2，**孔洞不计**，空区域 0 | 51×81 实心矩形 = **260**（与 HALCON 实测一致）；8×8 = 28；转置不变 |
 | `shape_trans("convex")` | 走与 HALCON 一致的多边形栅格器（像素方格 `[r,r+1)×[c,c+1)`，行取 `floor`） | `convex ⊇ 原区域`；轴对齐档逐像素一致 |
+
+> **`shape_trans_ex`**（本库自定义，无 HALCON 对应）：用**标准形状模板**补全**有缺失的提取形状**
+> （各自取最大外轮廓 → 弧长重采样 → 归一化 → Trimmed 相似 ICP → 环形缺失段检测 → 拼接 → 周期三次 B 样条平滑 → 栅格化）。
+> 返回 `(Region, coverage)`，`coverage` = 模板轮廓被观测覆盖的比例。两个输入必须各恰好一个连通分量。
+> 参数与 `cvr_shape_trans_ex` 的 `(n_samples, trim_ratio, dist_ratio, min_len, smooth_s)` 一一对应，
+> 默认 `1000 / 0.65 / 0.04 / 20 / 8.0`；`smooth_s` 是残差平方和上限（对齐 scipy `splprep` 的 `s`）。
+> 缺失比例过大（≳ 一半）时因归一化偏置会偏小（详见仓库根 `README.md` 的 `cv_shape_trans_ex` 小节）。
 
 > `gen_contour_region_xld` 原文：“for diagonal border elements `'border'` uses two contour
 > segments of length 1 each, whereas `'center'` uses a single segment of length √2” ——

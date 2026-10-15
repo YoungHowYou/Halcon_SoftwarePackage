@@ -33,6 +33,7 @@
 #include <cmath>
 #include <cstring>
 #include <cstdint>
+#include <limits>   // std::numeric_limits（cv_divide 的除零 / 非有限值保护）
 #include <exiv2/exiv2.hpp>
 #include "Halcon_SoftwarePackage.h"
 
@@ -2075,6 +2076,32 @@ static int arith_kind_of_depth(int depth)
 
 enum CvArithOp { CvArithAdd = 0, CvArithSub, CvArithMul, CvArithDiv };
 
+/* cv_divide / cv_divide_masked 的除零保护（算子级统一口径，2026-10-13）
+ *   OpenCV 的 cv::divide：整型输出除零得 0，但浮点输出是 IEEE 语义（±inf / NaN）。
+ *   本包口径：**除数为 0 时输出 0，且输出中不出现 inf/NaN**。
+ *     ① 除数 == 0 的像素 -> 0（所有类型都显式做，不依赖 cv::divide 在整型上的兜底）
+ *     ② 浮点输出中残余的 NaN / ±inf（被除数为 NaN、或数值上溢）也置 0
+ *   调用时机：cv::divide 之后。带掩膜的版本必须在「掩膜拷回」之前调用，
+ *   否则会把掩膜外本应保留的 imageA 原值一并清成 0。 */
+static void divide_guard(const cv::Mat& divisor, cv::Mat& dst)
+{
+    // ① 除数为 0 -> 0
+    dst.setTo(0.0, (divisor == 0));
+
+    // ② 浮点输出：残余的 NaN / ±inf -> 0，保证输出永不出现 inf/NaN
+    if (dst.depth() == CV_32F)
+    {
+        cv::Mat bad = (dst != dst);                       // NaN：唯一自身不相等的值
+        const cv::Mat absDst = cv::abs(dst);
+        cv::Mat infMask;
+        // 阈值取 float 最大值（转成 float 后仍有限，不会把比较退化成 |x| > inf 的假值）
+        cv::compare(absDst, cv::Scalar(std::numeric_limits<float>::max()),
+                    infMask, cv::CMP_GT);                 // ±inf
+        cv::bitwise_or(bad, infMask, bad);
+        dst.setTo(0.0, bad);
+    }
+}
+
 /* 四个算子的公共实现。scale_par 传 0 表示该算子没有 scale 参数。
  * 注意：字符串枚举参数的 temp memory 由调用方（各 HC 入口）HAllocStringMem 分配。 */
 static Herror cv_arith_impl(Hproc_handle proc_handle, int op, bool with_mask,
@@ -2148,6 +2175,8 @@ static Herror cv_arith_impl(Hproc_handle proc_handle, int op, bool with_mask,
             case CvArithMul: cv::multiply(imageA, imageB, imageOut, scale, dtype); break;
             default:         cv::divide(imageA, imageB, imageOut, scale, dtype); break;
             }
+            // 除零保护：除数为 0 -> 0，且不残留 inf/NaN
+            if (op == CvArithDiv) divide_guard(imageB, imageOut);
         }
         else
         {
@@ -2160,6 +2189,8 @@ static Herror cv_arith_impl(Hproc_handle proc_handle, int op, bool with_mask,
             case CvArithMul: cv::multiply(imageA, imageB, tmp, scale, dtype); break;
             default:         cv::divide(imageA, imageB, tmp, scale, dtype); break;
             }
+            // 除零保护放在掩膜拷回之前：掩膜外仍保持 imageA 原值
+            if (op == CvArithDiv) divide_guard(imageB, tmp);
             if (outType == inType) imageA.copyTo(imageOut);
             else                   imageA.convertTo(imageOut, outType);
             cv::Mat imageMask(inMask.height, inMask.width, CV_8UC1, (void*)inMask.pixel.b);

@@ -49,6 +49,12 @@ pybind11_add_module(_cvr
 
 target_include_directories(_cvr PRIVATE "${CVR_ROOT}/include")
 
+# cvr.cpp 现在 include <Eigen/Dense>（cv_shape_trans_ex 段）→ 需要 Eigen 头。
+# Eigen 是 header-only：只需 include 路径，无链接产物；本机可直接从 vcpkg 树拿到
+#（构建时用 -DCMAKE_PREFIX_PATH=<repo>/build/vcpkg_installed/x64-windows 或 vcpkg 工具链）。
+find_package(Eigen3 CONFIG REQUIRED)
+target_link_libraries(_cvr PRIVATE Eigen3::Eigen)
+
 # 源文件含中文注释与 docstring：MSVC 必须按 UTF-8 解析（source）并输出 UTF-8（execution），
 # 否则 docstring 会按系统代码页(GBK)落到字节码里，Python 侧读到乱码。
 target_compile_options(_cvr PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.3.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>* cv_shape_trans_ex 例程：用「标准形状模板」补全「有缺失的提取形状」</l>
+<l>*   例 1（合成、可精确断言）：圆盘模板 + 缺一个象限的圆盘 → 补全后面积回到模板附近</l>
+<l>*   例 2（真实图像）：printer_chip 阈值区域的凸包当模板，人为挖掉顶部一条再补全</l>
+<l>*   两个输入 region 必须各只有 1 个连通分量（多连通会报错）；Coverage = 模板轮廓被观测覆盖的比例</l>
+<l></l>
+<l>* ================= 例 1：缺一个象限的圆盘 =================</l>
+<l>gen_circle (StandardShape, 120, 120, 60)</l>
+<l>gen_circle (Circle2, 120, 120, 60)</l>
+<l>gen_rectangle1 (CutQuad, 0, 120, 119, 239)</l>
+<l>difference (Circle2, CutQuad, PartialShape)</l>
+<l>cv_shape_trans_ex (StandardShape, PartialShape, CompletedShape, 1000, 0.65, 0.04, 20, 8.0, Coverage)</l>
+<l>area_center (StandardShape, AStd, _, _)</l>
+<l>area_center (PartialShape, APart, _, _)</l>
+<l>area_center (CompletedShape, ACompleted, _, _)</l>
+<l>if (APart &gt; 0.8 * AStd)</l>
+<l>  throw ('case 1: PartialShape should be missing about a quadrant')</l>
+<l>endif</l>
+<l>if (abs(ACompleted - AStd) &gt; 0.03 * AStd)</l>
+<l>  throw ('case 1: completed area deviates from template by more than 3%: ' + ACompleted + ' vs ' + AStd)</l>
+<l>endif</l>
+<l>if (Coverage &lt; 0.70 or Coverage &gt; 0.90)</l>
+<l>  throw ('case 1: unexpected coverage ' + Coverage)</l>
+<l>endif</l>
+<l>* ---- 错误路径：多连通输入必须报错 ----</l>
+<l>gen_rectangle1 (TinyA, 0, 0, 2, 2)</l>
+<l>gen_rectangle1 (TinyB, 10, 0, 12, 2)</l>
+<l>union2 (TinyA, TinyB, TwoParts)</l>
+<l>try</l>
+<l>  cv_shape_trans_ex (TwoParts, PartialShape, DummyShape, 1000, 0.65, 0.04, 20, 8.0, DummyCoverage)</l>
+<l>  throw ('case 1: multi-component input should have failed')</l>
+<l>catch (Exception)</l>
+<l>endtry</l>
+<l></l>
+<l>* ================= 例 2：真实图像（凸包当模板，人为挖掉一个角块） =================</l>
+<l>read_image (Image, 'printer_chip/printer_chip_01')</l>
+<l>threshold (Image, BrightRegion, 128, 255)</l>
+<l>shape_trans (BrightRegion, TemplateShape, 'convex')</l>
+<l>smallest_rectangle1 (TemplateShape, TR1, TC1, TR2, TC2)</l>
+<l>gen_rectangle1 (CutChunk, TR1, TC1 + (TC2 - TC1) / 2, TR1 + (TR2 - TR1) / 3, TC2)</l>
+<l>difference (TemplateShape, CutChunk, PartialImageShape)</l>
+<l>cv_shape_trans_ex (TemplateShape, PartialImageShape, FixedShape, 1000, 0.65, 0.04, 20, 8.0, CoverageImg)</l>
+<l>area_center (TemplateShape, ATemplateImg, _, _)</l>
+<l>area_center (PartialImageShape, APartImg, _, _)</l>
+<l>area_center (FixedShape, AFixedImg, _, _)</l>
+<l>if (AFixedImg &lt;= APartImg)</l>
+<l>  throw ('case 2: completion did not restore the missing part')</l>
+<l>endif</l>
+<l>if (AFixedImg &lt; 0.95 * ATemplateImg)</l>
+<l>  throw ('case 2: completed area did not come back near the template: ' + AFixedImg + ' vs ' + ATemplateImg)</l>
+<l>endif</l>
+<l>if (AFixedImg &gt; 1.05 * ATemplateImg)</l>
+<l>  throw ('case 2: completed area grew beyond the template')</l>
+<l>endif</l>
+<l>if (CoverageImg &gt;= 0.98)</l>
+<l>  throw ('case 2: coverage suggests the missing part was not detected: ' + CoverageImg)</l>
+<l>endif</l>
+</body>
+</procedure>
+</hdevelop>

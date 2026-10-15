@@ -501,7 +501,7 @@ short.german
   Compute the per-element quotient of two images (OpenCV).;
 
 short.english
-  两图逐元素相除（整除，向零取整），对应 cv::divide：Out = saturate(Scale * A / B)，除零结果为 0。Scale 为乘性系数，默认 1.0。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 语义同 cv_add。;
+  两图逐元素相除，对应 cv::divide：Out = saturate(Scale * A / B)，除零结果为 0（real 图同样：除数为 0 或结果非有限（±inf/NaN）一律输出 0，不会出现 inf/NaN）。整数结果为四舍五入（非截断）：255/2=128、5/2=2。Scale 为乘性系数，默认 1.0。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 语义同 cv_add。;
 
 module
   foundation;
@@ -563,7 +563,7 @@ short.german
   Compute the per-element quotient of two images with mask (OpenCV).;
 
 short.english
-  带掩膜的逐元素相除：掩膜外像素保持 imageA 原值，掩膜内 Out = saturate(Scale * A / B)，除零结果为 0。Mask 为 byte 单通道图像（尺寸须与输入一致）。其余同 cv_divide。;
+  带掩膜的逐元素相除：掩膜外像素保持 imageA 原值，掩膜内 Out = saturate(Scale * A / B)，除零结果为 0（real 图同样：除数为 0 或结果非有限一律输出 0）。Mask 为 byte 单通道图像（尺寸须与输入一致）。其余同 cv_divide。;
 
 module
   foundation;

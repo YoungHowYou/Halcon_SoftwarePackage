@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_divide</span><span data-if="c" style="display:none;">cv_divide</span><span data-if="cpp" style="display:none;">CvDivide</span><span data-if="dotnet" style="display:none;">CvDivide</span><span data-if="python" style="display:none;">cv_divide</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_divide</span><span data-if="c" style="display:none;">cv_divide</span><span data-if="cpp" style="display:none;">CvDivide</span><span data-if="dotnet" style="display:none;">CvDivide</span><span data-if="python" style="display:none;">cv_divide</span></code> — 两图逐元素相除（整除，向零取整），对应 cv::divide：Out = saturate(Scale * A / B)，除零结果为 0。Scale 为乘性系数，默认 1.0。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 语义同 cv_add。</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_divide</span><span data-if="c" style="display:none;">cv_divide</span><span data-if="cpp" style="display:none;">CvDivide</span><span data-if="dotnet" style="display:none;">CvDivide</span><span data-if="python" style="display:none;">cv_divide</span></code> — 两图逐元素相除，对应 cv::divide：Out = saturate(Scale * A / B)，除零结果为 0（real 图同样：除数为 0 或结果非有限（±inf/NaN）一律输出 0，不会出现 inf/NaN）。整数结果为四舍五入（非截断）：255/2=128、5/2=2。Scale 为乘性系数，默认 1.0。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 语义同 cv_add。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>

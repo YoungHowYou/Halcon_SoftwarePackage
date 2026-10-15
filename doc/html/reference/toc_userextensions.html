@@ -1209,11 +1209,11 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="cv_divide.html"><code><span data-if="hdevelop" style="display:inline;">cv_divide</span><span data-if="dotnet" style="display:none;">CvDivide</span><span data-if="python" style="display:none;">cv_divide</span><span data-if="cpp" style="display:none;">CvDivide</span><span data-if="c" style="display:none;">cv_divide</span></code></a></dt>
-<dd>两图逐元素相除（整除，向零取整），对应 cv::divide：Out = saturate(Scale * A / B)，除零结果为 0。Scale 为乘性系数，默认 1.0。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 语义同 cv_add。</dd>
+<dd>两图逐元素相除，对应 cv::divide：Out = saturate(Scale * A / B)，除零结果为 0（real 图同样：除数为 0 或结果非有限（±inf/NaN）一律输出 0，不会出现 inf/NaN）。整数结果为四舍五入（非截断）：255/2=128、5/2=2。Scale 为乘性系数，默认 1.0。支持 byte/uint2/int4/real 单通道，两图类型尺寸须一致。Dtype 语义同 cv_add。</dd>
 </dl>
 <dl>
 <dt><a href="cv_divide_masked.html"><code><span data-if="hdevelop" style="display:inline;">cv_divide_masked</span><span data-if="dotnet" style="display:none;">CvDivideMasked</span><span data-if="python" style="display:none;">cv_divide_masked</span><span data-if="cpp" style="display:none;">CvDivideMasked</span><span data-if="c" style="display:none;">cv_divide_masked</span></code></a></dt>
-<dd>带掩膜的逐元素相除：掩膜外像素保持 imageA 原值，掩膜内 Out = saturate(Scale * A / B)，除零结果为 0。Mask 为 byte 单通道图像（尺寸须与输入一致）。其余同 cv_divide。</dd>
+<dd>带掩膜的逐元素相除：掩膜外像素保持 imageA 原值，掩膜内 Out = saturate(Scale * A / B)，除零结果为 0（real 图同样：除数为 0 或结果非有限一律输出 0）。Mask 为 byte 单通道图像（尺寸须与输入一致）。其余同 cv_divide。</dd>
 </dl>
 <dl>
 <dt><a href="cv_elliptic_axis.html"><code><span data-if="hdevelop" style="display:inline;">cv_elliptic_axis</span><span data-if="dotnet" style="display:none;">CvEllipticAxis</span><span data-if="python" style="display:none;">cv_elliptic_axis</span><span data-if="cpp" style="display:none;">CvEllipticAxis</span><span data-if="c" style="display:none;">cv_elliptic_axis</span></code></a></dt>
@@ -1416,6 +1416,10 @@ toggleLanguage(new_lang,1);return;}
 <dd>region 形状变换，对应 HALCON shape_trans。Type 支持 rectangle1 / rectangle2 / ellipse / outer_circle / convex，未实现 inner_circle 与 inner_rectangle1。生成的 region 以像素方格 [r,r+1)x[c,c+1) 为口径（行取 floor(min_row)..floor(max_row)）。rectangle2 为最小外接旋转矩形：轴对齐档与 HALCON 逐像素一致，倾斜档面积差 ≤5%（HALCON 边界栅格化略宽松）。convex 已于 2026-10-09 对齐 HALCON（轴对齐逐像素一致，倾斜档与 rectangle2 同口径，输出恒包含原区域）。ellipse / outer_circle 与 HALCON 的原生输出仍有明显面积偏差（见 README 的 cv_shape_trans 说明）。</dd>
 </dl>
 <dl>
+<dt><a href="cv_shape_trans_ex.html"><code><span data-if="hdevelop" style="display:inline;">cv_shape_trans_ex</span><span data-if="dotnet" style="display:none;">CvShapeTransEx</span><span data-if="python" style="display:none;">cv_shape_trans_ex</span><span data-if="cpp" style="display:none;">CvShapeTransEx</span><span data-if="c" style="display:none;">cv_shape_trans_ex</span></code></a></dt>
+<dd>自定义形状变换：用「标准形状模板」补全「有缺失的提取形状」（与 shape_trans 不同，目标形状由调用方给出）。流程 = 各自取最大面积外轮廓 → 按弧长均匀重采样 → 归一化 → Trimmed 相似 ICP 对齐（含各向同性缩放）→ 环形连续段缺失检测 → 拼接（已观测段用 PartialShape 的真实点、缺失段用对齐后的模板点）→ 周期三次 B 样条平滑 → 栅格化成 region。要求两个输入各恰好一个连通分量（多连通报错），空区域报错。输入对象须为 region，输出 region 以像素方格 [r,r+1)x[c,c+1) 为口径。NSamples 为轮廓重采样点数（默认 1000，&gt;= 8）；TrimRatio 为 Trimmed ICP 每轮保留的最远点比例（默认 0.65，范围 (0,1]，缺角越大应越小）；DistRatio 为缺失判定阈值系数（阈值 = DistRatio x PartialShape 包围盒对角线，默认 0.04）；MinLen 为最短缺失段长度（点数，默认 20，更短的连续缺失段按噪声回填为已观测）；SmoothS 为周期三次 B 样条平滑的残差平方和上限（语义对齐 scipy splprep 的 s，默认 8.0，0 表示尽量插值过点）。输出 Coverage 为模板轮廓被观测覆盖的比例 [0,1]（诊断用）。注意：缺失比例过大时（如超过一半）由于轮廓归一化的固有偏置，补全精度会下降</dd>
+</dl>
+<dl>
 <dt><a href="cv_sift_detect.html"><code><span data-if="hdevelop" style="display:inline;">cv_sift_detect</span><span data-if="dotnet" style="display:none;">CvSiftDetect</span><span data-if="python" style="display:none;">cv_sift_detect</span><span data-if="cpp" style="display:none;">CvSiftDetect</span><span data-if="c" style="display:none;">cv_sift_detect</span></code></a></dt>
 <dd>SIFT 特征检测与描述子计算，对应 cv::SIFT。输入 8 位单通道图像，输出 128 维浮点描述子。参数经 dict 键全开放（NFeatures/NOctaveLayers/ContrastThreshold/EdgeThreshold/Sigma）。</dd>
 </dl>
@@ -1496,6 +1500,46 @@ toggleLanguage(new_lang,1);return;}
 <dd>Singular value decomposition (JacobiSVD) using Eigen.</dd>
 </dl>
 <dl>
+<dt><a href="hdict_copy.html"><code><span data-if="hdevelop" style="display:inline;">hdict_copy</span><span data-if="dotnet" style="display:none;">HdictCopy</span><span data-if="python" style="display:none;">hdict_copy</span><span data-if="cpp" style="display:none;">HdictCopy</span><span data-if="c" style="display:none;">hdict_copy</span></code></a></dt>
+<dd>复制字典（hdict_core 的 copy_dict）。键值做值拷贝，子字典按共享处理（副本与原字典指向同一子字典）。源字典保持不变。</dd>
+</dl>
+<dl>
+<dt><a href="hdict_create.html"><code><span data-if="hdevelop" style="display:inline;">hdict_create</span><span data-if="dotnet" style="display:none;">HdictCreate</span><span data-if="python" style="display:none;">hdict_create</span><span data-if="cpp" style="display:none;">HdictCreate</span><span data-if="c" style="display:none;">hdict_create</span></code></a></dt>
+<dd>创建空的字典句柄（hdict_core 的 create_dict）。该句柄是扩展包自带的键值容器，与 HALCON 原生字典句柄相互独立；可存数值/字符串元组与子字典，内部读写线程安全。</dd>
+</dl>
+<dl>
+<dt><a href="hdict_get_keys.html"><code><span data-if="hdevelop" style="display:inline;">hdict_get_keys</span><span data-if="dotnet" style="display:none;">HdictGetKeys</span><span data-if="python" style="display:none;">hdict_get_keys</span><span data-if="cpp" style="display:none;">HdictGetKeys</span><span data-if="c" style="display:none;">hdict_get_keys</span></code></a></dt>
+<dd>取出全部键名（hdict_core 的 get_dict_param_keys），按字典序排列。</dd>
+</dl>
+<dl>
+<dt><a href="hdict_get_tuple.html"><code><span data-if="hdevelop" style="display:inline;">hdict_get_tuple</span><span data-if="dotnet" style="display:none;">HdictGetTuple</span><span data-if="python" style="display:none;">hdict_get_tuple</span><span data-if="cpp" style="display:none;">HdictGetTuple</span><span data-if="c" style="display:none;">hdict_get_tuple</span></code></a></dt>
+<dd>读出元组值（hdict_core 的 get_dict_tuple）。键不存在、或该键存的不是元组（是子字典）时抛错。</dd>
+</dl>
+<dl>
+<dt><a href="hdict_key_exists.html"><code><span data-if="hdevelop" style="display:inline;">hdict_key_exists</span><span data-if="dotnet" style="display:none;">HdictKeyExists</span><span data-if="python" style="display:none;">hdict_key_exists</span><span data-if="cpp" style="display:none;">HdictKeyExists</span><span data-if="c" style="display:none;">hdict_key_exists</span></code></a></dt>
+<dd>判断键是否存在（hdict_core 的 key_exists）。</dd>
+</dl>
+<dl>
+<dt><a href="hdict_key_kind.html"><code><span data-if="hdevelop" style="display:inline;">hdict_key_kind</span><span data-if="dotnet" style="display:none;">HdictKeyKind</span><span data-if="python" style="display:none;">hdict_key_kind</span><span data-if="cpp" style="display:none;">HdictKeyKind</span><span data-if="c" style="display:none;">hdict_key_kind</span></code></a></dt>
+<dd>取出键的类型名（hdict_core 的 key_kind_name）：'tuple' / 'object' / 'dict' / 'empty'（键不存在）。</dd>
+</dl>
+<dl>
+<dt><a href="hdict_remove_key.html"><code><span data-if="hdevelop" style="display:inline;">hdict_remove_key</span><span data-if="dotnet" style="display:none;">HdictRemoveKey</span><span data-if="python" style="display:none;">hdict_remove_key</span><span data-if="cpp" style="display:none;">HdictRemoveKey</span><span data-if="c" style="display:none;">hdict_remove_key</span></code></a></dt>
+<dd>删除指定键（hdict_core 的 remove_dict_key）。</dd>
+</dl>
+<dl>
+<dt><a href="hdict_set_subdict.html"><code><span data-if="hdevelop" style="display:inline;">hdict_set_subdict</span><span data-if="dotnet" style="display:none;">HdictSetSubdict</span><span data-if="python" style="display:none;">hdict_set_subdict</span><span data-if="cpp" style="display:none;">HdictSetSubdict</span><span data-if="c" style="display:none;">hdict_set_subdict</span></code></a></dt>
+<dd>把一个字典作为子字典写入指定键（hdict_core 的 set_dict_tuple 子字典重载）。键不存在则新建，已存在则覆盖。</dd>
+</dl>
+<dl>
+<dt><a href="hdict_set_tuple.html"><code><span data-if="hdevelop" style="display:inline;">hdict_set_tuple</span><span data-if="dotnet" style="display:none;">HdictSetTuple</span><span data-if="python" style="display:none;">hdict_set_tuple</span><span data-if="cpp" style="display:none;">HdictSetTuple</span><span data-if="c" style="display:none;">hdict_set_tuple</span></code></a></dt>
+<dd>写入元组值（hdict_core 的 set_dict_tuple）。键不存在则新建，已存在则覆盖旧值。数值与字符串都接受，多元素按数组整体存入。</dd>
+</dl>
+<dl>
+<dt><a href="load_param.html"><code><span data-if="hdevelop" style="display:inline;">load_param</span><span data-if="dotnet" style="display:none;">LoadParam</span><span data-if="python" style="display:none;">load_param</span><span data-if="cpp" style="display:none;">LoadParam</span><span data-if="c" style="display:none;">load_param</span></code></a></dt>
+<dd>递归参数装载（hparams_core 的 LoadParam，1:1 对齐 hdev 过程 LoadParams）：按 Level 逐级下钻，节点不存在就写入 Competence/Type/Limit/Value 并返回默认值，已存在则直接返回其 Value（不覆盖）。Level 是路径，如 ['检测参数','背面','面积筛选']；Type 为 'int'/'float'/'bool'/'string'/'int[]'/'float[]'/'string[]' 等，'bool' 会把非法默认值纠成 'TRUE'，数组类型会把字符串按逗号切分、把子字典展平。</dd>
+</dl>
+<dl>
 <dt><a href="modbus_close.html"><code><span data-if="hdevelop" style="display:inline;">modbus_close</span><span data-if="dotnet" style="display:none;">ModbusClose</span><span data-if="python" style="display:none;">modbus_close</span><span data-if="cpp" style="display:none;">ModbusClose</span><span data-if="c" style="display:none;">modbus_close</span></code></a></dt>
 <dd>Close Modbus connection.</dd>
 </dl>
@@ -1574,6 +1618,14 @@ toggleLanguage(new_lang,1);return;}
 <dl>
 <dt><a href="mysql_store_result.html"><code><span data-if="hdevelop" style="display:inline;">mysql_store_result</span><span data-if="dotnet" style="display:none;">MysqlStoreResult</span><span data-if="python" style="display:none;">mysql_store_result</span><span data-if="cpp" style="display:none;">MysqlStoreResult</span><span data-if="c" style="display:none;">mysql_store_result</span></code></a></dt>
 <dd>读取上一条 mysql_query 的结果集，按行优先顺序展开为字符串元组。无数据时返回 NoData。</dd>
+</dl>
+<dl>
+<dt><a href="param_create.html"><code><span data-if="hdevelop" style="display:inline;">param_create</span><span data-if="dotnet" style="display:none;">ParamCreate</span><span data-if="python" style="display:none;">param_create</span><span data-if="cpp" style="display:none;">ParamCreate</span><span data-if="c" style="display:none;">param_create</span></code></a></dt>
+<dd>创建空的参数树句柄（json 对象），供 load_param 就地补全；参数以 HParam 句柄在算子之间传递，与 HALCON 原生字典句柄相互独立。</dd>
+</dl>
+<dl>
+<dt><a href="param_to_json.html"><code><span data-if="hdevelop" style="display:inline;">param_to_json</span><span data-if="dotnet" style="display:none;">ParamToJson</span><span data-if="python" style="display:none;">param_to_json</span><span data-if="cpp" style="display:none;">ParamToJson</span><span data-if="c" style="display:none;">param_to_json</span></code></a></dt>
+<dd>把参数树导出为紧凑 JSON 字符串（UTF-8 无 BOM，键按字典序），便于落盘或与参考结果对拍。</dd>
 </dl>
 <dl>
 <dt><a href="remap.html"><code><span data-if="hdevelop" style="display:inline;">remap</span><span data-if="dotnet" style="display:none;">Remap</span><span data-if="python" style="display:none;">remap</span><span data-if="cpp" style="display:none;">Remap</span><span data-if="c" style="display:none;">remap</span></code></a></dt>

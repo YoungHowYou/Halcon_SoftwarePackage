@@ -442,12 +442,13 @@ cv_divide_masked    (ImageA, ImageB, Mask : ImageOut : Scale, Dtype)
 | ImageA / ImageB | 图像 | 单通道 `byte` / `uint2` / `int4` / `real`，两图类型尺寸须一致 |
 | Mask | 图像 | 仅 `_masked` 版本：`byte` 单通道、尺寸须与输入一致；**非零处参与运算，掩膜外像素保持 ImageA 原值** |
 | ImageOut | 图像 | 类型由 `Dtype` 决定，尺寸同输入 |
-| Scale | 实数/整数 | 仅 `multiply` / `divide`：运算前置系数，默认 1.0。`saturate(Scale·A·B)` / `saturate(Scale·A/B)`，整除向零取整、除零得 0 |
+| Scale | 实数/整数 | 仅 `multiply` / `divide`：运算前置系数，默认 1.0。`saturate(Scale·A·B)` / `saturate(Scale·A/B)`；整数结果为**四舍五入**（非截断：255/2=128、5/2=2），除零得 **0** |
 | Dtype | 整数/字符串 | `-1` 或 `'same'` 保持输入类型；`'u8'` / `'u16'` / `'s32'` / `'f32'` 输出 `byte` / `uint2` / `int4` / `real`；也接受 CV 深度整数 |
 
 - `Dtype` 只支持有 HALCON 对应图像类型的深度：`'s8'` / `'s16'` / `'f64'` 报 30006。
 - 整数输出**饱和截断**，实数输出**不截断**：`uint2` 1000−2000 → `0`，`'f32'` 下 → `-1000.0`。
 - `multiply` / `divide` 的 OpenCV 原型没有 `mask` 参数，`_masked` 版本统一按"先算全图、再按掩膜拷回"实现，掩膜语义与 `cv::add` 一致。
+- **`cv_divide` / `cv_divide_masked` 的除零口径（2026-10-13 统一）**：除数为 0 时输出 **0**；`real` 图不再产生 IEEE 的 `±inf` / `NaN` —— 除数为 0 **或结果非有限**（含数值上溢，如 `1e38/1e-38`）一律置 0。实现见 `source/Halcon_OpenCV.cpp` 的 `divide_guard()`（在 `cv::divide` 之后、掩膜拷回之前调用）。这是相对裸 `cv::divide` / `cv2.divide` 的**有意偏差**，脱离 HALCON 复现时需自行加同等保护（例如 `np.where(B == 0, 0, A / B)`）。
 - 例程：`examples/opencv/cv_arith.hdev`（8 个算子 + dtype/scale/掩膜 + 负例）、`examples/opencv/cv_subtract.hdev`。
 
 错误码：
@@ -1407,6 +1408,45 @@ cv_shape_trans(Region : RegionTrans : Type :)
 > **已知偏差（核心库既有）**：`ellipse` / `outer_circle` 共用 `cvr_shape::add_ellipse_runs`——它只**采样边界点**再逐行取 min/max，采样稀疏的行会退化成 1 像素宽甚至整行丢失，故圆/椭圆都填不满；`ellipse` 还在 `elliptic_axis` 的 `Ra/Rb` 上又乘了 0.5，面积再小 4 倍。
 > `convex` 已于 2026-10-09 修复：原先是本分支自己内联的一套扫描线（缺“只与顶点/水平边相切的行”的兜底、且上界用 `ceil`）⇒ 轴对齐时丢掉底部一行（4x4 → 12、2x8 → 8），输出甚至不再包含原区域；现改走与 HALCON 一致的 `runs_from_convex_polygon`。
 > `rectangle2` 已于本次修复：原实现用 `u = 0.5*w*cos(t); v = 0.5*h*sin(t)` 沿半宽/半高采样一圈——那是**内切椭圆**，所以输出成椭圆/圆。同时修掉 `cvr_feature_smallest_rectangle2` 的一处主轴错误（`length1` 取长边却恒用 `u` 轴角作 `phi`，当 `h > w` 时 `phi` 差 90°，轴对齐矩形两种候选面积打平时会命中，表现为 `rectangle2` 生成旋转 90° 的矩形）。该修正同时影响 `cv_smallest_rectangle2` 在同等情形下的 `Phi` 输出（原先错误，现与 HALCON 的 `±π/2` 语义一致）。
+
+#### cv_shape_trans_ex
+
+用**标准形状模板**补全**有缺失的提取形状**（与 `cv_shape_trans` 不同：目标形状由调用方给出，而不是内置几何形状）。核心库 `cvr::cvr_shape_trans_ex`（算法本体在 `cvr_core`；2026-10-13 新增，为它重新引入 **Eigen**——header-only，无 `.lib`/`.dll`）。
+
+```
+cv_shape_trans_ex(StandardShape, PartialShape : CompletedShape : NSamples, TrimRatio, DistRatio, MinLen, SmoothS : Coverage)
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| StandardShape | region | 输入 | 标准形状模板（补全的目标形状；可由 `cv_shape_trans` / `cv_gen_rectangle2` 等生成） |
+| PartialShape | region | 输入 | 有缺失的提取 region（待补全） |
+| CompletedShape | region | 输出 | 补全后的 region |
+| NSamples | 整数 | 输入 | 轮廓重采样点数（默认 1000，≥ 8） |
+| TrimRatio | 实数 | 输入 | Trimmed ICP 每轮保留的最远点比例（默认 0.65，范围 (0,1]；缺角越大应越小） |
+| DistRatio | 实数 | 输入 | 缺失判定阈值系数（阈值 = `DistRatio` × `PartialShape` 包围盒对角线，默认 0.04） |
+| MinLen | 整数 | 输入 | 最短缺失段长度（点数，默认 20；更短的连续缺失段按噪声回填为「已观测」） |
+| SmoothS | 实数 | 输入 | 周期三次 B 样条平滑的残差平方和上限（默认 8.0；语义对齐 scipy `splprep` 的 `s`，0 = 尽量插值过点） |
+| Coverage | 实数 | 输出 | 模板轮廓被观测覆盖的比例 [0,1]（诊断用） |
+
+**算法流程**：
+1. 两个输入各取**最大面积外轮廓**（Moore 邻域边界跟踪，忽略孔洞）；
+2. 各自按弧长均匀重采样 `NSamples` 个点 → 归一化（去中心 + 单位 RMS 尺度）；
+3. **Trimmed 相似 ICP** 对齐（各向同性缩放 × 旋转 × 平移；每轮只用距离最小的 `TrimRatio` 比例的点求解变换，以剔除缺角处的错配点）；
+4. **环形连续段缺失检测**（距离 > 阈值 **且**连续长度 ≥ `MinLen` 才算缺失）；
+5. 拼接：已观测段用 `PartialShape` 的真实点，缺失段用对齐后的模板点；
+6. **周期三次 B 样条平滑**（满足残差平方和 ≤ `SmoothS` 的最大平滑；控制点数 = 重采样点数的 1/4，上限 256）；
+7. 任意简单多边形扫描线栅格化成 region（像素方格 `[r,r+1)×[c,c+1)`，与 `cv_shape_trans` 家族同口径）。
+
+**约束 / 错误**：两个输入必须各**恰好一个连通分量**（多连通报错）、非空、轮廓点数 ≥ 3；`NSamples < 8`、`TrimRatio ∉ (0,1]`、`DistRatio ≤ 0`、`MinLen < 0`、`SmoothS < 0` 都报错（自定义错误码 10102，消息可经 `get_error_text` / HDevelop 异常查看）。
+
+**实测**（`examples/cv_shape_trans_ex.hdev`，`hrun -P` 通过）：
+- 合成档：圆盘模板 11304 px，挖掉一个象限后 8478 px → 补全 **11267 px**（模板的 99.7%），`Coverage` = 0.781；
+- 真实图像档：`printer_chip` 阈值区域凸包 1617458 px，挖掉一个角块后 1349015 px → 补全 **1615354 px**（99.87%），`Coverage` = 0.816。
+
+**已知局限**：缺失比例过大时（经验上超过一半），轮廓归一化的固有偏置（`PartialShape` 的均值/RMS 尺度被观测部分拉偏）会让配准朝「缩小」方向偏，补全面积明显小于模板——半圆档实测补回 8515 / 模板 11289（同输入下参考实现 `complete_custom_shape` 给 8548，即**该局限来自算法本身**）。缺失比例适中（≲ 1/3）时精度很好。
+
+> 与参考实现（scipy/OpenCV 版 `complete_custom_shape`）的逐项对拍：半圆档对齐后的模板 bbox 差 ≤ 0.15 px、`par_s` 45.861 vs 45.839、补全面积 8548 vs 8515；另外参考实现在这两档输入上 `splprep` 直接抛 `Error on input data`（平滑步骤脆弱），本实现用 Eigen 解正则化最小二乘 + 二分求 `λ`，不依赖 scipy 且不抛错。
 
 #### cv_gen_rectangle2
 

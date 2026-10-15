@@ -1364,6 +1364,48 @@ Herror Hcv_shape_trans(Hproc_handle proc_handle)
 }
 
 /*=============================================================================
+ * cv_shape_trans_ex —— 用标准形状模板补全有缺失的提取形状
+ *   算法在 cvr_core（cvr::cvr_shape_trans_ex），本层只做参数搬运。
+ *===========================================================================*/
+Herror Hcv_shape_trans_ex(Hproc_handle proc_handle)
+{
+    HCkNoObj(proc_handle);
+
+    Hcpar n_par, trim_par, dist_par, minlen_par, smooth_par;
+    HGetSPar(proc_handle, 1, LONG_PAR,   &n_par,      1);
+    HGetSPar(proc_handle, 2, DOUBLE_PAR, &trim_par,   1);
+    HGetSPar(proc_handle, 3, DOUBLE_PAR, &dist_par,   1);
+    HGetSPar(proc_handle, 4, LONG_PAR,   &minlen_par, 1);
+    HGetSPar(proc_handle, 5, DOUBLE_PAR, &smooth_par, 1);
+
+    cvr::CvrShapeTransExOptions opt;
+    opt.n_samples  = static_cast<int>(n_par.par.l);
+    opt.trim_ratio = trim_par.par.d;
+    opt.dist_ratio = dist_par.par.d;
+    opt.min_len    = static_cast<int>(minlen_par.par.l);
+    opt.smooth_s   = smooth_par.par.d;
+
+    Hkey k_std, k_par;
+    HGetObj(proc_handle, 1, 1, &k_std);
+    HGetObj(proc_handle, 2, 1, &k_par);
+
+    CvrRegion standard, partial, out;
+    double coverage = 0.0;
+    if (!read_region(proc_handle, k_std, standard) ||
+        !read_region(proc_handle, k_par, partial) ||
+        !cvr::cvr_shape_trans_ex(standard, partial, opt, out, coverage)) {
+        HSetErrText(const_cast<char*>(cvr::cvr_last_error()));
+        return CVR_ERR_OP;
+    }
+
+    Herror err = output_region(proc_handle, out);
+    if (err != H_MSG_OK) return err;
+
+    HPutElem(proc_handle, 1, &coverage, 1, DOUBLE_PAR);
+    return H_MSG_TRUE;
+}
+
+/*=============================================================================
  * cv_region_to_bin —— region -> byte 二值图（0/255 或自定义 fg/bg）
  *===========================================================================*/
 Herror Hcv_region_to_bin(Hproc_handle proc_handle)

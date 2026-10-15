@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_divide_masked</span><span data-if="c" style="display:none;">cv_divide_masked</span><span data-if="cpp" style="display:none;">CvDivideMasked</span><span data-if="dotnet" style="display:none;">CvDivideMasked</span><span data-if="python" style="display:none;">cv_divide_masked</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_divide_masked</span><span data-if="c" style="display:none;">cv_divide_masked</span><span data-if="cpp" style="display:none;">CvDivideMasked</span><span data-if="dotnet" style="display:none;">CvDivideMasked</span><span data-if="python" style="display:none;">cv_divide_masked</span></code> — 带掩膜的逐元素相除：掩膜外像素保持 imageA 原值，掩膜内 Out = saturate(Scale * A / B)，除零结果为 0。Mask 为 byte 单通道图像（尺寸须与输入一致）。其余同 cv_divide。</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_divide_masked</span><span data-if="c" style="display:none;">cv_divide_masked</span><span data-if="cpp" style="display:none;">CvDivideMasked</span><span data-if="dotnet" style="display:none;">CvDivideMasked</span><span data-if="python" style="display:none;">cv_divide_masked</span></code> — 带掩膜的逐元素相除：掩膜外像素保持 imageA 原值，掩膜内 Out = saturate(Scale * A / B)，除零结果为 0（real 图同样：除数为 0 或结果非有限一律输出 0）。Mask 为 byte 单通道图像（尺寸须与输入一致）。其余同 cv_divide。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>

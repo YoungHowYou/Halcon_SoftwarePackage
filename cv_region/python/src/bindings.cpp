@@ -649,6 +649,24 @@ PYBIND11_MODULE(_cvr, m) {
                  check(cvr::cvr_shape_trans(r, shape, out), "cvr_shape_trans");
                  return out;
              }, py::arg("shape"), "cvr_shape_trans（rectangle1/rectangle2/ellipse/outer_circle/convex）")
+        .def("shape_trans_ex", [](const CvrRegion& partial, const CvrRegion& standard,
+                                  int n_samples, double trim_ratio, double dist_ratio,
+                                  int min_len, double smooth_s) {
+                 cvr::CvrShapeTransExOptions opt;
+                 opt.n_samples  = n_samples;
+                 opt.trim_ratio = trim_ratio;
+                 opt.dist_ratio = dist_ratio;
+                 opt.min_len    = min_len;
+                 opt.smooth_s   = smooth_s;
+                 CvrRegion out;
+                 double coverage = 0.0;
+                 check(cvr::cvr_shape_trans_ex(standard, partial, opt, out, coverage),
+                       "cvr_shape_trans_ex");
+                 return py::make_tuple(out, coverage);
+             }, py::arg("standard"), py::arg("n_samples") = 1000,
+                py::arg("trim_ratio") = 0.65, py::arg("dist_ratio") = 0.04,
+                py::arg("min_len") = 20, py::arg("smooth_s") = 8.0,
+             "cvr_shape_trans_ex：用 standard 模板补全本 region 的缺失部分 -> (Region, coverage)")
         .def("to_bin", [](const CvrRegion& r, CvrCoord w, CvrCoord h,
                           const py::object& gray, const py::object& depth,
                           double foreground, double background) {
@@ -1026,6 +1044,26 @@ PYBIND11_MODULE(_cvr, m) {
               check(cvr::cvr_shape_trans(r, shape, out), "cvr_shape_trans");
               return out;
           }, py::arg("r"), py::arg("shape"), "cvr_shape_trans -> Region");
+    m.def("cvr_shape_trans_ex", [](const CvrRegion& standard, const CvrRegion& partial,
+                                    int n_samples, double trim_ratio, double dist_ratio,
+                                    int min_len, double smooth_s) {
+              cvr::CvrShapeTransExOptions opt;
+              opt.n_samples  = n_samples;
+              opt.trim_ratio = trim_ratio;
+              opt.dist_ratio = dist_ratio;
+              opt.min_len    = min_len;
+              opt.smooth_s   = smooth_s;
+              CvrRegion out;
+              double coverage = 0.0;
+              check(cvr::cvr_shape_trans_ex(standard, partial, opt, out, coverage),
+                    "cvr_shape_trans_ex");
+              return py::make_tuple(out, coverage);
+          }, py::arg("standard"), py::arg("partial"),
+             py::arg("n_samples") = 1000, py::arg("trim_ratio") = 0.65,
+             py::arg("dist_ratio") = 0.04, py::arg("min_len") = 20,
+             py::arg("smooth_s") = 8.0,
+          "cvr_shape_trans_ex -> (Region, coverage)：用 standard 模板补全 partial 的缺失部分；"
+          "coverage = 模板轮廓被观测覆盖的比例 [0,1]");
     m.def("cvr_select_shape", [](const std::vector<CvrRegion>& regions,
                                  const std::vector<std::string>& features,
                                  const std::string& op,

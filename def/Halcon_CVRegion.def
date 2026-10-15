@@ -1,3 +1,84 @@
+cv_shape_trans_ex<- CHcv_shape_trans_ex[StandardShape,PartialShape:CompletedShape:NSamples,TrimRatio,DistRatio,MinLen,SmoothS:Coverage]
+short.german
+  Benutzerdefinierte Formtransformation: Fuellen einer unvollstaendigen Region mit einer Formvorlage (cv_region);
+short.english
+  自定义形状变换：用「标准形状模板」补全「有缺失的提取形状」（与 shape_trans 不同，目标形状由调用方给出）。流程 = 各自取最大面积外轮廓 → 按弧长均匀重采样 → 归一化 → Trimmed 相似 ICP 对齐（含各向同性缩放）→ 环形连续段缺失检测 → 拼接（已观测段用 PartialShape 的真实点、缺失段用对齐后的模板点）→ 周期三次 B 样条平滑 → 栅格化成 region。要求两个输入各恰好一个连通分量（多连通报错），空区域报错。输入对象须为 region，输出 region 以像素方格 [r,r+1)x[c,c+1) 为口径。NSamples 为轮廓重采样点数（默认 1000，>= 8）；TrimRatio 为 Trimmed ICP 每轮保留的最远点比例（默认 0.65，范围 (0,1]，缺角越大应越小）；DistRatio 为缺失判定阈值系数（阈值 = DistRatio x PartialShape 包围盒对角线，默认 0.04）；MinLen 为最短缺失段长度（点数，默认 20，更短的连续缺失段按噪声回填为已观测）；SmoothS 为周期三次 B 样条平滑的残差平方和上限（语义对齐 scipy splprep 的 s，默认 8.0，0 表示尽量插值过点）。输出 Coverage 为模板轮廓被观测覆盖的比例 [0,1]（诊断用）。注意：缺失比例过大时（如超过一半）由于轮廓归一化的固有偏置，补全精度会下降;
+module
+  foundation;
+chapter.german
+  BenutzerErweiterungen;
+chapter.english
+  UserExtensions;
+keywords.english
+  UserExtensions, CVRegion, ShapeTrans, ShapeCompletion, Template;
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+parameter
+  StandardShape:     input_object;
+  description.english: 标准形状模板 region（补全目标形状，可用 shape_trans / gen_rectangle2 等生成）。;
+  sem_type:           region;
+  multivalue:         false;
+parameter
+  PartialShape:      input_object;
+  description.english: 有缺失的提取 region（待补全）。;
+  sem_type:           region;
+  multivalue:         false;
+parameter
+  CompletedShape:    output_object;
+  description.english: 补全后的 region。;
+  sem_type:           region;
+  multivalue:         false;
+parameter
+  NSamples:          input_control;
+  description.english: 轮廓重采样点数（>= 8）。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      1000;
+parameter
+  TrimRatio:         input_control;
+  description.english: Trimmed ICP 每轮保留的最远点比例，范围 (0,1]；缺角越大应越小。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      0.65;
+parameter
+  DistRatio:         input_control;
+  description.english: 缺失判定阈值系数（阈值 = DistRatio x 包围盒对角线），> 0。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      0.04;
+parameter
+  MinLen:            input_control;
+  description.english: 最短缺失段长度（点数），更短的连续缺失段按噪声回填为已观测。;
+  default_type:       integer;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      20;
+parameter
+  SmoothS:           input_control;
+  description.english: 周期三次 B 样条平滑的残差平方和上限（对齐 splprep 的 s；0 = 尽量插值过点）。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real,integer;
+  default_value:      8.0;
+parameter
+  Coverage:          output_control;
+  description.english: 模板轮廓被观测覆盖的比例 [0,1]（诊断用）。;
+  default_type:       real;
+  multivalue:         false;
+  sem_type:           number;
+  type_list:          real;
+
 cv_opening_rectangle1<- CHcv_opening_rectangle1[Region:RegionOpening:Width,Height:]
 short.german
   Oeffnen einer Region mit rechteckigem Strukturelement (cv_region);

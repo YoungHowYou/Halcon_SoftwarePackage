@@ -306,6 +306,63 @@ def test_shape_trans_convex_contains_input(n):
 
 
 # ---------------------------------------------------------------------------
+# shape_trans_ex（模板补全）。期望值与 C++ 侧对拍参考实现（scipy/cv2 版
+# complete_custom_shape）的结果一致：缺一个象限时补回 11255（模板 11289）。
+# ---------------------------------------------------------------------------
+def _disk_mask(w, h, cr, cc, r):
+    yy, xx = np.mgrid[0:h, 0:w]
+    return (((yy - cr) ** 2 + (xx - cc) ** 2) <= r * r).astype(np.uint8)
+
+
+def test_shape_trans_ex_completes_missing_quadrant():
+    W = H = 240
+    std_mask = _disk_mask(W, H, 120, 120, 60)
+    par_mask = std_mask.copy()
+    par_mask[:120, 120:] = 0                 # 挖掉左上外侧的 1/4
+
+    std = Region.from_image(std_mask, 0.5)
+    par = Region.from_image(par_mask, 0.5)
+    comp, cov = cvr.cvr_shape_trans_ex(std, par)
+
+    a_std = std.area_center()[2]
+    a_par = par.area_center()[2]
+    a_out = comp.area_center()[2]
+
+    assert a_par < 0.8 * a_std                       # 确实缺了一块
+    assert abs(a_out - a_std) < 0.02 * a_std         # 补回后与模板同尺度（<2%）
+    assert 0.70 < cov < 0.85                         # 覆盖率 ≈ 3/4 强
+
+    # 方法形式与函数形式一致（方法挂在「待补全的 partial」上，参数是模板）
+    comp2, cov2 = par.shape_trans_ex(std)
+    assert comp2 == comp and cov2 == cov
+
+
+def test_shape_trans_ex_no_missing_is_near_identity():
+    W = H = 240
+    reg = Region.from_image(_disk_mask(W, H, 120, 120, 60), 0.5)
+    comp, cov = cvr.cvr_shape_trans_ex(reg, reg)
+    assert cov > 0.99
+    a = reg.area_center()[2]
+    assert abs(comp.area_center()[2] - a) < 0.01 * a
+
+
+def test_shape_trans_ex_errors():
+    r = rect(1, 1, 4, 4)
+    with pytest.raises(RuntimeError):
+        cvr.cvr_shape_trans_ex(r, r, n_samples=4)
+    with pytest.raises(RuntimeError):
+        cvr.cvr_shape_trans_ex(r, r, trim_ratio=0.0)
+    with pytest.raises(RuntimeError):
+        cvr.cvr_shape_trans_ex(r, r, dist_ratio=0.0)
+    with pytest.raises(RuntimeError):
+        cvr.cvr_shape_trans_ex(r, r, smooth_s=-1.0)
+    # 多连通分量不受支持 → 报错
+    two = Region([(0, 0, 2), (10, 0, 2)])
+    with pytest.raises(RuntimeError):
+        cvr.cvr_shape_trans_ex(two, two)
+
+
+# ---------------------------------------------------------------------------
 # select_shape（期望值与 cv_region/tests/test_m7_select.cpp 相同）
 # ---------------------------------------------------------------------------
 def test_select_shape():

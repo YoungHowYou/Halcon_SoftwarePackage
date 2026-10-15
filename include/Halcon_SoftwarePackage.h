@@ -154,6 +154,7 @@ extern EXPORTS_API Herror Hcv_anisometry(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_bulkiness(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_structure_factor(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_shape_trans(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hcv_shape_trans_ex(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_region_to_bin(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_bin_to_region(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hcv_erosion_circle(Hproc_handle proc_handle);

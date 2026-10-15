@@ -36,7 +36,11 @@ option(CVR_BUILD_TESTS  "Build cv_region core tests"  ${_cvr_default})
 option(CVR_BUILD_OPENCV "Build OpenCV I/O bridge"    ${_cvr_default})
 unset(_cvr_default)
 
-# ---- 依赖：拆分后 cv_region 只依赖 STL（ransac/measure 已迁至 cv_flow） ----
+# ---- 依赖：STL + Eigen3 ----
+#   ransac/measure 已迁至 cv_flow，但 cv_shape_trans_ex（模板补全）需要 2x2 相似变换
+#   的 SVD 与最小二乘求解，故重新引入 Eigen。**Eigen 是纯头文件库**：没有 .lib/.dll、
+#   运行期零依赖，只需要 PUBLIC 把头文件路径带出去（Eigen3::Eigen 是 INTERFACE target）。
+find_package(Eigen3 CONFIG REQUIRED)
 
 # ---- 静态库：单头 + 单实现（直接链入扩展包，免跨 DLL 拷贝） ----
 add_library(cvr_core STATIC
@@ -49,7 +53,9 @@ target_include_directories(cvr_core
     $<INSTALL_INTERFACE:include>
 )
 
-# 无三方链接依赖（纯 STL）
+# Eigen 无二进制产物，link 实际只把 include 路径 PUBLIC 传给消费方
+# （与消费方自身是否用 Eigen 无关；头路径冲突风险极低）
+target_link_libraries(cvr_core PUBLIC Eigen3::Eigen)
 
 #=============================================================================
 #  Install & export — 外部 CMake 工程免 HALCON 复用：
@@ -66,9 +72,10 @@ install(TARGETS cvr_core
   INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-# cvr_core 纯 STL、无链接依赖，config 直接引入 targets 文件
+# cvr_core 的唯一外部依赖是 Eigen（header-only）→ config 里先 find_dependency 再引 targets，
+# 否则消费方 find_package(cvr_core) 后拿不到 Eigen 的 include 路径。
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cvr_core-config.cmake"
-  "include(\"\${CMAKE_CURRENT_LIST_DIR}/cvr_core-targets.cmake\")\n")
+  "include(CMakeFindDependencyMacro)\nfind_dependency(Eigen3 CONFIG)\ninclude(\"\${CMAKE_CURRENT_LIST_DIR}/cvr_core-targets.cmake\")\n")
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/cvr_core-config.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cvr_core")
 install(EXPORT cvr_core-targets

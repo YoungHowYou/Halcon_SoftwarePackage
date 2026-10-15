@@ -51,6 +51,7 @@ Region,RegionClosing,Radius:userextensions:UserExtensions:
 Region,RegionOpening,Radius:userextensions:UserExtensions:
 Region,RegionClosing,Width,Height:userextensions:UserExtensions:
 Region,RegionOpening,Width,Height:userextensions:UserExtensions:
+StandardShape,PartialShape,CompletedShape,NSamples,TrimRatio,DistRatio,MinLen,SmoothS,Coverage:userextensions:UserExtensions:
 imageX,imageY,imageXI,imageYI,interpMethod:userextensions:UserExtensions:
 imageA,imageB,imageX:userextensions:UserExtensions:
 imageA,imageB,imageX:userextensions:UserExtensions:
