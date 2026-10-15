@@ -2140,7 +2140,7 @@ toggleLanguage(new_lang,1);return;}
 <a href="index_classes.html"><span data-if="dotnet" style="display:none;">Classes</span><span data-if="cpp" style="display:none;">Classes</span></a><span data-if="dotnet" style="display:none;"> | </span><span data-if="cpp" style="display:none;"> | </span>Operators</div>
 <h2>Index of all Operators</h2>
 <div id="letters">
-<a href="#C">[C]</a>  <a href="#G">[G]</a>  <a href="#P">[P]</a>  <a href="#S">[S]</a>  <a href="#a">[A]</a>  <a href="#c">[C]</a>  <a href="#d">[D]</a>  <a href="#e">[E]</a>  <a href="#h">[H]</a>  <a href="#l">[L]</a>  <a href="#m">[M]</a>  <a href="#p">[P]</a>  <a href="#r">[R]</a>  <a href="#s">[S]</a>  <a href="#w">[W]</a>
+<a href="#C">[C]</a>  <a href="#G">[G]</a>  <a href="#P">[P]</a>  <a href="#S">[S]</a>  <a href="#a">[A]</a>  <a href="#c">[C]</a>  <a href="#d">[D]</a>  <a href="#e">[E]</a>  <a href="#h">[H]</a>  <a href="#j">[J]</a>  <a href="#l">[L]</a>  <a href="#m">[M]</a>  <a href="#p">[P]</a>  <a href="#r">[R]</a>  <a href="#s">[S]</a>  <a href="#w">[W]</a>
 </div>
 <h3 id="C">C<a href="#letters"> ↑</a>
 </h3>
@@ -2611,6 +2611,12 @@ toggleLanguage(new_lang,1);return;}
 <dl>
 <dt><a href="hdict_set_tuple.html"><code><span data-if="hdevelop" style="display:inline;">hdict_set_tuple</span><span data-if="dotnet" style="display:none;">HdictSetTuple</span><span data-if="python" style="display:none;">hdict_set_tuple</span><span data-if="cpp" style="display:none;">HdictSetTuple</span><span data-if="c" style="display:none;">hdict_set_tuple</span></code></a></dt>
 <dd>写入元组值（hdict_core 的 set_dict_tuple）。键不存在则新建，已存在则覆盖旧值。数值与字符串都接受，多元素按数组整体存入。</dd>
+</dl>
+<h3 id="j">J<a href="#letters"> ↑</a>
+</h3>
+<dl>
+<dt><a href="json_to_param.html"><code><span data-if="hdevelop" style="display:inline;">json_to_param</span><span data-if="dotnet" style="display:none;">JsonToParam</span><span data-if="python" style="display:none;">json_to_param</span><span data-if="cpp" style="display:none;">JsonToParam</span><span data-if="c" style="display:none;">json_to_param</span></code></a></dt>
+<dd>由 JSON 串构建参数树句柄（hparams_core 的 ParamTree(json) 构造函数），是 param_to_json 的逆操作。传入紧凑或多行 JSON 串得到一个新建的 HParam 句柄，可继续用 load_param 就地补全、再用 param_to_json 导出，实现「JSON 串 ↔ 参数树」双向搬运。JSON 语法错误时返回错误码，解析原因由 get_error_text 给出。</dd>
 </dl>
 <h3 id="l">L<a href="#letters"> ↑</a>
 </h3>

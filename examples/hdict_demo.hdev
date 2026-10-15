@@ -93,6 +93,30 @@
 <l>  throw ('hdict_get_tuple should have raised on missing key')</l>
 <l>endif</l>
 <c></c>
+<c>* --- 10) json_to_param：JSON 串 → 句柄（param_to_json 的逆操作，往返一致）---</c>
+<l>param_to_json (PTree, J1)</l>
+<l>json_to_param (J1, PTree2)</l>
+<l>param_to_json (PTree2, J2)</l>
+<l>if (J1 != J2)</l>
+<l>  throw ('json_to_param round trip mismatch')</l>
+<l>endif</l>
+<c>* 新句柄可继续用 load_param 就地补全（与 param_create 建的句柄等价）---</c>
+<l>load_param (PTree2, ['新增分组','阈值'], 77, 1, 'int', [0, 100], V4)</l>
+<l>if (V4 != 77)</l>
+<l>  throw ('load_param on json_to_param handle failed: ' + V4)</l>
+<l>endif</l>
+<c></c>
+<c>* --- 11) 错误路径：JSON 语法错误必须报错 ---</c>
+<l>Fail2 := 0</l>
+<l>try</l>
+<l>  json_to_param ('{ not json', BadTree)</l>
+<l>catch (Exception)</l>
+<l>  Fail2 := 1</l>
+<l>endtry</l>
+<l>if (Fail2 != 1)</l>
+<l>  throw ('json_to_param should have raised on invalid JSON')</l>
+<l>endif</l>
+<c></c>
 <l>Message := 'hdict/param example passed'</l>
 </body>
 <docu id="main">

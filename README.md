@@ -109,7 +109,7 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 ### 字典与参数（`hdict_core` / `hparams_core`）
 
 * `HDict` 句柄类算子（`hdict_create` / `hdict_set_tuple` / `hdict_get_tuple` / `hdict_copy` / `hdict_set_subdict` / `hdict_get_keys` / `hdict_key_exists` / `hdict_key_kind` / `hdict_remove_key`）—— 扩展包自带的键值字典容器（纯 STL、`shared_mutex` 线程安全）。
-* `HParam` 句柄 + `load_param` / `param_to_json` —— hdev `LoadParams` 的 C++ 复刻（递归参数装载）。
+* `HParam` 句柄 + `load_param` / `json_to_param` / `param_to_json` —— hdev `LoadParams` 的 C++ 复刻（递归参数装载）+ JSON 串与参数树的双向搬运。
 
 详细文档见下文「Dict 扩展算子」；例程 `examples/hdict_demo.hdev`。
 
@@ -1268,6 +1268,18 @@ param_to_json ( : : HParam : Json)
 把参数树导出为紧凑 JSON 字符串（UTF-8 无 BOM、键按字典序），便于落盘或与参考结果对拍。
 
 **错误码约定**：句柄为空 / 内部异常（含 `load_param` 的路径类型错误）→ `H__LINE__ * 10000`，错误文本由 `HSetErrText` 带出。
+
+### json_to_param
+```
+json_to_param ( : : Json : HParam)
+```
+由 JSON 串构建参数树句柄（`hparams_core` 的 `ParamTree(json)` 构造函数），是 `param_to_json` 的**逆操作**。
+
+**参数**：`Json` 参数树 JSON 串（UTF-8；通常来自 `param_to_json` 的导出结果，或按 `load_param` 的节点结构手写）；`HParam` 输出新建的参数树句柄（与 HALCON 原生字典句柄相互独立，可继续用 `load_param` 就地补全）。
+
+**语义**：把一个 `HParam` 句柄的内容原样搬成 JSON 字符串、再搬回另一个句柄，内容完全一致（键顺序按字典序归一，与 `param_to_json` 一致）；新句柄与 `param_create` 建的句柄行为等价。
+
+**错误码约定**：`Json` 不是恰好一个字符串 / JSON 语法错误 / 内部异常 → `H__LINE__ * 10000`，解析原因（nlohmann 的 `what()`）由 `HSetErrText` 带出；解析失败时不会分配输出句柄。
 
 ## 参数配置窗口扩展算子（parm_ui）
 

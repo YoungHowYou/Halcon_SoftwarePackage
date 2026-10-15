@@ -11,6 +11,7 @@ HDict,Key,Value:userextensions:UserExtensions:
 HDict,Key,Value:userextensions:UserExtensions:
 HDict,HDictCopy:userextensions:UserExtensions:
 HDict:userextensions:UserExtensions:
+Json,HParam:userextensions:UserExtensions:
 ModelHandle,XData,YData,InitialValues,Threshold,MaxIter,OutlierRatio,Confidence,Seed,ParamValues,InlierMask,ResidualSum,Iterations,Status,StatusMessage,InlierRatio:userextensions:UserExtensions:
 ModelExpression,XName,YName,ParamNames,ModelType,ResidualType,ModelHandle:userextensions:UserExtensions:
 Region,RegionDilation,Width,Height:userextensions:UserExtensions:

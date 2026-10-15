@@ -1,3 +1,40 @@
+json_to_param<- CHjson_to_param[::Json:HParam]
+short.english
+  由 JSON 串构建参数树句柄（hparams_core 的 ParamTree(json) 构造函数），是 param_to_json 的逆操作。传入紧凑或多行 JSON 串得到一个新建的 HParam 句柄，可继续用 load_param 就地补全、再用 param_to_json 导出，实现「JSON 串 ↔ 参数树」双向搬运。JSON 语法错误时返回错误码，解析原因由 get_error_text 给出。;
+short.german
+  Erzeugt einen Parameterbaum-Handle aus einem JSON-String (hparams_core ParamTree(json)).;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  param, json, import, parse, settings;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Json:               input_control;
+  description.english: 参数树 JSON 串（UTF-8），通常来自 param_to_json 的导出结果或按 load_param 的节点结构手写。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         false;
+
+parameter
+  HParam:             output_control;
+  description.english: 新建的参数树句柄（与 HALCON 原生字典句柄相互独立）。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+
 hdict_create<- CHhdict_create[:::HDict]
 short.english
   创建空的字典句柄（hdict_core 的 create_dict）。该句柄是扩展包自带的键值容器，与 HALCON 原生字典句柄相互独立；可存数值/字符串元组与子字典，内部读写线程安全。;

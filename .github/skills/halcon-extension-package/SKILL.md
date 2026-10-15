@@ -54,7 +54,7 @@ Halcon_SoftwarePackage/             → 扩展包（沿用现有包，勿新建�
 | `Halcon_Ransac.def` | 1 | 算法在 `cvr_core`（`ransac::ransac_run`） |
 | `Halcon_OpenCV.def` | 43 | 直接写在 supply（`cv::`）；唯一例外 `cv_measure_*` 复用 `cvr::cvr_measure_pos` |
 | `Halcon_Math` / `Sqlite` / `Modbus` / `Spdlog` / `Mysql` | 11/5/14/20/3 | 直接写在 supply（muparser+Eigen+armadillo / sqlite3 / libmodbus / spdlog / libmysql） |
-| `Halcon_Dict.def` | 12 | `hdict_core`（HDict 句柄）+ `hparams_core`（HParam 句柄），supply 只做参数搬运；例程 `examples/hdict_demo.hdev` |
+| `Halcon_Dict.def` | 13 | `hdict_core`（HDict 句柄）+ `hparams_core`（HParam 句柄），supply 只做参数搬运；例程 `examples/hdict_demo.hdev` |
 | `Halcon_ParmUI.def` | 1 | `parm_ui`（`parmsetting/` 子工程：ImGui+GLFW 参数配置模态窗口），直接写在 supply（`Hparm_ui_show` 只包 `parm_ui_json()`）；例程 `examples/parm_ui_show.hdev` |
 
 **「cv_region 合并成单头 + 单 cpp」——已于 2026-09-27 执行完成（实测数据存档，勿重复测量）**：
@@ -104,7 +104,7 @@ Halcon_SoftwarePackage/             → 扩展包（沿用现有包，勿新建�
 - 铁律适用：**新增独立库才新建目录**；这两块的改动**不要**塞进 `cvr.cpp`（与 `cvr_core` 无依赖关系）。
 - **已在扩展包里封装为算子**（2026-10-10，模块 `Dict`：`def/Halcon_Dict.def` + `source/Halcon_Dict.cpp`，共 12 个）：
   `hdict_create/copy/set_tuple/get_tuple/set_subdict/get_keys/key_exists/key_kind/remove_key`（`HDict` 句柄，TAG `0xC0FFEEE0`）
-  + `param_create/load_param/param_to_json`（`HParam` 句柄 = json 参数树，TAG `0xC0FFEEF0`）；例程 `examples/hdict_demo.hdev`（`hrun -P` 通过）。
+  + `param_create/load_param/json_to_param/param_to_json`（`HParam` 句柄 = json 参数树，TAG `0xC0FFEEF0`；`json_to_param` = `ParamTree(json)` 构造、`param_to_json` = `to_json()`，一对双向搬运）；例程 `examples/hdict_demo.hdev`（`hrun -P` 通过）。
   两个句柄持有的容器（`Dict` / `ParamTree`）都内嵌 `std::shared_mutex` ⇒ **多线程共享同一句柄安全**（但"先查后写"这类复合操作仍非原子）。
   `hparams_core` 提供了两个入口：无状态纯函数 `LoadParam(json&, ...)`（调用方保证 json 独占）与带锁的 `ParamTree`（`load` 写锁 / `snapshot`·`to_json` 读锁）。
 

@@ -360,6 +360,42 @@ Herror Hload_param(Hproc_handle proc_handle)
     }
 }
 
+// ---------------------------------------------------------------------------
+// json_to_param —— param_to_json 的逆操作（hparams_core 的 ParamTree(json) 构造函数）
+//   输入：JSON 串；输出：新建的 HParam 句柄（可继续 load_param 就地补全）
+// ---------------------------------------------------------------------------
+Herror Hjson_to_param(Hproc_handle proc_handle)
+{
+    HCkNoObj(proc_handle);
+    HAllocStringMem(proc_handle, 1024);
+
+    // 输入控制 1 = Json（参数树可能较长：零拷贝取 HALCON 内部字符串指针）
+    char const *const *strs = nullptr;
+    INT4_8              n    = 0;
+    HGetPElemS(proc_handle, 1, CONV_NONE, &strs, &n);
+    if (n != 1 || strs == nullptr || strs[0] == nullptr)
+    {
+        HSetErrText(const_cast<char *>("json_to_param: input Json must be exactly one string"));
+        return H__LINE__ * 10000;
+    }
+
+    // 先解析：语法错误直接报错（此时还没分配输出句柄）
+    nlohmann::json parsed;
+    try
+    {
+        parsed = nlohmann::json::parse(std::string(strs[0]));
+    }
+    catch (const std::exception &e)
+    {
+        return failWith(e, H__LINE__);
+    }
+
+    Def_OUTHParamObject(1, pUserData);
+    HParamSetTree(OUTHParamObject(pUserData),
+                  std::make_shared<MLIQMetrics::ParamTree>(std::move(parsed)));
+    return H_MSG_TRUE;
+}
+
 Herror Hparam_to_json(Hproc_handle proc_handle)
 {
     HCkNoObj(proc_handle);
