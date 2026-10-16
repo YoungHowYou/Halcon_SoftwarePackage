@@ -191,6 +191,92 @@ parameter
   multivalue:         true;
 
 
+hdict_set_object<- CHhdict_set_object[Object::HDict,Key:]
+short.english
+  把一个 HALCON 对象（可为对象元组）写入指定键（hdict_core 的 set_dict_object）。键不存在则新建，已存在则覆盖；载荷是 HalconCpp 的 HObject（自带键引用计数，可跨算子调用存活）。;
+short.german
+  Schreibt ein HALCON-Objekt unter dem angegebenen Schluessel in das Dictionary.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  hdict, dict, set, object;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Object:             input_object;
+  description.english: 要写入的对象（图/区域/XLD，可为对象元组）。;
+  sem_type:           object;
+  multivalue:         optional;
+
+parameter
+  HDict:              input_control;
+  description.english: 目标字典句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  Key:                input_control;
+  description.english: 键名。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         false;
+
+
+hdict_get_object<- CHhdict_get_object[:Object:HDict,Key:]
+short.english
+  读出对象（hdict_core 的 get_dict_object）。键不存在、或该键存的不是对象（是元组/子字典/其它载荷）时抛错。;
+short.german
+  Liest ein HALCON-Objekt aus dem Dictionary.;
+module
+  foundation;
+chapter.english
+  UserExtensions;
+chapter.german
+  BenutzerErweiterungen;
+keywords.english
+  hdict, dict, get, object;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Object:             output_object;
+  description.english: 取出的对象（存的是对象元组时一并返回）。;
+  sem_type:           object;
+  multivalue:         optional;
+
+parameter
+  HDict:              input_control;
+  description.english: 源字典句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  Key:                input_control;
+  description.english: 键名。;
+  sem_type:           string;
+  type_list:          string;
+  default_type:       string;
+  multivalue:         false;
+
+
 hdict_set_subdict<- CHhdict_set_subdict[::HDict,Key,SubHDict:]
 short.english
   把一个字典作为子字典写入指定键（hdict_core 的 set_dict_tuple 子字典重载）。键不存在则新建，已存在则覆盖。;

@@ -1,0 +1,101 @@
+/*****************************************************************************
+ * Halcon_OpenVino.def
+ *****************************************************************************
+ *
+ * Project:      HALCON Extension Package "Halcon_SoftwarePackage"
+ * Description:  OpenVINO / YOLO26-seg 推理算子（原 Halcon_YouloBe 包并入）
+ *               目标检测/实例分割的算法本体在 yolo_core 目录（HALCON-free 静态库，
+ *               yolo::Model / yolo_capi），本包 supply 层只做「HDict ⇄ yolo_capi」搬运。
+ *
+ * 字典参数统一用 HDict 句柄（见 Halcon_Dict.def 的 hdict_* 系列）：
+ *   hdict_create / hdict_set_tuple / hdict_get_tuple / hdict_set_object / hdict_get_object ...
+ *
+ *****************************************************************************
+ */
+
+/*********************************  OpenvinoLoadModel  ***********************/
+OpenvinoLoadModel<- CHopenvino_load_model[::HDict:Handle]
+
+short.english
+  加载 OpenVINO 模型（.xml/.bin），支持 CPU / GPU / NPU 设备。字典键 '工程路径'（模型 .xml 路径）与 '使用设备'（'CPU'/'GPU'/'NPU'）必填，加载成功后把模型输入尺寸写回同一字典的 '宽' / '高'（单位：像素）。;
+
+short.german
+  Laedt ein OpenVINO-Modell (.xml/.bin) auf das angegebene Geraet.;
+
+module
+  foundation;
+
+chapter.english
+  UserExtensions;
+
+chapter.german
+  BenutzerErweiterungen;
+
+keywords.english
+  OpenVINO, YOLO, deep learning, load model, inference;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  HDict:              input_control;
+  description.english: 字典句柄：读 '工程路径' / '使用设备'，写回 '宽' / '高'。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  Handle:             output_control;
+  description.english: 模型句柄，供 yolo_seg_detect 使用。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+
+/*********************************  yolo_seg_detect  *************************/
+yolo_seg_detect<- CHyolo_seg_detect[::Handle,HDict:]
+
+short.english
+  YOLO26 实例分割检测。读字典里的 'InputImage' 与选填的 'ConfThreshold' 'MaskThreshold' 'NMSThreshold' '宽' '高' '步长' '步长X' '步长Y'，写回 'NumDetections' 'ClassIDs' 'Confidences' 'ClassLabelImage' 'BoundingBoxes'。自动识别两种导出格式（end2end=True 的 [1,300,D] NMS-free 输出与 end2end=False 的 [1,D,8400] 原始输出），大图自动滑窗 + NMS，掩膜以与原图等大的标签图（uint2，0=背景，像素值=类别ID+1）给出。;
+
+short.german
+  YOLO26 Instanzsegmentierung (OpenVINO).;
+
+module
+  foundation;
+
+chapter.english
+  UserExtensions;
+
+chapter.german
+  BenutzerErweiterungen;
+
+keywords.english
+  YOLO, segmentation, detection, OpenVINO, deep learning, instance segmentation;
+
+parallelization
+  process_exclusively: false;
+  process_locally:     false;
+  process_mutual:      false;
+  method:              none;
+
+parameter
+  Handle:             input_control;
+  description.english: OpenvinoLoadModel 产出的模型句柄。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;
+
+parameter
+  HDict:              input_control;
+  description.english: 字典句柄：输入图像/阈值/滑窗，输出检测结果（见算子说明）。;
+  sem_type:           handle;
+  type_list:          handle;
+  default_type:       handle;
+  multivalue:         false;

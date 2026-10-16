@@ -1,3 +1,39 @@
+yolo_seg_detect(Handle,HDict)
+short.ascii=YOLO26 实例分割检测。读字典里的 'InputImage' 与选填的 'ConfThreshold' 'MaskThreshold' 'NMSThreshold' '宽' '高' '步长' '步长X' '步长Y'，写回 'NumDetections' 'ClassIDs' 'Confidences' 'ClassLabelImage' 'BoundingBoxes'。自动识别两种导出格式（end2end=True 的 [1,300,D] NMS-free 输出与 end2end=False 的 [1,D,8400] 原始输出），大图自动滑窗 + NMS，掩膜以与原图等大的标签图（uint2，0=背景，像素值=类别ID+1）给出。
+keywords=YOLOsegmentationdetectionOpenVINOdeep learninginstance segmentation
+module=0 Foundation
+parameter=Handle
+description.ascii=OpenvinoLoadModel 产出的模型句柄。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=HDict
+description.ascii=字典句柄：输入图像/阈值/滑窗，输出检测结果（见算子说明）。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+OpenvinoLoadModel(HDict,Handle)
+short.ascii=加载 OpenVINO 模型（.xml/.bin），支持 CPU / GPU / NPU 设备。字典键 '工程路径'（模型 .xml 路径）与 '使用设备'（'CPU'/'GPU'/'NPU'）必填，加载成功后把模型输入尺寸写回同一字典的 '宽' / '高'（单位：像素）。
+keywords=OpenVINOYOLOdeep learningload modelinference
+module=0 Foundation
+parameter=HDict
+description.ascii=字典句柄：读 '工程路径' / '使用设备'，写回 '宽' / '高'。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=Handle
+description.ascii=模型句柄，供 yolo_seg_detect 使用。
+parameter_class=output_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
 parm_ui_show(Json,Competence,JsonOut,Cancelled)
 short.ascii=弹出参数配置窗口，按 Type 字段自动生成控件（parm_ui 库的 parm_ui_json）。传入 UTF-8 的配置 JSON 串与当前用户权限等级（0 操作员 / 1 产线工程师 / 2 系统工程师 / 3 管理员），窗口是模态的：本算子阻塞到用户点【保存并关闭】或【取消 / 右上角 ×】关窗为止。窗口跑在库自己创建的 UI 线程上，宿主其它线程（图像采集、算法、日志等）不受影响。返回：保存时 JsonOut 为改完的 JSON 且 Cancelled=0。取消时 JsonOut 为原 JSON 的副本且 Cancelled=1。失败返回错误码（用 get_error_text 取原因）。键顺序、未知字段与浮点字面量原样保留，只把编辑过的 Value 写回。
 keywords=parmuiparameterconfigjsondialog
@@ -230,6 +266,52 @@ parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
+multivalue=false
+hdict_get_object(Object,HDict,Key)
+short.ascii=读出对象（hdict_core 的 get_dict_object）。键不存在、或该键存的不是对象（是元组/子字典/其它载荷）时抛错。
+keywords=hdictdictgetobject
+module=0 Foundation
+parameter=Object
+description.ascii=取出的对象（存的是对象元组时一并返回）。
+parameter_class=output_object
+sem_type=object
+multivalue=optional
+parameter=HDict
+description.ascii=源字典句柄。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=Key
+description.ascii=键名。
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
+multivalue=false
+hdict_set_object(Object,HDict,Key)
+short.ascii=把一个 HALCON 对象（可为对象元组）写入指定键（hdict_core 的 set_dict_object）。键不存在则新建，已存在则覆盖；载荷是 HalconCpp 的 HObject（自带键引用计数，可跨算子调用存活）。
+keywords=hdictdictsetobject
+module=0 Foundation
+parameter=Object
+description.ascii=要写入的对象（图/区域/XLD，可为对象元组）。
+parameter_class=input_object
+sem_type=object
+multivalue=optional
+parameter=HDict
+description.ascii=目标字典句柄。
+parameter_class=input_control
+type_list=handle
+default_type=handle
+sem_type=handle
+multivalue=false
+parameter=Key
+description.ascii=键名。
+parameter_class=input_control
+type_list=string
+default_type=string
+sem_type=string
 multivalue=false
 hdict_get_tuple(HDict,Key,Value)
 short.ascii=读出元组值（hdict_core 的 get_dict_tuple）。键不存在、或该键存的不是元组（是子字典）时抛错。

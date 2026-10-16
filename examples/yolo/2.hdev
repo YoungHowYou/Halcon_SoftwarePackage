@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* YOLO26-seg 批量跑图 + 滑窗步长演示（OpenVINO）</c>
+<c>* 模型: ./best.xml（YOLO26-seg raw 导出 [1,39,8400]，算子内置 NMS）</c>
+<l>dev_update_off ()</l>
+<l>ModelPath := './best.xml'</l>
+<l>Device := 'CPU'  // CPU / GPU / NPU</l>
+<c></c>
+<c>* 加载模型</c>
+<l>hdict_create (HD)</l>
+<l>hdict_set_tuple (HD, '工程路径', ModelPath)</l>
+<l>hdict_set_tuple (HD, '使用设备', Device)</l>
+<l>hdict_set_tuple (HD, 'ConfThreshold', 0.15)</l>
+<l>hdict_set_tuple (HD, 'MaskThreshold', 0.15)</l>
+<l>hdict_set_tuple (HD, 'NMSThreshold', 0.45)</l>
+<l>OpenvinoLoadModel (HD, ModelHandle)</l>
+<c></c>
+<c>* 滑窗步长（默认=模型输入尺寸；此处强制 512 便于对比）</c>
+<c>* hdict_set_tuple (HD, '步长', 512)</c>
+<c>* hdict_set_tuple (HD, '步长X', 512)</c>
+<c>* hdict_set_tuple (HD, '步长Y', 384)</c>
+<c></c>
+<c>* 批量检测（把下面的路径改成你自己的数据集目录）</c>
+<l>list_files ('D:/desk/data/newAA&amp;Keyence/keyence', ['files','follow_links','recursive'], ImageFiles)</l>
+<l>tuple_regexp_select (ImageFiles, ['(tif|tiff|gif|bmp|jpg|jpeg|jp2|png|pcx|pgm|ppm|pbm|xwd|ima)$','ignore_case'], ImageFiles)</l>
+<l>for Index := 0 to |ImageFiles| - 1 by 1</l>
+<l>    read_image (Image, ImageFiles[Index])</l>
+<l>    hdict_set_object (Image, HD, 'InputImage')</l>
+<l>    yolo_seg_detect (ModelHandle, HD)</l>
+<l>    hdict_get_tuple (HD, 'NumDetections', NumDetections)</l>
+<l>    if (NumDetections &gt; 0)</l>
+<l>        hdict_get_tuple (HD, 'ClassIDs', ClassIDs)</l>
+<l>        hdict_get_tuple (HD, 'Confidences', Confidences)</l>
+<l>        hdict_get_object (LabelImage, HD, 'ClassLabelImage')</l>
+<l>        hdict_get_object (Boxes, HD, 'BoundingBoxes')</l>
+<l>        threshold (LabelImage, Regions, 1, 255)</l>
+<l>        dev_display (Image)</l>
+<l>        dev_display (Regions)</l>
+<l>        dev_display (Boxes)</l>
+<c>*         stop ()</c>
+<l>    endif</l>
+<l>endfor</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

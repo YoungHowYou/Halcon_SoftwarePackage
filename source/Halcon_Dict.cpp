@@ -10,6 +10,10 @@
 #include "Halcon_Def.h"
 #include "Halcon_SoftwarePackage.h"
 
+#include "HalconCpp.h"   // HObject（hdict_set_object / hdict_get_object 的对象载荷）
+
+#include "Halcon_DictObject.h"   // HDictNativeObjectRef（算子产出对象的跨调用引用载荷）
+
 #include "hdict_core.h"
 #include "hparams_core.h"
 
@@ -19,6 +23,7 @@
 #include <string>
 #include <vector>
 
+using namespace HalconCpp;
 using MLIQMetrics::hdict::DictPtr;
 
 namespace {
@@ -313,6 +318,107 @@ Herror Hhdict_remove_key(Hproc_handle proc_handle)
     DictPtr d = HDictGetDict(pData);
     INT4_8 removed = (d && MLIQMetrics::hdict::remove_dict_key(d, key)) ? 1 : 0;
     HPutElem(proc_handle, 1, &removed, 1, LONG_PAR);
+    return H_MSG_TRUE;
+}
+
+/*---------------------------------------------------------------------------
+ * hdict_set_object (Object, HDict, Key)
+ *   hdict_core 的 set_dict_object：把 HALCON 对象（可为对象元组）存进字典。
+ *   参数口径与 HALCON 原生 set_dict_object(Object, DictHandle, Key) 一致，
+ *   只是字典换成 hdict 句柄。载荷 = shared_ptr<HObject>（HalconCpp 对象自带
+ *   键引用计数，可跨算子调用存活）。
+ *-------------------------------------------------------------------------*/
+Herror Hhdict_set_object(Hproc_handle proc_handle)
+{
+    HCkNoObj(proc_handle);
+    HAllocStringMem(proc_handle, 1024);
+    Def_INHDictObject(1, pData);              // 输入控制独立编号：1 = HDict
+    const std::string key = readString(proc_handle, 2);
+
+    DictPtr d = HDictGetDict(pData);
+    if (!d) return H__LINE__ * 10000;
+
+    INT4_8 num = 0;
+    HGetObjNum(proc_handle, 1, &num);         // 输入对象独立编号：1 = Object
+
+    try
+    {
+        HObject obj;                          // 对象元组（一个 HObject 可含多个对象）
+        for (INT4_8 i = 1; i <= num; ++i)
+        {
+            Hkey k = H_UNDEFINED;
+            HGetObj(proc_handle, 1, i, &k);
+            HObject one(k, true);             // copy=true：自己管键（引用计数 +1）
+            obj = (i == 1) ? one : obj.ConcatObj(one);
+        }
+        if (!obj.IsInitialized()) return H__LINE__ * 10000;
+        MLIQMetrics::hdict::set_dict_object_shared(d, key, std::make_shared<HObject>(obj));
+    }
+    catch (const std::exception &e)
+    {
+        return failWith(e, H__LINE__);
+    }
+    return H_MSG_TRUE;
+}
+
+/*---------------------------------------------------------------------------
+ * hdict_get_object (HDict, Key : Object)
+ *   参数口径与 HALCON 原生 get_dict_object(::DictHandle,Key:Object) 一致。
+ *   载荷两种形态：
+ *     ① HObject —— 调用方（脚本 / C++）自己塞进来的对象，键属于调用方上下文，直接拷贝；
+ *     ② HDictNativeObjectRef —— 扩展算子内部产出的对象（见 Halcon_DictObject.h）：
+ *        对象本体在算子句柄的原生 dict 里保活，这里就地 GetDictObject 取回，
+ *        于是对象落在本次调用的上下文里，再 HCopyObj 交给输出参数。
+ *   输出用 HCopyObj 把对象键链到输出对象参数（同 cv_select_shape）；对象元组按 num 一次拷完。
+ *-------------------------------------------------------------------------*/
+Herror Hhdict_get_object(Hproc_handle proc_handle)
+{
+    HCkNoObj(proc_handle);
+    HAllocStringMem(proc_handle, 1024);
+    Def_INHDictObject(1, pData);
+    const std::string key = readString(proc_handle, 2);
+
+    DictPtr d = HDictGetDict(pData);
+    if (!d) return H__LINE__ * 10000;
+    try
+    {
+        HObject obj;
+
+        // ① 调用方塞进来的 HObject
+        try
+        {
+            auto p = MLIQMetrics::hdict::get_dict_object_as<std::shared_ptr<HObject>>(d, key);
+            if (p && p->IsInitialized()) obj = *p;
+        }
+        catch (...)
+        {
+        }
+
+        // ② 扩展算子产出的对象：载荷是「原生 dict + 键」引用
+        if (!obj.IsInitialized())
+        {
+            auto ref = MLIQMetrics::hdict::get_dict_object_as<HDictNativeObjectRefPtr>(d, key);
+            if (!ref) return H__LINE__ * 10000;
+            GetDictObject(&obj, ref->dict, HTuple(ref->key.c_str()));
+        }
+        if (!obj.IsInitialized()) return H__LINE__ * 10000;
+
+        const Hlong num = obj.CountObj();
+        if (num <= 0) return H__LINE__ * 10000;
+        // 对象元组必须逐个串行 HCopyObj（num=1）：HALCON 会把它们依次链到同一个输出对象
+        // 参数上（同 cv_select_shape）；一次传 num>1 要求键在内存里连续，而元组不保证
+        // （Region 元组会报 #4052 wrong object-ID）。
+        for (Hlong i = 1; i <= num; ++i)
+        {
+            HObject one = obj.SelectObj(i);   // 命名局部量：键在本次调用上下文里保持有效
+            Hkey out_key = H_UNDEFINED;
+            HCopyObj(proc_handle, one.Key(), 1, &out_key);   // 输出对象独立编号：1 = Object
+        }
+    }
+    catch (const std::exception &e)
+    {
+        return failWith(e, H__LINE__);
+    }
     return H_MSG_TRUE;
 }
 

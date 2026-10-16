@@ -140,6 +140,7 @@ set(EXT_SOURCES
   source/Halcon_Ransac.cpp
   source/Halcon_Dict.cpp
   source/Halcon_ParmUI.cpp
+  source/Halcon_OpenVino.cpp
 )
 
 #----------------------------------------------------------------------
@@ -168,6 +169,14 @@ endif()
 #  静态库 hdict_core，供 supply 层 / 其它库复用（纯 STL，无三方链接依赖）
 #----------------------------------------------------------------------
 add_subdirectory(HDict)
+
+#----------------------------------------------------------------------
+#  yolo_core：YOLO26-seg 推理核心 + 字典式 C 接口（原 Halcon_YouloBe 包并入）
+#    静态库 yolo_core（yolo::Model，C++ API）+ yolo_capi（yolo_* C 接口，
+#    字典 = 本包的 hdict_core）；两者都 HALCON-free，可单独 install 复用。
+#    必须在 HDict 之后 add_subdirectory：yolo_capi 要复用包内 hdict_core 目标。
+#----------------------------------------------------------------------
+add_subdirectory(yolo_core)
 
 #----------------------------------------------------------------------
 #  Params：复刻 hdev 的 LoadParams（递归 JSON 参数解析，查不到就注册默认值）
@@ -203,6 +212,7 @@ HALCON_AddExtensionPackage(${ProjectName}
     def/Halcon_Ransac.def
     def/Halcon_Dict.def
     def/Halcon_ParmUI.def
+    def/Halcon_OpenVino.def
   SOURCES
     ${EXT_SOURCES}
   CHAPTERS
@@ -223,6 +233,12 @@ find_package(OpenCV REQUIRED
   COMPONENTS core imgproc imgcodecs features2d calib3d flann
 )
 message(STATUS "OpenCV ${OpenCV_VERSION} — ${OpenCV_DIR}")
+
+#==================================================================
+#  OpenVINO（YOLO26-seg 推理；yolo_core 的依赖）
+#==================================================================
+find_package(OpenVINO REQUIRED)
+message(STATUS "OpenVINO  → vcpkg  (openvino::runtime)  ${OpenVINO_DIR}")
 
 #==================================================================
 #  exiv2 (from Halcon_YouloBe migration)
@@ -316,6 +332,8 @@ if(WIN32)
     hdict_core
     hparams_core
     parm_ui
+    yolo_capi
+    openvino::runtime
     ${OpenCV_LIBS}
     exiv2lib
     ${SPDLOG_LIBS}
@@ -335,6 +353,8 @@ else()
     hdict_core
     hparams_core
     parm_ui
+    yolo_capi
+    openvino::runtime
     ${OpenCV_LIBS}
     exiv2lib
     ${SPDLOG_LIBS}
@@ -373,6 +393,17 @@ if(WIN32)
       "$<TARGET_FILE:parm_ui>"
       "$<TARGET_FILE_DIR:${ProjectName}>/parm_ui.dll"
     COMMENT "Copying parm_ui.dll → output"
+  )
+  # OpenVINO 插件/前端 DLL（openvino*.dll，运行时按目录加载，非链接期依赖，
+  # applocal 不会拷贝；缺了 YOLO 算子会报 "Available frontends:" 为空）
+  add_custom_command(TARGET ${ProjectName} POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+      -DCONFIG=$<CONFIG>
+      "-DVCPKG_BIN_RELEASE=${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin"
+      "-DVCPKG_BIN_DEBUG=${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin"
+      "-DOUT_DIR=$<TARGET_FILE_DIR:${ProjectName}>"
+      -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/copy_openvino_plugins.cmake"
+    COMMENT "Copying OpenVINO runtime/plugin DLLs → output"
   )
   # 同步生成的算子签名数据库 → 包 help/。
   # HALCON 从 help/operators_en_US.num 读取各算子签名做调用校验；

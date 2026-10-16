@@ -193,10 +193,16 @@ extern EXPORTS_API Herror Hhdict_get_keys(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hhdict_key_exists(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hhdict_key_kind(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hhdict_remove_key(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hhdict_set_object(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hhdict_get_object(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hparam_create(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hload_param(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hparam_to_json(Hproc_handle proc_handle);
 extern EXPORTS_API Herror Hjson_to_param(Hproc_handle proc_handle);
+
+/* ---- OpenVINO / YOLO26-seg 模块（原 Halcon_YouloBe 包并入；算法在 yolo_core/） ---- */
+extern EXPORTS_API Herror Hopenvino_load_model(Hproc_handle proc_handle);
+extern EXPORTS_API Herror Hyolo_seg_detect(Hproc_handle proc_handle);
 #pragma endregion
 
 /* ---- ParmUI 模块：parm_ui（参数配置窗口，Dear ImGui + GLFW） ---- */

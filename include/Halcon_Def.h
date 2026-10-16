@@ -241,6 +241,14 @@ extern "C"
     HDictHUserHandleData *(pUserData);    \
     HGetCElemH1(proc_handle, (pos), &HDictHandleTypeUser, &(pUserData))
 
+// 跨模块读 HDict：只取句柄里的数据指针，**不校验类型**。
+//   HALCON 的用户句柄类型是按**模块（DLL）**注册的（H_HANDLE_TYPE 里内嵌本模块的析构函数
+//   指针），拿本包的描述符去校验别的包建的 HDict 会得到 2404 Invalid handle type。
+//   本包算子里只*读*字典（不创建、不释放句柄 ⇒ 不涉及析构），故 expected_type = NULL 安全。
+#define Def_INHDictObjectShared(pos, pUserData)                                      \
+    HDictHUserHandleData *(pUserData) = NULL;                                        \
+    HCkP(HPGetPElemH(proc_handle, (pos), NULL, 1, (void **)&(pUserData), NULL, false))
+
 #define Def_OUTHDictObject(pos, pUserData)                                        \
     HDictHUserHandleData **(pUserData);                                           \
     HCkP(HAllocOutputHandle(proc_handle, 1, &(pUserData), &HDictHandleTypeUser)); \

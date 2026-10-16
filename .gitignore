@@ -64,3 +64,5 @@ Desktop.ini
 /*.obj
 # 示例运行生成物
 /examples/*.db
+# YOLO 模型权重（111 MB，超过 GitHub 单文件限制，按 examples/yolo/README.md 自行放入）
+/examples/yolo/*.bin

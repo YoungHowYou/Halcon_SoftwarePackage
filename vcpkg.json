@@ -5,6 +5,19 @@
   "builtin-baseline": "4dbd4a48908ff48d26b3cf063f8c9e1da5759185",
   "dependencies": [
     "opencv4",
+    {
+      "name": "openvino",
+      "default-features": false,
+      "features": [
+        "auto",
+        "auto-batch",
+        "cpu",
+        "gpu",
+        "hetero",
+        "ir",
+        "npu"
+      ]
+    },
     "exiv2",
     "spdlog",
     "libmodbus",

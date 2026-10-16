@@ -1,3 +1,5 @@
+Handle,HDict:userextensions:UserExtensions:
+HDict,Handle:userextensions:UserExtensions:
 Json,Competence,JsonOut,Cancelled:userextensions:UserExtensions:
 HParam,Json:userextensions:UserExtensions:
 HParam:userextensions:UserExtensions:
@@ -7,6 +9,8 @@ HDict,Key,Kind:userextensions:UserExtensions:
 HDict,Key,Exists:userextensions:UserExtensions:
 HDict,Keys:userextensions:UserExtensions:
 HDict,Key,SubHDict:userextensions:UserExtensions:
+Object,HDict,Key:userextensions:UserExtensions:
+Object,HDict,Key:userextensions:UserExtensions:
 HDict,Key,Value:userextensions:UserExtensions:
 HDict,Key,Value:userextensions:UserExtensions:
 HDict,HDictCopy:userextensions:UserExtensions:

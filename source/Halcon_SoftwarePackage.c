@@ -889,6 +889,29 @@ Herror CHhdict_remove_key(Hproc_handle proc_handle)
     return Hhdict_remove_key(proc_handle);
 }
 
+Herror CHhdict_set_object(Hproc_handle proc_handle)
+{
+    return Hhdict_set_object(proc_handle);
+}
+
+Herror CHhdict_get_object(Hproc_handle proc_handle)
+{
+    return Hhdict_get_object(proc_handle);
+}
+
+/* ============================================================
+   OpenVINO / YOLO26-seg 模块（原 Halcon_YouloBe 包并入）
+   ============================================================ */
+Herror CHopenvino_load_model(Hproc_handle proc_handle)
+{
+    return Hopenvino_load_model(proc_handle);
+}
+
+Herror CHyolo_seg_detect(Hproc_handle proc_handle)
+{
+    return Hyolo_seg_detect(proc_handle);
+}
+
 Herror CHparam_create(Hproc_handle proc_handle)
 {
     return Hparam_create(proc_handle);

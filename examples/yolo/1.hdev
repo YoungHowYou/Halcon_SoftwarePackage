@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="24.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* YOLO26-seg 实例分割示例（OpenVINO）</c>
+<c>* 模型: ./best.xml（本目录），end2end=True/False 两种导出格式均可</c>
+<c>* 字典统一用本包的 HDict 句柄（hdict_* 系列），不是 HALCON 原生 create_dict</c>
+<l>dev_update_off ()</l>
+<l>ModelPath := './best.xml'</l>
+<l>Device := 'CPU'  // CPU / GPU / NPU</l>
+<c></c>
+<c>* 加载模型：读 '工程路径' / '使用设备'，写回 '宽' / '高'（模型输入尺寸）</c>
+<l>hdict_create (HD)</l>
+<l>hdict_set_tuple (HD, '工程路径', ModelPath)</l>
+<l>hdict_set_tuple (HD, '使用设备', Device)</l>
+<l>hdict_set_tuple (HD, 'ConfThreshold', 0.25)</l>
+<l>hdict_set_tuple (HD, 'MaskThreshold', 0.5)</l>
+<l>hdict_set_tuple (HD, 'NMSThreshold', 0.45)  // 仅 raw（end2end=False）模型需要</l>
+<l>OpenvinoLoadModel (HD, ModelHandle)</l>
+<l>hdict_get_tuple (HD, '宽', Width)</l>
+<l>hdict_get_tuple (HD, '高', Height)</l>
+<c></c>
+<c>* 大图滑窗检测：图像大于模型尺寸时自动启用，步长默认=模型尺寸，可覆盖：</c>
+<c>* hdict_set_tuple (HD, '步长', 512)</c>
+<c>* hdict_set_tuple (HD, '步长X', 512)</c>
+<c>* hdict_set_tuple (HD, '步长Y', 384)</c>
+<c></c>
+<c>* 读取测试图像（把下面的路径改成你自己的数据集目录）</c>
+<l>list_files ('D:/desk/data/newAA&amp;Keyence/keyence', ['files','follow_links','recursive'], ImageFiles)</l>
+<l>tuple_regexp_select (ImageFiles, ['(tif|tiff|gif|bmp|jpg|jpeg|jp2|png|pcx|pgm|ppm|pbm|xwd|ima)$','ignore_case'], ImageFiles)</l>
+<l>for Index := 0 to |ImageFiles| - 1 by 1</l>
+<l>    read_image (Image, ImageFiles[Index])</l>
+<l>    hdict_set_object (Image, HD, 'InputImage')</l>
+<l>    yolo_seg_detect (ModelHandle, HD)</l>
+<l>    hdict_get_tuple (HD, 'NumDetections', NumDetections)</l>
+<l>    if (NumDetections &gt; 0)</l>
+<l>        hdict_get_tuple (HD, 'ClassIDs', ClassIDs)</l>
+<l>        hdict_get_tuple (HD, 'Confidences', Confidences)</l>
+<l>        hdict_get_object (LabelImage, HD, 'ClassLabelImage')</l>
+<l>        hdict_get_object (Boxes, HD, 'BoundingBoxes')</l>
+<l>        threshold (LabelImage, Regions, 1, 255)</l>
+<l>        dev_display (Image)</l>
+<l>        dev_display (Regions)</l>
+<l>        dev_display (Boxes)</l>
+<l>        stop ()</l>
+<l>    endif</l>
+<l>endfor</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

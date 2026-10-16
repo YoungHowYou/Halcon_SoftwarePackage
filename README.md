@@ -108,7 +108,9 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 
 ### 字典与参数（`hdict_core` / `hparams_core`）
 
-* `HDict` 句柄类算子（`hdict_create` / `hdict_set_tuple` / `hdict_get_tuple` / `hdict_copy` / `hdict_set_subdict` / `hdict_get_keys` / `hdict_key_exists` / `hdict_key_kind` / `hdict_remove_key`）—— 扩展包自带的键值字典容器（纯 STL、`shared_mutex` 线程安全）。
+* `HDict` 句柄类算子（`hdict_create` / `hdict_set_tuple` / `hdict_get_tuple` / `hdict_copy` / `hdict_set_subdict` / `hdict_get_keys` / `hdict_key_exists` / `hdict_key_kind` / `hdict_remove_key` / **`hdict_set_object` / `hdict_get_object`**）—— 扩展包自带的键值字典容器（纯 STL、`shared_mutex` 线程安全）。
+  * 后两个是**对象**进出字典的口子（HALCON 对象/对象元组，如图像、Region 数组）；对象载荷的两种形态
+    （调用方塞进来的 HObject / 扩展算子产出的原生 dict 引用）见下文「关于字典里的对象载荷」。
 * `HParam` 句柄 + `load_param` / `json_to_param` / `param_to_json` —— hdev `LoadParams` 的 C++ 复刻（递归参数装载）+ JSON 串与参数树的双向搬运。
 
 详细文档见下文「Dict 扩展算子」；例程 `examples/hdict_demo.hdev`。
@@ -119,6 +121,150 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
   界面本体在独立子工程 **`parmsetting/`**（Dear ImGui v1.92.9b + GLFW 3.4 静态链入 `parm_ui.dll`，纯 C 接口、与 HALCON 无关）。
 
 详细文档见下文「参数配置窗口扩展算子」；例程 `examples/parm_ui_show.hdev`。
+
+### OpenVINO / YOLO26-seg 目标检测与实例分割
+
+* `OpenvinoLoadModel` / `yolo_seg_detect` —— OpenVINO 模型加载与 YOLO26 实例分割（原独立扩展包 **Halcon_YouloBe** 已并入本包，算子名与用法保持不变）。
+* 算法本体在 **`yolo_core/`**：HALCON-free 静态库 `yolo_core`（C++ `yolo::Model`）+ 纯 C 字典接口 `yolo_capi`，可脱离 HALCON 单独使用 / 单独 install。
+
+详细文档见下文「OpenVINO / YOLO 扩展算子」；例程 `examples/yolo/`。
+
+## OpenVINO / YOLO 扩展算子
+
+定义于 `def/Halcon_OpenVino.def`，实现于 `source/Halcon_OpenVino.cpp`，算法本体在 `yolo_core/`（HALCON-free）。
+
+- HALCON 版本：24.11
+- 依赖：OpenVINO（vcpkg `openvino`，features `auto, auto-batch, cpu, gpu, hetero, ir, npu`）、OpenCV 4.x
+- 句柄 TAG：`Openvino` = `0xC0FFEE70`（即「自研AIcpu」，见下文「句柄 TAG 分配表」）
+- **字典参数一律是本包的 HDict 句柄**（`hdict_create` / `hdict_set_tuple` / `hdict_get_tuple` / `hdict_set_object` / `hdict_get_object`），
+  算子内部与 `yolo_capi` 之间**零拷贝**（同一个字典对象），不要传 HALCON 原生 `create_dict` 的句柄。
+
+> **线程安全**：模型句柄内部只有一个 `ov::InferRequest`（`yolo::Model`），supply 层已给每个句柄内嵌 `std::mutex`——
+> 多线程**共用同一句柄**会被串行化（安全，但不会更快）；要并行就**每线程一个句柄**（各自 `OpenvinoLoadModel`）。
+> 字典（`hdict_core`）本身读写线程安全，但「先查后写」这类复合操作仍需调用方串行化。
+
+> **例程与模型文件**：例程在 `examples/yolo/`，所需的 YOLO26-seg 模型（`best.xml` + `best.bin`）**不入库**
+> （权重 111 MB，超过 GitHub 单文件限制），按 `examples/yolo/README.md` 的说明自行放入该目录后再跑。
+
+### 字典键一览
+
+| 键 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| `'工程路径'` | 字符串 | 输入 | 模型 `.xml` 路径（`.bin` 需同目录同名） |
+| `'使用设备'` | 字符串 | 输入 | `'CPU'` / `'GPU'` / `'NPU'`（默认 `'CPU'`） |
+| `'宽'` / `'高'` | 整数 | 输出/输入 | 模型输入尺寸；`OpenvinoLoadModel` 写回，`yolo_seg_detect` 可读来覆盖 |
+| `'ConfThreshold'` | 实数 | 输入 | 置信度阈值（默认 0.25） |
+| `'MaskThreshold'` | 实数 | 输入 | 掩膜二值化阈值（默认 0.5） |
+| `'NMSThreshold'` | 实数 | 输入 | NMS 的 IoU 阈值（默认 0.45；仅 raw 模型需要） |
+| `'步长'` / `'步长X'` / `'步长Y'` | 整数 | 输入 | 滑窗步长（默认 = 模型输入尺寸；图像大于模型尺寸时自动滑窗） |
+| `'InputImage'` | 图像对象 | 输入 | 8 位灰度或 3 通道图（用 `hdict_set_object` 写） |
+| `'NumDetections'` | 整数 | 输出 | 检测数量 |
+| `'ClassIDs'` / `'Confidences'` | 数组 | 输出 | 类别 ID / 置信度 |
+| `'ClassLabelImage'` | 图像对象 | 输出 | 与原图等大的 `uint2` 标签图：0=背景，像素值 = 类别 ID + 1（多实例同类别合并） |
+| `'BoundingBoxes'` | Region 数组 | 输出 | 每个检测一个矩形 Region |
+
+> `'OutputImage'`（`ov::Tensor` 句柄）现在只会由库里的通用接口 `yolo_openvino_infer` 写入，
+> 扩展包侧已无对应算子（HALCON 里无法直接消费张量）。
+
+### 关于字典里的对象载荷（重要）
+
+* **调用方写进去的对象**（`hdict_set_object (Image, HD, 'InputImage')` 之类）：载荷就是 HALCON 对象，
+  用 `hdict_get_object` 读回，**对象元组也支持**（一次拿到整个 Region 数组 / 图像元组）。
+* **算子内部产出的对象**（`'ClassLabelImage'` / `'BoundingBoxes'`）：这些键是在**本次算子调用的上下文**里建的，
+  HALCON 在算子返回时会回收该上下文 —— Region 类对象会直接变成死键（再取报 `#4052 wrong object-ID`，
+  图像因为像素数据是引用计数勉强能撑住）。所以约定：算子先把对象放进**模型句柄自带的原生 dict**
+  （`create_dict` + `set_dict_object`，字典归句柄所有、跨调用存活），HDict 里只存
+  `(原生 dict 句柄, 键名)` 这个引用（见 `include/Halcon_DictObject.h` 的 `HDictNativeObjectRef`）；
+  `hdict_get_object` 碰到这种载荷时，会在**调用方的上下文**里 `get_dict_object` 取回、逐个 `copy_obj`
+  交给输出参数，于是对象真正归调用方所有，后续随便用。
+* **`'InputImage'` 是纯输入键**：算子内部会把它**就地**归一化成 `cv::Mat` 载荷（`yolo_capi` 只认 `cv::Mat`），
+  推理之后不要再 `hdict_get_object` 去取它（会报类型不符）。
+
+### OpenvinoLoadModel
+
+```
+OpenvinoLoadModel( : : HDict, Handle)
+```
+
+读 `'工程路径'` / `'使用设备'` 加载 OpenVINO 模型，并把模型输入尺寸写回同一字典的 `'宽'` / `'高'`。
+
+### yolo_seg_detect
+
+```
+yolo_seg_detect( : : Handle, HDict)
+```
+
+YOLO26 实例分割（自动识别两种导出格式）：
+
+* `end2end=True`（原生 NMS-free 导出，TopK 已烘焙进图）：检测结果 `[1,300,D]` —— `[x1,y1,x2,y2,conf,class_id,32 个掩膜系数]`，无需 NMS
+* `end2end=False`（ultralytics 常规导出）：`[1,D,8400]` —— 每列 `[cx,cy,w,h, 各类别分(已 sigmoid), 32 个掩膜系数…]`，窗口内做类别 argmax + 置信度阈值 + NMS
+* 掩膜原型 `[1,32,160,160]`
+
+框坐标先按模型输入尺寸解算，再映射回原图；图像大于模型输入尺寸时自动滑窗（步长默认 = 模型输入尺寸）并在全图范围做 NMS。
+
+> `NumDetections = 0` 时**不写** `'ClassLabelImage'` / `'BoundingBoxes'`（与 YouloBe 原语义一致），
+> 字典里这两个键会保留**上一次调用**的对象 —— 脚本一律先判 `NumDetections > 0` 再取它们。
+
+```hdevelop
+hdict_create (HD)
+hdict_set_tuple (HD, '工程路径', './best.xml')
+hdict_set_tuple (HD, '使用设备', 'CPU')
+hdict_set_tuple (HD, 'ConfThreshold', 0.25)
+hdict_set_tuple (HD, 'MaskThreshold', 0.5)
+hdict_set_tuple (HD, 'NMSThreshold', 0.45)
+OpenvinoLoadModel (HD, MH)
+read_image (Image, 'part.png')
+hdict_set_object (Image, HD, 'InputImage')
+yolo_seg_detect (MH, HD)
+hdict_get_tuple (HD, 'NumDetections', NumDetections)
+hdict_get_tuple (HD, 'ClassIDs', ClassIDs)
+hdict_get_tuple (HD, 'Confidences', Confidences)
+hdict_get_object (LabelImage, HD, 'ClassLabelImage')
+hdict_get_object (Boxes, HD, 'BoundingBoxes')
+```
+
+### 脱离 HALCON 使用（`yolo_core` / `yolo_capi`）
+
+`yolo_core/` 编出两个 **HALCON-free** 静态库（`find_package(yolo_core)` / `yolo::yolo_capi`）：
+
+* `yolo::yolo_core` —— C++ API `yolo::Model`（`include/yolo/yolo.hpp`）
+* `yolo::yolo_capi` —— 纯 C 字典接口（`include/yolo/yolo_capi.h`），与上面 2 个算子 1:1（另有 `yolo_openvino_infer` 供纯 C/C++ 工程做通用推理）；字典容器就是本包的 `hdict_core`（`YoloDict` 实为 `MLIQMetrics::hdict::DictPtr*`）
+
+```cpp
+#include "yolo/yolo_capi.h"          // 纯 C 接口（C 工程可直接 include：头里已套 extern "C"）
+#include "hdict_core.h"              // 字典容器：YoloDict 就是 MLIQMetrics::hdict::DictPtr*
+
+using MLIQMetrics::hdict::create_dict;
+using MLIQMetrics::hdict::set_dict_tuple;
+using MLIQMetrics::hdict::set_dict_object_shared;
+
+auto dict = create_dict();                                  // 等价 HALCON create_dict
+set_dict_tuple(dict, YOLO_DICT_MODEL_PATH, "best.xml");     // '工程路径'
+set_dict_tuple(dict, YOLO_DICT_DEVICE,     "CPU");          // '使用设备'
+YoloModel model = nullptr;
+yolo_openvino_load_model(&dict, &model);                    // 注意传 &dict（YoloDict = DictPtr*）
+set_dict_object_shared(dict, YOLO_DICT_INPUT_IMAGE,         // 'InputImage'：8UC1 或 8UC3-BGR
+                       std::make_shared<cv::Mat>(bgr));
+yolo_seg_detect(model, &dict);
+yolo_model_destroy(model);
+```
+
+返回码：`YOLO_OK` / `YOLO_ERR_PARAM` / `YOLO_ERR_DICT_KEY` / `YOLO_ERR_DICT_IMAGE` / `YOLO_ERR_LOAD_MODEL` / `YOLO_ERR_INFER`。
+
+### 构建提示
+
+* 首次配置由 vcpkg **从源码编 OpenVINO**（debug + release 各一遍，每遍约 3000 个编译单元；
+  内存不大的机器建议 `VCPKG_MAX_CONCURRENCY=4`、`CMAKE_BUILD_PARALLEL_LEVEL=4`，避免 OOM）。
+  OpenVINO 版本由 `vcpkg.json` 的 `builtin-baseline` 决定（当前解析到 `2026.1.0#1`）。
+* 日常只编扩展包本体即可：`cmake --build build --config Release --target Halcon_SoftwarePackage`。
+  全量构建时，HALCON 的文档生成目标（`*_html` 里的 hcomp）会和算子数据库目标并行跑 hcomp，
+  偶发 `Access violation`（MSB8066）；需要全量时加 `--parallel 1` 串行即可稳定通过。
+* `yolo_core/include/yolo/yolo.hpp` 里 OpenVINO 头必须在 HALCON/Windows 头之前并先定义 `NOMINMAX`：
+  OpenVINO 2026.1.0 的 `core/interval.hpp` 用了 `std::numeric_limits<T>::max()` 这类写法，
+  一旦先包含 `windows.h` 就会撞上 `min`/`max` 宏（C2589 / C2065 / C1903）。
+  扩展包 supply 层（`source/Halcon_OpenVino.cpp`）只与纯 C 的 `yolo_capi` 打交道，**不包含 OpenVINO 头**。
+
+
 
 ## OpenCV & Exiv2 扩展算子
 
@@ -2352,7 +2498,7 @@ hrun -v examples\cv_region.hdev      # 跑通即部署成功（退出码 0）
 | 0xC0FFEE40 | sqlite | 已占用（Halcon_Def.h） |
 | 0xC0FFEE50 | UI（IUP） | 已占用 |
 | 0xC0FFEE60 | BV相机 | 已占用 |
-| 0xC0FFEE70 | 自研AIcpu | 已占用 |
+| 0xC0FFEE70 | 自研AIcpu（OpenVINO / YOLO26-seg 推理模型句柄，`source/Halcon_OpenVino.cpp`） | 已占用（2026-10-16） |
 | 0xC0FFEE80 | 大恒相机 | 已占用 |
 | 0xC0FFEE90 | 海康读码器 | 已占用 |
 | 0xC0FFEEA0 | Spdlog | 已占用（Halcon_Def.h） |
