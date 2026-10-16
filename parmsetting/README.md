@@ -13,7 +13,7 @@
 * 纯 **CMake** 工程，不生成 / 不依赖任何 IDE 工程文件
 * Windows 用 **MSVC**，Linux 用 **GCC**
 * 三方库全部开源非商业：**Dear ImGui v1.92.9b**(MIT) + **GLFW 3.4**(zlib/libpng)，静态链进本库并隐藏符号
-* 只用到工作区自带的 `json/json.hpp`（nlohmann 3.6.1）做 JSON 解析与转义
+* 只用到工作区根目录的 `HDict/json.hpp`（nlohmann 3.6.1）做 JSON 解析与转义（不在本目录维护副本）
 
 ---
 

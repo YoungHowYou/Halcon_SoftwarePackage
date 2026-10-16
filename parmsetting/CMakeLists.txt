@@ -10,7 +10,7 @@
 #   三方库（全部开源非商业，构建时自动拉取）：
 #     Dear ImGui  https://github.com/ocornut/imgui   MIT
 #     GLFW        https://github.com/glfw/glfw       zlib/libpng
-#     nlohmann/json  用工作区自带的 json/json.hpp（3.6.1，只用它的 SAX 解析/转义）
+#     nlohmann/json  复用工作区根目录的 HDict/json.hpp（3.6.1，只用它的 SAX 解析/转义）
 # =============================================================================
 cmake_minimum_required(VERSION 3.16)
 project(parm_ui VERSION 1.0.0 LANGUAGES CXX)
@@ -104,10 +104,12 @@ set_target_properties(parm_ui_imgui PROPERTIES
 add_library(parm_ui_model STATIC
     src/ordered_json.cpp
     src/param_model.cpp)
-# json/ 必须 PUBLIC：ordered_json.h 里 #include "json.hpp"
+# 复用工作区根目录的 HDict/json.hpp（不再在 parmsetting/ 下维护副本）；
+# 必须 PUBLIC：ordered_json.h 里 #include PARM_UI_JSON_HEADER
+# 注：用相对路径而非 ${CMAKE_SOURCE_DIR}，这样 parmsetting 单独 configure 也能找到
 target_include_directories(parm_ui_model PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/json)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../HDict)
 target_compile_definitions(parm_ui_model PUBLIC PARM_UI_JSON_HEADER="json.hpp")
 
 # ------------------------------------------------------------- 对外动态库

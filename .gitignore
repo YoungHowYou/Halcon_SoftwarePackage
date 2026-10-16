@@ -63,6 +63,8 @@ Desktop.ini
 /_hrun_out.txt
 /*.obj
 # 示例运行生成物
-/examples/*.db
+/examples/**/*.db
 # YOLO 模型权重（111 MB，超过 GitHub 单文件限制，按 examples/yolo/README.md 自行放入）
 /examples/yolo/*.bin
+# MVTec 官方手册 PDF（仅本地查阅，不入库）
+/extension_package_programmers_manual.pdf

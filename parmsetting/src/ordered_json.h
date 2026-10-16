@@ -3,8 +3,8 @@
 // ordered_json.h —— 保序 JSON DOM
 //
 // 为什么需要它：
-//   需求 2.1 要求“保存时保留原始字段顺序”。工作区自带的 nlohmann/json 是
-//   3.6.1（json/json.hpp），这个版本还没有 nlohmann::ordered_json（3.9.0 才引入），
+//   需求 2.1 要求“保存时保留原始字段顺序”。工作区根目录 HDict/json.hpp 里的
+//   nlohmann/json 是 3.6.1，这个版本还没有 nlohmann::ordered_json（3.9.0 才引入），
 //   它的默认对象类型是 std::map<std::string, json>，序列化后键会被按字典序重排。
 //   为了不改动三方库文件，这里不改它，而是用 nlohmann 提供的 SAX 解析回调
 //   自己建一棵 DOM：键顺序、未知字段、数字字面量都能原样保留。
@@ -22,7 +22,8 @@
 #include <utility>
 #include <vector>
 
-// 工作区自带 json.hpp，用宏统一入口方便以后换版本
+// json.hpp 由 CMake 指向工作区根目录的 HDict/（见 CMakeLists 里 parm_ui_model 的 include 路径），
+// 用宏统一入口方便以后换版本
 #ifndef PARM_UI_JSON_HEADER
 #define PARM_UI_JSON_HEADER "json.hpp"
 #endif
