@@ -1100,6 +1100,11 @@ toggleLanguage(new_lang,1);return;}
 <td>Laplace Filter.</td>
 </tr>
         <tr>
+<td><code><a href="OpenvinoLoadModel.html">OpenvinoLoadModel</a></code></td>
+<td>  </td>
+<td>加载 OpenVINO 模型（.xml/.bin），支持 CPU / GPU / NPU 设备。字典键 '工程路径'（模型 .xml 路径）与 '使用设备'（'CPU'/'GPU'/'NPU'）必填，加载成功后把模型输入尺寸写回同一字典的 '宽' / '高'（单位：像素）。</td>
+</tr>
+        <tr>
 <td><code><a href="PNGIn.html">PNGIn</a></code></td>
 <td>  </td>
 <td>PNG 图像解码输入。</td>
@@ -1625,6 +1630,11 @@ toggleLanguage(new_lang,1);return;}
 <td>取出全部键名（hdict_core 的 get_dict_param_keys），按字典序排列。</td>
 </tr>
         <tr>
+<td><code><a href="hdict_get_object.html">HdictGetObject</a></code></td>
+<td>  </td>
+<td>读出对象（hdict_core 的 get_dict_object）。键不存在、或该键存的不是对象（是元组/子字典/其它载荷）时抛错。</td>
+</tr>
+        <tr>
 <td><code><a href="hdict_get_tuple.html">HdictGetTuple</a></code></td>
 <td>  </td>
 <td>读出元组值（hdict_core 的 get_dict_tuple）。键不存在、或该键存的不是元组（是子字典）时抛错。</td>
@@ -1643,6 +1653,11 @@ toggleLanguage(new_lang,1);return;}
 <td><code><a href="hdict_remove_key.html">HdictRemoveKey</a></code></td>
 <td>  </td>
 <td>删除指定键（hdict_core 的 remove_dict_key）。</td>
+</tr>
+        <tr>
+<td><code><a href="hdict_set_object.html">HdictSetObject</a></code></td>
+<td>  </td>
+<td>把一个 HALCON 对象（可为对象元组）写入指定键（hdict_core 的 set_dict_object）。键不存在则新建，已存在则覆盖；载荷是 HalconCpp 的 HObject（自带键引用计数，可跨算子调用存活）。</td>
 </tr>
         <tr>
 <td><code><a href="hdict_set_subdict.html">HdictSetSubdict</a></code></td>
@@ -1938,6 +1953,11 @@ toggleLanguage(new_lang,1);return;}
 <td><code><a href="write_image_exif.html">WriteImageExif</a></code></td>
 <td>  </td>
 <td>给已有图像文件写入 EXIF 元数据（GPS 经纬度/海拔、光圈、快门、ISO、焦距、时间、厂商/型号），基于 exiv2。文件须先存在；字段以多值控制参数传入。</td>
+</tr>
+        <tr>
+<td><code><a href="yolo_seg_detect.html">YoloSegDetect</a></code></td>
+<td>  </td>
+<td>YOLO26 实例分割检测。读字典里的 'InputImage' 与选填的 'ConfThreshold' 'MaskThreshold' 'NMSThreshold' '宽' '高' '步长' '步长X' '步长Y'，写回 'NumDetections' 'ClassIDs' 'Confidences' 'ClassLabelImage' 'BoundingBoxes'。自动识别两种导出格式（end2end=True 的 [1,300,D] NMS-free 输出与 end2end=False 的 [1,D,8400] 原始输出），大图自动滑窗 + NMS，掩膜以与原图等大的标签图（uint2，0=背景，像素值=类别ID+1）给出。</td>
 </tr>
       </table>
     </div>

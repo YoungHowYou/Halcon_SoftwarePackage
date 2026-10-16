@@ -1092,6 +1092,10 @@ toggleLanguage(new_lang,1);return;}
 <dd>Laplace Filter.</dd>
 </dl>
 <dl>
+<dt><a href="OpenvinoLoadModel.html"><code><span data-if="hdevelop" style="display:inline;">OpenvinoLoadModel</span><span data-if="dotnet" style="display:none;">OpenvinoLoadModel</span><span data-if="python" style="display:none;">OpenvinoLoadModel</span><span data-if="cpp" style="display:none;">OpenvinoLoadModel</span><span data-if="c" style="display:none;">OpenvinoLoadModel</span></code></a></dt>
+<dd>加载 OpenVINO 模型（.xml/.bin），支持 CPU / GPU / NPU 设备。字典键 '工程路径'（模型 .xml 路径）与 '使用设备'（'CPU'/'GPU'/'NPU'）必填，加载成功后把模型输入尺寸写回同一字典的 '宽' / '高'（单位：像素）。</dd>
+</dl>
+<dl>
 <dt><a href="PNGIn.html"><code><span data-if="hdevelop" style="display:inline;">PNGIn</span><span data-if="dotnet" style="display:none;">PNGIn</span><span data-if="python" style="display:none;">PNGIn</span><span data-if="cpp" style="display:none;">PNGIn</span><span data-if="c" style="display:none;">PNGIn</span></code></a></dt>
 <dd>PNG 图像解码输入。</dd>
 </dl>
@@ -1512,6 +1516,10 @@ toggleLanguage(new_lang,1);return;}
 <dd>取出全部键名（hdict_core 的 get_dict_param_keys），按字典序排列。</dd>
 </dl>
 <dl>
+<dt><a href="hdict_get_object.html"><code><span data-if="hdevelop" style="display:inline;">hdict_get_object</span><span data-if="dotnet" style="display:none;">HdictGetObject</span><span data-if="python" style="display:none;">hdict_get_object</span><span data-if="cpp" style="display:none;">HdictGetObject</span><span data-if="c" style="display:none;">hdict_get_object</span></code></a></dt>
+<dd>读出对象（hdict_core 的 get_dict_object）。键不存在、或该键存的不是对象（是元组/子字典/其它载荷）时抛错。</dd>
+</dl>
+<dl>
 <dt><a href="hdict_get_tuple.html"><code><span data-if="hdevelop" style="display:inline;">hdict_get_tuple</span><span data-if="dotnet" style="display:none;">HdictGetTuple</span><span data-if="python" style="display:none;">hdict_get_tuple</span><span data-if="cpp" style="display:none;">HdictGetTuple</span><span data-if="c" style="display:none;">hdict_get_tuple</span></code></a></dt>
 <dd>读出元组值（hdict_core 的 get_dict_tuple）。键不存在、或该键存的不是元组（是子字典）时抛错。</dd>
 </dl>
@@ -1526,6 +1534,10 @@ toggleLanguage(new_lang,1);return;}
 <dl>
 <dt><a href="hdict_remove_key.html"><code><span data-if="hdevelop" style="display:inline;">hdict_remove_key</span><span data-if="dotnet" style="display:none;">HdictRemoveKey</span><span data-if="python" style="display:none;">hdict_remove_key</span><span data-if="cpp" style="display:none;">HdictRemoveKey</span><span data-if="c" style="display:none;">hdict_remove_key</span></code></a></dt>
 <dd>删除指定键（hdict_core 的 remove_dict_key）。</dd>
+</dl>
+<dl>
+<dt><a href="hdict_set_object.html"><code><span data-if="hdevelop" style="display:inline;">hdict_set_object</span><span data-if="dotnet" style="display:none;">HdictSetObject</span><span data-if="python" style="display:none;">hdict_set_object</span><span data-if="cpp" style="display:none;">HdictSetObject</span><span data-if="c" style="display:none;">hdict_set_object</span></code></a></dt>
+<dd>把一个 HALCON 对象（可为对象元组）写入指定键（hdict_core 的 set_dict_object）。键不存在则新建，已存在则覆盖；载荷是 HalconCpp 的 HObject（自带键引用计数，可跨算子调用存活）。</dd>
 </dl>
 <dl>
 <dt><a href="hdict_set_subdict.html"><code><span data-if="hdevelop" style="display:inline;">hdict_set_subdict</span><span data-if="dotnet" style="display:none;">HdictSetSubdict</span><span data-if="python" style="display:none;">hdict_set_subdict</span><span data-if="cpp" style="display:none;">HdictSetSubdict</span><span data-if="c" style="display:none;">hdict_set_subdict</span></code></a></dt>
@@ -1762,6 +1774,10 @@ toggleLanguage(new_lang,1);return;}
 <dl>
 <dt><a href="write_image_exif.html"><code><span data-if="hdevelop" style="display:inline;">write_image_exif</span><span data-if="dotnet" style="display:none;">WriteImageExif</span><span data-if="python" style="display:none;">write_image_exif</span><span data-if="cpp" style="display:none;">WriteImageExif</span><span data-if="c" style="display:none;">write_image_exif</span></code></a></dt>
 <dd>给已有图像文件写入 EXIF 元数据（GPS 经纬度/海拔、光圈、快门、ISO、焦距、时间、厂商/型号），基于 exiv2。文件须先存在；字段以多值控制参数传入。</dd>
+</dl>
+<dl>
+<dt><a href="yolo_seg_detect.html"><code><span data-if="hdevelop" style="display:inline;">yolo_seg_detect</span><span data-if="dotnet" style="display:none;">YoloSegDetect</span><span data-if="python" style="display:none;">yolo_seg_detect</span><span data-if="cpp" style="display:none;">YoloSegDetect</span><span data-if="c" style="display:none;">yolo_seg_detect</span></code></a></dt>
+<dd>YOLO26 实例分割检测。读字典里的 'InputImage' 与选填的 'ConfThreshold' 'MaskThreshold' 'NMSThreshold' '宽' '高' '步长' '步长X' '步长Y'，写回 'NumDetections' 'ClassIDs' 'Confidences' 'ClassLabelImage' 'BoundingBoxes'。自动识别两种导出格式（end2end=True 的 [1,300,D] NMS-free 输出与 end2end=False 的 [1,D,8400] 原始输出），大图自动滑窗 + NMS，掩膜以与原图等大的标签图（uint2，0=背景，像素值=类别ID+1）给出。</dd>
 </dl>
 <!--OP_REF_FOOTER_START-->
 <hr>

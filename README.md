@@ -2,6 +2,19 @@
 
 HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/halcon) 机器视觉框架提供 **OpenCV 图像处理**、**Eigen / Armadillo 数学运算**、**SQLite3 数据库**、**Modbus 工业通信**、**spdlog 日志** 和 **MySQL 数据库** 扩展能力，在 HDevelop / HALCON 脚本中即可直接调用。
 
+## 目录
+
+- [功能模块](#功能模块)
+- [OpenVINO / YOLO 扩展算子](#openvino--yolo-扩展算子)
+- [OpenCV & Exiv2 扩展算子](#opencv--exiv2-扩展算子)
+- [Dict 扩展算子（hdict_core / hparams_core）](#dict-扩展算子hdict_core--hparams_core)
+- [参数配置窗口扩展算子（parm_ui）](#参数配置窗口扩展算子parm_ui)
+- [Region 扩展算子（cv_region）](#region-扩展算子cv_region)
+- [RANSAC 扩展算子（cv_flow 几何拟合）](#ransac-扩展算子cv_flow-几何拟合)
+- [数学 / 矩阵扩展算子](#数学--矩阵扩展算子)
+- [项目结构](#项目结构) · [环境要求](#环境要求) · [编译](#编译) · [脱离 HALCON 复用核心库](#脱离-halcon-复用核心库)
+- [部署与使用](#部署与使用) · [第三方依赖](#第三方依赖) · [许可证](#许可证) · [句柄 TAG 分配表](#句柄-tag-分配表)
+
 ## 功能模块
 
 ### SQLite3 数据库
@@ -13,6 +26,10 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 | `sqlite3_exec` | 执行 SQL 语句（INSERT / UPDATE / DELETE 等） |
 | `sqlite3_get_table` | 执行查询并返回结果表 |
 | `sqlite3_loadOrSaveDb` | 内存数据库与文件之间的加载/保存 |
+| `SetStringByImageIn` | 把字符串编码进 byte 图像（`msg` → `outimage`）：前 4 字节存长度，后续为字符串字节；`len+4 <= 1024` 时宽 `len+5`、高 1，否则宽 1024、高 `ceil((len+4)/1024)` |
+| `GetStringByImageOut` | `SetStringByImageIn` 的逆操作（`outimage` → `msg`），把图像里存的字符串解回来 |
+
+> `SetStringByImageIn` / `GetStringByImageOut` 是随本模块提供的**字符串 ↔ 图像**互转工具（便于把文本当图像一起存库 / 传输），实现见 `source/Halcon_SoftwarePackage.c`，例程 `examples/Image2String.hdev`。
 
 ### Modbus 通信
 
@@ -1504,6 +1521,7 @@ endif
 - 形态学（8 个，仅矩形/圆结构元）：cv_erosion_circle / cv_dilation_circle / cv_opening_circle / cv_closing_circle（半径）+ cv_erosion_rectangle1 / cv_dilation_rectangle1 / cv_opening_rectangle1 / cv_closing_rectangle1（宽高）
 - 连通域：cv_connection / cv_connection_ex（后者可在标记同时预计算形状特征并缓存）；生成：cv_gen_circle / cv_gen_rectangle1；填充：cv_fill_up；形状变换：cv_shape_trans；筛选：cv_select_shape
 - 特征：cv_area_center / cv_smallest_rectangle1 / cv_smallest_rectangle2 / cv_smallest_circle / cv_elliptic_axis / cv_contlength / cv_circularity / cv_compactness / cv_convexity / cv_rectangularity / cv_anisometry / cv_bulkiness / cv_structure_factor
+- 灰度特征：cv_gray_features（除了 region 还需一张灰度图，按名称算灰度特征，对应 HALCON `gray_features` 的 8 个可用子集）
 - 互转：cv_region_to_bin / cv_bin_to_region（cv_bin_to_region 支持 byte/int1/int2/uint2/int4/int8/real 单通道，Threshold 为 real/integer）
 
 ### Python 绑定（PyPI 包 `cv-region`）
@@ -1618,6 +1636,36 @@ cv_region_features(Regions : : Features : Values)
 > 顺带修掉核心库两处既有缺陷：① `smallest_circle` 的启发式迭代会发散（非凸区域半径偏大，实测 area=1490 的 blob 67.66 → 修后与 HALCON 一致 47.07；已换成精确的增量式最小外接圆算法），② 孔洞统计漏了**连通性对偶**（背景必须用 4 邻域，否则对角夹缝被误判成孔洞）。两者都影响 `cv_smallest_circle` / `cv_region_features` 等既有算子。
 
 > **待办（下一轮）**：`inner_radius` / `inner_width` / `inner_height`（需最大内接圆 / 内接轴对齐矩形算法）、`moments_i1`–`i4` / `moments_psi1`–`psi4`（三阶矩旋转不变量，HALCON 未公开公式）、`num_sides` 与 HALCON 的精确对齐。
+
+#### cv_gray_features
+
+按名称计算 region 的**灰度特征**，对应 HALCON `gray_features`（当前为该算子的可用子集，共 8 个）。
+
+```
+cv_gray_features(Regions, Image : : Features : Value)
+```
+
+| 参数 | 类型 | 方向 | 说明 |
+|---|---|---|---|
+| Regions | region 元组 | 输入 | 逐元素计算 |
+| Image | 图像 | 输入 | 单通道灰度图：`byte` / `int1` / `int2` / `uint2` / `int4` / `int8` / `real`；忽略其已设 domain |
+| Features | 字符串元组 | 输入 | 特征名，缺省 `mean` |
+| Value | 实数元组 | 输出 | 「区域数 × 特征数」平铺，区域优先、同一区域的各特征值相邻 |
+
+`Features` 取值（其余类型如 `direction` / `cyclic` 不支持）：
+
+| 特征 | 含义 |
+|---|---|
+| `area` | 灰度体积 `Σg` |
+| `row` / `column` | 灰度重心 `Σr·g / Σg`、`Σc·g / Σg` |
+| `mean` | 强度均值 |
+| `deviation` | 强度标准差 `sqrt(Σ(g-mean)²/F)` |
+| `min` / `max` | 区域内灰度极值 |
+| `median` | 等价 `min_max_gray(Percent=50)` |
+
+- 与 HALCON 原生 `gray_features` 在 byte 图上实测 24 个值（3 区域 × 8 特征）全部一致，最大相对偏差 2.2e-15，`median` 完全一致。
+- 只使用传入的 `Regions`、忽略 `Image` 已设 domain（与 HALCON 一致）。
+- Python 侧：`cv_region` 包提供 `cvr_gray_features` / `Region.gray_features`（`cv_region/python/tests/test_cv_region.py` 有用例）；HDevelop 例程暂无。
 
 #### cv_shape_trans
 

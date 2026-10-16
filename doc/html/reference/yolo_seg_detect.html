@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>cv_opening [HALCON Operator Reference / Version 24.11.1.0]</title>
+<title>yolo_seg_detect [HALCON Operator Reference / Version 24.11.1.0]</title>
 <style type="text/css">
 
       body {
@@ -1083,31 +1083,29 @@ toggleLanguage(new_lang,1);return;}
 </div>
 <!--OP_REF_HEADER_END-->
 <h1 id="sec_name">
-<span data-if="hdevelop" style="display:inline;">cv_opening</span><span data-if="c" style="display:none;">cv_opening</span><span data-if="cpp" style="display:none;">CvOpening</span><span data-if="dotnet" style="display:none;">CvOpening</span><span data-if="python" style="display:none;">cv_opening</span> (Operator)</h1>
+<span data-if="hdevelop" style="display:inline;">yolo_seg_detect</span><span data-if="c" style="display:none;">T_yolo_seg_detect</span><span data-if="cpp" style="display:none;">YoloSegDetect</span><span data-if="dotnet" style="display:none;">YoloSegDetect</span><span data-if="python" style="display:none;">yolo_seg_detect</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_opening</span><span data-if="c" style="display:none;">cv_opening</span><span data-if="cpp" style="display:none;">CvOpening</span><span data-if="dotnet" style="display:none;">CvOpening</span><span data-if="python" style="display:none;">cv_opening</span></code> — region 开运算：先腐蚀后膨胀，去除细小亮结构。对应 HALCON opening。</p>
+<p><code><span data-if="hdevelop" style="display:inline;">yolo_seg_detect</span><span data-if="c" style="display:none;">T_yolo_seg_detect</span><span data-if="cpp" style="display:none;">YoloSegDetect</span><span data-if="dotnet" style="display:none;">YoloSegDetect</span><span data-if="python" style="display:none;">yolo_seg_detect</span></code> — YOLO26 实例分割检测。读字典里的 'InputImage' 与选填的 'ConfThreshold' 'MaskThreshold' 'NMSThreshold' '宽' '高' '步长' '步长X' '步长Y'，写回 'NumDetections' 'ClassIDs' 'Confidences' 'ClassLabelImage' 'BoundingBoxes'。自动识别两种导出格式（end2end=True 的 [1,300,D] NMS-free 输出与 end2end=False 的 [1,D,8400] 原始输出），大图自动滑窗 + NMS，掩膜以与原图等大的标签图（uint2，0=背景，像素值=类别ID+1）给出。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
-<code><b>cv_opening</b>(<a href="#Region"><i>Region</i></a>, <a href="#StructElement"><i>StructElement</i></a> : <a href="#RegionOpening"><i>RegionOpening</i></a> :  : )</code></p>
+<code><b>yolo_seg_detect</b>( :  : <a href="#Handle"><i>Handle</i></a>, <a href="#HDict"><i>HDict</i></a> : )</code></p>
 </div>
 <div data-if="c" style="display:none;">
 <p>
-<code>Herror <b>cv_opening</b>(const Hobject <a href="#Region"><i>Region</i></a>, const Hobject <a href="#StructElement"><i>StructElement</i></a>, Hobject* <a href="#RegionOpening"><i>RegionOpening</i></a>)</code></p>
-<p>
-<code>Herror <b>T_cv_opening</b>(const Hobject <a href="#Region"><i>Region</i></a>, const Hobject <a href="#StructElement"><i>StructElement</i></a>, Hobject* <a href="#RegionOpening"><i>RegionOpening</i></a>)</code></p>
+<code>Herror <b>T_yolo_seg_detect</b>(const Htuple <a href="#Handle"><i>Handle</i></a>, const Htuple <a href="#HDict"><i>HDict</i></a>)</code></p>
 </div>
 <div data-if="cpp" style="display:none;">
 <p>
-<code>void <b>CvOpening</b>(const HObject&amp; <a href="#Region"><i>Region</i></a>, const HObject&amp; <a href="#StructElement"><i>StructElement</i></a>, HObject* <a href="#RegionOpening"><i>RegionOpening</i></a>)</code></p>
+<code>void <b>YoloSegDetect</b>(const HTuple&amp; <a href="#Handle"><i>Handle</i></a>, const HTuple&amp; <a href="#HDict"><i>HDict</i></a>)</code></p>
 </div>
 <div data-if="dotnet" style="display:none;">
 <p>
-<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>CvOpening</b>(<a href="HObject.html">HObject</a> <a href="#Region"><i>region</i></a>, <a href="HObject.html">HObject</a> <a href="#StructElement"><i>structElement</i></a>, out <a href="HObject.html">HObject</a> <a href="#RegionOpening"><i>regionOpening</i></a>)</code></p>
+<code>static void <a href="HHalconSoftwarePackage.html">HHalconSoftwarePackage</a>.<b>YoloSegDetect</b>(<a href="HTuple.html">HTuple</a> <a href="#Handle"><i>handle</i></a>, <a href="HTuple.html">HTuple</a> <a href="#HDict"><i>HDict</i></a>)</code></p>
 </div>
 <div data-if="python" style="display:none;">
 <p>
-<code>def <b>cv_opening</b>(<a href="#Region"><i>region</i></a>: HObject, <a href="#StructElement"><i>struct_element</i></a>: HObject) -&gt; HObject</code></p>
+<code>def <b>yolo_seg_detect</b>(<a href="#Handle"><i>handle</i></a>: HHandle, <a href="#HDict"><i>hdict</i></a>: HHandle) -&gt; None</code></p>
 </div>
 <h2 id="sec_execution">Execution Information</h2>
 <ul>
@@ -1118,24 +1116,15 @@ toggleLanguage(new_lang,1);return;}
 <h2 id="sec_parameters">Parameters</h2>
   <div class="par">
 <div class="parhead">
-<span id="Region" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Region</span><span data-if="c" style="display:none">Region</span><span data-if="cpp" style="display:none">Region</span><span data-if="dotnet" style="display:none">region</span><span data-if="python" style="display:none">region</span></code></b> (input_object)  </span><span>region(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
+<span id="Handle" class="parname"><b><code><span data-if="hdevelop" style="display:inline">Handle</span><span data-if="c" style="display:none">Handle</span><span data-if="cpp" style="display:none">Handle</span><span data-if="dotnet" style="display:none">handle</span><span data-if="python" style="display:none">handle</span></code></b> (input_control)  </span><span>handle <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">HHandle</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (handle)</span><span data-if="dotnet" style="display:none"> (<i>IntPtr</i>)</span><span data-if="cpp" style="display:none"> (<i>HHandle</i>)</span><span data-if="c" style="display:none"> (<i>handle</i>)</span></span>
 </div>
-<p class="pardesc">输入 region。</p>
-</div>
-  <div class="par">
-<div class="parhead">
-<span id="StructElement" class="parname"><b><code><span data-if="hdevelop" style="display:inline">StructElement</span><span data-if="c" style="display:none">StructElement</span><span data-if="cpp" style="display:none">StructElement</span><span data-if="dotnet" style="display:none">structElement</span><span data-if="python" style="display:none">struct_element</span></code></b> (input_object)  </span><span>region(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject</span></span>
-</div>
-<p class="pardesc">结构元（region），参考点取其质心四舍五入。</p>
+<p class="pardesc">OpenvinoLoadModel 产出的模型句柄。</p>
 </div>
   <div class="par">
 <div class="parhead">
-<span id="RegionOpening" class="parname"><b><code><span data-if="hdevelop" style="display:inline">RegionOpening</span><span data-if="c" style="display:none">RegionOpening</span><span data-if="cpp" style="display:none">RegionOpening</span><span data-if="dotnet" style="display:none">regionOpening</span><span data-if="python" style="display:none">region_opening</span></code></b> (output_object)  </span><span>region(-array) <code>→</code> <span data-if="hdevelop" style="display:inline">object</span><span data-if="dotnet" style="display:none">HObject</span><span data-if="python" style="display:none">HObject</span><span data-if="cpp" style="display:none">HObject</span><span data-if="c" style="display:none">Hobject *</span></span>
+<span id="HDict" class="parname"><b><code><span data-if="hdevelop" style="display:inline">HDict</span><span data-if="c" style="display:none">HDict</span><span data-if="cpp" style="display:none">HDict</span><span data-if="dotnet" style="display:none">HDict</span><span data-if="python" style="display:none">hdict</span></code></b> (input_control)  </span><span>handle <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">HHandle</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (handle)</span><span data-if="dotnet" style="display:none"> (<i>IntPtr</i>)</span><span data-if="cpp" style="display:none"> (<i>HHandle</i>)</span><span data-if="c" style="display:none"> (<i>handle</i>)</span></span>
 </div>
-<p class="pardesc">输出开运算结果 region。</p>
-<p class="pardesc"><span class="parcat">Number of elements:
-
-      </span>RegionOpening == Region && StructElement == Region || StructElement == 1</p>
+<p class="pardesc">字典句柄：输入图像/阈值/滑窗，输出检测结果（见算子说明）。</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>
