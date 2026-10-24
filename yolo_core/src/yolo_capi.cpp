@@ -25,6 +25,15 @@ using MLIQMetrics::hdict::DictPtr;
 
 namespace {
 
+thread_local std::string g_last_error;   // 最近一次失败原因（每线程一份）
+
+/* 记错误文本 + 返回错误码（所有失败路径都走这里，供 yolo_last_error 取用）*/
+int Fail(int code, const std::string& msg)
+{
+    g_last_error = msg;
+    return code;
+}
+
 inline DictPtr& AsDict(YoloDict dict)
 {
     return *static_cast<DictPtr*>(dict);
@@ -137,14 +146,16 @@ void WriteResults(const DictPtr& dict, const std::vector<yolo::Detection>& resul
  *=========================================================================*/
 int yolo_openvino_load_model(YoloDict dict, YoloModel* model)
 {
-    if (!dict || !model) return YOLO_ERR_PARAM;
+    if (!dict || !model) return Fail(YOLO_ERR_PARAM, "字典句柄或模型指针为空");
     *model = nullptr;
 
     DictPtr& d = AsDict(dict);
 
     std::string path, device;
-    if (!GetString(d, YOLO_DICT_MODEL_PATH, path)) return YOLO_ERR_DICT_KEY;
-    if (!GetString(d, YOLO_DICT_DEVICE, device))     return YOLO_ERR_DICT_KEY;
+    if (!GetString(d, YOLO_DICT_MODEL_PATH, path))
+        return Fail(YOLO_ERR_DICT_KEY, "字典缺少 '工程路径'（模型 .xml 路径）");
+    if (!GetString(d, YOLO_DICT_DEVICE, device))
+        return Fail(YOLO_ERR_DICT_KEY, "字典缺少 '使用设备'（CPU / GPU / NPU）");
 
     // 异常兜底：本文件是纯 C 接口（extern "C"），异常绝不能穿出 C ABI
     try {
@@ -152,7 +163,7 @@ int yolo_openvino_load_model(YoloDict dict, YoloModel* model)
         std::string err;
         if (!handle->load(path, device, err)) {
             delete handle;
-            return YOLO_ERR_LOAD_MODEL;
+            return Fail(YOLO_ERR_LOAD_MODEL, err.empty() ? "模型加载失败" : err);
         }
 
         // 与 HALCON 算子一致：把模型输入尺寸写回字典
@@ -160,8 +171,10 @@ int yolo_openvino_load_model(YoloDict dict, YoloModel* model)
         MLIQMetrics::hdict::set_dict_tuple(d, YOLO_DICT_HEIGHT, handle->input_height());
 
         *model = handle;
+    } catch (const std::exception& e) {
+        return Fail(YOLO_ERR_LOAD_MODEL, e.what());
     } catch (...) {
-        return YOLO_ERR_LOAD_MODEL;
+        return Fail(YOLO_ERR_LOAD_MODEL, "模型加载时发生未知异常");
     }
     return YOLO_OK;
 }
@@ -171,11 +184,12 @@ int yolo_openvino_load_model(YoloDict dict, YoloModel* model)
  *=========================================================================*/
 int yolo_openvino_infer(YoloModel model, YoloDict dict)
 {
-    if (!model || !dict) return YOLO_ERR_PARAM;
+    if (!model || !dict) return Fail(YOLO_ERR_PARAM, "模型句柄或字典为空");
 
     DictPtr& d = AsDict(dict);
     std::shared_ptr<cv::Mat> image;
-    if (!GetImage(d, YOLO_DICT_INPUT_IMAGE, image)) return YOLO_ERR_DICT_IMAGE;
+    if (!GetImage(d, YOLO_DICT_INPUT_IMAGE, image))
+        return Fail(YOLO_ERR_DICT_IMAGE, "字典里没有可用的 'InputImage'（8UC1 灰度或 8UC3 BGR）");
 
     // infer_raw 的约定是 3 通道 BGR（与 HALCON 侧原实现一致：灰度先转 BGR）
     cv::Mat gray2bgr;
@@ -187,13 +201,17 @@ int yolo_openvino_infer(YoloModel model, YoloDict dict)
     }
 
     ov::Tensor output;
+    std::string err;
     try {
-        if (!static_cast<yolo::Model*>(model)->infer_raw(*input, output)) return YOLO_ERR_INFER;
+        if (!static_cast<yolo::Model*>(model)->infer_raw(*input, output, &err))
+            return Fail(YOLO_ERR_INFER, err.empty() ? "推理失败" : err);
 
         auto tensor = std::make_shared<ov::Tensor>(std::move(output));
         MLIQMetrics::hdict::set_dict_object_shared(d, YOLO_DICT_OUTPUT_IMAGE, tensor);
+    } catch (const std::exception& e) {
+        return Fail(YOLO_ERR_INFER, e.what());   // 异常不穿出 C ABI
     } catch (...) {
-        return YOLO_ERR_INFER;   // 异常不穿出 C ABI
+        return Fail(YOLO_ERR_INFER, "推理时发生未知异常");
     }
     return YOLO_OK;
 }
@@ -203,11 +221,12 @@ int yolo_openvino_infer(YoloModel model, YoloDict dict)
  *=========================================================================*/
 int yolo_seg_detect(YoloModel model, YoloDict dict)
 {
-    if (!model || !dict) return YOLO_ERR_PARAM;
+    if (!model || !dict) return Fail(YOLO_ERR_PARAM, "模型句柄或字典为空");
 
     DictPtr& d = AsDict(dict);
     std::shared_ptr<cv::Mat> image;
-    if (!GetImage(d, YOLO_DICT_INPUT_IMAGE, image)) return YOLO_ERR_DICT_IMAGE;
+    if (!GetImage(d, YOLO_DICT_INPUT_IMAGE, image))
+        return Fail(YOLO_ERR_DICT_IMAGE, "字典里没有可用的 'InputImage'（8UC1 灰度或 8UC3 BGR）");
 
     auto* m = static_cast<yolo::Model*>(model);
 
@@ -217,17 +236,18 @@ int yolo_seg_detect(YoloModel model, YoloDict dict)
     GetFloat(d, YOLO_DICT_MASK_THRESHOLD, params.mask_threshold);
     GetFloat(d, YOLO_DICT_NMS_THRESHOLD,  params.nms_threshold);
 
-    // 窗口尺寸与滑窗步长：默认 = 模型输入尺寸，字典可覆盖
+    // 窗口尺寸与滑窗步长：窗口默认 = 模型输入尺寸，字典可覆盖；
+    // 步长默认由重叠度 Overlap 算（默认 0.2 → 640 窗口即 512），显式步长优先
     int win_w = m->input_width();
     int win_h = m->input_height();
     GetInt(d, YOLO_DICT_WIDTH,  win_w);
     GetInt(d, YOLO_DICT_HEIGHT, win_h);
 
-    int step_x = win_w;
-    int step_y = win_h;
+    int step_x = 0, step_y = 0;
     if (GetInt(d, YOLO_DICT_STEP, step_x)) step_y = step_x;  // '步长' 同时覆盖 X/Y
     GetInt(d, YOLO_DICT_STEP_X, step_x);
     GetInt(d, YOLO_DICT_STEP_Y, step_y);
+    GetFloat(d, YOLO_DICT_OVERLAP, params.overlap);
 
     params.win_w  = win_w;
     params.win_h  = win_h;
@@ -238,11 +258,14 @@ int yolo_seg_detect(YoloModel model, YoloDict dict)
     std::vector<yolo::Detection> results;
     std::string err;
     try {
-        if (!m->detect(*image, params, results, err)) return YOLO_ERR_INFER;
+        if (!m->detect(*image, params, results, err))
+            return Fail(YOLO_ERR_INFER, err.empty() ? "检测失败" : err);
 
         WriteResults(d, results, image->cols, image->rows);
+    } catch (const std::exception& e) {
+        return Fail(YOLO_ERR_INFER, e.what());   // 异常不穿出 C ABI
     } catch (...) {
-        return YOLO_ERR_INFER;   // 异常不穿出 C ABI
+        return Fail(YOLO_ERR_INFER, "检测时发生未知异常");
     }
     return YOLO_OK;
 }
@@ -253,4 +276,12 @@ int yolo_seg_detect(YoloModel model, YoloDict dict)
 void yolo_model_destroy(YoloModel model)
 {
     delete static_cast<yolo::Model*>(model);
+}
+
+/*===========================================================================
+ * 最近一次失败的详细原因
+ *=========================================================================*/
+const char *yolo_last_error(void)
+{
+    return g_last_error.c_str();
 }

@@ -34,10 +34,11 @@ struct InferParams {
     float conf_threshold = 0.25f;
     float nms_threshold  = 0.45f;
     float mask_threshold = 0.5f;
-    int   step_x         = 0;   // 滑窗步长（像素），0 = 窗口宽度
-    int   step_y         = 0;   // 同上，Y 方向；0 = 窗口高度
-    int   win_w          = 0;   // 滑窗/裁剪窗口宽度，0 = 模型输入宽度
-    int   win_h          = 0;   // 同上，高度
+    float overlap        = 0.2f;  // 滑窗重叠度（0~0.9）：步长 = 窗口×(1-重叠度)，640 窗口 → 512
+    int   step_x         = 0;     // 显式步长（像素），0 = 由 overlap 算
+    int   step_y         = 0;     // 同上，Y 方向
+    int   win_w          = 0;     // 滑窗/裁剪窗口宽度，0 = 模型输入宽度
+    int   win_h          = 0;     // 同上，高度
 };
 
 class Model {
@@ -47,7 +48,7 @@ public:
                 std::vector<Detection>& out, std::string& err);
 
     // 通用推理（脱离 HALCON 的工程用；扩展包侧已无对应算子）：输入 3 通道 BGR，输出原始输出张量（深拷贝）
-    bool infer_raw(const cv::Mat& image, ov::Tensor& output);
+    bool infer_raw(const cv::Mat& image, ov::Tensor& output, std::string* err = nullptr);
 
     int input_width()  const { return input_w_; }
     int input_height() const { return input_h_; }
@@ -58,7 +59,8 @@ private:
                     std::vector<Detection>& out, std::string& err);
 
     bool infer_yolo_seg(const cv::Mat& input_image,
-                        ov::Tensor& det_output, ov::Tensor& proto_output);
+                        ov::Tensor& det_output, ov::Tensor& proto_output,
+                        std::string* err = nullptr);
 
     ov::Core           core_;
     ov::CompiledModel  compiled_model_;

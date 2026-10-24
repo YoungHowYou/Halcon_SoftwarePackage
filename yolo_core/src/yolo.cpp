@@ -18,8 +18,10 @@ bool Model::load(const std::string& xml_path, const std::string& device, std::st
         auto model = core_.read_model(xml_path);
 
         ov::AnyMap config;
-        if (model->input().get_element_type() == ov::element::f32) {
-            // FP32 模型：防止 Intel GPU 自动降精度为 FP16 导致坐标溢出
+        // 只有非 CPU 设备才强制 f32 + ACCURACY：Intel GPU 会自动降精度为 FP16（坐标会溢出）；
+        // CPU 插件上 ACCURACY 模式通常比默认 PERFORMANCE 慢，不设。
+        const bool is_cpu = device.rfind("CPU", 0) == 0;   // "CPU" / "CPU.0" / "CPU.1" …
+        if (!is_cpu && model->input().get_element_type() == ov::element::f32) {
             config[ov::hint::inference_precision.name()] = ov::element::f32;
             config[ov::hint::execution_mode.name()] = ov::hint::ExecutionMode::ACCURACY;
         }
@@ -42,7 +44,7 @@ bool Model::load(const std::string& xml_path, const std::string& device, std::st
     }
 }
 
-bool Model::infer_raw(const cv::Mat& image, ov::Tensor& output)
+bool Model::infer_raw(const cv::Mat& image, ov::Tensor& output, std::string* err)
 {
     try {
         cv::Mat blob;
@@ -61,13 +63,15 @@ bool Model::infer_raw(const cv::Mat& image, ov::Tensor& output)
         output = ov::Tensor(tensor.get_element_type(), tensor.get_shape());
         tensor.copy_to(output);
         return true;
-    } catch (const std::exception&) {
+    } catch (const std::exception& e) {
+        if (err != nullptr) *err = e.what();
         return false;
     }
 }
 
 bool Model::infer_yolo_seg(const cv::Mat& input_image,
-                           ov::Tensor& det_output, ov::Tensor& proto_output)
+                           ov::Tensor& det_output, ov::Tensor& proto_output,
+                           std::string* err)
 {
     try {
         cv::Mat blob;
@@ -89,7 +93,8 @@ bool Model::infer_yolo_seg(const cv::Mat& input_image,
             std::memcpy(dst.data<float>(), tensor.data<float>(), tensor.get_byte_size());
         }
         return true;
-    } catch (const std::exception&) {
+    } catch (const std::exception& e) {
+        if (err != nullptr) *err = e.what();
         return false;
     }
 }
@@ -111,6 +116,54 @@ static void applyNMS(std::vector<Detection>& results, float nms_thresh)
     std::vector<Detection> kept;
     kept.reserve(indices.size());
     for (int idx : indices) kept.push_back(std::move(results[idx]));
+    results = std::move(kept);
+}
+
+/* 跨窗口去重的判据：IoS = 交集 / 较小框面积
+   被滑窗边界切开的同一个目标会得到“一大一小”两个框：IoU 很低（小框只占大框一部分），
+   但小框几乎全在大框里 ⇒ IoS ≈ 1。所以跨窗口必须用 IoS 才能合掉这种重复框。*/
+static float intersectionOverSmaller(const cv::Rect& a, const cv::Rect& b)
+{
+    const int ix1 = std::max(a.x, b.x);
+    const int iy1 = std::max(a.y, b.y);
+    const int ix2 = std::min(a.x + a.width,  b.x + b.width);
+    const int iy2 = std::min(a.y + a.height, b.y + b.height);
+    const int iw = ix2 - ix1;
+    const int ih = iy2 - iy1;
+    if (iw <= 0 || ih <= 0) return 0.0f;
+
+    const float inter   = static_cast<float>(iw) * static_cast<float>(ih);
+    const float smaller = static_cast<float>(std::min(a.area(), b.area()));
+    return smaller > 0.0f ? inter / smaller : 0.0f;
+}
+
+/* 跨窗口去重：IoS 贪心抑制（只比较同类），按置信度从高到低保留 */
+static void applyIosNMS(std::vector<Detection>& results, float ios_thresh)
+{
+    if (results.size() < 2) return;
+
+    std::vector<int> order(results.size());
+    for (int i = 0; i < static_cast<int>(results.size()); ++i) order[i] = i;
+    std::stable_sort(order.begin(), order.end(),
+                     [&results](int a, int b) { return results[a].conf > results[b].conf; });
+
+    std::vector<char> suppressed(results.size(), 0);
+    std::vector<Detection> kept;
+    kept.reserve(results.size());
+    for (size_t oi = 0; oi < order.size(); ++oi) {
+        const int i = order[oi];
+        if (suppressed[i]) continue;
+
+        const int      keep_cls = results[i].class_id;
+        const cv::Rect keep_box = results[i].box;
+        kept.push_back(std::move(results[i]));
+
+        for (size_t oj = oi + 1; oj < order.size(); ++oj) {
+            const int j = order[oj];
+            if (suppressed[j] || results[j].class_id != keep_cls) continue;
+            if (intersectionOverSmaller(keep_box, results[j].box) > ios_thresh) suppressed[j] = 1;
+        }
+    }
     results = std::move(kept);
 }
 
@@ -146,27 +199,49 @@ bool Model::detectImpl(const cv::Mat& image, const InferParams& params,
     // 窗口尺寸：默认等于模型输入尺寸；显式传入时按窗口裁剪（如字典 宽/高 覆盖的场景）
     const int win_w = params.win_w > 0 ? params.win_w : input_w_;
     const int win_h = params.win_h > 0 ? params.win_h : input_h_;
-    const int step_x  = params.step_x > 0 ? params.step_x : win_w;
-    const int step_y  = params.step_y > 0 ? params.step_y : win_h;
-    const int orig_w  = bgr.cols;
-    const int orig_h  = bgr.rows;
+
+    // 滑窗步长：显式给了步长就用步长，否则由重叠度算（默认 0.2 → 640 窗口步长 512）
+    const double overlap = std::min(0.9, std::max(0.0, static_cast<double>(params.overlap)));
+    const int step_x = params.step_x > 0
+                           ? params.step_x
+                           : std::max(1, static_cast<int>(std::lround(win_w * (1.0 - overlap))));
+    const int step_y = params.step_y > 0
+                           ? params.step_y
+                           : std::max(1, static_cast<int>(std::lround(win_h * (1.0 - overlap))));
+
+    // 原图尺寸：结果裁剪 / 标签图都按它（下面 pad 出来的黑边不算原图）
+    const int orig_w = bgr.cols;
+    const int orig_h = bgr.rows;
 
     std::vector<Detection> all;
     all.reserve(64);
 
+    // 滑窗推理/输出解析失败的窗口数：有失败就整体报错，绝不静默给出"漏检"结果
+    int         failed_windows = 0;
+    std::string last_err;
+
     // 内部 Lambda：推理单窗口并解析结果
     auto doInference = [&](const cv::Mat& input_img, int offset_x, int offset_y,
                            float ratio_x, float ratio_y) {
-        ov::Tensor det_output, proto_output;
-        if (!infer_yolo_seg(input_img, det_output, proto_output)) return;
+        ov::Tensor  det_output, proto_output;
+        std::string win_err;
+        if (!infer_yolo_seg(input_img, det_output, proto_output, &win_err)) {
+            ++failed_windows;
+            if (last_err.empty()) last_err = win_err.empty() ? std::string("推理失败") : win_err;
+            return;
+        }
 
-        float* det_data = det_output.data<float>();
-        auto det_shape  = det_output.get_shape();
-        if (det_shape.size() != 3) return;
+        const ov::Shape det_shape   = det_output.get_shape();
+        const ov::Shape proto_shape = proto_output.get_shape();
+        if (det_shape.size() != 3 || proto_shape.size() != 4) {
+            ++failed_windows;
+            if (last_err.empty())
+                last_err = "模型输出形状不符（期望 3 维检测张量 + 4 维分割原型）";
+            return;
+        }
 
+        float* det_data   = det_output.data<float>();
         float* proto_data = proto_output.data<float>();
-        auto proto_shape  = proto_output.get_shape();
-        if (proto_shape.size() != 4) return;
         const int proto_c = static_cast<int>(proto_shape[1]);
         const int proto_h = static_cast<int>(proto_shape[2]);
         const int proto_w = static_cast<int>(proto_shape[3]);
@@ -232,10 +307,12 @@ bool Model::detectImpl(const cv::Mat& image, const InferParams& params,
             int x2 = static_cast<int>(px2 * fx) + offset_x;
             int y2 = static_cast<int>(py2 * fy) + offset_y;
 
+            // 右/下边界是开区间（cv::Rect 的 x+width / y+height），所以 x2/y2 允许到 orig_w/orig_h，
+            // 否则贴边目标会少一列/一行像素
             x1 = std::max(0, std::min(x1, orig_w - 1));
             y1 = std::max(0, std::min(y1, orig_h - 1));
-            x2 = std::max(0, std::min(x2, orig_w - 1));
-            y2 = std::max(0, std::min(y2, orig_h - 1));
+            x2 = std::max(0, std::min(x2, orig_w));
+            y2 = std::max(0, std::min(y2, orig_h));
             if (x2 - x1 <= 0 || y2 - y1 <= 0) continue;
 
             // 掩膜：系数 @ 原型 -> 裁剪框区域（原型图分辨率）-> 上采样 -> sigmoid 阈值化
@@ -273,31 +350,42 @@ bool Model::detectImpl(const cv::Mat& image, const InferParams& params,
         }
     };
 
-    // 尺寸判断：直接检测 / 缩放 / 滑窗
-    if (orig_w == win_w && orig_h == win_h) {
-        doInference(bgr, 0, 0, 1.0f, 1.0f);
-    } else if (orig_w < win_w || orig_h < win_h) {
-        cv::Mat resized;
-        cv::resize(bgr, resized, cv::Size(win_w, win_h));
-        doInference(resized, 0, 0,
-                    static_cast<float>(orig_w) / win_w,
-                    static_cast<float>(orig_h) / win_h);
-    } else {
-        for (int y = 0; y < orig_h; y += step_y) {
-            int start_y = y;
-            for (int x = 0; x < orig_w; x += step_x) {
-                int start_x = x;
-                if (start_x + win_w > orig_w) start_x = std::max(0, orig_w - win_w);
-                if (start_y + win_h > orig_h) start_y = std::max(0, orig_h - win_h);
+    // ---- 不缩放：小图 pad 到窗口尺寸（左上对齐、填 0），然后统一滑窗 ----
+    //   小图 pad 保持目标在原始像素尺度上的大小（不会像缩放那样把目标放大/压扁）；
+    //   大图按重叠度滑窗，窗口内始终是原分辨率像素。
+    cv::Mat work = bgr;
+    if (orig_w < win_w || orig_h < win_h) {
+        cv::copyMakeBorder(bgr, work, 0, std::max(0, win_h - orig_h),
+                           0, std::max(0, win_w - orig_w),
+                           cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
+    }
 
-                doInference(bgr(cv::Rect(start_x, start_y, win_w, win_h)),
-                            start_x, start_y, 1.0f, 1.0f);
+    int windows = 0;
+    for (int y = 0; y < work.rows; y += step_y) {
+        const int start_y = std::min(y, std::max(0, work.rows - win_h));
+        for (int x = 0; x < work.cols; x += step_x) {
+            const int start_x = std::min(x, std::max(0, work.cols - win_w));
 
-                if (start_x + win_w >= orig_w) break;
-            }
-            if (start_y + win_h >= orig_h) break;
+            doInference(work(cv::Rect(start_x, start_y, win_w, win_h)),
+                        start_x, start_y, 1.0f, 1.0f);
+            ++windows;
+
+            if (start_x + win_w >= work.cols) break;
         }
-        applyNMS(all, params.nms_threshold);  // 滑窗重叠区域去重
+        if (start_y + win_h >= work.rows) break;
+    }
+
+    // 只有多窗口才需要跨窗口去重：raw 单窗口已在 doInference 内做过 NMS，end2end 输出本身不重叠。
+    // 跨窗口用 IoS（交集 / 较小框面积）：被窗口边界切开的同一目标框一大一小，IoU 很低但 IoS≈1。
+    if (windows > 1) applyIosNMS(all, params.nms_threshold);
+
+    // 有窗口失败就整体报错（宁可报错，也不要静默给出漏检结果）
+    if (failed_windows > 0) {
+        err = "有 " + std::to_string(failed_windows) + " / " + std::to_string(windows) +
+              " 个滑窗推理失败";
+        if (!last_err.empty()) err += "（" + last_err + "）";
+        out.clear();
+        return false;
     }
 
     out = std::move(all);

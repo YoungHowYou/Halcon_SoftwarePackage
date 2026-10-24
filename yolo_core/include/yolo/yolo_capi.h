@@ -90,6 +90,7 @@ typedef void *YoloModel;   /* 模型句柄：yolo_openvino_load_model 产出，y
 #define YOLO_DICT_CONF_THRESHOLD "ConfThreshold"   /* 0.25 */
 #define YOLO_DICT_MASK_THRESHOLD "MaskThreshold"   /* 0.5  */
 #define YOLO_DICT_NMS_THRESHOLD  "NMSThreshold"    /* 0.45 */
+#define YOLO_DICT_OVERLAP        "Overlap"         /* 0.2（滑窗重叠度 0~0.9；步长 = 窗口×(1-重叠度)）*/
 #define YOLO_DICT_STEP           "\xe6\xad\xa5\xe9\x95\xbf"                    /* 步长（X/Y 同值）*/
 #define YOLO_DICT_STEP_X         "\xe6\xad\xa5\xe9\x95\xbfX"                   /* 步长X */
 #define YOLO_DICT_STEP_Y         "\xe6\xad\xa5\xe9\x95\xbfY"                   /* 步长Y */
@@ -124,7 +125,8 @@ YOLO_CAPI_API int yolo_openvino_infer(YoloModel model, YoloDict dict);
 /*=============================================================================
  * yolo_seg_detect(::Handle,DictHandle:)
  *   读字典：'InputImage'（必填）、'ConfThreshold' 'MaskThreshold' 'NMSThreshold'
- *           '宽' '高' '步长' '步长X' '步长Y'（均选填）
+ *           'Overlap' '宽' '高' '步长' '步长X' '步长Y'（均选填）
+ *   不缩放：小图 pad 到窗口尺寸（左上对齐、填 0），大图按重叠度滑窗（默认 0.2）
  *   写字典：'NumDetections'（恒写）、'ClassIDs' 'Confidences' 'ClassLabelImage'
  *           'BoundingBoxes'（仅 NumDetections > 0 时写）
  *===========================================================================*/
@@ -134,6 +136,13 @@ YOLO_CAPI_API int yolo_seg_detect(YoloModel model, YoloDict dict);
  * 释放模型句柄（等价于 HALCON 侧 handle 的析构）
  *===========================================================================*/
 YOLO_CAPI_API void yolo_model_destroy(YoloModel model);
+
+/*=============================================================================
+ * 最近一次失败的详细原因（thread_local 文本，例如 OpenVINO 的报错原文）
+ *   每次本库调用失败时写入（如 "Available frontends: ..."）；成功调用不清空。
+ *   返回的指针在下一次本库调用前有效（HALCON supply 层用它填 HSetErrText）。
+ *===========================================================================*/
+YOLO_CAPI_API const char *yolo_last_error(void);
 
 #ifdef __cplusplus
 } /* extern "C" */
