@@ -18,6 +18,7 @@
 #include "hparams_core.h"
 
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <memory>
 #include <string>
@@ -160,6 +161,18 @@ inline Herror failWith(const std::exception &e, int line)
     return line * 10000;
 }
 
+// 参数数组里是否含句柄元素。
+//   HANDLE_PAR 表示"任意类型句柄"（HBase.h），句柄本体在 Hcpar.par.h。
+//   json 只有 数字/字符串/数组，表示不了句柄 ⇒ 含句柄的元组改走对象载荷（HTuple）。
+bool containsHandle(Hcpar const *pars, INT4_8 n)
+{
+    for (INT4_8 i = 0; i < n; ++i)
+    {
+        if (pars[i].type == HANDLE_PAR) return true;
+    }
+    return false;
+}
+
 }  // namespace
 
 // ============================================================
@@ -200,13 +213,36 @@ Herror Hhdict_set_tuple(Hproc_handle proc_handle)
     Def_INHDictObject(1, pData);
 
     const std::string key = readString(proc_handle, 2);
-    nlohmann::json value;
-    if (!readJsonValue(proc_handle, 3, value)) return H__LINE__ * 10000;
 
     DictPtr d = HDictGetDict(pData);
     if (!d) return H__LINE__ * 10000;
+
+    Hcpar const *pars = nullptr;
+    INT4_8 n = 0;
+    if (HPGetPPar(proc_handle, 3, &pars, &n) != H_MSG_TRUE || n < 1) return H__LINE__ * 10000;
+
     try
     {
+        if (containsHandle(pars, n))
+        {
+            // HDict **不支持**存句柄。原因（HALCON 扩展包手册明确）：
+            //  * 输出侧句柄只能走 HPutElemH，它要求 H_HANDLE_TYPE*（句柄类型表），
+            //    且语义是"把新建句柄的所有权交给输出"，不是复制已有引用；
+            //  * 没有任何 API 能从 Hphandle 反查类型；
+            //  * HPutPPar/HPutCPar 只保证 LONG_PAR/DOUBLE_PAR/STRING_PAR 三种元素；
+            //  * 自定义句柄都是 HANDLE_INFO_INITIALIZER_NOSER（不可序列化）。
+            // 强行存进去的句柄在源变量释放后会被清除，表现为
+            // "第一次正常、第二次开始消失"（#2454）。
+            // 需要跨调用携带句柄时：用 HALCON 原生 dict（set_dict_tuple/get_dict_tuple
+            // 支持 handle）或直接把句柄当过程参数传。
+            HSetErrText(const_cast<char *>(
+                "hdict: cannot store handle values (HALCON's extension interface provides no way "
+                "to output an existing handle). Use a native dict or a procedure parameter instead."));
+            return 30060;
+        }
+
+        nlohmann::json value;
+        if (!readJsonValue(proc_handle, 3, value)) return H__LINE__ * 10000;
         MLIQMetrics::hdict::set_dict_tuple(d, key, value);
     }
     catch (const std::exception &e)
@@ -270,7 +306,12 @@ Herror Hhdict_get_keys(Hproc_handle proc_handle)
         const std::vector<std::string> keys = MLIQMetrics::hdict::get_dict_param_keys(d);
         std::vector<char *> ptrs;
         ptrs.reserve(keys.size());
-        for (const auto &k : keys) ptrs.push_back(const_cast<char *>(k.c_str()));
+        for (const auto &k : keys)
+        {
+            // 内部键（__hdict_native_store__ 等）对调用方不可见
+            if (k.compare(0, 2, HDictObj::kInternalPrefix) == 0) continue;
+            ptrs.push_back(const_cast<char *>(k.c_str()));
+        }
         if (!ptrs.empty()) HPutElem(proc_handle, 1, ptrs.data(), (INT4_8)ptrs.size(), STRING_PAR);
     }
     catch (const std::exception &e)
@@ -382,26 +423,9 @@ Herror Hhdict_get_object(Hproc_handle proc_handle)
     if (!d) return H__LINE__ * 10000;
     try
     {
+        // 两种载荷（调用方上下文对象 / 算子产出的原生 dict 引用）由 helper 统一处理
         HObject obj;
-
-        // ① 调用方塞进来的 HObject
-        try
-        {
-            auto p = MLIQMetrics::hdict::get_dict_object_as<std::shared_ptr<HObject>>(d, key);
-            if (p && p->IsInitialized()) obj = *p;
-        }
-        catch (...)
-        {
-        }
-
-        // ② 扩展算子产出的对象：载荷是「原生 dict + 键」引用
-        if (!obj.IsInitialized())
-        {
-            auto ref = MLIQMetrics::hdict::get_dict_object_as<HDictNativeObjectRefPtr>(d, key);
-            if (!ref) return H__LINE__ * 10000;
-            GetDictObject(&obj, ref->dict, HTuple(ref->key.c_str()));
-        }
-        if (!obj.IsInitialized()) return H__LINE__ * 10000;
+        if (!HDictObj::ReadObject(d, key, obj) || !obj.IsInitialized()) return H__LINE__ * 10000;
 
         const Hlong num = obj.CountObj();
         if (num <= 0) return H__LINE__ * 10000;

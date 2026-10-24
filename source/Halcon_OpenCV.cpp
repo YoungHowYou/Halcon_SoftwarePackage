@@ -1,4 +1,4 @@
-﻿/*=============================================================================
+/*=============================================================================
  * Halcon_OpenCV.cpp — HALCON OpenCV & exiv2 Extension Operators
  * 从 Halcon_YouloBe 迁移的非 OpenVINO 功能
  *
@@ -37,6 +37,8 @@
 #include <limits>   // std::numeric_limits（cv_divide 的除零 / 非有限值保护）
 #include <exiv2/exiv2.hpp>
 #include "Halcon_SoftwarePackage.h"
+#include "Halcon_Def.h"            // HDict 句柄宏（Def_INHDictObject / HDictGetDict）
+#include "Halcon_DictObject.h"     // HDictObj 对象 / 元组小工具
 
 #if !defined(_WIN32) && !defined(_WIN64)
   typedef int64_t  INT64;
@@ -54,6 +56,8 @@
 
 using namespace std;
 using namespace HalconCpp;
+
+using MLIQMetrics::hdict::DictPtr;
 
 /*=============================================================================
  * OpenCV 枚举字符串映射
@@ -215,23 +219,17 @@ static const size_t kMorphShapeN = sizeof(kMorphShapeTable) / sizeof(kMorphShape
 Herror HCremap(Hproc_handle proc_handle)
 try
 {
-    const Hcpar* dict;
-    INT4_8 num;
+    HCkNoObj(proc_handle);
     HAllocStringMem(proc_handle, 1024);
-    HGetPPar(proc_handle, 1, &dict, &num);
+    Def_INHDictObjectShared(1, pData);
+    DictPtr d = HDictGetDict(pData);
+    if (!d) return H__LINE__ * 10000;
 
-    HTuple hv_DictHandle(const_cast<Hcpar*>(dict), 1);
-    HTuple HandleIndex;
-
-    HObject iMAGE;
-    HObject dstiMAGE;
-    HObject MapXiMAGE;
-    HObject MapYiMAGE;
-
-    GetDictObject(&iMAGE, hv_DictHandle, u8"输入图");
-    GetDictObject(&dstiMAGE, hv_DictHandle, u8"输出图");
-    GetDictObject(&MapXiMAGE, hv_DictHandle, u8"MapX");
-    GetDictObject(&MapYiMAGE, hv_DictHandle, u8"MapY");
+    HObject iMAGE, dstiMAGE, MapXiMAGE, MapYiMAGE;
+    if (!HDictObj::ReadObject(d, "InputImage", iMAGE))   return H__LINE__ * 10000;
+    if (!HDictObj::ReadObject(d, "OutputImage", dstiMAGE)) return H__LINE__ * 10000;
+    if (!HDictObj::ReadObject(d, "MapX", MapXiMAGE))     return H__LINE__ * 10000;
+    if (!HDictObj::ReadObject(d, "MapY", MapYiMAGE))     return H__LINE__ * 10000;
 
     HTuple  hv_Pointer, hv_Type, hv_Width, hv_Height;
     GetImagePointer1(iMAGE, &hv_Pointer, &hv_Type, &hv_Width, &hv_Height);
@@ -518,6 +516,7 @@ static int roi_kind_check(const Himage& small_image, const Himage& big_image)
  * add_roi 算子
  *===========================================================================*/
 Herror HCadd_roi(Hproc_handle proc_handle)
+try
 {
     Hkey in_smallobj_key, in_bigobj_key, out_image_key;
     Himage    insmallimage;
@@ -543,11 +542,32 @@ Herror HCadd_roi(Hproc_handle proc_handle)
     if (0 != iRes) return 30000 + iRes;
     return H_MSG_TRUE;
 }
+catch (HalconCpp::HException &e)
+{
+    // HALCON/C++ 的低层错误直接返回错误码（get_error_text 可读），
+    // 不吞成 C++ 异常；否则 supply 层越界到 HDevelop 会 fail-fast（0xe06d7363 / 0xc0000409）。
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCadd_roi: unknown C++ exception"));
+    return 30052;
+}
 
 /*=============================================================================
  * mul_roi 算子
  *===========================================================================*/
 Herror HCmul_roi(Hproc_handle proc_handle)
+try
 {
     Hkey in_smallobj_key, in_bigobj_key, out_image_key;
     Himage    insmallimage;
@@ -573,11 +593,30 @@ Herror HCmul_roi(Hproc_handle proc_handle)
     if (0 != iRes) return 30000 + iRes;
     return H_MSG_TRUE;
 }
+catch (HalconCpp::HException &e)
+{
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCmul_roi: unknown C++ exception"));
+    return 30052;
+}
 
 /*=============================================================================
  * sub_B_roi 算子
  *===========================================================================*/
 Herror HCsub_B_roi(Hproc_handle proc_handle)
+try
 {
     Hkey in_smallobj_key, in_bigobj_key, out_image_key;
     Himage    insmallimage;
@@ -603,11 +642,30 @@ Herror HCsub_B_roi(Hproc_handle proc_handle)
     if (0 != iRes) return 30000 + iRes;
     return H_MSG_TRUE;
 }
+catch (HalconCpp::HException &e)
+{
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCsub_B_roi: unknown C++ exception"));
+    return 30052;
+}
 
 /*=============================================================================
  * div_B_roi 算子
  *===========================================================================*/
 Herror HCdiv_B_roi(Hproc_handle proc_handle)
+try
 {
     Hkey in_smallobj_key, in_bigobj_key, out_image_key;
     Himage    insmallimage;
@@ -633,11 +691,30 @@ Herror HCdiv_B_roi(Hproc_handle proc_handle)
     if (0 != iRes) return 30000 + iRes;
     return H_MSG_TRUE;
 }
+catch (HalconCpp::HException &e)
+{
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCdiv_B_roi: unknown C++ exception"));
+    return 30052;
+}
 
 /*=============================================================================
  * div_A_roi 算子
  *===========================================================================*/
 Herror HCdiv_A_roi(Hproc_handle proc_handle)
+try
 {
     Hkey in_smallobj_key, in_bigobj_key, out_image_key;
     Himage    insmallimage;
@@ -664,11 +741,30 @@ Herror HCdiv_A_roi(Hproc_handle proc_handle)
     if (0 != iRes) return 30000 + iRes;
     return H_MSG_TRUE;
 }
+catch (HalconCpp::HException &e)
+{
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCdiv_A_roi: unknown C++ exception"));
+    return 30052;
+}
 
 /*=============================================================================
  * sub_A_roi 算子
  *===========================================================================*/
 Herror HCsub_A_roi(Hproc_handle proc_handle)
+try
 {
     Hkey in_smallobj_key, in_bigobj_key, out_image_key;
     Himage    insmallimage;
@@ -694,6 +790,24 @@ Herror HCsub_A_roi(Hproc_handle proc_handle)
     }
     if (0 != iRes) return 30000 + iRes;
     return H_MSG_TRUE;
+}
+catch (HalconCpp::HException &e)
+{
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCsub_A_roi: unknown C++ exception"));
+    return 30052;
 }
 
 /*=============================================================================
@@ -944,14 +1058,14 @@ Herror HCWriteImageExif(Hproc_handle proc_handle)
 Herror HCcv_orb_detect(Hproc_handle proc_handle)
 try
 {
-    const Hcpar *dict;
-    INT4_8 num;
+    HCkNoObj(proc_handle);
     HAllocStringMem(proc_handle, 1024);
-    HGetPPar(proc_handle, 1, &dict, &num);
-    HTuple hv_DictHandle(const_cast<Hcpar*>(dict), 1);
+    Def_INHDictObjectShared(1, pData);
+    DictPtr d = HDictGetDict(pData);
+    if (!d) return H__LINE__ * 10000;
 
     HObject ho_InputImage;
-    GetDictObject(&ho_InputImage, hv_DictHandle, "InputImage");
+    if (!HDictObj::ReadObject(d, "InputImage", ho_InputImage)) return H__LINE__ * 10000;
 
     HTuple hv_Pointer, hv_Type, hv_Width, hv_Height;
     GetImagePointer1(ho_InputImage, &hv_Pointer, &hv_Type, &hv_Width, &hv_Height);
@@ -959,29 +1073,17 @@ try
     cv::Mat img((int)hv_Height.D(), (int)hv_Width.D(), CV_8UC1,
                 (uchar *)hv_Pointer.L());
 
-    HTuple hv_NFeatures;
-    try { GetDictTuple(hv_DictHandle, "NFeatures", &hv_NFeatures); }
-    catch (...) { hv_NFeatures = 3000; }
-    int nFeatures = (int)hv_NFeatures.D();
+    const int nFeatures = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "NFeatures", 3000), 3000);
 
     /* ---- ORB 全开放参数（从 dict 键读取，带默认值） ---- */
-    HTuple t;
-    double scaleFactor  = 1.2;
-    int    nlevels      = 8;
-    int    edgeThreshold = 31;
-    int    firstLevel   = 0;
-    int    WTA_K        = 2;
-    int    scoreType    = 0;   // 0=HARRIS, 1=FAST
-    int    patchSize    = 31;
-    int    fastThreshold = 20;
-    try { GetDictTuple(hv_DictHandle, "ScaleFactor", &t);   scaleFactor   = t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "NLevels", &t);       nlevels       = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "EdgeThreshold", &t); edgeThreshold = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "FirstLevel", &t);    firstLevel    = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "WTA_K", &t);         WTA_K         = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "ScoreType", &t);     scoreType     = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "PatchSize", &t);     patchSize     = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "FastThreshold", &t); fastThreshold = (int)t.D(); } catch (...) {}
+    const double scaleFactor   = HDictObj::JsonNum(HDictObj::GetTupleOr(d, "ScaleFactor", 1.2), 1.2);
+    const int    nlevels       = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "NLevels", 8), 8);
+    const int    edgeThreshold = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "EdgeThreshold", 31), 31);
+    const int    firstLevel    = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "FirstLevel", 0), 0);
+    const int    WTA_K         = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "WTA_K", 2), 2);
+    const int    scoreType     = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "ScoreType", 0), 0);
+    const int    patchSize     = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "PatchSize", 31), 31);
+    const int    fastThreshold = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "FastThreshold", 20), 20);
 
     cvflow::OrbParams op;
     op.nFeatures = nFeatures; op.scaleFactor = scaleFactor; op.nlevels = nlevels;
@@ -992,23 +1094,23 @@ try
     cv::Mat descU8;
     cvflow::orb_detect(img, op, keypoints, descU8);   // 流程在 cv_flow
 
-    int nKP = (int)keypoints.size();
+    const int nKP = (int)keypoints.size();
 
-    HTuple hv_Rows, hv_Cols;
-    for (int i = 0; i < nKP; i++)
+    std::vector<double> rows((size_t)nKP), cols((size_t)nKP);
+    for (int i = 0; i < nKP; ++i)
     {
-        hv_Rows[i] = (double)keypoints[i].pt.y;
-        hv_Cols[i] = (double)keypoints[i].pt.x;
+        rows[(size_t)i] = (double)keypoints[i].pt.y;
+        cols[(size_t)i] = (double)keypoints[i].pt.x;
     }
-    SetDictTuple(hv_DictHandle, "KeypointsRow", hv_Rows);
-    SetDictTuple(hv_DictHandle, "KeypointsCol", hv_Cols);
-    SetDictTuple(hv_DictHandle, "NumKeypoints", (Hlong)nKP);
+    MLIQMetrics::hdict::set_dict_tuple(d, "KeypointsRow", HDictObj::VecToJson(rows));
+    MLIQMetrics::hdict::set_dict_tuple(d, "KeypointsCol", HDictObj::VecToJson(cols));
+    MLIQMetrics::hdict::set_dict_tuple(d, "NumKeypoints", nKP);
 
     if (nKP > 0 && !descU8.empty())
     {
         HObject ho_Desc;
         GenImage1(&ho_Desc, "byte", descU8.cols, nKP, (Hlong)descU8.data);
-        SetDictObject(ho_Desc, hv_DictHandle, "Descriptors");
+        HDictObj::WriteObject(d, "Descriptors", ho_Desc);
     }
 
     return H_MSG_TRUE;
@@ -1040,14 +1142,14 @@ catch (...)
 Herror HCcv_akaze_detect(Hproc_handle proc_handle)
 try
 {
-    const Hcpar *dict;
-    INT4_8 num;
+    HCkNoObj(proc_handle);
     HAllocStringMem(proc_handle, 1024);
-    HGetPPar(proc_handle, 1, &dict, &num);
-    HTuple hv_DictHandle(const_cast<Hcpar*>(dict), 1);
+    Def_INHDictObjectShared(1, pData);
+    DictPtr d = HDictGetDict(pData);
+    if (!d) return H__LINE__ * 10000;
 
     HObject ho_InputImage;
-    GetDictObject(&ho_InputImage, hv_DictHandle, "InputImage");
+    if (!HDictObj::ReadObject(d, "InputImage", ho_InputImage)) return H__LINE__ * 10000;
 
     HTuple hv_Pointer, hv_Type, hv_Width, hv_Height;
     GetImagePointer1(ho_InputImage, &hv_Pointer, &hv_Type, &hv_Width, &hv_Height);
@@ -1056,21 +1158,13 @@ try
                 (uchar *)hv_Pointer.L());
 
     /* ---- AKAZE 全开放参数（从 dict 键读取，带默认值） ---- */
-    HTuple t;
-    int    descriptorType     = 4;    // 4=MLDB（默认）；0=KAZE,1=KAZE_UPRIGHT,2=MLDB_UPRIGHT
-    int    descriptorSize     = 0;
-    int    descriptorChannels = 3;
-    double threshold          = 0.001;
-    int    nOctaves           = 4;
-    int    nOctaveLayers      = 4;
-    int    diffusivity        = 1;    // 1=PM_G2；0=PM_G1,2=WEICKERT,3=CHARBONNIER
-    try { GetDictTuple(hv_DictHandle, "DescriptorType", &t);     descriptorType     = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "DescriptorSize", &t);     descriptorSize     = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "DescriptorChannels", &t); descriptorChannels = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "Threshold", &t);          threshold          = t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "NOctaves", &t);           nOctaves           = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "NOctaveLayers", &t);      nOctaveLayers      = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "Diffusivity", &t);        diffusivity        = (int)t.D(); } catch (...) {}
+    const int    descriptorType     = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "DescriptorType", 4), 4);
+    const int    descriptorSize     = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "DescriptorSize", 0), 0);
+    const int    descriptorChannels = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "DescriptorChannels", 3), 3);
+    const double threshold          = HDictObj::JsonNum(HDictObj::GetTupleOr(d, "Threshold", 0.001), 0.001);
+    const int    nOctaves           = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "NOctaves", 4), 4);
+    const int    nOctaveLayers      = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "NOctaveLayers", 4), 4);
+    const int    diffusivity        = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "Diffusivity", 1), 1);
 
     cvflow::AkazeParams ap;
     ap.descriptorType = descriptorType; ap.descriptorSize = descriptorSize;
@@ -1081,25 +1175,25 @@ try
     cv::Mat descU8;
     cvflow::akaze_detect(img, ap, keypoints, descU8);   // 流程在 cv_flow（含 u8 转换）
 
-    int nKP = (int)keypoints.size();
+    const int nKP = (int)keypoints.size();
 
-    HTuple hv_Rows, hv_Cols;
-    for (int i = 0; i < nKP; i++)
+    std::vector<double> rows((size_t)nKP), cols((size_t)nKP);
+    for (int i = 0; i < nKP; ++i)
     {
-        hv_Rows[i] = (double)keypoints[i].pt.y;
-        hv_Cols[i] = (double)keypoints[i].pt.x;
+        rows[(size_t)i] = (double)keypoints[i].pt.y;
+        cols[(size_t)i] = (double)keypoints[i].pt.x;
     }
-    SetDictTuple(hv_DictHandle, "KeypointsRow", hv_Rows);
-    SetDictTuple(hv_DictHandle, "KeypointsCol", hv_Cols);
-    SetDictTuple(hv_DictHandle, "NumKeypoints", (Hlong)nKP);
+    MLIQMetrics::hdict::set_dict_tuple(d, "KeypointsRow", HDictObj::VecToJson(rows));
+    MLIQMetrics::hdict::set_dict_tuple(d, "KeypointsCol", HDictObj::VecToJson(cols));
+    MLIQMetrics::hdict::set_dict_tuple(d, "NumKeypoints", nKP);
 
     if (nKP > 0 && !descU8.empty())
     {
         int descWidth = descU8.cols;
         HObject ho_Desc;
         GenImage1(&ho_Desc, "byte", descWidth, nKP, (Hlong)descU8.data);
-        SetDictObject(ho_Desc, hv_DictHandle, "Descriptors");
-        SetDictTuple(hv_DictHandle, "DescWidth", (Hlong)descWidth);
+        HDictObj::WriteObject(d, "Descriptors", ho_Desc);
+        MLIQMetrics::hdict::set_dict_tuple(d, "DescWidth", descWidth);
     }
 
     return H_MSG_TRUE;
@@ -1131,14 +1225,14 @@ catch (...)
 Herror HCcv_sift_detect(Hproc_handle proc_handle)
 try
 {
-    const Hcpar *dict;
-    INT4_8 num;
+    HCkNoObj(proc_handle);
     HAllocStringMem(proc_handle, 1024);
-    HGetPPar(proc_handle, 1, &dict, &num);
-    HTuple hv_DictHandle(const_cast<Hcpar*>(dict), 1);
+    Def_INHDictObjectShared(1, pData);
+    DictPtr d = HDictGetDict(pData);
+    if (!d) return H__LINE__ * 10000;
 
     HObject ho_InputImage;
-    GetDictObject(&ho_InputImage, hv_DictHandle, "InputImage");
+    if (!HDictObj::ReadObject(d, "InputImage", ho_InputImage)) return H__LINE__ * 10000;
 
     HTuple hv_Pointer, hv_Type, hv_Width, hv_Height;
     GetImagePointer1(ho_InputImage, &hv_Pointer, &hv_Type, &hv_Width, &hv_Height);
@@ -1146,21 +1240,13 @@ try
     cv::Mat img((int)hv_Height.D(), (int)hv_Width.D(), CV_8UC1,
                 (uchar *)hv_Pointer.L());
 
-    HTuple hv_NFeatures;
-    try { GetDictTuple(hv_DictHandle, "NFeatures", &hv_NFeatures); }
-    catch (...) { hv_NFeatures = 0; }
-    int nFeatures = (int)hv_NFeatures.D();
+    const int nFeatures = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "NFeatures", 0), 0);
 
     /* ---- SIFT 全开放参数（从 dict 键读取，带默认值） ---- */
-    HTuple t;
-    int    nOctaveLayers     = 3;
-    double contrastThreshold = 0.04;
-    double edgeThreshold     = 10.0;
-    double sigma             = 1.6;
-    try { GetDictTuple(hv_DictHandle, "NOctaveLayers", &t);     nOctaveLayers     = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "ContrastThreshold", &t); contrastThreshold = t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "EdgeThreshold", &t);     edgeThreshold     = t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "Sigma", &t);             sigma             = t.D(); } catch (...) {}
+    const int    nOctaveLayers     = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "NOctaveLayers", 3), 3);
+    const double contrastThreshold = HDictObj::JsonNum(HDictObj::GetTupleOr(d, "ContrastThreshold", 0.04), 0.04);
+    const double edgeThreshold     = HDictObj::JsonNum(HDictObj::GetTupleOr(d, "EdgeThreshold", 10.0), 10.0);
+    const double sigma             = HDictObj::JsonNum(HDictObj::GetTupleOr(d, "Sigma", 1.6), 1.6);
 
     cvflow::SiftParams sp;
     sp.nFeatures = nFeatures; sp.nOctaveLayers = nOctaveLayers;
@@ -1171,25 +1257,25 @@ try
     cv::Mat descU8;
     cvflow::sift_detect(img, sp, keypoints, descU8);   // 流程在 cv_flow（含 u8 转换）
 
-    int nKP = (int)keypoints.size();
+    const int nKP = (int)keypoints.size();
 
-    HTuple hv_Rows, hv_Cols;
-    for (int i = 0; i < nKP; i++)
+    std::vector<double> rows((size_t)nKP), cols((size_t)nKP);
+    for (int i = 0; i < nKP; ++i)
     {
-        hv_Rows[i] = (double)keypoints[i].pt.y;
-        hv_Cols[i] = (double)keypoints[i].pt.x;
+        rows[(size_t)i] = (double)keypoints[i].pt.y;
+        cols[(size_t)i] = (double)keypoints[i].pt.x;
     }
-    SetDictTuple(hv_DictHandle, "KeypointsRow", hv_Rows);
-    SetDictTuple(hv_DictHandle, "KeypointsCol", hv_Cols);
-    SetDictTuple(hv_DictHandle, "NumKeypoints", (Hlong)nKP);
+    MLIQMetrics::hdict::set_dict_tuple(d, "KeypointsRow", HDictObj::VecToJson(rows));
+    MLIQMetrics::hdict::set_dict_tuple(d, "KeypointsCol", HDictObj::VecToJson(cols));
+    MLIQMetrics::hdict::set_dict_tuple(d, "NumKeypoints", nKP);
 
     if (nKP > 0 && !descU8.empty())
     {
         int descWidth = descU8.cols;
         HObject ho_Desc;
         GenImage1(&ho_Desc, "byte", descWidth, nKP, (Hlong)descU8.data);
-        SetDictObject(ho_Desc, hv_DictHandle, "Descriptors");
-        SetDictTuple(hv_DictHandle, "DescWidth", (Hlong)descWidth);
+        HDictObj::WriteObject(d, "Descriptors", ho_Desc);
+        MLIQMetrics::hdict::set_dict_tuple(d, "DescWidth", descWidth);
     }
 
     return H_MSG_TRUE;
@@ -1221,43 +1307,32 @@ catch (...)
 Herror HCcv_bf_knn_match(Hproc_handle proc_handle)
 try
 {
-    const Hcpar *dict;
-    INT4_8 num;
+    HCkNoObj(proc_handle);
     HAllocStringMem(proc_handle, 1024);
-    HGetPPar(proc_handle, 1, &dict, &num);
-    HTuple hv_DictHandle(const_cast<Hcpar*>(dict), 1);
+    Def_INHDictObjectShared(1, pData);
+    DictPtr d = HDictGetDict(pData);
+    if (!d) return H__LINE__ * 10000;
 
-    HObject ho_DescRef;
-    GetDictObject(&ho_DescRef, hv_DictHandle, "DescriptorsRef");
+    HObject ho_DescRef, ho_DescTarget;
+    if (!HDictObj::ReadObject(d, "DescriptorsRef", ho_DescRef))       return H__LINE__ * 10000;
+    if (!HDictObj::ReadObject(d, "DescriptorsTarget", ho_DescTarget)) return H__LINE__ * 10000;
+
     HTuple ptrRef, typeRef, wRef, hRef;
     GetImagePointer1(ho_DescRef, &ptrRef, &typeRef, &wRef, &hRef);
 
-    HObject ho_DescTarget;
-    GetDictObject(&ho_DescTarget, hv_DictHandle, "DescriptorsTarget");
     HTuple ptrTarget, typeTarget, wTarget, hTarget;
     GetImagePointer1(ho_DescTarget, &ptrTarget, &typeTarget, &wTarget, &hTarget);
 
-    HTuple hv_DescWidth;
-    try { GetDictTuple(hv_DictHandle, "DescWidth", &hv_DescWidth); }
-    catch (...) { hv_DescWidth = 32; }
-    int descWidth = (int)hv_DescWidth.D();
-
-    HTuple hv_RatioThresh;
-    try { GetDictTuple(hv_DictHandle, "RatioThresh", &hv_RatioThresh); }
-    catch (...) { hv_RatioThresh = 0.75; }
-    double ratioThresh = hv_RatioThresh.D();
+    const int    descWidth   = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "DescWidth", 32), 32);
+    const double ratioThresh = HDictObj::JsonNum(HDictObj::GetTupleOr(d, "RatioThresh", 0.75), 0.75);
 
     /* ---- BF 匹配全开放参数（从 dict 键读取，带默认值） ---- */
-    HTuple t;
-    int normType  = 4;   // 4=NORM_HAMMING；1=L1,2=L2,6=NORM_HAMMING2
-    int crossCheck = 0;  // 0=否，1=是（此时忽略 ratio 过滤，返回最佳匹配）
-    int knnK      = 2;   // knnMatch 的 k（ratio 过滤需要 >= 2）
-    try { GetDictTuple(hv_DictHandle, "NormType", &t);   normType   = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "CrossCheck", &t); crossCheck = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "K", &t);          knnK       = (int)t.D(); } catch (...) {}
+    const int normType   = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "NormType", 4), 4);
+    const int crossCheck = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "CrossCheck", 0), 0);
+    const int knnK       = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "K", 2), 2);
 
-    int nRef = (int)hRef.D();
-    int nTarget = (int)hTarget.D();
+    const int nRef = (int)hRef.D();
+    const int nTarget = (int)hTarget.D();
 
     cv::Mat matRef(nRef, descWidth, CV_8UC1, (uchar *)ptrRef.L());
     cv::Mat matTarget(nTarget, descWidth, CV_8UC1, (uchar *)ptrTarget.L());
@@ -1269,17 +1344,17 @@ try
     std::vector<int> goodIdxRef, goodIdxTarget;
     cvflow::bf_knn_match(matRef, matTarget, bp, goodIdxRef, goodIdxTarget);  // 流程在 cv_flow
 
-    int nGood = (int)goodIdxRef.size();
+    const int nGood = (int)goodIdxRef.size();
 
-    HTuple hv_IdxRef, hv_IdxTarget;
-    for (int i = 0; i < nGood; i++)
+    std::vector<long long> idxRef((size_t)nGood), idxTarget((size_t)nGood);
+    for (int i = 0; i < nGood; ++i)
     {
-        hv_IdxRef[i] = (Hlong)goodIdxRef[i];
-        hv_IdxTarget[i] = (Hlong)goodIdxTarget[i];
+        idxRef[(size_t)i]    = (long long)goodIdxRef[i];
+        idxTarget[(size_t)i] = (long long)goodIdxTarget[i];
     }
-    SetDictTuple(hv_DictHandle, "MatchIdxRef", hv_IdxRef);
-    SetDictTuple(hv_DictHandle, "MatchIdxTarget", hv_IdxTarget);
-    SetDictTuple(hv_DictHandle, "NumGoodMatches", (Hlong)nGood);
+    MLIQMetrics::hdict::set_dict_tuple(d, "MatchIdxRef", HDictObj::IntVecToJson(idxRef));
+    MLIQMetrics::hdict::set_dict_tuple(d, "MatchIdxTarget", HDictObj::IntVecToJson(idxTarget));
+    MLIQMetrics::hdict::set_dict_tuple(d, "NumGoodMatches", nGood);
 
     return H_MSG_TRUE;
 }
@@ -1310,50 +1385,34 @@ catch (...)
 Herror HCcv_estimate_affine_partial2d(Hproc_handle proc_handle)
 try
 {
-    const Hcpar *dict;
-    INT4_8 num;
+    HCkNoObj(proc_handle);
     HAllocStringMem(proc_handle, 1024);
-    HGetPPar(proc_handle, 1, &dict, &num);
-    HTuple hv_DictHandle(const_cast<Hcpar*>(dict), 1);
+    Def_INHDictObjectShared(1, pData);
+    DictPtr d = HDictGetDict(pData);
+    if (!d) return H__LINE__ * 10000;
 
-    HTuple hv_SrcRow, hv_SrcCol, hv_DstRow, hv_DstCol;
-    GetDictTuple(hv_DictHandle, "SrcRow", &hv_SrcRow);
-    GetDictTuple(hv_DictHandle, "SrcCol", &hv_SrcCol);
-    GetDictTuple(hv_DictHandle, "DstRow", &hv_DstRow);
-    GetDictTuple(hv_DictHandle, "DstCol", &hv_DstCol);
+    const std::vector<double> srcRow = HDictObj::JsonToVec(HDictObj::GetTupleOr(d, "SrcRow", nlohmann::json::array()));
+    const std::vector<double> srcCol = HDictObj::JsonToVec(HDictObj::GetTupleOr(d, "SrcCol", nlohmann::json::array()));
+    const std::vector<double> dstRow = HDictObj::JsonToVec(HDictObj::GetTupleOr(d, "DstRow", nlohmann::json::array()));
+    const std::vector<double> dstCol = HDictObj::JsonToVec(HDictObj::GetTupleOr(d, "DstCol", nlohmann::json::array()));
 
-    int nPts = (int)hv_SrcRow.Length();
+    const size_t nPts = std::min(std::min(srcRow.size(), srcCol.size()),
+                                 std::min(dstRow.size(), dstCol.size()));
     if (nPts < 4)
     {
-        SetDictTuple(hv_DictHandle, "Success", (Hlong)0);
-        SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)0);
+        MLIQMetrics::hdict::set_dict_tuple(d, "Success", 0);
+        MLIQMetrics::hdict::set_dict_tuple(d, "InlierCount", 0);
         return H_MSG_TRUE;
     }
 
-    HTuple hv_RansacThresh;
-    try { GetDictTuple(hv_DictHandle, "RansacThreshold", &hv_RansacThresh); }
-    catch (...) { hv_RansacThresh = 3.0; }
-    double ransacThresh = hv_RansacThresh.D();
+    const double ransacThresh =
+        HDictObj::JsonNum(HDictObj::GetTupleOr(d, "RansacThreshold", 3.0), 3.0);
 
     /* ---- RANSAC 全开放参数（从 dict 键读取，带默认值） ---- */
-    HTuple t;
-    int    method     = 8;      // 8=RANSAC, 4=LMEDS
-    int    maxIters   = 2000;
-    double confidence = 0.99;
-    int    refineIters = 10;
-    try { GetDictTuple(hv_DictHandle, "Method", &t);      method      = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "MaxIters", &t);    maxIters    = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "Confidence", &t);  confidence  = t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "RefineIters", &t); refineIters = (int)t.D(); } catch (...) {}
-
-    std::vector<double> srcRow(nPts), srcCol(nPts), dstRow(nPts), dstCol(nPts);
-    for (int i = 0; i < nPts; i++)
-    {
-        srcRow[(size_t)i] = hv_SrcRow[i].D();
-        srcCol[(size_t)i] = hv_SrcCol[i].D();
-        dstRow[(size_t)i] = hv_DstRow[i].D();
-        dstCol[(size_t)i] = hv_DstCol[i].D();
-    }
+    const int    method      = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "Method", 8), 8);   // 8=RANSAC, 4=LMEDS
+    const int    maxIters    = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "MaxIters", 2000), 2000);
+    const double confidence  = HDictObj::JsonNum(HDictObj::GetTupleOr(d, "Confidence", 0.99), 0.99);
+    const int    refineIters = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "RefineIters", 10), 10);
 
     cvflow::AffinePartialParams ap;
     ap.ransacThresh = ransacThresh; ap.method = method; ap.maxIters = maxIters;
@@ -1362,26 +1421,19 @@ try
     cvflow::AffinePartialResult res;
     if (!cvflow::estimate_affine_partial2d(srcRow, srcCol, dstRow, dstCol, ap, res))
     {
-        SetDictTuple(hv_DictHandle, "Success", (Hlong)0);
-        SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)0);
+        MLIQMetrics::hdict::set_dict_tuple(d, "Success", 0);
+        MLIQMetrics::hdict::set_dict_tuple(d, "InlierCount", 0);
         return H_MSG_TRUE;
     }
 
-    HTuple hv_HomMat2D;
-    hv_HomMat2D[0] = res.hom[0];
-    hv_HomMat2D[1] = res.hom[1];
-    hv_HomMat2D[2] = res.hom[2];
-    hv_HomMat2D[3] = res.hom[3];
-    hv_HomMat2D[4] = res.hom[4];
-    hv_HomMat2D[5] = res.hom[5];
-
-    SetDictTuple(hv_DictHandle, "HomMat2D", hv_HomMat2D);
-    SetDictTuple(hv_DictHandle, "Success", (Hlong)1);
-    SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)res.inlierCount);
-    SetDictTuple(hv_DictHandle, "TranslateRow", res.translateRow);
-    SetDictTuple(hv_DictHandle, "TranslateCol", res.translateCol);
-    SetDictTuple(hv_DictHandle, "Angle", res.angle);
-    SetDictTuple(hv_DictHandle, "Scale", res.scale);
+    MLIQMetrics::hdict::set_dict_tuple(
+        d, "HomMat2D", HDictObj::VecToJson(std::vector<double>(res.hom, res.hom + 6)));
+    MLIQMetrics::hdict::set_dict_tuple(d, "Success", 1);
+    MLIQMetrics::hdict::set_dict_tuple(d, "InlierCount", (int)res.inlierCount);
+    MLIQMetrics::hdict::set_dict_tuple(d, "TranslateRow", res.translateRow);
+    MLIQMetrics::hdict::set_dict_tuple(d, "TranslateCol", res.translateCol);
+    MLIQMetrics::hdict::set_dict_tuple(d, "Angle", res.angle);
+    MLIQMetrics::hdict::set_dict_tuple(d, "Scale", res.scale);
 
     return H_MSG_TRUE;
 }
@@ -1414,46 +1466,32 @@ catch (...)
 Herror HCcv_estimate_rigid_2d(Hproc_handle proc_handle)
 try
 {
-    const Hcpar *dict;
-    INT4_8 num;
+    HCkNoObj(proc_handle);
     HAllocStringMem(proc_handle, 1024);
-    HGetPPar(proc_handle, 1, &dict, &num);
-    HTuple hv_DictHandle(const_cast<Hcpar*>(dict), 1);
+    Def_INHDictObjectShared(1, pData);
+    DictPtr d = HDictGetDict(pData);
+    if (!d) return H__LINE__ * 10000;
 
-    HTuple hv_SrcRow, hv_SrcCol, hv_DstRow, hv_DstCol;
-    GetDictTuple(hv_DictHandle, "SrcRow", &hv_SrcRow);
-    GetDictTuple(hv_DictHandle, "SrcCol", &hv_SrcCol);
-    GetDictTuple(hv_DictHandle, "DstRow", &hv_DstRow);
-    GetDictTuple(hv_DictHandle, "DstCol", &hv_DstCol);
+    const std::vector<double> srcRow = HDictObj::JsonToVec(HDictObj::GetTupleOr(d, "SrcRow", nlohmann::json::array()));
+    const std::vector<double> srcCol = HDictObj::JsonToVec(HDictObj::GetTupleOr(d, "SrcCol", nlohmann::json::array()));
+    const std::vector<double> dstRow = HDictObj::JsonToVec(HDictObj::GetTupleOr(d, "DstRow", nlohmann::json::array()));
+    const std::vector<double> dstCol = HDictObj::JsonToVec(HDictObj::GetTupleOr(d, "DstCol", nlohmann::json::array()));
 
-    int nPts = (int)hv_SrcRow.Length();
+    const size_t nPts = std::min(std::min(srcRow.size(), srcCol.size()),
+                                 std::min(dstRow.size(), dstCol.size()));
     if (nPts < 2)
     {
-        SetDictTuple(hv_DictHandle, "Success", (Hlong)0);
-        SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)0);
+        MLIQMetrics::hdict::set_dict_tuple(d, "Success", 0);
+        MLIQMetrics::hdict::set_dict_tuple(d, "InlierCount", 0);
         return H_MSG_TRUE;
     }
 
-    HTuple hv_RansacThresh;
-    try { GetDictTuple(hv_DictHandle, "RansacThreshold", &hv_RansacThresh); }
-    catch (...) { hv_RansacThresh = 3.0; }
-    double ransacThresh = hv_RansacThresh.D();
+    const double ransacThresh =
+        HDictObj::JsonNum(HDictObj::GetTupleOr(d, "RansacThreshold", 3.0), 3.0);
 
     /* ---- RANSAC 全开放参数（从 dict 键读取，带默认值） ---- */
-    HTuple t;
-    int maxIter = 500;
-    int seed    = 12345;
-    try { GetDictTuple(hv_DictHandle, "MaxIter", &t); maxIter = (int)t.D(); } catch (...) {}
-    try { GetDictTuple(hv_DictHandle, "Seed", &t);    seed    = (int)t.D(); } catch (...) {}
-
-    std::vector<double> srcRow(nPts), srcCol(nPts), dstRow(nPts), dstCol(nPts);
-    for (int i = 0; i < nPts; i++)
-    {
-        srcRow[(size_t)i] = hv_SrcRow[i].D();
-        srcCol[(size_t)i] = hv_SrcCol[i].D();
-        dstRow[(size_t)i] = hv_DstRow[i].D();
-        dstCol[(size_t)i] = hv_DstCol[i].D();
-    }
+    const int maxIter = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "MaxIter", 500), 500);
+    const int seed    = HDictObj::JsonInt(HDictObj::GetTupleOr(d, "Seed", 12345), 12345);
 
     cvflow::RigidParams rp;
     rp.ransacThresh = ransacThresh; rp.maxIter = maxIter; rp.seed = seed;
@@ -1461,26 +1499,19 @@ try
     cvflow::RigidResult res;
     if (!cvflow::estimate_rigid_2d(srcRow, srcCol, dstRow, dstCol, rp, res))
     {
-        SetDictTuple(hv_DictHandle, "Success", (Hlong)0);
-        SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)0);
+        MLIQMetrics::hdict::set_dict_tuple(d, "Success", 0);
+        MLIQMetrics::hdict::set_dict_tuple(d, "InlierCount", 0);
         return H_MSG_TRUE;
     }
 
-    HTuple hv_HomMat2D;
-    hv_HomMat2D[0] = res.hom[0];
-    hv_HomMat2D[1] = res.hom[1];
-    hv_HomMat2D[2] = res.hom[2];
-    hv_HomMat2D[3] = res.hom[3];
-    hv_HomMat2D[4] = res.hom[4];
-    hv_HomMat2D[5] = res.hom[5];
-
-    SetDictTuple(hv_DictHandle, "HomMat2D", hv_HomMat2D);
-    SetDictTuple(hv_DictHandle, "Success", (Hlong)1);
-    SetDictTuple(hv_DictHandle, "InlierCount", (Hlong)res.inlierCount);
-    SetDictTuple(hv_DictHandle, "TranslateRow", res.translateRow);
-    SetDictTuple(hv_DictHandle, "TranslateCol", res.translateCol);
-    SetDictTuple(hv_DictHandle, "Angle", res.angle);
-    SetDictTuple(hv_DictHandle, "Scale", 1.0);
+    MLIQMetrics::hdict::set_dict_tuple(
+        d, "HomMat2D", HDictObj::VecToJson(std::vector<double>(res.hom, res.hom + 6)));
+    MLIQMetrics::hdict::set_dict_tuple(d, "Success", 1);
+    MLIQMetrics::hdict::set_dict_tuple(d, "InlierCount", (int)res.inlierCount);
+    MLIQMetrics::hdict::set_dict_tuple(d, "TranslateRow", res.translateRow);
+    MLIQMetrics::hdict::set_dict_tuple(d, "TranslateCol", res.translateCol);
+    MLIQMetrics::hdict::set_dict_tuple(d, "Angle", res.angle);
+    MLIQMetrics::hdict::set_dict_tuple(d, "Scale", 1.0);
 
     return H_MSG_TRUE;
 }
@@ -1652,6 +1683,7 @@ Herror HCcv_affine_trans_image(Hproc_handle proc_handle)
  *   支持 8/16 位、单/三通道 图像
  *===========================================================================*/
 Herror HCcv_write_image(Hproc_handle proc_handle)
+try
 {
     Hcpar filename, compression;
     HAllocStringMem(proc_handle, 1024);
@@ -1716,9 +1748,33 @@ Herror HCcv_write_image(Hproc_handle proc_handle)
 
     std::vector<int> params = { cv::IMWRITE_PNG_COMPRESSION, (int)compression.par.l };
     if (!cv::imwrite(filename.par.s, cv_img, params))
-        return H__LINE__ * 10000;
+    {
+        HSetErrText(const_cast<char *>(
+            "cv_write_image: cv::imwrite failed（检查目录是否存在/可写、文件名扩展名是否为 png/jpg/bmp 等）"));
+        return 30004;
+    }
 
     return H_MSG_TRUE;
+}
+catch (HalconCpp::HException &e)
+{
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    // 扩展名缺失/非法时 cv::imwrite 抛出 cv::Exception（不是返回 false）——
+    // 必须在此接住，否则异常穿出 C ABI 会让 HDevelop fail-fast（0xc0000409）。
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCcv_write_image: unknown C++ exception"));
+    return 30052;
 }
 
 /*=============================================================================
@@ -1854,6 +1910,7 @@ Herror HCcv_median_blur(Hproc_handle proc_handle)
  *   rows <= 0 时保持原高度不变
  *===========================================================================*/
 Herror HCcv_reshape(Hproc_handle proc_handle)
+try
 {
     Hkey   in_obj_key, out_obj_key, out_image_key;
     Himage inimage, outimage;
@@ -1910,6 +1967,24 @@ Herror HCcv_reshape(Hproc_handle proc_handle)
     HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
 
     return H_MSG_TRUE;
+}
+catch (HalconCpp::HException &e)
+{
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCcv_reshape: unknown C++ exception"));
+    return 30052;
 }
 
 /*=============================================================================
@@ -2025,6 +2100,7 @@ delta.par.d, borderType);
  *   输出 : RowEdge, ColumnEdge, Amplitude
  *===========================================================================*/
 Herror HCcv_measure_pos(Hproc_handle proc_handle)
+try
 {
     Hkey   in_obj_key;
     Himage inimage;
@@ -2078,6 +2154,24 @@ Herror HCcv_measure_pos(Hproc_handle proc_handle)
     HPutElem(proc_handle, 3, mres.amplitude.data(), n, DOUBLE_PAR);
 
     return H_MSG_TRUE;
+}
+catch (HalconCpp::HException &e)
+{
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCcv_measure_pos: unknown C++ exception"));
+    return 30052;
 }
 
 /*=============================================================================
@@ -2544,6 +2638,7 @@ Herror HCcv_solve(Hproc_handle proc_handle)
  *   method: RANSAC=8 / LMEDS=4
  *===========================================================================*/
 Herror HCcv_estimate_affine_2d(Hproc_handle proc_handle)
+try
 {
     double const* srcRow;
     double const* srcCol;
@@ -2588,6 +2683,24 @@ Herror HCcv_estimate_affine_2d(Hproc_handle proc_handle)
     HPutElem(proc_handle, 3, &inliers, 1, LONG_PAR);
 
     return H_MSG_TRUE;
+}
+catch (HalconCpp::HException &e)
+{
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCcv_estimate_affine_2d: unknown C++ exception"));
+    return 30052;
 }
 
 /*=============================================================================
@@ -3152,6 +3265,7 @@ static cv::Mat cvMultiFrameMedian(const std::vector<cv::Mat>& images)
 }
 
 Herror HCcv_multi_frame_median(Hproc_handle proc_handle)
+try
 {
     Hkey   in_obj_key, out_obj_key, out_image_key;
     Himage inimage, outimage;
@@ -3196,6 +3310,24 @@ Herror HCcv_multi_frame_median(Hproc_handle proc_handle)
     HPutRect(proc_handle, out_obj_key, outimage.width, outimage.height);
 
     return H_MSG_TRUE;
+}
+catch (HalconCpp::HException &e)
+{
+    const Herror code = e.ErrorCode();
+    if (code != H_MSG_TRUE) return code;
+    const char *msg = e.ErrorMessage();
+    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
+    return 30050;
+}
+catch (const std::exception &e)
+{
+    HSetErrText(const_cast<char *>(e.what()));
+    return 30051;
+}
+catch (...)
+{
+    HSetErrText(const_cast<char *>("HCcv_multi_frame_median: unknown C++ exception"));
+    return 30052;
 }
 
 /*=============================================================================

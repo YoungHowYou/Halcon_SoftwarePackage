@@ -103,7 +103,7 @@ parameter
 
 hdict_set_tuple<- CHhdict_set_tuple[::HDict,Key,Value:]
 short.english
-  写入元组值（hdict_core 的 set_dict_tuple）。键不存在则新建，已存在则覆盖旧值。数值与字符串都接受，多元素按数组整体存入。;
+  写入元组值（hdict_core 的 set_dict_tuple）。键不存在则新建，已存在则覆盖旧值。数值、字符串接受，多元素按数组整体存入。不支持句柄：HALCON 扩展包的 C 接口没有「把已有句柄作为输出参数传出」的通道（HPutPPar 只保证数值/字符串），传句柄会一致返回错误码 30060；需要在 HDevelop 里跨过程携带句柄时，请用 HALCON 原生 create_dict / set_dict_tuple，或直接走过程参数。;
 short.german
   Schreibt einen Tupel-Wert in das Dictionary (hdict_core set_dict_tuple).;
 module
@@ -139,16 +139,16 @@ parameter
 
 parameter
   Value:              input_control;
-  description.english: 值：数值或字符串，多元素按数组存入。;
-  sem_type:           number;
-  type_list:          real,integer,string;
+  description.english: 值：数值/字符串，多元素按数组整体存入。传句柄会报 30060（扩展接口无法输出已有句柄）。;
+  sem_type:           tuple;
+  type_list:          real,integer,string,handle;
   default_type:       real;
   multivalue:         true;
 
 
 hdict_get_tuple<- CHhdict_get_tuple[::HDict,Key:Value]
 short.english
-  读出元组值（hdict_core 的 get_dict_tuple）。键不存在、或该键存的不是元组（是子字典）时抛错。;
+  读出元组值（hdict_core 的 get_dict_tuple）。键不存在、或该键存的不是元组（是子字典）时抛错。值只会是数值/字符串——hdict_set_tuple 不接受句柄，对象请用 hdict_set_object / hdict_get_object。;
 short.german
   Liest einen Tupel-Wert aus dem Dictionary (hdict_core get_dict_tuple).;
 module
@@ -184,8 +184,8 @@ parameter
 
 parameter
   Value:              output_control;
-  description.english: 取出的值元组。;
-  sem_type:           number;
+  description.english: 取出的值元组（数值/字符串）。;
+  sem_type:           tuple;
   type_list:          real,integer,string;
   default_type:       real;
   multivalue:         true;

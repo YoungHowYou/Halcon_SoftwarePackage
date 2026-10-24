@@ -58,12 +58,26 @@ extern "C"
 using MLIQMetrics::hdict::DictPtr;
 
 /*---------------------------------------------------------------------------
+ * 返回错误码，并把详细原因挂到该错误码上
+ *   必须用 HSetExtendedErrorInfo（带 proc_handle）：老的 HSetErrText 没有句柄参数，
+ *   宿主（HDevelop / hrun）看不到我们写的文本，只会显示 "unknown extension error"。
+ *-------------------------------------------------------------------------*/
+static Herror FailWithText(Hproc_handle proc_handle, Herror code, const char *text)
+{
+    if (text != nullptr && *text != '\0')
+    {
+        (void)HSetExtendedErrorInfo(proc_handle, code, text);
+    }
+    return code;
+}
+
+/*---------------------------------------------------------------------------
  * HALCON 图像 → cv::Mat（yolo_capi 的 InputImage 载荷：8UC1 / 8UC3-BGR）
  *   单通道：转成 8UC3 BGR（自持内存——字典里不能再引用 HALCON 的像素缓冲区，
  *           否则字典改键时对象被释放，Mat 就成了悬空视图）
  *   三通道：R/G/B 平面按 BGR 合并成 8UC3
  *-------------------------------------------------------------------------*/
-static bool HalconImageToMat(const HObject &image, std::shared_ptr<cv::Mat> &out)
+static bool HalconImageToMat(const HObject &image, std::shared_ptr<cv::Mat> &out, std::string &err)
 {
     HTuple hv_Channels;
     CountChannels(image, &hv_Channels);
@@ -74,7 +88,7 @@ static bool HalconImageToMat(const HObject &image, std::shared_ptr<cv::Mat> &out
         if (std::string(type[0].S()) != "byte")
         {
             // 只认 8 位图：uint2 / int4 / real 等被当成 8 位读会得到静默错误结果
-            HSetErrText(const_cast<char *>("InputImage 必须是 byte（8 位）图像"));
+            err = "InputImage 必须是 byte（8 位）图像";
             return false;
         }
         const int width = w.I();
@@ -93,7 +107,7 @@ static bool HalconImageToMat(const HObject &image, std::shared_ptr<cv::Mat> &out
     GetImagePointer1(image, &ptr, &type, &w, &h);
     if (std::string(type.S()) != "byte")
     {
-        HSetErrText(const_cast<char *>("InputImage 必须是 byte（8 位）图像"));
+        err = "InputImage 必须是 byte（8 位）图像";
         return false;
     }
     cv::Mat gray(h.I(), w.I(), CV_8UC1, (uchar *)ptr.L());
@@ -109,7 +123,7 @@ static bool HalconImageToMat(const HObject &image, std::shared_ptr<cv::Mat> &out
  *   ② HALCON 侧：hdict_set_object 塞的是 HObject → 转成 cv::Mat 并就地覆盖该键
  *      （InputImage 是纯输入键，算子内部归一化后 HALCON 侧无需再读它）
  *-------------------------------------------------------------------------*/
-static bool NormalizeInputImage(const DictPtr &dict, std::shared_ptr<cv::Mat> &out)
+static bool NormalizeInputImage(const DictPtr &dict, std::shared_ptr<cv::Mat> &out, std::string &err)
 {
     try
     {
@@ -125,16 +139,21 @@ static bool NormalizeInputImage(const DictPtr &dict, std::shared_ptr<cv::Mat> &o
     {
         auto obj = MLIQMetrics::hdict::get_dict_object_as<std::shared_ptr<HObject>>(
             dict, YOLO_DICT_INPUT_IMAGE);
-        if (!obj || !obj->IsInitialized()) return false;
+        if (!obj || !obj->IsInitialized())
+        {
+            err = "字典里没有可用的 'InputImage'（需 byte 灰度或 3 通道图，用 hdict_set_object 写入）";
+            return false;
+        }
 
         std::shared_ptr<cv::Mat> mat;
-        if (!HalconImageToMat(*obj, mat)) return false;
+        if (!HalconImageToMat(*obj, mat, err)) return false;
         MLIQMetrics::hdict::set_dict_object_shared(dict, YOLO_DICT_INPUT_IMAGE, mat);
         out = mat;
         return true;
     }
     catch (...)
     {
+        err = "'InputImage' 的载荷类型无法识别（既不是 cv::Mat 也不是 HALCON 图像）";
         return false;
     }
 }
@@ -251,7 +270,8 @@ try
     YoloModel model = nullptr;
     if (yolo_openvino_load_model(pDict->dictPtr, &model) != YOLO_OK || model == nullptr)
     {
-        return 10000 * H__LINE__;
+        // 把 C 接口（OpenVINO 原文）的错误原因带进 HALCON 的错误文本，别只给错误码
+        return FailWithText(proc_handle, 10000 * H__LINE__, yolo_last_error());
     }
 
     // 存句柄（HAlloc 是原始内存，字段必须显式赋值）
@@ -275,23 +295,21 @@ try
 }
 catch (HalconCpp::HException &e)
 {
-    // HALCON/C++ 的低层错误：直接沿用其错误码（get_error_text 可读）。
+    // HALCON/C++ 的低层错误：直接沿用其错误码（HALCON 自带文本，不再覆盖）。
     // 绝不能让 C++ 异常穿出 supply —— HDevelop 会 fail-fast 崩溃（0xe06d7363 / 0xc0000409）。
     const Herror code = e.ErrorCode();
     if (code != H_MSG_TRUE) return code;
     const char *msg = e.ErrorMessage();
-    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
-    return 30050;
+    return FailWithText(proc_handle, 30050,
+                        msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception");
 }
 catch (const std::exception &e)
 {
-    HSetErrText(const_cast<char *>(e.what()));
-    return 30051;
+    return FailWithText(proc_handle, 30051, e.what());
 }
 catch (...)
 {
-    HSetErrText(const_cast<char *>("Hopenvino_load_model: unknown C++ exception"));
-    return 30052;
+    return FailWithText(proc_handle, 30052, "Hopenvino_load_model: unknown C++ exception");
 }
 
 /*=============================================================================
@@ -337,13 +355,16 @@ try
 
     // 1. 字典里的 InputImage 归一化成 cv::Mat
     std::shared_ptr<cv::Mat> image;
-    if (!NormalizeInputImage(dict, image)) return 10000 * H__LINE__;
+    std::string img_err;
+    if (!NormalizeInputImage(dict, image, img_err))
+        return FailWithText(proc_handle, 10000 * H__LINE__, img_err.c_str());
 
     // 2. 调 C 接口（等价 yolo_seg_detect 算子）：阈值 / 窗口尺寸 / 滑窗步长由它在字典里读，
     //    输出格式自动识别 / argmax / NMS / 缩放 / 滑窗 / 掩膜也在 yolo_core 库内
     if (yolo_seg_detect(handle_data->OpenVINOModels, pDict->dictPtr) != YOLO_OK)
     {
-        return 10000 * H__LINE__;
+        // 带上 C 接口的具体原因（含失败窗口数 / OpenVINO 异常文本）
+        return FailWithText(proc_handle, 10000 * H__LINE__, yolo_last_error());
     }
 
     // 3. 结果回写字典：NumDetections / ClassIDs / Confidences 本就是元组，yolo_capi 已写好；
@@ -357,21 +378,19 @@ try
 }
 catch (HalconCpp::HException &e)
 {
-    // HALCON/C++ 的低层错误：直接沿用其错误码（get_error_text 可读）。
+    // HALCON/C++ 的低层错误：直接沿用其错误码（HALCON 自带文本，不再覆盖）。
     // 绝不能让 C++ 异常穿出 supply —— HDevelop 会 fail-fast 崩溃（0xe06d7363 / 0xc0000409）。
     const Herror code = e.ErrorCode();
     if (code != H_MSG_TRUE) return code;
     const char *msg = e.ErrorMessage();
-    HSetErrText(const_cast<char *>(msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception"));
-    return 30050;
+    return FailWithText(proc_handle, 30050,
+                        msg != nullptr && *msg != '\0' ? msg : "HALCON C++ exception");
 }
 catch (const std::exception &e)
 {
-    HSetErrText(const_cast<char *>(e.what()));
-    return 30051;
+    return FailWithText(proc_handle, 30051, e.what());
 }
 catch (...)
 {
-    HSetErrText(const_cast<char *>("Hyolo_seg_detect: unknown C++ exception"));
-    return 30052;
+    return FailWithText(proc_handle, 30052, "Hyolo_seg_detect: unknown C++ exception");
 }

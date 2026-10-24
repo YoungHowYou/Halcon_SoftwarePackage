@@ -61,7 +61,7 @@ parameter
 yolo_seg_detect<- CHyolo_seg_detect[::Handle,HDict:]
 
 short.english
-  YOLO26 实例分割检测。读字典里的 'InputImage' 与选填的 'ConfThreshold' 'MaskThreshold' 'NMSThreshold' '宽' '高' '步长' '步长X' '步长Y'，写回 'NumDetections' 'ClassIDs' 'Confidences' 'ClassLabelImage' 'BoundingBoxes'。自动识别两种导出格式（end2end=True 的 [1,300,D] NMS-free 输出与 end2end=False 的 [1,D,8400] 原始输出），大图自动滑窗 + NMS，掩膜以与原图等大的标签图（uint2，0=背景，像素值=类别ID+1）给出。;
+  YOLO26 实例分割检测。读字典里的 'InputImage' 与选填的 'ConfThreshold' 'MaskThreshold' 'NMSThreshold' '宽' '高' 'Overlap' '步长' '步长X' '步长Y'，写回 'NumDetections' 'ClassIDs' 'Confidences' 'ClassLabelImage' 'BoundingBoxes'。不做图像缩放：小于窗口尺寸的图左上对齐补 0 到窗口尺寸，大于窗口的图按重叠度滑窗（默认重叠 0.2，640 窗口即步长 512，可用 'Overlap' 或 '步长' 覆盖）。去重：窗口内 raw 输出用 IoU-NMS，跨窗口用 IoS（相交面积除以较小框面积，同类才比较），可合掉被窗口边界切开的同一目标。自动识别两种导出格式（end2end=True 的 [1,300,D] NMS-free 输出与 end2end=False 的 [1,D,8400] 原始输出），掩膜以与原图等大的标签图（uint2，0=背景，像素值=类别ID+1）给出。;
 
 short.german
   YOLO26 Instanzsegmentierung (OpenVINO).;
