@@ -160,8 +160,10 @@ add_subdirectory(cv_flow)
 option(HALCON_PACKAGE_LIB_TESTS "Build hdict_core / hparams_core unit tests" ON)
 if(HALCON_PACKAGE_LIB_TESTS)
   enable_testing()
-  set(HDICT_BUILD_TESTS   ON)
-  set(HPARAMS_BUILD_TESTS ON)
+  # 用 CACHE ... FORCE 覆写：子目录里的 option() 不会覆盖已有缓存值，若之前留下
+  # HDICT_BUILD_TESTS=OFF，整包即使 HALCON_PACKAGE_LIB_TESTS=ON 也编不出测试。
+  set(HDICT_BUILD_TESTS   ON CACHE BOOL "Build HDict smoke / concurrency tests" FORCE)
+  set(HPARAMS_BUILD_TESTS ON CACHE BOOL "Build Params tests" FORCE)
 endif()
 
 #----------------------------------------------------------------------
