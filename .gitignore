@@ -66,5 +66,14 @@ Desktop.ini
 /examples/**/*.db
 # YOLO 模型权重（111 MB，超过 GitHub 单文件限制，按 examples/yolo/README.md 自行放入）
 /examples/yolo/*.bin
+# Python 包构建产物（wheel / 构建树 / 元数据）
+yolo_core/python/dist/
+yolo_core/python/*.egg-info/
+yolo_core/python/build/
+yolo_core/python/.pytest_cache/
+*.whl
+# Python 缓存
+__pycache__/
+*.pyc
 # MVTec 官方手册 PDF（仅本地查阅，不入库）
 /extension_package_programmers_manual.pdf

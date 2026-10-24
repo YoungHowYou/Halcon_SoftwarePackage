@@ -1,0 +1,67 @@
+#=============================================================================
+#  yolo_core/python/pyproject.toml — yolo-core（Python 包）打包元数据
+#=============================================================================
+#  dist 名 = yolo-core，import 名 = yolo_core。
+#  构建后端用 scikit-build-core：直接复用上级 C++ 源码（../include + ../src/yolo.cpp），
+#  不复制、不重复。
+#
+#  本地构建/安装（需要 vcpkg 的 OpenCV/OpenVINO 配置）：
+#      pip install ./yolo_core/python \
+#          --config-settings=cmake.define.CMAKE_PREFIX_PATH=<repo>/build/vcpkg_installed/x64-windows
+#      pip wheel  ./yolo_core/python -w dist      # 出 wheel（同样带上面那个 config-setting）
+#
+#  ⚠️ wheel 只含 .pyd + Python 代码，**不含** OpenCV / OpenVINO 的 DLL：
+#     运行前要保证 opencv_core4.dll / opencv_imgproc4.dll / openvino*.dll 可被找到
+#     （同目录、PATH，或环境变量 YOLO_CORE_DLL_DIR；见 README）。
+#  ⚠️ 不要从别处拷贝本目录单独发布：sdist 不含上级 C++ 源码，发布请用 wheel。
+#=============================================================================
+
+[build-system]
+requires = ["scikit-build-core>=0.10", "pybind11>=2.12"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "yolo-core"
+version = "0.1.0"
+description = "YOLO26 实例分割推理（OpenVINO）的 Python 绑定：不缩放、小图 pad、按重叠度滑窗、IoS 去重"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.20"]
+license = { text = "GPL-3.0-or-later" }
+authors = [{ name = "YoungHowYou" }]
+keywords = [
+  "yolo", "yolo26", "instance-segmentation", "openvino",
+  "deep-learning", "machine-vision", "computer-vision",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+  "Operating System :: Microsoft :: Windows",
+  "Programming Language :: C++",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Image Processing",
+]
+
+[project.urls]
+Homepage = "https://github.com/YoungHowYou/Halcon_SoftwarePackage"
+Repository = "https://github.com/YoungHowYou/Halcon_SoftwarePackage"
+"Bug Tracker" = "https://github.com/YoungHowYou/Halcon_SoftwarePackage/issues"
+
+[project.optional-dependencies]
+test = ["pytest", "numpy"]
+
+[tool.scikit-build]
+minimum-version = "0.10"
+# 构建产物留在本目录（默认是临时目录），便于排查/直接装
+build-dir = "build/{wheel_tag}"
+# 纯 Python 包层（yolo_core/__init__.py）；扩展模块由 CMake install() 放进同一个包
+wheel.packages = ["yolo_core"]
+cmake.version = ">=3.21"
+
+[tool.scikit-build.cmake.define]
+CMAKE_CXX_STANDARD = "17"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
