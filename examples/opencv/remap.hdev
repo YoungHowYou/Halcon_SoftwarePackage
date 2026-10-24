@@ -3,12 +3,12 @@
 <procedure name="main">
 <interface/>
 <body>
-<l>create_dict (DictHandle)</l>
+<l>hdict_create (DictHandle)</l>
 <l>read_image (Image, 'printer_chip/printer_chip_01')</l>
 <l>convert_image_type (Image, Image, 'uint2')</l>
-<l>set_dict_object (Image, DictHandle, '输入图')</l>
+<l>hdict_set_object (Image, DictHandle, 'InputImage')</l>
 <l>gen_image_proto (Image, ImageCleared, 0)</l>
-<l>set_dict_object (ImageCleared, DictHandle, '输出图')</l>
+<l>hdict_set_object (ImageCleared, DictHandle, 'OutputImage')</l>
 <l>threshold (ImageCleared, Region, 0, 255)</l>
 <l>get_region_points (Region, Rows, Columns)</l>
 <l>get_image_size (ImageCleared, Width, Height)</l>
@@ -21,8 +21,8 @@
 <c></c>
 <c></c>
 <l>set_grayval (MapX, Rows, Columns, Columns)</l>
-<l>set_dict_object (MapYs, DictHandle, 'MapY')</l>
-<l>set_dict_object (MapX, DictHandle, 'MapX')</l>
+<l>hdict_set_object (MapYs, DictHandle, 'MapY')</l>
+<l>hdict_set_object (MapX, DictHandle, 'MapX')</l>
 <c></c>
 <l>remap (DictHandle)</l>
 </body>

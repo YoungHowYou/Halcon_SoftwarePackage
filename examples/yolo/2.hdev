@@ -18,7 +18,8 @@
 <l>hdict_set_tuple (HD, 'NMSThreshold', 0.45)</l>
 <l>OpenvinoLoadModel (HD, ModelHandle)</l>
 <c></c>
-<c>* 滑窗步长（默认=模型输入尺寸；此处强制 512 便于对比）</c>
+<c>* 滑窗：不缩放，重叠度默认 0.2（640 窗口 → 步长 512）；此处不覆盖，保持默认</c>
+<c>* hdict_set_tuple (HD, 'Overlap', 0.3)</c>
 <c>* hdict_set_tuple (HD, '步长', 512)</c>
 <c>* hdict_set_tuple (HD, '步长X', 512)</c>
 <c>* hdict_set_tuple (HD, '步长Y', 384)</c>

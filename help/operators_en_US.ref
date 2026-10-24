@@ -1,5 +1,5 @@
 yolo_seg_detect(Handle,HDict)
-short.ascii=YOLO26 实例分割检测。读字典里的 'InputImage' 与选填的 'ConfThreshold' 'MaskThreshold' 'NMSThreshold' '宽' '高' '步长' '步长X' '步长Y'，写回 'NumDetections' 'ClassIDs' 'Confidences' 'ClassLabelImage' 'BoundingBoxes'。自动识别两种导出格式（end2end=True 的 [1,300,D] NMS-free 输出与 end2end=False 的 [1,D,8400] 原始输出），大图自动滑窗 + NMS，掩膜以与原图等大的标签图（uint2，0=背景，像素值=类别ID+1）给出。
+short.ascii=YOLO26 实例分割检测。读字典里的 'InputImage' 与选填的 'ConfThreshold' 'MaskThreshold' 'NMSThreshold' '宽' '高' 'Overlap' '步长' '步长X' '步长Y'，写回 'NumDetections' 'ClassIDs' 'Confidences' 'ClassLabelImage' 'BoundingBoxes'。不做图像缩放：小于窗口尺寸的图左上对齐补 0 到窗口尺寸，大于窗口的图按重叠度滑窗（默认重叠 0.2，640 窗口即步长 512，可用 'Overlap' 或 '步长' 覆盖）。去重：窗口内 raw 输出用 IoU-NMS，跨窗口用 IoS（相交面积除以较小框面积，同类才比较），可合掉被窗口边界切开的同一目标。自动识别两种导出格式（end2end=True 的 [1,300,D] NMS-free 输出与 end2end=False 的 [1,D,8400] 原始输出），掩膜以与原图等大的标签图（uint2，0=背景，像素值=类别ID+1）给出。
 keywords=YOLOsegmentationdetectionOpenVINOdeep learninginstance segmentation
 module=0 Foundation
 parameter=Handle
@@ -314,7 +314,7 @@ default_type=string
 sem_type=string
 multivalue=false
 hdict_get_tuple(HDict,Key,Value)
-short.ascii=读出元组值（hdict_core 的 get_dict_tuple）。键不存在、或该键存的不是元组（是子字典）时抛错。
+short.ascii=读出元组值（hdict_core 的 get_dict_tuple）。键不存在、或该键存的不是元组（是子字典）时抛错。值只会是数值/字符串——hdict_set_tuple 不接受句柄，对象请用 hdict_set_object / hdict_get_object。
 keywords=hdictdictgettuple
 module=0 Foundation
 parameter=HDict
@@ -332,14 +332,14 @@ default_type=string
 sem_type=string
 multivalue=false
 parameter=Value
-description.ascii=取出的值元组。
+description.ascii=取出的值元组（数值/字符串）。
 parameter_class=output_control
 type_list=realintegerstring
 default_type=real
-sem_type=number
+sem_type=tuple
 multivalue=true
 hdict_set_tuple(HDict,Key,Value)
-short.ascii=写入元组值（hdict_core 的 set_dict_tuple）。键不存在则新建，已存在则覆盖旧值。数值与字符串都接受，多元素按数组整体存入。
+short.ascii=写入元组值（hdict_core 的 set_dict_tuple）。键不存在则新建，已存在则覆盖旧值。数值、字符串接受，多元素按数组整体存入。不支持句柄：HALCON 扩展包的 C 接口没有「把已有句柄作为输出参数传出」的通道（HPutPPar 只保证数值/字符串），传句柄会一致返回错误码 30060；需要在 HDevelop 里跨过程携带句柄时，请用 HALCON 原生 create_dict / set_dict_tuple，或直接走过程参数。
 keywords=hdictdictsettuple
 module=0 Foundation
 parameter=HDict
@@ -357,11 +357,11 @@ default_type=string
 sem_type=string
 multivalue=false
 parameter=Value
-description.ascii=值：数值或字符串，多元素按数组存入。
+description.ascii=值：数值/字符串，多元素按数组整体存入。传句柄会报 30060（扩展接口无法输出已有句柄）。
 parameter_class=input_control
-type_list=realintegerstring
+type_list=realintegerstringhandle
 default_type=real
-sem_type=number
+sem_type=tuple
 multivalue=true
 hdict_copy(HDict,HDictCopy)
 short.ascii=复制字典（hdict_core 的 copy_dict）。键值做值拷贝，子字典按共享处理（副本与原字典指向同一子字典）。源字典保持不变。
@@ -3149,66 +3149,66 @@ default_type=string
 sem_type=string
 multivalue=false
 cv_estimate_rigid_2d(DictHandle)
-short.ascii=刚体变换估计（平移+旋转，无缩放），自实现 RANSAC：每轮采样 2 点对闭式解 cos/sin+平移，统计内点取最优。点集经 dict 传入，MaxIter/Seed 可调；结果 HomMat2D/角度/平移写回 dict，Scale 恒为 1.0。
+short.ascii=刚体变换估计（平移+旋转，无缩放），自实现 RANSAC：每轮采样 2 点对闭式解 cos/sin+平移，统计内点取最优。点集经 HDict 传入，MaxIter/Seed 可调；结果 HomMat2D/角度/平移写回 HDict，Scale 恒为 1.0。
 keywords=UserExtensionsRigidRotationTranslationRANSACOpenCV
 module=0 Foundation
 parameter=DictHandle
-description.ascii=dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。
+description.ascii=HDict 句柄（hdict_create 创建）：设置项以键值传入，未设取默认；结果写回同一 HDict。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 cv_estimate_affine_partial2d(DictHandle)
-short.ascii=部分仿射变换估计（4 自由度：平移+旋转+各向同性缩放），对应 cv::estimateAffinePartial2D。源/目标点集经 dict 元组传入（各 ≥3 点），结果 HomMat2D（2×3 展开）/Success/InlierCount 及平移/角度/缩放写回 dict；Method/MaxIters/Confidence/RefineIters 经 dict 键可调。
+short.ascii=部分仿射变换估计（4 自由度：平移+旋转+各向同性缩放），对应 cv::estimateAffinePartial2D。源/目标点集经 HDict 元组传入（各 ≥3 点），结果 HomMat2D（2×3 展开）/Success/InlierCount 及平移/角度/缩放写回 HDict；Method/MaxIters/Confidence/RefineIters 经 HDict 键可调。
 keywords=UserExtensionsAffineRANSACOpenCV
 module=0 Foundation
 parameter=DictHandle
-description.ascii=dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。
+description.ascii=HDict 句柄（hdict_create 创建）：设置项以键值传入，未设取默认；结果写回同一 HDict。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 cv_bf_knn_match(DictHandle)
-short.ascii=BF 暴力匹配，对应 cv::BFMatcher。参考/目标描述子以 dict 图像传入，输出匹配索引与良好匹配数写回 dict。CrossCheck=1 时走 bf.match()（互为最佳匹配），=0 时走 knnMatch+Lowe ratio test（K≥2）。NormType 默认 NORM_HAMMING，适配 ORB/AKAZE 二进制描述子。
+short.ascii=BF 暴力匹配，对应 cv::BFMatcher。参考/目标描述子以 HDict 图像传入，输出匹配索引与良好匹配数写回 HDict。CrossCheck=1 时走 bf.match()（互为最佳匹配），=0 时走 knnMatch+Lowe ratio test（K≥2）。NormType 默认 NORM_HAMMING，适配 ORB/AKAZE 二进制描述子。
 keywords=UserExtensionsBFKNNMatchOpenCV
 module=0 Foundation
 parameter=DictHandle
-description.ascii=dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。
+description.ascii=HDict 句柄（hdict_create 创建）：设置项以键值传入，未设取默认；结果写回同一 HDict。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 cv_sift_detect(DictHandle)
-short.ascii=SIFT 特征检测与描述子计算，对应 cv::SIFT。输入 8 位单通道图像，输出 128 维浮点描述子。参数经 dict 键全开放（NFeatures/NOctaveLayers/ContrastThreshold/EdgeThreshold/Sigma）。
+short.ascii=SIFT 特征检测与描述子计算，对应 cv::SIFT。输入 8 位单通道图像，输出 128 维浮点描述子。参数经 HDict 键全开放（NFeatures/NOctaveLayers/ContrastThreshold/EdgeThreshold/Sigma）。
 keywords=UserExtensionsSIFTFeatureDetectionOpenCV
 module=0 Foundation
 parameter=DictHandle
-description.ascii=dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。
+description.ascii=HDict 句柄（hdict_create 创建）：设置项以键值传入，未设取默认；结果写回同一 HDict。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 cv_akaze_detect(DictHandle)
-short.ascii=AKAZE 特征检测与描述子计算，对应 cv::AKAZE。输入 8 位单通道图像，输出关键点与描述子写回 dict。参数经 dict 键全开放（DescriptorType/Threshold/NOctaves/NOctaveLayers/Diffusivity 等），未设取默认。
+short.ascii=AKAZE 特征检测与描述子计算，对应 cv::AKAZE。输入 8 位单通道图像，输出关键点与描述子写回 HDict。参数经 HDict 键全开放（DescriptorType/Threshold/NOctaves/NOctaveLayers/Diffusivity 等），未设取默认。
 keywords=UserExtensionsAKAZEFeatureDetectionOpenCV
 module=0 Foundation
 parameter=DictHandle
-description.ascii=dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。
+description.ascii=HDict 句柄（hdict_create 创建）：设置项以键值传入，未设取默认；结果写回同一 HDict。
 parameter_class=input_control
 type_list=handle
 default_type=handle
 sem_type=handle
 multivalue=false
 cv_orb_detect(DictHandle)
-short.ascii=ORB 特征检测与描述子计算，对应 cv::ORB。输入为 8 位单通道图像（以 dict 对象 InputImage 传入）；输出关键点坐标/数量与描述子（byte，32×N）写回同一 dict。检测参数经 dict 键全开放（NFeatures/ScaleFactor/NLevels/EdgeThreshold/FirstLevel/WTA_K/ScoreType/PatchSize/FastThreshold），未设键取 OpenCV 默认。
+short.ascii=ORB 特征检测与描述子计算，对应 cv::ORB。输入为 8 位单通道图像（以 HDict 对象 InputImage 传入）；输出关键点坐标/数量与描述子（byte，32×N）写回同一 HDict。检测参数经 HDict 键全开放（NFeatures/ScaleFactor/NLevels/EdgeThreshold/FirstLevel/WTA_K/ScoreType/PatchSize/FastThreshold），未设键取 OpenCV 默认。
 keywords=UserExtensionsORBFeatureDetectionOpenCV
 module=0 Foundation
 parameter=DictHandle
-description.ascii=dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。
+description.ascii=HDict 句柄（hdict_create 创建）：设置项以键值传入，未设取默认；结果写回同一 HDict。
 parameter_class=input_control
 type_list=handle
 default_type=handle
@@ -3628,11 +3628,11 @@ parameter_class=output_object
 sem_type=image
 multivalue=optional
 remap(hv_DictHandle)
-short.ascii=几何变换重映射，对应 cv::remap。输入图/输出图/MapX/MapY 以 dict 对象传入（uint2 输入，real 映射图）；每个像素按映射表取源坐标，支持桶形/枕形畸变校正等。
+short.ascii=几何变换重映射，对应 cv::remap。InputImage/OutputImage/MapX/MapY 以 HDict 对象传入（uint2 输入，real 映射图）；每个像素按映射表取源坐标，支持桶形/枕形畸变校正等。
 keywords=UserExtensions
 module=0 Foundation
 parameter=hv_DictHandle
-description.ascii=dict 句柄（输入图/输出图/MapX/MapY 以 dict 对象传入）。
+description.ascii=HDict 句柄（hdict_create 创建）：键 InputImage=输入图、OutputImage=输出图、MapX/MapY=映射图。
 parameter_class=input_control
 type_list=handle
 default_type=handle

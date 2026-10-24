@@ -1133,7 +1133,7 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="cv_akaze_detect.html"><code><span data-if="hdevelop" style="display:inline;">cv_akaze_detect</span><span data-if="dotnet" style="display:none;">CvAkazeDetect</span><span data-if="python" style="display:none;">cv_akaze_detect</span><span data-if="cpp" style="display:none;">CvAkazeDetect</span><span data-if="c" style="display:none;">cv_akaze_detect</span></code></a></dt>
-<dd>AKAZE 特征检测与描述子计算，对应 cv::AKAZE。输入 8 位单通道图像，输出关键点与描述子写回 dict。参数经 dict 键全开放（DescriptorType/Threshold/NOctaves/NOctaveLayers/Diffusivity 等），未设取默认。</dd>
+<dd>AKAZE 特征检测与描述子计算，对应 cv::AKAZE。输入 8 位单通道图像，输出关键点与描述子写回 HDict。参数经 HDict 键全开放（DescriptorType/Threshold/NOctaves/NOctaveLayers/Diffusivity 等），未设取默认。</dd>
 </dl>
 <dl>
 <dt><a href="cv_anisometry.html"><code><span data-if="hdevelop" style="display:inline;">cv_anisometry</span><span data-if="dotnet" style="display:none;">CvAnisometry</span><span data-if="python" style="display:none;">cv_anisometry</span><span data-if="cpp" style="display:none;">CvAnisometry</span><span data-if="c" style="display:none;">cv_anisometry</span></code></a></dt>
@@ -1145,7 +1145,7 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="cv_bf_knn_match.html"><code><span data-if="hdevelop" style="display:inline;">cv_bf_knn_match</span><span data-if="dotnet" style="display:none;">CvBfKnnMatch</span><span data-if="python" style="display:none;">cv_bf_knn_match</span><span data-if="cpp" style="display:none;">CvBfKnnMatch</span><span data-if="c" style="display:none;">cv_bf_knn_match</span></code></a></dt>
-<dd>BF 暴力匹配，对应 cv::BFMatcher。参考/目标描述子以 dict 图像传入，输出匹配索引与良好匹配数写回 dict。CrossCheck=1 时走 bf.match()（互为最佳匹配），=0 时走 knnMatch+Lowe ratio test（K≥2）。NormType 默认 NORM_HAMMING，适配 ORB/AKAZE 二进制描述子。</dd>
+<dd>BF 暴力匹配，对应 cv::BFMatcher。参考/目标描述子以 HDict 图像传入，输出匹配索引与良好匹配数写回 HDict。CrossCheck=1 时走 bf.match()（互为最佳匹配），=0 时走 knnMatch+Lowe ratio test（K≥2）。NormType 默认 NORM_HAMMING，适配 ORB/AKAZE 二进制描述子。</dd>
 </dl>
 <dl>
 <dt><a href="cv_bin_to_region.html"><code><span data-if="hdevelop" style="display:inline;">cv_bin_to_region</span><span data-if="dotnet" style="display:none;">CvBinToRegion</span><span data-if="python" style="display:none;">cv_bin_to_region</span><span data-if="cpp" style="display:none;">CvBinToRegion</span><span data-if="c" style="display:none;">cv_bin_to_region</span></code></a></dt>
@@ -1237,11 +1237,11 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="cv_estimate_affine_partial2d.html"><code><span data-if="hdevelop" style="display:inline;">cv_estimate_affine_partial2d</span><span data-if="dotnet" style="display:none;">CvEstimateAffinePartial2d</span><span data-if="python" style="display:none;">cv_estimate_affine_partial2d</span><span data-if="cpp" style="display:none;">CvEstimateAffinePartial2d</span><span data-if="c" style="display:none;">cv_estimate_affine_partial2d</span></code></a></dt>
-<dd>部分仿射变换估计（4 自由度：平移+旋转+各向同性缩放），对应 cv::estimateAffinePartial2D。源/目标点集经 dict 元组传入（各 ≥3 点），结果 HomMat2D（2×3 展开）/Success/InlierCount 及平移/角度/缩放写回 dict；Method/MaxIters/Confidence/RefineIters 经 dict 键可调。</dd>
+<dd>部分仿射变换估计（4 自由度：平移+旋转+各向同性缩放），对应 cv::estimateAffinePartial2D。源/目标点集经 HDict 元组传入（各 ≥3 点），结果 HomMat2D（2×3 展开）/Success/InlierCount 及平移/角度/缩放写回 HDict；Method/MaxIters/Confidence/RefineIters 经 HDict 键可调。</dd>
 </dl>
 <dl>
 <dt><a href="cv_estimate_rigid_2d.html"><code><span data-if="hdevelop" style="display:inline;">cv_estimate_rigid_2d</span><span data-if="dotnet" style="display:none;">CvEstimateRigid2d</span><span data-if="python" style="display:none;">cv_estimate_rigid_2d</span><span data-if="cpp" style="display:none;">CvEstimateRigid2d</span><span data-if="c" style="display:none;">cv_estimate_rigid_2d</span></code></a></dt>
-<dd>刚体变换估计（平移+旋转，无缩放），自实现 RANSAC：每轮采样 2 点对闭式解 cos/sin+平移，统计内点取最优。点集经 dict 传入，MaxIter/Seed 可调；结果 HomMat2D/角度/平移写回 dict，Scale 恒为 1.0。</dd>
+<dd>刚体变换估计（平移+旋转，无缩放），自实现 RANSAC：每轮采样 2 点对闭式解 cos/sin+平移，统计内点取最优。点集经 HDict 传入，MaxIter/Seed 可调；结果 HomMat2D/角度/平移写回 HDict，Scale 恒为 1.0。</dd>
 </dl>
 <dl>
 <dt><a href="cv_fill_up.html"><code><span data-if="hdevelop" style="display:inline;">cv_fill_up</span><span data-if="dotnet" style="display:none;">CvFillUp</span><span data-if="python" style="display:none;">cv_fill_up</span><span data-if="cpp" style="display:none;">CvFillUp</span><span data-if="c" style="display:none;">cv_fill_up</span></code></a></dt>
@@ -1389,7 +1389,7 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="cv_orb_detect.html"><code><span data-if="hdevelop" style="display:inline;">cv_orb_detect</span><span data-if="dotnet" style="display:none;">CvOrbDetect</span><span data-if="python" style="display:none;">cv_orb_detect</span><span data-if="cpp" style="display:none;">CvOrbDetect</span><span data-if="c" style="display:none;">cv_orb_detect</span></code></a></dt>
-<dd>ORB 特征检测与描述子计算，对应 cv::ORB。输入为 8 位单通道图像（以 dict 对象 InputImage 传入）；输出关键点坐标/数量与描述子（byte，32×N）写回同一 dict。检测参数经 dict 键全开放（NFeatures/ScaleFactor/NLevels/EdgeThreshold/FirstLevel/WTA_K/ScoreType/PatchSize/FastThreshold），未设键取 OpenCV 默认。</dd>
+<dd>ORB 特征检测与描述子计算，对应 cv::ORB。输入为 8 位单通道图像（以 HDict 对象 InputImage 传入）；输出关键点坐标/数量与描述子（byte，32×N）写回同一 HDict。检测参数经 HDict 键全开放（NFeatures/ScaleFactor/NLevels/EdgeThreshold/FirstLevel/WTA_K/ScoreType/PatchSize/FastThreshold），未设键取 OpenCV 默认。</dd>
 </dl>
 <dl>
 <dt><a href="cv_rectangularity.html"><code><span data-if="hdevelop" style="display:inline;">cv_rectangularity</span><span data-if="dotnet" style="display:none;">CvRectangularity</span><span data-if="python" style="display:none;">cv_rectangularity</span><span data-if="cpp" style="display:none;">CvRectangularity</span><span data-if="c" style="display:none;">cv_rectangularity</span></code></a></dt>
@@ -1425,7 +1425,7 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="cv_sift_detect.html"><code><span data-if="hdevelop" style="display:inline;">cv_sift_detect</span><span data-if="dotnet" style="display:none;">CvSiftDetect</span><span data-if="python" style="display:none;">cv_sift_detect</span><span data-if="cpp" style="display:none;">CvSiftDetect</span><span data-if="c" style="display:none;">cv_sift_detect</span></code></a></dt>
-<dd>SIFT 特征检测与描述子计算，对应 cv::SIFT。输入 8 位单通道图像，输出 128 维浮点描述子。参数经 dict 键全开放（NFeatures/NOctaveLayers/ContrastThreshold/EdgeThreshold/Sigma）。</dd>
+<dd>SIFT 特征检测与描述子计算，对应 cv::SIFT。输入 8 位单通道图像，输出 128 维浮点描述子。参数经 HDict 键全开放（NFeatures/NOctaveLayers/ContrastThreshold/EdgeThreshold/Sigma）。</dd>
 </dl>
 <dl>
 <dt><a href="cv_smallest_circle.html"><code><span data-if="hdevelop" style="display:inline;">cv_smallest_circle</span><span data-if="dotnet" style="display:none;">CvSmallestCircle</span><span data-if="python" style="display:none;">cv_smallest_circle</span><span data-if="cpp" style="display:none;">CvSmallestCircle</span><span data-if="c" style="display:none;">cv_smallest_circle</span></code></a></dt>
@@ -1649,7 +1649,7 @@ toggleLanguage(new_lang,1);return;}
 </dl>
 <dl>
 <dt><a href="remap.html"><code><span data-if="hdevelop" style="display:inline;">remap</span><span data-if="dotnet" style="display:none;">Remap</span><span data-if="python" style="display:none;">remap</span><span data-if="cpp" style="display:none;">Remap</span><span data-if="c" style="display:none;">remap</span></code></a></dt>
-<dd>几何变换重映射，对应 cv::remap。输入图/输出图/MapX/MapY 以 dict 对象传入（uint2 输入，real 映射图）；每个像素按映射表取源坐标，支持桶形/枕形畸变校正等。</dd>
+<dd>几何变换重映射，对应 cv::remap。InputImage/OutputImage/MapX/MapY 以 HDict 对象传入（uint2 输入，real 映射图）；每个像素按映射表取源坐标，支持桶形/枕形畸变校正等。</dd>
 </dl>
 <dl>
 <dt><a href="spdlog_basic_logger_mt.html"><code><span data-if="hdevelop" style="display:inline;">spdlog_basic_logger_mt</span><span data-if="dotnet" style="display:none;">SpdlogBasicLoggerMt</span><span data-if="python" style="display:none;">spdlog_basic_logger_mt</span><span data-if="cpp" style="display:none;">SpdlogBasicLoggerMt</span><span data-if="c" style="display:none;">spdlog_basic_logger_mt</span></code></a></dt>

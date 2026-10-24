@@ -5,15 +5,15 @@
 <body>
 <l>* SIFT 特征检测示例</l>
 <l>read_image (Image, 'printer_chip/printer_chip_01')</l>
-<l>create_dict (DictHandle)</l>
-<l>set_dict_object (Image, DictHandle, 'InputImage')</l>
-<l>set_dict_tuple (DictHandle, 'NFeatures', 0)</l>
+<l>hdict_create (DictHandle)</l>
+<l>hdict_set_object (Image, DictHandle, 'InputImage')</l>
+<l>hdict_set_tuple (DictHandle, 'NFeatures', 0)</l>
 <l>cv_sift_detect (DictHandle)</l>
-<l>get_dict_tuple (DictHandle, 'NumKeypoints', NumKP)</l>
-<l>get_dict_tuple (DictHandle, 'KeypointsRow', Rows)</l>
-<l>get_dict_tuple (DictHandle, 'KeypointsCol', Cols)</l>
-<l>get_dict_tuple (DictHandle, 'DescWidth', DescWidth)</l>
-<l>get_dict_object (Descriptors, DictHandle, 'Descriptors')</l>
+<l>hdict_get_tuple (DictHandle, 'NumKeypoints', NumKP)</l>
+<l>hdict_get_tuple (DictHandle, 'KeypointsRow', Rows)</l>
+<l>hdict_get_tuple (DictHandle, 'KeypointsCol', Cols)</l>
+<l>hdict_get_tuple (DictHandle, 'DescWidth', DescWidth)</l>
+<l>hdict_get_object (Descriptors, DictHandle, 'Descriptors')</l>
 <c></c>
 </body>
 <docu id="main">

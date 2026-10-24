@@ -103,7 +103,7 @@ Halcon_SoftwarePackage/             → 扩展包（沿用现有包，勿新建�
 - **单独验证 / 复用到别的工程**：`cmake -S HDict -B <tmp> -DHDICT_BUILD_TESTS=ON`（`Params` 用 `-DHPARAMS_BUILD_TESTS=ON`）→ 跑 `test_hdict` / `test_params`；`cmake --install <build> --prefix <pfx>` 后外部 `find_package(hdict_core CONFIG REQUIRED)` / `find_package(hparams_core CONFIG REQUIRED)`，头在 `include/hdict/hdict_core.h`、`include/hparams/hparams_core.h`（`json.hpp` 随库一起装）。
 - 铁律适用：**新增独立库才新建目录**；这两块的改动**不要**塞进 `cvr.cpp`（与 `cvr_core` 无依赖关系）。
 - **已在扩展包里封装为算子**（2026-10-10，模块 `Dict`：`def/Halcon_Dict.def` + `source/Halcon_Dict.cpp`，共 12 个）：
-  `hdict_create/copy/set_tuple/get_tuple/set_subdict/get_keys/key_exists/key_kind/remove_key`（`HDict` 句柄，TAG `0xC0FFEEE0`）
+  `hdict_create/copy/set_tuple/get_tuple/set_object/get_object/set_subdict/get_keys/key_exists/key_kind/remove_key`（`HDict` 句柄，TAG `0xC0FFEEE0`）
   + `param_create/load_param/json_to_param/param_to_json`（`HParam` 句柄 = json 参数树，TAG `0xC0FFEEF0`；`json_to_param` = `ParamTree(json)` 构造、`param_to_json` = `to_json()`，一对双向搬运）；例程 `examples/hdict_demo.hdev`（`hrun -P` 通过）。
   两个句柄持有的容器（`Dict` / `ParamTree`）都内嵌 `std::shared_mutex` ⇒ **多线程共享同一句柄安全**（但"先查后写"这类复合操作仍非原子）。
   `hparams_core` 提供了两个入口：无状态纯函数 `LoadParam(json&, ...)`（调用方保证 json 独占）与带锁的 `ParamTree`（`load` 写锁 / `snapshot`·`to_json` 读锁）。
@@ -192,9 +192,9 @@ try { GetDictTuple(hv_DictHandle, "ScaleFactor", &t); scale = t.D(); } catch (..
 SetDictTuple(hv_DictHandle, "NumKeypoints", (Hlong)n);                                 // 结果写回同一 dict
 GenImage1(&ho_Desc, "byte", w, n, (Hlong)desc.data); SetDictObject(ho_Desc, hv_DictHandle, "Descriptors");
 ```
-- **适用判据**：可选参数多且全开放（≥5 个，如 orb/sift/akaze 的 8 个检测参数）、或要一次传多张图（remap 的 输入图/输出图/MapX/MapY 4 张）。参数少仍用普通控制参数按位传。
+- **适用判据**：可选参数多且全开放（≥5 个，如 orb/sift/akaze 的 8 个检测参数）、或要一次传多张图（remap 的 InputImage/OutputImage/MapX/MapY 4 张）。参数少仍用普通控制参数按位传。
 - **收益**：签名不随开放参数膨胀；键可后加（向后兼容）；输入输出合一，HDevelop 端一个 dict 变量往返；图像经 dict 传 → `GetImagePointer1` 拿指针直接包 `cv::Mat` 零拷贝（输出图也可以这样反向写回）。
-- **代价（必须知道）**：① **键名写错不报错**——try/catch 兜底后静默取默认，不会变成无效行，§6 那套 `hrun -P` 定位手段对 dict 键失灵，排错只能靠 supply 日志；② 失去 HDevelop 参数静态校验和 F1 参数表，键清单/默认值必须写全在 `short.english` 里；③ `.L()` 取整、`.D()` 取实数，类型不符抛异常；④ 中文键名可用（`u8"输入图"`，源文件必须 UTF-8 BOM）；⑤ 借包的 HTuple 只在当前算子调用内有效，别存进 static/helper 跨越调用边界。
+- **代价（必须知道）**：① **键名写错不报错**——try/catch 兜底后静默取默认，不会变成无效行，§6 那套 `hrun -P` 定位手段对 dict 键失灵，排错只能靠 supply 日志；② 失去 HDevelop 参数静态校验和 F1 参数表，键清单/默认值必须写全在 `short.english` 里；③ `.L()` 取整、`.D()` 取实数，类型不符抛异常；④ 中文键名虽能编译（`u8"..."`，源文件须 UTF-8 BOM），但**一律用英文键**（`InputImage`/`OutputImage` 这类），便于迁移到别的容器和外部语言调用；⑤ 借包的 HTuple 只在当前算子调用内有效，别存进 static/helper 跨越调用边界。
 
 **新增句柄类型步骤（TAG 编码，照抄 `include/Halcon_Def.h` 现有四个模块）**：
 1. **先查 `README.md` 末尾「句柄 TAG 分配表」领一个空号**——TAG 池（0xC0FFEE 主区段 + 0xDEADBE/0xBAADF00D/0xCAFEBABE/0xFEEDFACE 备用区段）**公司内跨扩展包共用**，领号后立刻把用途记回表里。
@@ -238,6 +238,8 @@ GenImage1(&ho_Desc, "byte", w, n, (Hlong)desc.data); SetDictObject(ho_Desc, hv_D
 | 核心库单测用 Release（MSVC `/DNDEBUG`）编译 | `assert` 全部被编掉 → 测试只打印不校验，`M5 ALL PASS` 之类是**假通过** | 别只信单测结论；关键数值改用 `hrun` 与 HALCON 原生算子逐值对照 |
 | supply 里 `HGetPElemD` 的 ELEM 形参类型写错 | C2664「无法将 `double **` 转换为 `const double *__restrict *`」 | 指针声明为 `double const*`（照抄 `Halcon_Ransac.cpp` 的 `double const* init_vals = nullptr;`） |
 | **HALCON 自带 `HDict.h`**（`halconcpp/HDict.h`，类 `HalconCpp::HDict`） | 自建头也叫 `HDict.h` 时 `#include "HDict.h"` 先命中 HALCON 那个 → 一堆 `C2504 HHandle 未定义` / `C2143` | 自建库头**别用 HALCON 已有的 `H*.h` 名**；本包统一用 `<库名>.h`（`hdict_core.h` / `hparams_core.h`） |
+| `Def_INHDictObject(1, ...)` 在**另一个 .cpp**里读 HDict 句柄（同一 DLL） | 运行期 `Error #2404 Invalid handle type`（hrun / HDevelop 都报），而 `Halcon_Dict.cpp` 里一切正常 | `HANDLE_INFO_INITIALIZER_NOSER` 内嵌的析构函数是 `static`（TU 内部链接）⇒ **每个 TU 一份 `HHandleInfo`**，内容相同但地址不同，HALCON 的句柄类型校验就失败。**跨 TU 只读句柄用 `Def_INHDictObjectShared(1, ...)`**（`HPGetPElemH` + `expected_type=NULL`，不校验类型；算子只改内容、不创建/不释放句柄，安全）；同 TU 内仍可用严格版 |
+| 扩展算子把**自己产出**的对象（`GenImage1` / `GenRegion*` 等）直接写进 HDict | 事后 `hdict_get_object` 报 `#4052 wrong object-ID`（Region 必现；图像因像素引用计数有时能撑住，不可依赖） | 别直接 `hdict::set_dict_object_shared(d, key, make_shared<HObject>(obj))`——算子返回后上下文销毁，键就失效。用 `HDictObj::WriteObject(d, key, obj)`：把对象搬进 HDict 自带的原生 dict（内部键 `__hdict_native_store__`），HDict 里只存 `(原生 dict, 键名)` 引用；读回用 `HDictObj::ReadObject`（两种载荷都认）。`hdict_set_object` 算子只适用于**调用方上下文**的对象（脚本里 `read_image` / `gen_*` 产出的） |
 | 输出控制参数索引当成"接在输入后面" | `HPutElem` 报 `Wrong index for output control parameter`（HRUN #7000） | HALCON 的**输出控制参数独立编号（从 1 起）**；`Def_OUT*Object` 宏里 `HAllocOutputHandle(proc_handle, 1, ...)` 也是写死 1 |
 | 把 `HGetSPar` / `HGetPElemS` / `HGetPElemD` 用在返回 `std::string`/`bool` 的 helper 里 | 莫名错误：`C2440 无法从 Herror 转换` / `C2059 语法错误:"do"` | 这三个是**宏**（内部带 `return`），只能用在返回 `Herror` 的函数；要写 helper 就用非宏的 `HPGetPPar`（拿原始 `Hcpar` 数组自行按 `type` 转换）/ `HPGetElemS` / `HPGetElemD` |
 

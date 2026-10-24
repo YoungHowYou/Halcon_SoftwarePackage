@@ -152,6 +152,8 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 
 - HALCON 版本：24.11
 - 依赖：OpenVINO（vcpkg `openvino`，features `auto, auto-batch, cpu, gpu, hetero, ir, npu`）、OpenCV 4.x
+- 推理 hint：非 CPU 设备（GPU/NPU）对 f32 模型强制 `f32 + ACCURACY`（防 Intel GPU 自动降 FP16 导致坐标溢出）；
+  CPU 用插件默认的 `PERFORMANCE`（`ACCURACY` 在 CPU 上更慢）
 - 句柄 TAG：`Openvino` = `0xC0FFEE70`（即「自研AIcpu」，见下文「句柄 TAG 分配表」）
 - **字典参数一律是本包的 HDict 句柄**（`hdict_create` / `hdict_set_tuple` / `hdict_get_tuple` / `hdict_set_object` / `hdict_get_object`），
   算子内部与 `yolo_capi` 之间**零拷贝**（同一个字典对象），不要传 HALCON 原生 `create_dict` 的句柄。
@@ -172,8 +174,9 @@ HALCON Extension Package -- 为 [MVTec HALCON](https://www.mvtec.com/products/ha
 | `'宽'` / `'高'` | 整数 | 输出/输入 | 模型输入尺寸；`OpenvinoLoadModel` 写回，`yolo_seg_detect` 可读来覆盖 |
 | `'ConfThreshold'` | 实数 | 输入 | 置信度阈值（默认 0.25） |
 | `'MaskThreshold'` | 实数 | 输入 | 掩膜二值化阈值（默认 0.5） |
-| `'NMSThreshold'` | 实数 | 输入 | NMS 的 IoU 阈值（默认 0.45；仅 raw 模型需要） |
-| `'步长'` / `'步长X'` / `'步长Y'` | 整数 | 输入 | 滑窗步长（默认 = 模型输入尺寸；图像大于模型尺寸时自动滑窗） |
+| `'NMSThreshold'` | 实数 | 输入 | 去重阈值（默认 0.45）：窗口内 raw 用 IoU-NMS；**跨窗口用 IoS**（交集/较小框面积），能合掉被窗口边界切开的同一目标 |
+| `'Overlap'` | 实数 | 输入 | 滑窗重叠度（默认 0.2；步长 = 窗口尺寸 ×(1−重叠度)，640 窗口 → 512；取值 0~0.9） |
+| `'步长'` / `'步长X'` / `'步长Y'` | 整数 | 输入 | 显式滑窗步长（像素），设了就优先于 `'Overlap'` |
 | `'InputImage'` | 图像对象 | 输入 | 8 位灰度或 3 通道图（用 `hdict_set_object` 写） |
 | `'NumDetections'` | 整数 | 输出 | 检测数量 |
 | `'ClassIDs'` / `'Confidences'` | 数组 | 输出 | 类别 ID / 置信度 |
@@ -217,7 +220,16 @@ YOLO26 实例分割（自动识别两种导出格式）：
 * `end2end=False`（ultralytics 常规导出）：`[1,D,8400]` —— 每列 `[cx,cy,w,h, 各类别分(已 sigmoid), 32 个掩膜系数…]`，窗口内做类别 argmax + 置信度阈值 + NMS
 * 掩膜原型 `[1,32,160,160]`
 
-框坐标先按模型输入尺寸解算，再映射回原图；图像大于模型输入尺寸时自动滑窗（步长默认 = 模型输入尺寸）并在全图范围做 NMS。
+**不做图像缩放**，一律按原像素尺度、窗口尺寸 = 模型输入尺寸（可用 `'宽'`/`'高'` 覆盖）处理：
+
+* **图小于窗口** → 左上对齐，右侧/下方补 0（黑）到窗口尺寸再推理（目标保持原始大小，不会被放大/压扁）
+* **图大于窗口** → 按重叠度滑窗：默认 `'Overlap'` = 0.2（640 窗口 → 步长 512），窗口内是原分辨率像素，跨窗口结果用 **IoS 去重**（相交面积 / 较小框面积，同类才比较；被窗口切开的同一目标会给出“一大一小”两个框，IoS≈1 可以合掉）
+* `'步长'` / `'步长X'` / `'步长Y'` 可直接指定步长（像素），优先于 `'Overlap'`
+
+框坐标与掩膜都换算回原图坐标系（标签图与原图等大）；落在补出来的黑边上的响应会被裁掉。
+
+> 失败时 HALCON 的错误文本会带上 C 接口的具体原因（`yolo_last_error()`：字典缺键 / 模型加载失败 / OpenVINO 原文 /
+> 失败的滑窗数），不是只给一个错误码；**某个滑窗推理失败会整体报错**，不会静默返回漏检结果。
 
 > `NumDetections = 0` 时**不写** `'ClassLabelImage'` / `'BoundingBoxes'`（与 YouloBe 原语义一致），
 > 字典里这两个键会保留**上一次调用**的对象 —— 脚本一律先判 `NumDetections > 0` 再取它们。
@@ -268,6 +280,28 @@ yolo_model_destroy(model);
 
 返回码：`YOLO_OK` / `YOLO_ERR_PARAM` / `YOLO_ERR_DICT_KEY` / `YOLO_ERR_DICT_IMAGE` / `YOLO_ERR_LOAD_MODEL` / `YOLO_ERR_INFER`。
 
+### Python 包（`yolo_core/python/`）
+
+和 `cv_region/python` 同样的做法（scikit-build-core + pybind11，**直接编译上级 `../src/yolo.cpp`**，不复制源码）：
+
+```powershell
+# 构建 + 安装（需要 vcpkg 的 OpenCV / OpenVINO CMake 配置）
+pip install ./yolo_core/python `
+    --config-settings=cmake.define.CMAKE_PREFIX_PATH=<repo>/build/vcpkg_installed/x64-windows
+```
+
+```python
+import yolo_core
+
+model = yolo_core.Model("best.xml", "CPU")      # .bin 需同目录同名
+r = model.detect(img, conf_threshold=0.15)      # img: uint8 (H,W) 灰度 或 (H,W,3) BGR
+r.num, r.boxes, r.scores, r.class_ids, r.label_image, r.masks
+```
+
+口径与 HALCON 侧一致（不缩放 / 小图 pad / `overlap` 默认 0.2 / 跨窗口 IoS）。
+wheel 只含 `.pyd` + Python 代码，**不含** OpenCV / OpenVINO 的 DLL：运行时用环境变量
+`YOLO_CORE_DLL_DIR` 指向 vcpkg 的 `bin`（或在 PATH 里）。详见 `yolo_core/python/README.md`。
+
 ### 构建提示
 
 * 首次配置由 vcpkg **从源码编 OpenVINO**（debug + release 各一遍，每遍约 3000 个编译单元；
@@ -293,7 +327,7 @@ yolo_model_destroy(model);
 ### 参数全开放约定
 
 - **图像/滤波/矩阵类**：以**控制参数**直接传递（如 `cv_blur` 的 `AnchorX, AnchorY, BorderType`，`cv_mat_mul` 的 `Alpha, Beta, Flags`），按位置传满全部参数。
-- **特征检测/匹配/变换估计类**（`cv_orb_detect`、`cv_sift_detect`、`cv_akaze_detect`、`cv_bf_knn_match`、`cv_estimate_affine_partial2d`、`cv_estimate_rigid_2d`）：设置项通过 **dict 键**传入（`set_dict_tuple` 写入后传 `DictHandle`），未设键取默认；输入图像/描述子/点集也以 dict 对象传，结果写回同一 dict。
+- **特征检测/匹配/变换估计类**（`cv_orb_detect`、`cv_sift_detect`、`cv_akaze_detect`、`cv_bf_knn_match`、`cv_estimate_affine_partial2d`、`cv_estimate_rigid_2d`）与 `remap`：参数通过 **HDict 键**传入（句柄用 `hdict_create` 创建，`hdict_set_tuple` 写设置项、`hdict_set_object` 传图像/描述子，未设键取默认）；结果写回同一 HDict，用 `hdict_get_tuple` / `hdict_get_object` 读回。键名见各算子小节。
 - **枚举/宏参数**：均可**字符串或整数**两种写法——如 `cv_blur` 的 `BorderType` 传 'border_default' 或 `4`、`cv_threshold` 的 `Type` 传 'binary|otsu'（"|" 组合）、`cv_morphology_ex` 的 `Op/Shape` 传 'open'/'ellipse'。字符串不区分大小写，内部映射为 OpenCV 常量；旧脚本的整数写法完全兼容。
 - **`BorderType` 的字符串取值**（`cv_blur` / `cv_filter2d` / `cv_sep_filter2d` / `cv_sobel`，大小写不敏感，`border_` 前缀可省）：'constant'=0、'replicate'=1、'reflect'=2、'wrap'=3、'reflect101'=4、'default'=4、'transparent'=5、'isolated'=16；这些整数也可直接传。
 
@@ -721,18 +755,18 @@ cv_reshape(Image : ImageOut : Rows)
 
 #### remap
 
-图像重映射，对应 `cv::remap`（字典接口）。
+图像重映射，对应 `cv::remap`（HDict 接口）。
 
 ```
 remap(:: hv_DictHandle)
 ```
 
-字典 `hv_DictHandle` 键：
+HDict 句柄 `hv_DictHandle`（`hdict_create` 创建）键：
 
 | 键 | 类型 | 方向 | 说明 |
 |---|---|---|---|
-| 输入图 | 图像 | 输入 | 16 位单通道 |
-| 输出图 | 图像 | 输入/输出 | 16 位单通道（原地写入） |
+| InputImage | 图像 | 输入 | 16 位单通道 |
+| OutputImage | 图像 | 输入/输出 | 16 位单通道（原地写入） |
 | MapX | 图像 | 输入 | 32 位浮点 X 映射图 |
 | MapY | 图像 | 输入 | 32 位浮点 Y 映射图 |
 
@@ -804,7 +838,7 @@ cv_multi_frame_median(Images : ImageMedian : :)
 
 ### 特征检测与匹配类
 
-以下四个算子均使用字典接口（`DictHandle`）。
+以下六个算子均使用 HDict 接口：参数 `DictHandle` 是 `hdict_create` 创建的 HDict 句柄。
 
 > 例程：`examples/opencv/cv_feature_match_affine.hdev` —— ORB / AKAZE / SIFT **三种方式各一条流程**（`examples/69.tif` 作模板、`examples/95.tif` 作目标），每条流程三步：`feature_create` **制作模板**（`cv_*_detect` 检测模板图）→ `feature_find` **匹配**（目标图 `cv_*_detect` → `cv_bf_knn_match` knnMatch+Lowe 比值 → `cv_estimate_affine_partial2d` RANSAC 部分仿射）→ `cv_affine_trans_image` **变换对齐**；返回的 `HomMat2D`（目标图→模板图）可直接用于 `cv_affine_trans_image` / 原生 `affine_trans_image`（HALCON hom_mat2d 的 (Row, Col) 口径）。
 
@@ -1362,13 +1396,17 @@ hdict_copy ( : : HDict : HDictCopy)
 ```
 hdict_set_tuple ( : : HDict, Key, Value : )
 ```
-写入元组值（键不存在则新建，已存在则覆盖）。**参数**：`HDict` 目标句柄；`Key` 键名（string）；`Value` 数值或字符串，多元素按数组整体存入。
+写入元组值（键不存在则新建，已存在则覆盖）。**参数**：`HDict` 目标句柄；`Key` 键名（string）；`Value` 数值 / 字符串，多元素按数组整体存入。
+
+> **不支持句柄**：HALCON 扩展包的 C 接口没有「把已有句柄作为输出参数传出」的通道（`HPutPPar` / `HPutCPar` 只对数值/字符串有保证，输出句柄只能 `HPutElemH` 交出**新建**句柄的所有权），因此传句柄会**一致返回错误码 `30060`** 并带出说明文本。
+> 要在 HDevelop 里跨过程携带句柄，用 **HALCON 原生 `create_dict` / `set_dict_tuple`**（它的 `type_list` 含 handle），或直接走过程参数。
+> **纯 C++ 侧没有这条限制**：`hdict_core` 的 `set_dict_object_shared` / `get_dict_object_as<std::shared_ptr<T>>` 就是句柄的正确用法。
 
 ### hdict_get_tuple
 ```
 hdict_get_tuple ( : : HDict, Key : Value)
 ```
-读出元组值。**参数**：`HDict` 源句柄；`Key` 键名；`Value` 输出值。**错误码**：缺键、键存的不是元组（是子字典）、句柄为空时抛错。
+读出元组值。**参数**：`HDict` 源句柄；`Key` 键名；`Value` 输出值（数值/字符串）。**错误码**：缺键、键存的不是元组（是子字典）、句柄为空时抛错。对象请用 `hdict_set_object` / `hdict_get_object`。
 
 ### hdict_set_subdict
 ```

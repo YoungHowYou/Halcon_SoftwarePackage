@@ -1085,7 +1085,7 @@ toggleLanguage(new_lang,1);return;}
 <h1 id="sec_name">
 <span data-if="hdevelop" style="display:inline;">cv_estimate_rigid_2d</span><span data-if="c" style="display:none;">T_cv_estimate_rigid_2d</span><span data-if="cpp" style="display:none;">CvEstimateRigid2d</span><span data-if="dotnet" style="display:none;">CvEstimateRigid2d</span><span data-if="python" style="display:none;">cv_estimate_rigid_2d</span> (Operator)</h1>
 <h2>Name</h2>
-<p><code><span data-if="hdevelop" style="display:inline;">cv_estimate_rigid_2d</span><span data-if="c" style="display:none;">T_cv_estimate_rigid_2d</span><span data-if="cpp" style="display:none;">CvEstimateRigid2d</span><span data-if="dotnet" style="display:none;">CvEstimateRigid2d</span><span data-if="python" style="display:none;">cv_estimate_rigid_2d</span></code> — 刚体变换估计（平移+旋转，无缩放），自实现 RANSAC：每轮采样 2 点对闭式解 cos/sin+平移，统计内点取最优。点集经 dict 传入，MaxIter/Seed 可调；结果 HomMat2D/角度/平移写回 dict，Scale 恒为 1.0。</p>
+<p><code><span data-if="hdevelop" style="display:inline;">cv_estimate_rigid_2d</span><span data-if="c" style="display:none;">T_cv_estimate_rigid_2d</span><span data-if="cpp" style="display:none;">CvEstimateRigid2d</span><span data-if="dotnet" style="display:none;">CvEstimateRigid2d</span><span data-if="python" style="display:none;">cv_estimate_rigid_2d</span></code> — 刚体变换估计（平移+旋转，无缩放），自实现 RANSAC：每轮采样 2 点对闭式解 cos/sin+平移，统计内点取最优。点集经 HDict 传入，MaxIter/Seed 可调；结果 HomMat2D/角度/平移写回 HDict，Scale 恒为 1.0。</p>
 <h2 id="sec_synopsis">Signature</h2>
 <div data-if="hdevelop" style="display:inline;">
 <p>
@@ -1118,7 +1118,7 @@ toggleLanguage(new_lang,1);return;}
 <div class="parhead">
 <span id="DictHandle" class="parname"><b><code><span data-if="hdevelop" style="display:inline">DictHandle</span><span data-if="c" style="display:none">DictHandle</span><span data-if="cpp" style="display:none">DictHandle</span><span data-if="dotnet" style="display:none">dictHandle</span><span data-if="python" style="display:none">dict_handle</span></code></b> (input_control)  </span><span>handle <code>→</code> <span data-if="dotnet" style="display:none">HTuple</span><span data-if="python" style="display:none">HHandle</span><span data-if="cpp" style="display:none">HTuple</span><span data-if="c" style="display:none">Htuple</span><span data-if="hdevelop" style="display:inline"> (handle)</span><span data-if="dotnet" style="display:none"> (<i>IntPtr</i>)</span><span data-if="cpp" style="display:none"> (<i>HHandle</i>)</span><span data-if="c" style="display:none"> (<i>handle</i>)</span></span>
 </div>
-<p class="pardesc">dict 句柄：设置项以键值传入，未设取默认；结果写回同一 dict。</p>
+<p class="pardesc">HDict 句柄（hdict_create 创建）：设置项以键值传入，未设取默认；结果写回同一 HDict。</p>
 </div>
 <h2 id="sec_module">Module</h2>
 <p>

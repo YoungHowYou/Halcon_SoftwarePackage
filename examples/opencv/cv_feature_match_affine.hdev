@@ -76,10 +76,10 @@
 <c>* 制作模板：模板图做特征检测，关键点与描述子写进字典 DictRef</c>
 <c>*   Detector = 'orb' / 'akaze' / 'sift'</c>
 <c>*   NFeatures 只对 orb / sift 有效；Threshold 只对 akaze 有效</c>
-<l>create_dict (DictRef)</l>
-<l>set_dict_object (ImageRef, DictRef, 'InputImage')</l>
-<l>set_dict_tuple (DictRef, 'NFeatures', NFeatures)</l>
-<l>set_dict_tuple (DictRef, 'Threshold', 0.003)</l>
+<l>hdict_create (DictRef)</l>
+<l>hdict_set_object (ImageRef, DictRef, 'InputImage')</l>
+<l>hdict_set_tuple (DictRef, 'NFeatures', NFeatures)</l>
+<l>hdict_set_tuple (DictRef, 'Threshold', 0.003)</l>
 <l>if (Detector == 'orb')</l>
 <l>  cv_orb_detect (DictRef)</l>
 <l>elseif (Detector == 'akaze')</l>
@@ -119,16 +119,16 @@
 <c>* 匹配：目标图特征检测 -&gt; BF 匹配（Lowe 比值测试）-&gt; RANSAC 部分仿射估计</c>
 <c>*   返回 HomMat2D（目标图 -&gt; 模板图），可直接喂 cv_affine_trans_image / affine_trans_image</c>
 <c>* 模板字典里的关键点与描述子</c>
-<l>get_dict_tuple (DictRef, 'KeypointsRow', RefRow)</l>
-<l>get_dict_tuple (DictRef, 'KeypointsCol', RefCol)</l>
-<l>get_dict_object (DescRef, DictRef, 'Descriptors')</l>
+<l>hdict_get_tuple (DictRef, 'KeypointsRow', RefRow)</l>
+<l>hdict_get_tuple (DictRef, 'KeypointsCol', RefCol)</l>
+<l>hdict_get_object (DescRef, DictRef, 'Descriptors')</l>
 <c>* 目标图检测（检测参数与模板保持一致）</c>
-<l>get_dict_tuple (DictRef, 'NFeatures', NFeatures)</l>
-<l>get_dict_tuple (DictRef, 'Threshold', Threshold)</l>
-<l>create_dict (DictTarget)</l>
-<l>set_dict_object (ImageTarget, DictTarget, 'InputImage')</l>
-<l>set_dict_tuple (DictTarget, 'NFeatures', NFeatures)</l>
-<l>set_dict_tuple (DictTarget, 'Threshold', Threshold)</l>
+<l>hdict_get_tuple (DictRef, 'NFeatures', NFeatures)</l>
+<l>hdict_get_tuple (DictRef, 'Threshold', Threshold)</l>
+<l>hdict_create (DictTarget)</l>
+<l>hdict_set_object (ImageTarget, DictTarget, 'InputImage')</l>
+<l>hdict_set_tuple (DictTarget, 'NFeatures', NFeatures)</l>
+<l>hdict_set_tuple (DictTarget, 'Threshold', Threshold)</l>
 <l>if (Detector == 'orb')</l>
 <l>  cv_orb_detect (DictTarget)</l>
 <l>elseif (Detector == 'akaze')</l>
@@ -136,29 +136,29 @@
 <l>else</l>
 <l>  cv_sift_detect (DictTarget)</l>
 <l>endif</l>
-<l>get_dict_tuple (DictTarget, 'KeypointsRow', TargetRow)</l>
-<l>get_dict_tuple (DictTarget, 'KeypointsCol', TargetCol)</l>
-<l>get_dict_object (DescTarget, DictTarget, 'Descriptors')</l>
+<l>hdict_get_tuple (DictTarget, 'KeypointsRow', TargetRow)</l>
+<l>hdict_get_tuple (DictTarget, 'KeypointsCol', TargetCol)</l>
+<l>hdict_get_object (DescTarget, DictTarget, 'Descriptors')</l>
 <c>* 描述子宽度：ORB 固定 32；AKAZE / SIFT 由算子写回 DescWidth</c>
 <l>if (Detector == 'orb')</l>
 <l>  DescWidth := 32</l>
 <l>else</l>
-<l>  get_dict_tuple (DictRef, 'DescWidth', DescWidth)</l>
+<l>  hdict_get_tuple (DictRef, 'DescWidth', DescWidth)</l>
 <l>endif</l>
 <c></c>
 <c>* BF 暴力匹配 + Lowe 比值测试</c>
-<l>create_dict (DictMatch)</l>
-<l>set_dict_object (DescRef, DictMatch, 'DescriptorsRef')</l>
-<l>set_dict_object (DescTarget, DictMatch, 'DescriptorsTarget')</l>
-<l>set_dict_tuple (DictMatch, 'DescWidth', DescWidth)</l>
-<l>set_dict_tuple (DictMatch, 'RatioThresh', RatioThresh)</l>
+<l>hdict_create (DictMatch)</l>
+<l>hdict_set_object (DescRef, DictMatch, 'DescriptorsRef')</l>
+<l>hdict_set_object (DescTarget, DictMatch, 'DescriptorsTarget')</l>
+<l>hdict_set_tuple (DictMatch, 'DescWidth', DescWidth)</l>
+<l>hdict_set_tuple (DictMatch, 'RatioThresh', RatioThresh)</l>
 <l>cv_bf_knn_match (DictMatch)</l>
-<l>get_dict_tuple (DictMatch, 'NumGoodMatches', NumGoodMatches)</l>
+<l>hdict_get_tuple (DictMatch, 'NumGoodMatches', NumGoodMatches)</l>
 <l>if (NumGoodMatches &lt; 4)</l>
 <l>  throw ('匹配点不足 4 个，无法估计仿射变换')</l>
 <l>endif</l>
-<l>get_dict_tuple (DictMatch, 'MatchIdxRef', MatchIdxRef)</l>
-<l>get_dict_tuple (DictMatch, 'MatchIdxTarget', MatchIdxTarget)</l>
+<l>hdict_get_tuple (DictMatch, 'MatchIdxRef', MatchIdxRef)</l>
+<l>hdict_get_tuple (DictMatch, 'MatchIdxTarget', MatchIdxTarget)</l>
 <c>* 按匹配索引取出点对</c>
 <l>tuple_select (RefRow, MatchIdxRef, MatchedRefRow)</l>
 <l>tuple_select (RefCol, MatchIdxRef, MatchedRefCol)</l>
@@ -166,19 +166,19 @@
 <l>tuple_select (TargetCol, MatchIdxTarget, MatchedTargetCol)</l>
 <c></c>
 <c>* 部分仿射估计（RANSAC）：目标图 -&gt; 模板图</c>
-<l>create_dict (DictAffine)</l>
-<l>set_dict_tuple (DictAffine, 'SrcRow', MatchedTargetRow)</l>
-<l>set_dict_tuple (DictAffine, 'SrcCol', MatchedTargetCol)</l>
-<l>set_dict_tuple (DictAffine, 'DstRow', MatchedRefRow)</l>
-<l>set_dict_tuple (DictAffine, 'DstCol', MatchedRefCol)</l>
-<l>set_dict_tuple (DictAffine, 'RansacThreshold', RansacThreshold)</l>
+<l>hdict_create (DictAffine)</l>
+<l>hdict_set_tuple (DictAffine, 'SrcRow', MatchedTargetRow)</l>
+<l>hdict_set_tuple (DictAffine, 'SrcCol', MatchedTargetCol)</l>
+<l>hdict_set_tuple (DictAffine, 'DstRow', MatchedRefRow)</l>
+<l>hdict_set_tuple (DictAffine, 'DstCol', MatchedRefCol)</l>
+<l>hdict_set_tuple (DictAffine, 'RansacThreshold', RansacThreshold)</l>
 <l>cv_estimate_affine_partial2d (DictAffine)</l>
-<l>get_dict_tuple (DictAffine, 'Success', Success)</l>
+<l>hdict_get_tuple (DictAffine, 'Success', Success)</l>
 <l>if (Success == 0)</l>
 <l>  throw ('部分仿射估计失败')</l>
 <l>endif</l>
-<l>get_dict_tuple (DictAffine, 'HomMat2D', HomMat2D)</l>
-<l>get_dict_tuple (DictAffine, 'InlierCount', InlierCount)</l>
+<l>hdict_get_tuple (DictAffine, 'HomMat2D', HomMat2D)</l>
+<l>hdict_get_tuple (DictAffine, 'InlierCount', InlierCount)</l>
 <l>return ()</l>
 </body>
 <docu id="feature_find">

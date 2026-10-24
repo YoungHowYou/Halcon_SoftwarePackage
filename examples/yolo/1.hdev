@@ -21,7 +21,9 @@
 <l>hdict_get_tuple (HD, '宽', Width)</l>
 <l>hdict_get_tuple (HD, '高', Height)</l>
 <c></c>
-<c>* 大图滑窗检测：图像大于模型尺寸时自动启用，步长默认=模型尺寸，可覆盖：</c>
+<c>* 大图滑窗检测：不缩放，按窗口（默认=模型输入 640x640）滑窗；</c>
+<c>* 重叠度默认 0.2（即步长 512），可改 'Overlap' 或直接给步长：</c>
+<c>* hdict_set_tuple (HD, 'Overlap', 0.3)</c>
 <c>* hdict_set_tuple (HD, '步长', 512)</c>
 <c>* hdict_set_tuple (HD, '步长X', 512)</c>
 <c>* hdict_set_tuple (HD, '步长Y', 384)</c>
